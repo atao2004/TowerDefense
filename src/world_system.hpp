@@ -77,7 +77,6 @@ private:
 
 	// music references
 	Mix_Music* background_music;
-	Mix_Chunk* chicken_eat_sound;
 
 	// C++ random number generator
 	std::default_random_engine rng;
