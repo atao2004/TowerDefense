@@ -401,3 +401,6 @@ FodyWeavers.xsd
 
 # Ignore files inside the build folder
 build/
+
+# Ignore project_path
+ext/project_path.hpp
