@@ -34,11 +34,6 @@ struct Texture {
 
 
 // original components that will be deleted later
-// Player component
-struct Player
-{
-
-};
 
 // Tower
 struct Tower {
