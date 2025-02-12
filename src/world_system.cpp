@@ -12,7 +12,6 @@
 // create the world
 WorldSystem::WorldSystem() :
 	points(0),
-	max_towers(MAX_TOWERS_START),
 	next_invader_spawn(0),
 	invader_spawn_rate_ms(INVADER_SPAWN_RATE_MS)
 {
@@ -181,7 +180,6 @@ void WorldSystem::restart_game() {
 	current_speed = 1.f;
 
 	points = 0;
-	max_towers = MAX_TOWERS_START;
 	next_invader_spawn = 0;
 	invader_spawn_rate_ms = INVADER_SPAWN_RATE_MS;
 
@@ -292,7 +290,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods) {
 			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			
 			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			// TODO A1: left-click adds new tower (removing any existing towers), up to max_towers
+			// TODO A1: left-click adds new tower (removing any existing towers)
 			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	}
