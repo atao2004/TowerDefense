@@ -47,7 +47,7 @@ Entity createInvader(RenderSystem* renderer, vec2 position)
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::INVADER,
+			TEXTURE_ASSET_ID::ZOMBIE,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
