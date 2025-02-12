@@ -115,7 +115,7 @@ struct DeathTimer
 	float counter_ms = 3000;
 };
 
-// Single Vertex Buffer element for non-textured meshes (coloured.vs.glsl & chicken.vs.glsl)
+// Single Vertex Buffer element for non-textured meshes (chicken.vs.glsl)
 struct ColoredVertex
 {
 	vec3 position;
@@ -170,8 +170,7 @@ enum class TEXTURE_ASSET_ID {
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
 enum class EFFECT_ASSET_ID {
-	COLOURED = 0,
-	EGG = COLOURED + 1,
+	EGG = 0,
 	CHICKEN = EGG + 1,
 	TEXTURED = CHICKEN + 1,
 	VIGNETTE = TEXTURED + 1,

@@ -36,7 +36,6 @@ class RenderSystem {
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, effect_count> effect_paths = {
-		shader_path("coloured"),
 		shader_path("egg"),
 		shader_path("chicken"),
 		shader_path("textured"),
