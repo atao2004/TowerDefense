@@ -46,11 +46,6 @@ struct Invader {
 	int health;
 };
 
-// Projectile
-struct Projectile {
-	int damage;
-};
-
 // used for Entities that cause damage
 struct Deadly
 {

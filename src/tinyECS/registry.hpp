@@ -24,7 +24,6 @@ public:
 	ComponentContainer<Tower> towers;
 	ComponentContainer<GridLine> gridLines;
 	ComponentContainer<Invader> invaders;
-	ComponentContainer<Projectile> projectiles;
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry()
@@ -42,7 +41,6 @@ public:
 		registry_list.push_back(&towers);
 		registry_list.push_back(&gridLines);
 		registry_list.push_back(&invaders);
-		registry_list.push_back(&projectiles);
 	}
 
 	void clear_all_components() {

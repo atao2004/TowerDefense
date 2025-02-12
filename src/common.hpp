@@ -46,8 +46,6 @@ const int MAX_TOWERS_START = 5;
 const int INVADER_HEALTH = 50;
 const int INVADER_SPAWN_RATE_MS = 2 * 1000;
 
-const int PROJECTILE_DAMAGE = 10;
-
 // These are hard coded to the dimensions of the entity's texture
 
 // invaders are 64x64 px, but cells are 60x60
