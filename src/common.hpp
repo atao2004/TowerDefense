@@ -33,8 +33,8 @@ inline std::string mesh_path(const std::string& name) {return data_path() + "/me
 //
 // game constants
 //
-const int WINDOW_WIDTH_PX = 840;
-const int WINDOW_HEIGHT_PX = 600;
+const int WINDOW_WIDTH_PX = 1440;
+const int WINDOW_HEIGHT_PX = 840;
 
 const int GRID_CELL_WIDTH_PX = 60;
 const int GRID_CELL_HEIGHT_PX = 60;
@@ -43,8 +43,9 @@ const int GRID_LINE_WIDTH_PX = 2;
 const int TOWER_TIMER_MS = 1000;	// number of milliseconds between tower shots
 const int MAX_TOWERS_START = 5;
 
-const int INVADER_HEALTH = 50;
-const int INVADER_SPAWN_RATE_MS = 2 * 1000;
+const int PLAYER_HEALTH = 10;
+const int ZOMBIE_HEALTH = 50;
+const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
 const int PROJECTILE_DAMAGE = 10;
 
@@ -58,9 +59,6 @@ const float INVADER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
 const float TOWER_BB_WIDTH = (float)GRID_CELL_WIDTH_PX;
 const float TOWER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846f
-#endif
 
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)

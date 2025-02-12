@@ -11,7 +11,6 @@ struct Attack {
 
 struct Creature {
 	float health;
-	float speed;
 };
 
 struct Dimension {
@@ -23,21 +22,25 @@ struct Experience {
 	int exp;
 };
 
-struct Position {
-	float x;
-	float y;
+struct Motion {
+	vec2  position = { 0, 0 };
+	float angle    = 0;
+	vec2  velocity = { 0, 0 };
+	vec2  scale    = { 10, 10 };
 };
+
 
 struct Texture {
 
 };
 
-
-// original components that will be deleted later
-// Player component
 struct Player
 {
 
+};
+
+struct Zombie {
+	float health;
 };
 
 // Tower
@@ -46,34 +49,9 @@ struct Tower {
 	int timer_ms;	// when to shoot - this could also be a separate timer component...
 };
 
-// Invader
-struct Invader {
-	int health;
-};
-
 // Projectile
 struct Projectile {
 	int damage;
-};
-
-// used for Entities that cause damage
-struct Deadly
-{
-
-};
-
-// used for edible entities
-struct Eatable
-{
-
-};
-
-// All data relevant to the shape and motion of entities
-struct Motion {
-	vec2  position = { 0, 0 };
-	float angle    = 0;
-	vec2  velocity = { 0, 0 };
-	vec2  scale    = { 10, 10 };
 };
 
 // Stucture to store collision information

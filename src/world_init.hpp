@@ -5,7 +5,7 @@
 #include "render_system.hpp"
 
 // invaders
-Entity createInvader(RenderSystem* renderer, vec2 position);
+Entity createZombie(RenderSystem* renderer, vec2 position);
 
 // towers
 Entity createTower(RenderSystem* renderer, vec2 position);
@@ -22,4 +22,4 @@ Entity createLine(vec2 position, vec2 size);
 
 // legacy
 // the player
-Entity createChicken(RenderSystem* renderer, vec2 position);
+Entity createPlayer(RenderSystem* renderer, vec2 position);

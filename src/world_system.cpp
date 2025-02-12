@@ -13,8 +13,8 @@
 WorldSystem::WorldSystem() :
 	points(0),
 	max_towers(MAX_TOWERS_START),
-	next_invader_spawn(0),
-	invader_spawn_rate_ms(INVADER_SPAWN_RATE_MS)
+	next_zombie_spawn(0),
+	zombie_spawn_rate_ms(ZOMBIE_SPAWN_RATE_MS)
 {
 	// seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -74,7 +74,7 @@ GLFWwindow* WorldSystem::create_window() {
 	glfwWindowHint(GLFW_SCALE_TO_MONITOR, GL_FALSE);		// GLFW 3.3+
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX, "Towers vs Invaders Assignment", nullptr, nullptr);
+	window = glfwCreateWindow(WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX, "Farmer Defense: The Last Days", nullptr, nullptr);
 	if (window == nullptr) {
 		std::cerr << "ERROR: Failed to glfwCreateWindow in world_system.cpp" << std::endl;
 		return nullptr;
@@ -135,45 +135,21 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
-	// Updating window title with points
-	std::stringstream title_ss;
-	title_ss << "Points: " << points;
-	glfwSetWindowTitle(window, title_ss.str().c_str());
-
 	// Remove debug info from the last step
 	while (registry.debugComponents.entities.size() > 0)
 	    registry.remove_all_components_of(registry.debugComponents.entities.back());
 
-	// Removing out of screen entities
-	auto& motions_registry = registry.motions;
-
-	// Remove entities that leave the screen on the left side
-	// Iterate backwards to be able to remove without unterfering with the next object to visit
-	// (the containers exchange the last element with the current)
-	for (int i = (int)motions_registry.components.size()-1; i>=0; --i) {
-	    Motion& motion = motions_registry.components[i];
-		if (motion.position.x + abs(motion.scale.x) < 0.f) {
-			if(!registry.players.has(motions_registry.entities[i])) // don't remove the player
-				registry.remove_all_components_of(motions_registry.entities[i]);
-		}
-	}
-
-	// spawn new invaders
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: limit them to cells on the far-left, except (0, 0)
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	next_invader_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (next_invader_spawn < 0.f) {
+	//spawn new zombies
+	next_zombie_spawn -= elapsed_ms_since_last_update * current_speed;
+	if (next_zombie_spawn < 0.f) {
 		// reset timer
-		next_invader_spawn = (INVADER_SPAWN_RATE_MS / 2) + uniform_dist(rng) * (INVADER_SPAWN_RATE_MS / 2);
+		next_zombie_spawn = (ZOMBIE_SPAWN_RATE_MS / 2) + uniform_dist(rng) * (ZOMBIE_SPAWN_RATE_MS / 2);
 
-		// create invader with random initial position
-		createInvader(renderer, vec2(50.f + uniform_dist(rng) * (WINDOW_WIDTH_PX - 100.f), 100.f));
+		// create zombie with random initial position
+		createZombie(renderer, vec2(50.f + uniform_dist(rng) * (WINDOW_WIDTH_PX - 100.f), 100.f));
 	}
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: game over fade out
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//game over fade out
 	assert(registry.screenStates.components.size() <= 1);
     ScreenState &screen = registry.screenStates.components[0];
 
@@ -217,20 +193,17 @@ void WorldSystem::restart_game() {
 
 	points = 0;
 	max_towers = MAX_TOWERS_START;
-	next_invader_spawn = 0;
-	invader_spawn_rate_ms = INVADER_SPAWN_RATE_MS;
+	next_zombie_spawn = 0;
+	zombie_spawn_rate_ms = ZOMBIE_SPAWN_RATE_MS;
 
 	// Remove all entities that we created
-	// All that have a motion, we could also iterate over all bug, eagles, ... but that would be more cumbersome
 	while (registry.motions.entities.size() > 0)
 	    registry.remove_all_components_of(registry.motions.entities.back());
 
 	// debugging for memory/component leaks
 	registry.list_all_components();
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: create grid lines
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// create grid lines
 	int grid_line_width = GRID_LINE_WIDTH_PX;
 
 	// create grid lines if they do not already exist
@@ -249,6 +222,9 @@ void WorldSystem::restart_game() {
 			grid_lines.push_back(createGridLine(vec2(0, col * cell_height), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
 		}
 	}
+
+	//spawn player in the middle of the screen
+	createPlayer(renderer, vec2{WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2});
 }
 
 // Compute collisions between entities
@@ -261,12 +237,12 @@ void WorldSystem::handle_collisions() {
 	for (uint i = 0; i < collision_container.components.size(); i++) {
 		
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A1: handle collision between deadly (projectile) and invader
+		// TODO A1: handle collision between deadly (projectile) and zombie
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A1: handle collision between tower and invader
+		// TODO A1: handle collision between tower and zombie
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	}
@@ -296,8 +272,28 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
         restart_game();
 	}
 
-	// Debugging - not used in A1, but left intact for the debug lines
-	if (key == GLFW_KEY_D) {
+	// Move up
+	if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+		
+	}
+
+	// Move left
+	if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
+
+	}
+
+	// Move down
+	if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
+
+	}
+
+	// Move right
+	if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
+
+	}
+
+	// Debugging (B) - not yet implemented!!!
+	if (key == GLFW_KEY_B) {
 		if (action == GLFW_RELEASE) {
 			if (debugging.in_debug_mode) {
 				debugging.in_debug_mode = false;
@@ -310,17 +306,25 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
-
 	// record the current mouse position
 	mouse_pos_x = mouse_position.x;
 	mouse_pos_y = mouse_position.y;
+
+	//change player facing direction
+	Entity player = registry.players.entities[0];
+	Motion& motion = registry.motions.get(player);
+
+	//face right
+	if (mouse_pos_x > motion.position.x && motion.scale.x < 0) {
+		motion.scale.x = -motion.scale.x;
+	}
+	//face left
+	if (mouse_pos_x < motion.position.x && motion.scale.x > 0) {
+		motion.scale.x = -motion.scale.x;
+	}
 }
 
 void WorldSystem::on_mouse_button_pressed(int button, int action, int mods) {
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: Handle mouse clicking for invader and tower placement.
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// on button press
 	if (action == GLFW_PRESS) {
@@ -331,21 +335,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods) {
 		std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
 		std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
 
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A1: place invaders on the left, except top left spot
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A1: place a tower on the right, except top right spot
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		
-			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			// TODO A1: right-click removes towers
-			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			
-			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			// TODO A1: left-click adds new tower (removing any existing towers), up to max_towers
-			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	}
 }
