@@ -74,7 +74,7 @@ Entity createTower(RenderSystem* renderer, vec2 position)
 	// new tower
 	auto& t = registry.towers.emplace(entity);
 	t.range = (float)WINDOW_WIDTH_PX / (float)GRID_CELL_WIDTH_PX;
-	t.timer_ms = TOWER_TIMER_MS;	// arbitrary for now
+	t.timer_ms = 1000;	// arbitrary for now
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
