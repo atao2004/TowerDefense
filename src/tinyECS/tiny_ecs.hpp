@@ -68,6 +68,15 @@ public:
 		return components[map_entity_componentID[e]];
 	}
 
+	Component& getByIndex(int i) {
+		assert(i<components.size() && "Entity not contained in ECS registry");
+		return components[i];
+	}
+
+	int getEntityId(Entity e) {
+		return map_entity_componentID[e];
+	}
+
 	// Check if entity has a component of type 'Component'
 	bool has(Entity entity) {
 		return map_entity_componentID.count(entity) > 0;

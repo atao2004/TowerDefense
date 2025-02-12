@@ -206,18 +206,18 @@ void WorldSystem::restart_game() {
 	// create grid lines
 	int grid_line_width = GRID_LINE_WIDTH_PX;
 
-	// create grid lines if they do not already exist
+	//create grid lines if they do not already exist
 	if (grid_lines.size() == 0) {
 		// vertical lines
 		int cell_width = GRID_CELL_WIDTH_PX;
-		for (int col = 0; col < 14 + 1; col++) {
+		for (int col = 0; col < 24 + 1; col++) {
 			// width of 2 to make the grid easier to see
 			grid_lines.push_back(createGridLine(vec2(col * cell_width, 0), vec2(grid_line_width, 2 * WINDOW_HEIGHT_PX)));
 		}
 
 		// horizontal lines
 		int cell_height = GRID_CELL_HEIGHT_PX;
-		for (int col = 0; col < 10 + 1; col++) {
+		for (int col = 0; col < 14 + 1; col++) {
 			// width of 2 to make the grid easier to see
 			grid_lines.push_back(createGridLine(vec2(0, col * cell_height), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
 		}
@@ -326,13 +326,26 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	Entity player = registry.players.entities[0];
 	Motion& motion = registry.motions.get(player);
 
-	//face right
-	if (mouse_pos_x > motion.position.x && motion.scale.x < 0) {
-		motion.scale.x = -motion.scale.x;
-	}
 	//face left
 	if (mouse_pos_x < motion.position.x && motion.scale.x > 0) {
 		motion.scale.x = -motion.scale.x;
+		//change the positions of detection lines
+		// int id = registry.gridLines.getEntityId(player);
+		// for (int i=0; i<3; i++) {
+		// 	GridLine& line = registry.gridLines.getByIndex(id-i);
+		// 	line.start_pos.x -= GRID_CELL_WIDTH_PX;
+		// }
+	}
+
+	//face right
+	if (mouse_pos_x > motion.position.x && motion.scale.x < 0) {
+		motion.scale.x = -motion.scale.x;
+		//change the positions of detection lines
+		// int id = registry.gridLines.getEntityId(player);
+		// for (int i=0; i<3; i++) {
+		// 	GridLine& line = registry.gridLines.getByIndex(id-i);
+		// 	line.start_pos.x += GRID_CELL_WIDTH_PX;
+		// }
 	}
 }
 

@@ -2,12 +2,11 @@
 #include "tinyECS/registry.hpp"
 #include <iostream>
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!! TODO A1: implement grid lines as gridLines with renderRequests and colors
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Entity createGridLine(vec2 start_pos, vec2 end_pos)
-{
+Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	Entity entity = Entity();
+	GridLine& gl = registry.gridLines.emplace(entity);
+	gl.start_pos = start_pos;
+	gl.end_pos = end_pos;
 
 	registry.renderRequests.insert(
 		entity,
@@ -19,12 +18,37 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos)
 	);
 
 	vec3& cv = registry.colors.emplace(entity);
-	cv.r = 1;
+	cv.r = 0;
 	cv.g = 0;
-	cv.b = 0;
+	cv.b = 1;
 
 	return entity;
 }
+
+// Entity createDetectionLine(Entity entity, vec2 start_pos, vec2 end_pos) {
+// 	GridLine& gl = registry.gridLines.emplace_with_duplicates(entity);
+// 	gl.start_pos = start_pos;
+// 	gl.end_pos = end_pos;
+
+// 	registry.renderRequests.insert(
+// 		entity,
+// 		{
+// 			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+// 			EFFECT_ASSET_ID::EGG,
+// 			GEOMETRY_BUFFER_ID::DEBUG_LINE
+// 		},
+// 		false
+// 	);
+// 	//only need to create 1 color so all the lines can use the same color
+// 	if (!registry.colors.has(entity)) {
+// 		vec3& cv = registry.colors.emplace(entity);
+// 		cv.r = 1;
+// 		cv.g = 0;
+// 		cv.b = 0;
+// 	}
+
+// 	return entity;
+// }
 
 Entity createZombie(RenderSystem* renderer, vec2 position) {
 	auto entity = Entity();
@@ -156,7 +180,12 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	motion.scale = vec2({ INVADER_BB_WIDTH, INVADER_BB_HEIGHT });
 	Attack& attack = registry.attacks.emplace(entity);
 	attack.damage = 10;
-	attack.range = 10;
+	attack.range = 60;
+
+	//create detection box
+	// createDetectionLine(entity, vec2{position.x+30, position.y-30}, vec2{attack.range, 2});                       //upper -----
+	// createDetectionLine(entity, vec2{position.x+attack.range, position.y}, vec2{2, INVADER_BB_HEIGHT});           //          |
+	// createDetectionLine(entity, vec2{position.x+30, position.y-30+INVADER_BB_HEIGHT}, vec2{attack.range, 2});     //lower -----
 
 	registry.renderRequests.insert(
 		entity,
@@ -164,7 +193,8 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 			TEXTURE_ASSET_ID::INVADER,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
-		}
+		},
+		false
 	);
 
 	//grey box
@@ -182,5 +212,5 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	// 		GEOMETRY_BUFFER_ID::SPRITE
 	// 	}
 	// );
-
+	return entity;
 }
