@@ -146,7 +146,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		next_zombie_spawn = (ZOMBIE_SPAWN_RATE_MS / 2) + uniform_dist(rng) * (ZOMBIE_SPAWN_RATE_MS / 2);
 
 		// create zombie with random initial position
-		createZombie(renderer, vec2(50.f + uniform_dist(rng) * (WINDOW_WIDTH_PX - 100.f), 100.f));
+		// createZombie(renderer, vec2(50.f + uniform_dist(rng) * (WINDOW_WIDTH_PX - 100.f), 100.f));
 	}
 
 	//game over fade out

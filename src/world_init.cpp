@@ -18,7 +18,6 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos)
 		}
 	);
 
-	// TODO A1: grid line color (choose your own color)
 	vec3& cv = registry.colors.emplace(entity);
 	cv.r = 1;
 	cv.g = 0;
@@ -27,15 +26,9 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos)
 	return entity;
 }
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!! TODO A1: implement grid lines as gridLines with renderRequests and colors
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Entity createZombie(RenderSystem* renderer, vec2 position)
-{
-	// reserve an entity
+Entity createZombie(RenderSystem* renderer, vec2 position) {
 	auto entity = Entity();
 
-	// invader
 	Zombie& zombie = registry.zombies.emplace(entity);
 	zombie.health = ZOMBIE_HEALTH;
 
@@ -48,9 +41,6 @@ Entity createZombie(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
-
-	// resize, set scale to negative if you want to make it face the opposite way
-	// motion.scale = vec2({ -INVADER_BB_WIDTH, INVADER_BB_WIDTH });
 	motion.scale = vec2({ INVADER_BB_WIDTH, INVADER_BB_HEIGHT });
 
 	registry.renderRequests.insert(
@@ -116,9 +106,6 @@ void removeTower(vec2 position) {
 	}
 }
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!! TODO A1: create a new projectile w/ pos, size, & velocity
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Entity createProjectile(vec2 pos, vec2 size, vec2 velocity)
 {
 	auto entity = Entity();
@@ -177,5 +164,21 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
 	);
+
+	//grey box
+	// vec3& cv = registry.colors.emplace(entity);
+	// cv.r = 0.5;
+	// cv.g = 0.5;
+	// cv.b = 0.5;
+	
+
+	// registry.renderRequests.insert(
+	// 	entity,
+	// 	{
+	// 		TEXTURE_ASSET_ID::TEXTURE_COUNT,
+	// 		EFFECT_ASSET_ID::COLOURED,
+	// 		GEOMETRY_BUFFER_ID::SPRITE
+	// 	}
+	// );
 
 }
