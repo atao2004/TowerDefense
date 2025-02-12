@@ -140,6 +140,5 @@ Entity createLine(vec2 position, vec2 scale)
 	motion.position = position;
 	motion.scale = scale;
 
-	registry.debugComponents.emplace(entity);
 	return entity;
 }

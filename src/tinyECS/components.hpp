@@ -68,12 +68,6 @@ struct ScreenState
 	float darken_screen_factor = -1;
 };
 
-// A struct to refer to debugging graphics in the ECS
-struct DebugComponent
-{
-	// Note, an empty struct has size 1
-};
-
 // used to hold grid line start and end positions
 struct GridLine {
 	vec2 start_pos = {  0,  0 };
