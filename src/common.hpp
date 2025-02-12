@@ -49,6 +49,12 @@ const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
 const int PROJECTILE_DAMAGE = 10;
 
+//control player movement
+const int PLAYER_MOVE_UP_SPEED = -100;
+const int PLAYER_MOVE_DOWN_SPEED = 100;
+const int PLAYER_MOVE_LEFT_SPEED = -100;
+const int PLAYER_MOVE_RIGHT_SPEED = 100;
+
 // These are hard coded to the dimensions of the entity's texture
 
 // invaders are 64x64 px, but cells are 60x60
