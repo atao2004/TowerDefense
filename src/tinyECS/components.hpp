@@ -46,12 +46,6 @@ struct Invader {
 	int health;
 };
 
-// used for edible entities
-struct Eatable
-{
-
-};
-
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec2  position = { 0, 0 };

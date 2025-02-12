@@ -55,7 +55,6 @@ Entity createInvader(RenderSystem* renderer, vec2 position)
 	motion.scale = vec2({ INVADER_BB_WIDTH, INVADER_BB_HEIGHT });
 
 	// create an (empty) Bug component to be able to refer to all bug
-	registry.eatables.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
 		{
