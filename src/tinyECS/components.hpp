@@ -46,12 +46,6 @@ struct Invader {
 	int health;
 };
 
-// used for Entities that cause damage
-struct Deadly
-{
-
-};
-
 // used for edible entities
 struct Eatable
 {

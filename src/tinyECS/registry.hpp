@@ -18,7 +18,6 @@ public:
 	ComponentContainer<RenderRequest> renderRequests;
 	ComponentContainer<ScreenState> screenStates;
 	ComponentContainer<Eatable> eatables;
-	ComponentContainer<Deadly> deadlys;
 	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
 	ComponentContainer<Tower> towers;
@@ -35,7 +34,6 @@ public:
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&screenStates);
 		registry_list.push_back(&eatables);
-		registry_list.push_back(&deadlys);
 		registry_list.push_back(&debugComponents);
 		registry_list.push_back(&colors);
 		registry_list.push_back(&towers);

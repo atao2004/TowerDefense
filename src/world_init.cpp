@@ -93,7 +93,6 @@ Entity createTower(RenderSystem* renderer, vec2 position)
 	motion.scale = vec2({ -TOWER_BB_WIDTH, TOWER_BB_HEIGHT });
 
 	// create an (empty) Tower component to be able to refer to all towers
-	registry.deadlys.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
 		{
