@@ -41,7 +41,7 @@ Entity createInvader(RenderSystem* renderer, vec2 position)
 
 	// resize, set scale to negative if you want to make it face the opposite way
 	// motion.scale = vec2({ -INVADER_BB_WIDTH, INVADER_BB_WIDTH });
-	motion.scale = vec2({ INVADER_BB_WIDTH, INVADER_BB_HEIGHT });
+	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
 
 	// create an (empty) Bug component to be able to refer to all bug
 	registry.renderRequests.insert(
