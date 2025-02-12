@@ -289,18 +289,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
         restart_game();
 	}
-
-	// Debugging - not used in A1, but left intact for the debug lines
-	if (key == GLFW_KEY_D) {
-		if (action == GLFW_RELEASE) {
-			if (debugging.in_debug_mode) {
-				debugging.in_debug_mode = false;
-			}
-			else {
-				debugging.in_debug_mode = true;
-			}
-		}
-	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
