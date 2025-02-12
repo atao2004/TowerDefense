@@ -154,7 +154,9 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	motion.velocity = { 0, 0 };
 	motion.position = position;
 	motion.scale = vec2({ INVADER_BB_WIDTH, INVADER_BB_HEIGHT });
-
+	Attack& attack = registry.attacks.emplace(entity);
+	attack.damage = 10;
+	attack.range = 10;
 
 	registry.renderRequests.insert(
 		entity,

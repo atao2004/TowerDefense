@@ -12,7 +12,7 @@
 // create the world
 WorldSystem::WorldSystem() :
 	points(0),
-	max_towers(MAX_TOWERS_START),
+	max_zombies(MAX_ZOMBIES),
 	next_zombie_spawn(0),
 	zombie_spawn_rate_ms(ZOMBIE_SPAWN_RATE_MS)
 {
@@ -141,12 +141,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	//spawn new zombies
 	next_zombie_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (next_zombie_spawn < 0.f) {
+	if (next_zombie_spawn < 0.f && registry.zombies.size() < max_zombies) {
 		// reset timer
 		next_zombie_spawn = (ZOMBIE_SPAWN_RATE_MS / 2) + uniform_dist(rng) * (ZOMBIE_SPAWN_RATE_MS / 2);
 
 		// create zombie with random initial position
-		// createZombie(renderer, vec2(50.f + uniform_dist(rng) * (WINDOW_WIDTH_PX - 100.f), 100.f));
+		createZombie(renderer, vec2(50.f + uniform_dist(rng) * (WINDOW_WIDTH_PX - 100.f), 100.f));
 	}
 
 	//game over fade out
@@ -192,7 +192,7 @@ void WorldSystem::restart_game() {
 	current_speed = 1.f;
 
 	points = 0;
-	max_towers = MAX_TOWERS_START;
+	max_zombies = MAX_ZOMBIES;
 	next_zombie_spawn = 0;
 	zombie_spawn_rate_ms = ZOMBIE_SPAWN_RATE_MS;
 
@@ -344,8 +344,8 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods) {
 		int tile_x = (int)(mouse_pos_x / GRID_CELL_WIDTH_PX);
 		int tile_y = (int)(mouse_pos_y / GRID_CELL_HEIGHT_PX);
 
-		std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
-		std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
+		// std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
+		// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
 
 		
 

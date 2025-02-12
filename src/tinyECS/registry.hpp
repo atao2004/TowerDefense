@@ -10,6 +10,7 @@ class ECSRegistry
 	std::vector<ContainerInterface*> registry_list;
 
 public:
+	ComponentContainer<Attack> attacks;
 	ComponentContainer<Creature> creatures;
 	ComponentContainer<DeathTimer> deathTimers;
 	ComponentContainer<Motion> motions;
@@ -27,6 +28,7 @@ public:
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
+		registry_list.push_back(&attacks);
 		registry_list.push_back(&creatures);
 		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&motions);
@@ -40,6 +42,7 @@ public:
 		registry_list.push_back(&towers);
 		registry_list.push_back(&gridLines);
 		registry_list.push_back(&projectiles);
+		registry_list.push_back(&zombies);
 	}
 
 	void clear_all_components() {

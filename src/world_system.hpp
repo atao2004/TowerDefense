@@ -63,7 +63,7 @@ private:
 	int next_zombie_spawn;
 	int zombie_spawn_rate_ms;	// see default value in common.hpp
 
-	int max_towers;	// see default value in common.hpp
+	int max_zombies;	// see default value in common.hpp
 
 	// Number of invaders stopped by the towers, displayed in the window title
 	unsigned int points;
