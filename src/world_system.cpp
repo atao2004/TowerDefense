@@ -276,17 +276,16 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	Entity player = registry.players.entities[0];
 	Motion& motion = registry.motions.get(player);
-	// Move up
-	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
-		motion.velocity.y = PLAYER_MOVE_UP_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-		motion.velocity.y = 0;
-	}
 
 	// Move left
 	if (action == GLFW_PRESS && key == GLFW_KEY_A) {
 		motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
+		motion.velocity.x = 0;
+	}// Move right 
+	if (action == GLFW_PRESS && key == GLFW_KEY_D) {
+		motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
+	} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
 		motion.velocity.x = 0;
 	}
 
@@ -296,13 +295,14 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
 		motion.velocity.y = 0;
 	}
-
-	// Move right
-	if (action == GLFW_PRESS && key == GLFW_KEY_D) {
-		motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
-		motion.velocity.x = 0;
+	// Move up
+	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
+		motion.velocity.y = PLAYER_MOVE_UP_SPEED;
+	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+		motion.velocity.y = 0;
 	}
+
+	
 
 	// Debugging (B) - not yet implemented!!!
 	if (key == GLFW_KEY_B) {
