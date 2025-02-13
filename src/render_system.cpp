@@ -67,7 +67,6 @@ void RenderSystem::drawGridLine(Entity entity,
 	// Getting uniform locations for glUniform* calls
 	GLint color_uloc = glGetUniformLocation(program, "fcolor");
 	const vec3 color = registry.colors.has(entity) ? registry.colors.get(entity) : vec3(1);
-	// CK: std::cout << "line color: " << color.r << ", " << color.g << ", " << color.b << std::endl;
 	glUniform3fv(color_uloc, 1, (float*)&color);
 	gl_has_errors();
 
@@ -155,10 +154,23 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
-	}
-	// .obj entities
-	else if (render_request.used_effect == EFFECT_ASSET_ID::CHICKEN || render_request.used_effect == EFFECT_ASSET_ID::EGG)
-	{
+	} 
+	// else if (render_request.used_effect == EFFECT_ASSET_ID::COLOURED) {
+	// 	//trying to create grey-box
+	// 	GLint in_position_loc = glGetAttribLocation(program, "in_position");
+	// 	gl_has_errors();
+
+	// 	glEnableVertexAttribArray(in_position_loc);
+	// 	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
+	// 						  sizeof(TexturedVertex), (void *)0);
+
+	// 	GLint color_uloc = glGetUniformLocation(program, "color");
+	// 	const vec3 color = registry.colors.has(entity) ? registry.colors.get(entity) : vec3(1);
+	// 	glUniform3fv(color_uloc, 1, (float*)&color);
+	// 	gl_has_errors();
+
+	// } 
+	else if (render_request.used_effect == EFFECT_ASSET_ID::CHICKEN || render_request.used_effect == EFFECT_ASSET_ID::EGG) {
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_color_loc = glGetAttribLocation(program, "in_color");
 		gl_has_errors();
@@ -293,7 +305,7 @@ void RenderSystem::draw()
 	glDepthRange(0.00001, 10);
 	
 	// white background
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
 
 	glClearDepth(10.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -310,7 +322,7 @@ void RenderSystem::draw()
 	for (Entity entity : registry.renderRequests.entities)
 	{
 		// filter to entities that have a motion component
-		if (registry.motions.has(entity)) {
+		if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE) {
 			// Note, its not very efficient to access elements indirectly via the entity
 			// albeit iterating through all Sprites in sequence. A good point to optimize
 			drawTexturedMesh(entity, projection_2D);

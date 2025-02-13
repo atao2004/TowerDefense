@@ -2,17 +2,12 @@
 #include "tinyECS/registry.hpp"
 #include <iostream>
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!! TODO A1: implement grid lines as gridLines with renderRequests and colors
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Entity createGridLine(vec2 start_pos, vec2 end_pos)
-{
+Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	Entity entity = Entity();
+	GridLine& gl = registry.gridLines.emplace(entity);
+	gl.start_pos = start_pos;
+	gl.end_pos = end_pos;
 
-	// TODO A1: create a gridLine component
-
-	// re-use the "DEBUG_LINE" renderRequest
-	/*
 	registry.renderRequests.insert(
 		entity,
 		{
@@ -21,45 +16,60 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos)
 			GEOMETRY_BUFFER_ID::DEBUG_LINE
 		}
 	);
-	*/
 
-	// TODO A1: grid line color (choose your own color)
+	vec3& cv = registry.colors.emplace(entity);
+	cv.r = 0;
+	cv.g = 0;
+	cv.b = 1;
 
 	return entity;
 }
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!! TODO A1: implement grid lines as gridLines with renderRequests and colors
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Entity createInvader(RenderSystem* renderer, vec2 position)
-{
-	// reserve an entity
+// Entity createDetectionLine(Entity entity, vec2 start_pos, vec2 end_pos) {
+// 	GridLine& gl = registry.gridLines.emplace_with_duplicates(entity);
+// 	gl.start_pos = start_pos;
+// 	gl.end_pos = end_pos;
+
+// 	registry.renderRequests.insert(
+// 		entity,
+// 		{
+// 			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+// 			EFFECT_ASSET_ID::EGG,
+// 			GEOMETRY_BUFFER_ID::DEBUG_LINE
+// 		},
+// 		false
+// 	);
+// 	//only need to create 1 color so all the lines can use the same color
+// 	if (!registry.colors.has(entity)) {
+// 		vec3& cv = registry.colors.emplace(entity);
+// 		cv.r = 1;
+// 		cv.g = 0;
+// 		cv.b = 0;
+// 	}
+
+// 	return entity;
+// }
+
+Entity createZombie(RenderSystem* renderer, vec2 position) {
 	auto entity = Entity();
 
-	// invader
-	Invader& invader = registry.invaders.emplace(entity);
-	invader.health = INVADER_HEALTH;
+	Zombie& zombie = registry.zombies.emplace(entity);
+	zombie.health = ZOMBIE_HEALTH;
 
 	// store a reference to the potentially re-used mesh object
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
-	// TODO A1: initialize the position, scale, and physics components
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
+	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
 
-	// resize, set scale to negative if you want to make it face the opposite way
-	// motion.scale = vec2({ -INVADER_BB_WIDTH, INVADER_BB_WIDTH });
-	motion.scale = vec2({ INVADER_BB_WIDTH, INVADER_BB_HEIGHT });
-
-	// create an (empty) Bug component to be able to refer to all bug
-	registry.eatables.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::INVADER,
+			TEXTURE_ASSET_ID::ZOMBIE,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
@@ -75,7 +85,7 @@ Entity createTower(RenderSystem* renderer, vec2 position)
 	// new tower
 	auto& t = registry.towers.emplace(entity);
 	t.range = (float)WINDOW_WIDTH_PX / (float)GRID_CELL_WIDTH_PX;
-	t.timer_ms = TOWER_TIMER_MS;	// arbitrary for now
+	t.timer_ms = 1000;	// arbitrary for now
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
@@ -93,7 +103,6 @@ Entity createTower(RenderSystem* renderer, vec2 position)
 	motion.scale = vec2({ -TOWER_BB_WIDTH, TOWER_BB_HEIGHT });
 
 	// create an (empty) Tower component to be able to refer to all towers
-	registry.deadlys.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
 		{
@@ -120,74 +129,50 @@ void removeTower(vec2 position) {
 	}
 }
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!! TODO A1: create a new projectile w/ pos, size, & velocity
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Entity createProjectile(vec2 pos, vec2 size, vec2 velocity)
-{
-	auto entity = Entity();
-
-	// TODO: projectile
-	// TODO: motion
-	// TODO: renderRequests
-
-	return entity;
-}
-
-Entity createLine(vec2 position, vec2 scale)
-{
+Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	Entity entity = Entity();
 
-	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	registry.renderRequests.insert(
-		entity,
-		{
-			// usage TEXTURE_COUNT when no texture is needed, i.e., an .obj or other vertices are used instead
-			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::EGG,
-			GEOMETRY_BUFFER_ID::DEBUG_LINE
-		}
-	);
-
-	// Create motion
+	registry.players.emplace(entity);
+	Creature& creature = registry.creatures.emplace(entity);
+	creature.health = PLAYER_HEALTH;
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
-	motion.scale = scale;
+	motion.scale = vec2({ INVADER_BB_WIDTH, INVADER_BB_HEIGHT });
+	Attack& attack = registry.attacks.emplace(entity);
+	attack.damage = 10;
+	attack.range = 60;
 
-	registry.debugComponents.emplace(entity);
-	return entity;
-}
+	//create detection box
+	// createDetectionLine(entity, vec2{position.x+30, position.y-30}, vec2{attack.range, 2});                       //upper -----
+	// createDetectionLine(entity, vec2{position.x+attack.range, position.y}, vec2{2, INVADER_BB_HEIGHT});           //          |
+	// createDetectionLine(entity, vec2{position.x+30, position.y-30+INVADER_BB_HEIGHT}, vec2{attack.range, 2});     //lower -----
 
-// LEGACY
-Entity createChicken(RenderSystem* renderer, vec2 pos)
-{
-	auto entity = Entity();
-
-	// Store a reference to the potentially re-used mesh object
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::CHICKEN);
-	registry.meshPtrs.emplace(entity, &mesh);
-
-	// Setting initial motion values
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = mesh.original_size * 300.f;
-	motion.scale.y *= -1; // point front to the right
-
-	// create an (empty) Chicken component to be able to refer to all towers
-	registry.players.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
 		{
-			// usage TEXTURE_COUNT when no texture is needed, i.e., an .obj or other vertices are used instead
-			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::CHICKEN,
-			GEOMETRY_BUFFER_ID::CHICKEN
-		}
+			TEXTURE_ASSET_ID::INVADER,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
 	);
 
+	//grey box
+	// vec3& cv = registry.colors.emplace(entity);
+	// cv.r = 0.5;
+	// cv.g = 0.5;
+	// cv.b = 0.5;
+	
+
+	// registry.renderRequests.insert(
+	// 	entity,
+	// 	{
+	// 		TEXTURE_ASSET_ID::TEXTURE_COUNT,
+	// 		EFFECT_ASSET_ID::COLOURED,
+	// 		GEOMETRY_BUFFER_ID::SPRITE
+	// 	}
+	// );
 	return entity;
 }

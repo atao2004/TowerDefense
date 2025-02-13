@@ -33,20 +33,27 @@ inline std::string mesh_path(const std::string& name) {return data_path() + "/me
 //
 // game constants
 //
-const int WINDOW_WIDTH_PX = 840;
-const int WINDOW_HEIGHT_PX = 600;
+const int WINDOW_WIDTH_PX = 1440;
+const int WINDOW_HEIGHT_PX = 840;
 
 const int GRID_CELL_WIDTH_PX = 60;
 const int GRID_CELL_HEIGHT_PX = 60;
 const int GRID_LINE_WIDTH_PX = 2;
 
 const int TOWER_TIMER_MS = 1000;	// number of milliseconds between tower shots
-const int MAX_TOWERS_START = 5;
+const int MAX_ZOMBIES = 5;
 
-const int INVADER_HEALTH = 50;
-const int INVADER_SPAWN_RATE_MS = 2 * 1000;
+const int PLAYER_HEALTH = 100;
+const int ZOMBIE_HEALTH = 50;
+const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
 const int PROJECTILE_DAMAGE = 10;
+
+//control player movement
+const int PLAYER_MOVE_UP_SPEED = -100;
+const int PLAYER_MOVE_DOWN_SPEED = 100;
+const int PLAYER_MOVE_LEFT_SPEED = -100;
+const int PLAYER_MOVE_RIGHT_SPEED = 100;
 
 // These are hard coded to the dimensions of the entity's texture
 
@@ -61,6 +68,11 @@ const float TOWER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
 #endif
+
+// enemies
+const float ZOMBIE_WIDTH = 61;
+const float ZOMBIE_HEIGHT = 90;
+
 
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)
