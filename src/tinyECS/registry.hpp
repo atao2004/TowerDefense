@@ -17,29 +17,27 @@ public:
 	ComponentContainer<Mesh*> meshPtrs;
 	ComponentContainer<RenderRequest> renderRequests;
 	ComponentContainer<ScreenState> screenStates;
-	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
 	ComponentContainer<Tower> towers;
 	ComponentContainer<GridLine> gridLines;
-	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<Zombie> zombies;
+	
+	ComponentContainer<Player> players;
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
 		registry_list.push_back(&attacks);
 		registry_list.push_back(&creatures);
-		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&motions);
 		registry_list.push_back(&collisions);
 		registry_list.push_back(&meshPtrs);
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&screenStates);
-		registry_list.push_back(&debugComponents);
 		registry_list.push_back(&colors);
 		registry_list.push_back(&towers);
 		registry_list.push_back(&gridLines);
-		registry_list.push_back(&projectiles);
 		registry_list.push_back(&zombies);
+		registry_list.push_back(&players);
 	}
 
 	void clear_all_components() {

@@ -135,10 +135,6 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
-	// Remove debug info from the last step
-	while (registry.debugComponents.entities.size() > 0)
-	    registry.remove_all_components_of(registry.debugComponents.entities.back());
-
 	//spawn new zombies
 	next_zombie_spawn -= elapsed_ms_since_last_update * current_speed;
 	if (next_zombie_spawn < 0.f && registry.zombies.size() < max_zombies) {
