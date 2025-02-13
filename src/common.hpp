@@ -40,13 +40,8 @@ const int GRID_CELL_WIDTH_PX = 60;
 const int GRID_CELL_HEIGHT_PX = 60;
 const int GRID_LINE_WIDTH_PX = 2;
 
-const int TOWER_TIMER_MS = 1000;	// number of milliseconds between tower shots
-const int MAX_TOWERS_START = 5;
-
 const int INVADER_HEALTH = 50;
 const int INVADER_SPAWN_RATE_MS = 2 * 1000;
-
-const int PROJECTILE_DAMAGE = 10;
 
 // These are hard coded to the dimensions of the entity's texture
 

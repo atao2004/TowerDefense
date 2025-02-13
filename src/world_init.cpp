@@ -2,14 +2,9 @@
 #include "tinyECS/registry.hpp"
 #include <iostream>
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!! TODO A1: implement grid lines as gridLines with renderRequests and colors
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Entity createGridLine(vec2 start_pos, vec2 end_pos)
 {
 	Entity entity = Entity();
-
-	// TODO A1: create a gridLine component
 
 	// re-use the "DEBUG_LINE" renderRequest
 	/*
@@ -23,14 +18,9 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos)
 	);
 	*/
 
-	// TODO A1: grid line color (choose your own color)
-
 	return entity;
 }
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!! TODO A1: implement grid lines as gridLines with renderRequests and colors
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Entity createInvader(RenderSystem* renderer, vec2 position)
 {
 	// reserve an entity
@@ -44,7 +34,6 @@ Entity createInvader(RenderSystem* renderer, vec2 position)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
-	// TODO A1: initialize the position, scale, and physics components
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
@@ -55,7 +44,6 @@ Entity createInvader(RenderSystem* renderer, vec2 position)
 	motion.scale = vec2({ INVADER_BB_WIDTH, INVADER_BB_HEIGHT });
 
 	// create an (empty) Bug component to be able to refer to all bug
-	registry.eatables.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
 		{
@@ -75,7 +63,7 @@ Entity createTower(RenderSystem* renderer, vec2 position)
 	// new tower
 	auto& t = registry.towers.emplace(entity);
 	t.range = (float)WINDOW_WIDTH_PX / (float)GRID_CELL_WIDTH_PX;
-	t.timer_ms = TOWER_TIMER_MS;	// arbitrary for now
+	t.timer_ms = 1000;	// arbitrary for now
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
@@ -93,7 +81,6 @@ Entity createTower(RenderSystem* renderer, vec2 position)
 	motion.scale = vec2({ -TOWER_BB_WIDTH, TOWER_BB_HEIGHT });
 
 	// create an (empty) Tower component to be able to refer to all towers
-	registry.deadlys.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
 		{
@@ -118,76 +105,4 @@ void removeTower(vec2 position) {
 			std::cout << "tower removed" << std::endl;
 		}
 	}
-}
-
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!! TODO A1: create a new projectile w/ pos, size, & velocity
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Entity createProjectile(vec2 pos, vec2 size, vec2 velocity)
-{
-	auto entity = Entity();
-
-	// TODO: projectile
-	// TODO: motion
-	// TODO: renderRequests
-
-	return entity;
-}
-
-Entity createLine(vec2 position, vec2 scale)
-{
-	Entity entity = Entity();
-
-	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	registry.renderRequests.insert(
-		entity,
-		{
-			// usage TEXTURE_COUNT when no texture is needed, i.e., an .obj or other vertices are used instead
-			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::EGG,
-			GEOMETRY_BUFFER_ID::DEBUG_LINE
-		}
-	);
-
-	// Create motion
-	Motion& motion = registry.motions.emplace(entity);
-	motion.angle = 0.f;
-	motion.velocity = { 0, 0 };
-	motion.position = position;
-	motion.scale = scale;
-
-	registry.debugComponents.emplace(entity);
-	return entity;
-}
-
-// LEGACY
-Entity createChicken(RenderSystem* renderer, vec2 pos)
-{
-	auto entity = Entity();
-
-	// Store a reference to the potentially re-used mesh object
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::CHICKEN);
-	registry.meshPtrs.emplace(entity, &mesh);
-
-	// Setting initial motion values
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = mesh.original_size * 300.f;
-	motion.scale.y *= -1; // point front to the right
-
-	// create an (empty) Chicken component to be able to refer to all towers
-	registry.players.emplace(entity);
-	registry.renderRequests.insert(
-		entity,
-		{
-			// usage TEXTURE_COUNT when no texture is needed, i.e., an .obj or other vertices are used instead
-			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::CHICKEN,
-			GEOMETRY_BUFFER_ID::CHICKEN
-		}
-	);
-
-	return entity;
 }
