@@ -8,4 +8,22 @@ class AISystem
 {
 public:
 	void step(float elapsed_ms);
+
+private:
+	// Core movement and behavior functions
+	void update_enemy_behaviors(float elapsed_ms);
+	void update_enemy_movement(Entity entity, float elapsed_ms);
+
+	// Movement calculation helpers
+	vec2 calculate_direction_to_target(vec2 start_pos, vec2 target_pos);
+	float calculate_distance_to_target(vec2 start_pos, vec2 target_pos);
+
+	// Behavior-specific functions
+	void handle_chase_behavior(Entity entity, float elapsed_ms);
+
+	// State management (for future use)
+	void update_enemy_state(Entity entity);
+
+	// Constants (can be moved to config file later)
+	const float BASE_ENEMY_SPEED = 100.0f; // Base movement speed for enemies
 };

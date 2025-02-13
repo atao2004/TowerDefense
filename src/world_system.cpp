@@ -166,6 +166,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 
 	// Using the spawn manager to generate zombies
     spawn_manager.step(elapsed_ms_since_last_update, renderer);
+	
     return true;
 }
 
@@ -220,7 +221,7 @@ void WorldSystem::restart_game()
 
 	// spawn player in the middle of the screen
 	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
-	
+
 	// start the spawn manager
 	spawn_manager.start_game();
 }
