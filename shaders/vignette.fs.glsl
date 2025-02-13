@@ -10,10 +10,6 @@ layout(location = 0) out vec4 color;
 
 vec4 vignette(vec4 in_color) 
 {
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: HANDLE THE VIGNETTE EFFECT HERE
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 	return in_color;
 }
 

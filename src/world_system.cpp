@@ -142,41 +142,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	//spawn new zombies
 	next_zombie_spawn -= elapsed_ms_since_last_update * current_speed;
 	if (next_zombie_spawn < 0.f && registry.zombies.size() < max_zombies) {
+
 		// reset timer
 		next_zombie_spawn = (ZOMBIE_SPAWN_RATE_MS / 2) + uniform_dist(rng) * (ZOMBIE_SPAWN_RATE_MS / 2);
 
 		// create zombie with random initial position
 		createZombie(renderer, vec2(50.f + uniform_dist(rng) * (WINDOW_WIDTH_PX - 100.f), 100.f));
 	}
-
-	//game over fade out
-	assert(registry.screenStates.components.size() <= 1);
-    ScreenState &screen = registry.screenStates.components[0];
-
-    float min_counter_ms = 3000.f;
-	for (Entity entity : registry.deathTimers.entities) {
-
-		// progress timer
-		DeathTimer& counter = registry.deathTimers.get(entity);
-		counter.counter_ms -= elapsed_ms_since_last_update;
-		if(counter.counter_ms < min_counter_ms){
-		    min_counter_ms = counter.counter_ms;
-		}
-
-		/* for A1, let the user press "R" to restart instead
-		// restart the game once the death timer expires
-		if (counter.counter_ms < 0) {
-			registry.deathTimers.remove(entity);
-			screen.darken_screen_factor = 0;
-            restart_game();
-			return true;
-		}
-		*/
-	}
-
-	// reduce window brightness if any of the present chickens is dying
-	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
-
 	return true;
 }
 
@@ -203,7 +175,6 @@ void WorldSystem::restart_game() {
 	// debugging for memory/component leaks
 	registry.list_all_components();
 
-	// create grid lines
 	int grid_line_width = GRID_LINE_WIDTH_PX;
 
 	//create grid lines if they do not already exist
@@ -229,22 +200,9 @@ void WorldSystem::restart_game() {
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions() {
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: Loop over all collisions detected by the physics system
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	ComponentContainer<Collision>& collision_container = registry.collisions;
 	for (uint i = 0; i < collision_container.components.size(); i++) {
-		
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A1: handle collision between deadly (projectile) and zombie
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A1: handle collision between tower and zombie
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+  
 	}
 
 	// Remove all collisions from this simulation step
@@ -274,47 +232,33 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		return;
 	}
 
-	Entity player = registry.players.entities[0];
-	Motion& motion = registry.motions.get(player);
+// 	Entity player = registry.players.entities[0];
+// 	Motion& motion = registry.motions.get(player);
 
-	// Move left
-	if (action == GLFW_PRESS && key == GLFW_KEY_A) {
-		motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
-		motion.velocity.x = 0;
-	}// Move right 
-	if (action == GLFW_PRESS && key == GLFW_KEY_D) {
-		motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
-		motion.velocity.x = 0;
-	}
+// 	// Move left
+// 	if (action == GLFW_PRESS && key == GLFW_KEY_A) {
+// 		motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
+// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
+// 		motion.velocity.x = 0;
+// 	}// Move right 
+// 	if (action == GLFW_PRESS && key == GLFW_KEY_D) {
+// 		motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
+// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
+// 		motion.velocity.x = 0;
+// 	}
 
-	// Move down
-	if (action == GLFW_PRESS && key == GLFW_KEY_S) {
-		motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
-		motion.velocity.y = 0;
-	}
-	// Move up
-	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
-		motion.velocity.y = PLAYER_MOVE_UP_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-		motion.velocity.y = 0;
-	}
-
-	
-
-	// Debugging (B) - not yet implemented!!!
-	if (key == GLFW_KEY_B) {
-		if (action == GLFW_RELEASE) {
-			if (debugging.in_debug_mode) {
-				debugging.in_debug_mode = false;
-			}
-			else {
-				debugging.in_debug_mode = true;
-			}
-		}
-	}
+// 	// Move down
+// 	if (action == GLFW_PRESS && key == GLFW_KEY_S) {
+// 		motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
+// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
+// 		motion.velocity.y = 0;
+// 	}
+// 	// Move up
+// 	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
+// 		motion.velocity.y = PLAYER_MOVE_UP_SPEED;
+// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+// 		motion.velocity.y = 0;
+// 	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
@@ -350,7 +294,6 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 }
 
 void WorldSystem::on_mouse_button_pressed(int button, int action, int mods) {
-
 	// on button press
 	if (action == GLFW_PRESS) {
 
@@ -359,8 +302,5 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods) {
 
 		// std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
 		// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
-
-		
-
 	}
 }

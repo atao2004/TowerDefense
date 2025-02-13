@@ -65,6 +65,10 @@ const float INVADER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
 const float TOWER_BB_WIDTH = (float)GRID_CELL_WIDTH_PX;
 const float TOWER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
 
+// enemies
+const float ZOMBIE_WIDTH = 61;
+const float ZOMBIE_HEIGHT = 90;
+
 
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)

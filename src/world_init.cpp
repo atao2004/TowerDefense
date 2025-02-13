@@ -60,17 +60,16 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
-	// TODO A1: initialize the position, scale, and physics components
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
-	motion.scale = vec2({ INVADER_BB_WIDTH, INVADER_BB_HEIGHT });
+	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
 
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::INVADER,
+			TEXTURE_ASSET_ID::ZOMBIE,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
@@ -86,7 +85,7 @@ Entity createTower(RenderSystem* renderer, vec2 position)
 	// new tower
 	auto& t = registry.towers.emplace(entity);
 	t.range = (float)WINDOW_WIDTH_PX / (float)GRID_CELL_WIDTH_PX;
-	t.timer_ms = TOWER_TIMER_MS;	// arbitrary for now
+	t.timer_ms = 1000;	// arbitrary for now
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
@@ -128,43 +127,6 @@ void removeTower(vec2 position) {
 			std::cout << "tower removed" << std::endl;
 		}
 	}
-}
-
-Entity createProjectile(vec2 pos, vec2 size, vec2 velocity)
-{
-	auto entity = Entity();
-
-	// TODO: projectile
-	// TODO: motion
-	// TODO: renderRequests
-
-	return entity;
-}
-
-Entity createLine(vec2 position, vec2 scale)
-{
-	Entity entity = Entity();
-
-	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	registry.renderRequests.insert(
-		entity,
-		{
-			// usage TEXTURE_COUNT when no texture is needed, i.e., an .obj or other vertices are used instead
-			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::EGG,
-			GEOMETRY_BUFFER_ID::DEBUG_LINE
-		}
-	);
-
-	// Create motion
-	Motion& motion = registry.motions.emplace(entity);
-	motion.angle = 0.f;
-	motion.velocity = { 0, 0 };
-	motion.position = position;
-	motion.scale = scale;
-
-	registry.debugComponents.emplace(entity);
-	return entity;
 }
 
 Entity createPlayer(RenderSystem* renderer, vec2 position) {
