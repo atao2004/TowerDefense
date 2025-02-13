@@ -12,8 +12,9 @@
 // create the world
 WorldSystem::WorldSystem() :
 	points(0),
-	next_invader_spawn(0),
-	invader_spawn_rate_ms(INVADER_SPAWN_RATE_MS)
+	max_zombies(MAX_ZOMBIES),
+	next_zombie_spawn(0),
+	zombie_spawn_rate_ms(ZOMBIE_SPAWN_RATE_MS)
 {
 	// seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -73,7 +74,7 @@ GLFWwindow* WorldSystem::create_window() {
 	glfwWindowHint(GLFW_SCALE_TO_MONITOR, GL_FALSE);		// GLFW 3.3+
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX, "Towers vs Invaders Assignment", nullptr, nullptr);
+	window = glfwCreateWindow(WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX, "Farmer Defense: The Last Days", nullptr, nullptr);
 	if (window == nullptr) {
 		std::cerr << "ERROR: Failed to glfwCreateWindow in world_system.cpp" << std::endl;
 		return nullptr;
@@ -134,34 +135,20 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
-	// Updating window title with points
-	std::stringstream title_ss;
-	title_ss << "Points: " << points;
-	glfwSetWindowTitle(window, title_ss.str().c_str());
+	// Remove debug info from the last step
+	while (registry.debugComponents.entities.size() > 0)
+	    registry.remove_all_components_of(registry.debugComponents.entities.back());
 
-	// Removing out of screen entities
-	auto& motions_registry = registry.motions;
+	//spawn new zombies
+	next_zombie_spawn -= elapsed_ms_since_last_update * current_speed;
+	if (next_zombie_spawn < 0.f && registry.zombies.size() < max_zombies) {
 
-	// Remove entities that leave the screen on the left side
-	// Iterate backwards to be able to remove without unterfering with the next object to visit
-	// (the containers exchange the last element with the current)
-	for (int i = (int)motions_registry.components.size()-1; i>=0; --i) {
-	    Motion& motion = motions_registry.components[i];
-		if (motion.position.x + abs(motion.scale.x) < 0.f) {
-			registry.remove_all_components_of(motions_registry.entities[i]);
-		}
-	}
-
-	// spawn new invaders
-	next_invader_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (next_invader_spawn < 0.f) {
 		// reset timer
-		next_invader_spawn = (INVADER_SPAWN_RATE_MS / 2) + uniform_dist(rng) * (INVADER_SPAWN_RATE_MS / 2);
+		next_zombie_spawn = (ZOMBIE_SPAWN_RATE_MS / 2) + uniform_dist(rng) * (ZOMBIE_SPAWN_RATE_MS / 2);
 
-		// create invader with random initial position
-		createInvader(renderer, vec2(50.f + uniform_dist(rng) * (WINDOW_WIDTH_PX - 100.f), 100.f));
+		// create zombie with random initial position
+		createZombie(renderer, vec2(50.f + uniform_dist(rng) * (WINDOW_WIDTH_PX - 100.f), 100.f));
 	}
-
 	return true;
 }
 
@@ -177,11 +164,11 @@ void WorldSystem::restart_game() {
 	current_speed = 1.f;
 
 	points = 0;
-	next_invader_spawn = 0;
-	invader_spawn_rate_ms = INVADER_SPAWN_RATE_MS;
+	max_zombies = MAX_ZOMBIES;
+	next_zombie_spawn = 0;
+	zombie_spawn_rate_ms = ZOMBIE_SPAWN_RATE_MS;
 
 	// Remove all entities that we created
-	// All that have a motion, we could also iterate over all bug, eagles, ... but that would be more cumbersome
 	while (registry.motions.entities.size() > 0)
 	    registry.remove_all_components_of(registry.motions.entities.back());
 
@@ -190,29 +177,32 @@ void WorldSystem::restart_game() {
 
 	int grid_line_width = GRID_LINE_WIDTH_PX;
 
-	// create grid lines if they do not already exist
+	//create grid lines if they do not already exist
 	if (grid_lines.size() == 0) {
 		// vertical lines
 		int cell_width = GRID_CELL_WIDTH_PX;
-		for (int col = 0; col < 14 + 1; col++) {
+		for (int col = 0; col < 24 + 1; col++) {
 			// width of 2 to make the grid easier to see
 			grid_lines.push_back(createGridLine(vec2(col * cell_width, 0), vec2(grid_line_width, 2 * WINDOW_HEIGHT_PX)));
 		}
 
 		// horizontal lines
 		int cell_height = GRID_CELL_HEIGHT_PX;
-		for (int col = 0; col < 10 + 1; col++) {
+		for (int col = 0; col < 14 + 1; col++) {
 			// width of 2 to make the grid easier to see
 			grid_lines.push_back(createGridLine(vec2(0, col * cell_height), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
 		}
 	}
+
+	//spawn player in the middle of the screen
+	createPlayer(renderer, vec2{WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2});
 }
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions() {
 	ComponentContainer<Collision>& collision_container = registry.collisions;
 	for (uint i = 0; i < collision_container.components.size(); i++) {
-
+  
 	}
 
 	// Remove all collisions from this simulation step
@@ -230,6 +220,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// exit game w/ ESC
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE) {
 		close_window();
+		return;
 	}
 
 	// Resetting game
@@ -238,14 +229,68 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		glfwGetWindowSize(window, &w, &h);
 
         restart_game();
+		return;
 	}
+
+// 	Entity player = registry.players.entities[0];
+// 	Motion& motion = registry.motions.get(player);
+
+// 	// Move left
+// 	if (action == GLFW_PRESS && key == GLFW_KEY_A) {
+// 		motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
+// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
+// 		motion.velocity.x = 0;
+// 	}// Move right 
+// 	if (action == GLFW_PRESS && key == GLFW_KEY_D) {
+// 		motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
+// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
+// 		motion.velocity.x = 0;
+// 	}
+
+// 	// Move down
+// 	if (action == GLFW_PRESS && key == GLFW_KEY_S) {
+// 		motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
+// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
+// 		motion.velocity.y = 0;
+// 	}
+// 	// Move up
+// 	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
+// 		motion.velocity.y = PLAYER_MOVE_UP_SPEED;
+// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+// 		motion.velocity.y = 0;
+// 	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
-
 	// record the current mouse position
 	mouse_pos_x = mouse_position.x;
 	mouse_pos_y = mouse_position.y;
+
+	//change player facing direction
+	Entity player = registry.players.entities[0];
+	Motion& motion = registry.motions.get(player);
+
+	//face left
+	if (mouse_pos_x < motion.position.x && motion.scale.x > 0) {
+		motion.scale.x = -motion.scale.x;
+		//change the positions of detection lines
+		// int id = registry.gridLines.getEntityId(player);
+		// for (int i=0; i<3; i++) {
+		// 	GridLine& line = registry.gridLines.getByIndex(id-i);
+		// 	line.start_pos.x -= GRID_CELL_WIDTH_PX;
+		// }
+	}
+
+	//face right
+	if (mouse_pos_x > motion.position.x && motion.scale.x < 0) {
+		motion.scale.x = -motion.scale.x;
+		//change the positions of detection lines
+		// int id = registry.gridLines.getEntityId(player);
+		// for (int i=0; i<3; i++) {
+		// 	GridLine& line = registry.gridLines.getByIndex(id-i);
+		// 	line.start_pos.x += GRID_CELL_WIDTH_PX;
+		// }
+	}
 }
 
 void WorldSystem::on_mouse_button_pressed(int button, int action, int mods) {
@@ -255,7 +300,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods) {
 		int tile_x = (int)(mouse_pos_x / GRID_CELL_WIDTH_PX);
 		int tile_y = (int)(mouse_pos_y / GRID_CELL_HEIGHT_PX);
 
-		std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
-		std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
+		// std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
+		// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
 	}
 }

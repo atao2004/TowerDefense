@@ -2,12 +2,12 @@
 #include "tinyECS/registry.hpp"
 #include <iostream>
 
-Entity createGridLine(vec2 start_pos, vec2 end_pos)
-{
+Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	Entity entity = Entity();
+	GridLine& gl = registry.gridLines.emplace(entity);
+	gl.start_pos = start_pos;
+	gl.end_pos = end_pos;
 
-	// re-use the "DEBUG_LINE" renderRequest
-	/*
 	registry.renderRequests.insert(
 		entity,
 		{
@@ -16,19 +16,45 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos)
 			GEOMETRY_BUFFER_ID::DEBUG_LINE
 		}
 	);
-	*/
+
+	vec3& cv = registry.colors.emplace(entity);
+	cv.r = 0;
+	cv.g = 0;
+	cv.b = 1;
 
 	return entity;
 }
 
-Entity createInvader(RenderSystem* renderer, vec2 position)
-{
-	// reserve an entity
+// Entity createDetectionLine(Entity entity, vec2 start_pos, vec2 end_pos) {
+// 	GridLine& gl = registry.gridLines.emplace_with_duplicates(entity);
+// 	gl.start_pos = start_pos;
+// 	gl.end_pos = end_pos;
+
+// 	registry.renderRequests.insert(
+// 		entity,
+// 		{
+// 			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+// 			EFFECT_ASSET_ID::EGG,
+// 			GEOMETRY_BUFFER_ID::DEBUG_LINE
+// 		},
+// 		false
+// 	);
+// 	//only need to create 1 color so all the lines can use the same color
+// 	if (!registry.colors.has(entity)) {
+// 		vec3& cv = registry.colors.emplace(entity);
+// 		cv.r = 1;
+// 		cv.g = 0;
+// 		cv.b = 0;
+// 	}
+
+// 	return entity;
+// }
+
+Entity createZombie(RenderSystem* renderer, vec2 position) {
 	auto entity = Entity();
 
-	// invader
-	Invader& invader = registry.invaders.emplace(entity);
-	invader.health = INVADER_HEALTH;
+	Zombie& zombie = registry.zombies.emplace(entity);
+	zombie.health = ZOMBIE_HEALTH;
 
 	// store a reference to the potentially re-used mesh object
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
@@ -38,12 +64,8 @@ Entity createInvader(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
-
-	// resize, set scale to negative if you want to make it face the opposite way
-	// motion.scale = vec2({ -INVADER_BB_WIDTH, INVADER_BB_WIDTH });
 	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
 
-	// create an (empty) Bug component to be able to refer to all bug
 	registry.renderRequests.insert(
 		entity,
 		{
@@ -105,4 +127,52 @@ void removeTower(vec2 position) {
 			std::cout << "tower removed" << std::endl;
 		}
 	}
+}
+
+Entity createPlayer(RenderSystem* renderer, vec2 position) {
+	Entity entity = Entity();
+
+	registry.players.emplace(entity);
+	Creature& creature = registry.creatures.emplace(entity);
+	creature.health = PLAYER_HEALTH;
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = vec2({ INVADER_BB_WIDTH, INVADER_BB_HEIGHT });
+	Attack& attack = registry.attacks.emplace(entity);
+	attack.damage = 10;
+	attack.range = 60;
+
+	//create detection box
+	// createDetectionLine(entity, vec2{position.x+30, position.y-30}, vec2{attack.range, 2});                       //upper -----
+	// createDetectionLine(entity, vec2{position.x+attack.range, position.y}, vec2{2, INVADER_BB_HEIGHT});           //          |
+	// createDetectionLine(entity, vec2{position.x+30, position.y-30+INVADER_BB_HEIGHT}, vec2{attack.range, 2});     //lower -----
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::INVADER,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+
+	//grey box
+	// vec3& cv = registry.colors.emplace(entity);
+	// cv.r = 0.5;
+	// cv.g = 0.5;
+	// cv.b = 0.5;
+	
+
+	// registry.renderRequests.insert(
+	// 	entity,
+	// 	{
+	// 		TEXTURE_ASSET_ID::TEXTURE_COUNT,
+	// 		EFFECT_ASSET_ID::COLOURED,
+	// 		GEOMETRY_BUFFER_ID::SPRITE
+	// 	}
+	// );
+	return entity;
 }
