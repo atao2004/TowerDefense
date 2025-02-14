@@ -225,93 +225,11 @@ void WorldSystem::restart_game()
 	spawn_manager.start_game();
 }
 
-// void WorldSystem::process_damage(Entity invader_entity, Entity projectile_entity, Invader &invader, Projectile &projectile)
-// {
-// 	invader.health -= projectile.damage;
-
-// 	registry.remove_all_components_of(projectile_entity);
-// 	if (invader.health <= 0)
-// 	{
-// 		Motion &motion = registry.motions.get(invader_entity);
-
-// 		// create explosion
-// 		Entity explosion_entity = createExplosion(motion.position);
-// 		RenderRequest &rr = registry.renderRequests.get(invader_entity);
-// 		rr.used_texture = TEXTURE_ASSET_ID::EXPLOSION1;
-// 		// registry.deathTimers.emplace(invader_entity);
-
-// 		// Updating window title with points
-// 		points++;
-// 		std::stringstream title_ss;
-// 		title_ss << "Points: " << points;
-// 		glfwSetWindowTitle(window, title_ss.str().c_str());
-
-// 		// remove invader
-// 		registry.remove_all_components_of(invader_entity);
-// 		Mix_PlayChannel(-1, die_sound, 0);
-// 	}
-// 	else
-// 	{
-// 		if (projectile.damage == PROJECTILE_DAMAGE)
-// 		{
-// 			Mix_PlayChannel(-1, hurt_sound, 0);
-// 		}
-// 	}
-// }
-
 // Compute collisions between entities
 void WorldSystem::handle_collisions()
 {
 
-	// // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// // TODO A1: Loop over all collisions detected by the physics system
-	// // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// ComponentContainer<Collision> &collision_container = registry.collisions;
-	// for (uint i = 0; i < collision_container.components.size(); i++)
-	// {
-	// 	Entity e1 = collision_container.entities[i];
-	// 	Entity e2 = collision_container.components[i].other; // not a reference, might need to fix
-
-	// 	if (registry.projectiles.has(e1) && registry.invaders.has(e2))
-	// 	{
-	// 		Invader &invader = registry.invaders.get(e2);
-	// 		Projectile &projectile = registry.projectiles.get(e1);
-	// 		process_damage(e2, e1, invader, projectile);
-	// 	}
-	// 	else if (registry.projectiles.has(e2) && registry.invaders.has(e1))
-	// 	{
-	// 		Invader &invader = registry.invaders.get(e1);
-	// 		Projectile &projectile = registry.projectiles.get(e2);
-	// 		process_damage(e1, e2, invader, projectile);
-	// 	}
-
-	// 	if (registry.towers.has(e1) && registry.invaders.has(e2))
-	// 	{
-	// 		Motion &motion = registry.motions.get(e2);
-	// 		// create explosion
-	// 		Entity explosion_entity = createExplosion(motion.position);
-	// 		registry.remove_all_components_of(e1);
-	// 		registry.remove_all_components_of(e2);
-	// 		registry.vignatte.emplace(explosion_entity);
-	// 		max_towers--;
-	// 		Mix_PlayChannel(-1, chicken_eat_sound, 0);
-	// 	}
-	// 	else if ((registry.towers.has(e2) && registry.invaders.has(e1)))
-	// 	{
-	// 		Motion &motion = registry.motions.get(e1);
-	// 		// create explosion
-	// 		Entity explosion_entity = createExplosion(motion.position, 1000);
-	// 		registry.remove_all_components_of(e1);
-	// 		registry.remove_all_components_of(e2);
-	// 		registry.vignatte.emplace(explosion_entity);
-	// 		max_towers--;
-	// 		Mix_PlayChannel(-1, chicken_eat_sound, 0);
-	// 	}
-	}
-
-	// // Remove all collisions from this simulation step
-	// registry.collisions.clear();
-// }
+}
 
 // Should the game be over ?
 bool WorldSystem::is_over() const
@@ -424,7 +342,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 		// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
 	}
 
-	if(action == GLFW_MOUSE_BUTTON_LEFT) {
+	if(action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {
 		Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
 		if(less_f_ugly.scale.x < 0) { // face left = minus
 		less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
