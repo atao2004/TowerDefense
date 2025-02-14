@@ -1,6 +1,8 @@
 #include <iostream>
 #include "ai_system.hpp"
+#include "status_system.hpp"
 #include "world_init.hpp"
+
 
 void AISystem::step(float elapsed_ms) {
     update_enemy_behaviors(elapsed_ms);
@@ -20,6 +22,7 @@ void AISystem::update_enemy_behaviors(float elapsed_ms) {
             
             // For now, just handle basic movement
             update_enemy_movement(entity, elapsed_ms);
+			handle_enemy_attack(entity, elapsed_ms);
         }
     }
 }
@@ -45,6 +48,39 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms) {
         motion.scale.x *= -1;
     } else if (motion.velocity.x > 0 && motion.scale.x < 0) {
         motion.scale.x *= -1;
+    }
+}
+
+void AISystem::handle_enemy_attack(Entity entity, float elapsed_ms) {
+    if (!registry.players.entities.size()) return;
+    
+    Entity player = registry.players.entities[0];
+    Attack& attack = registry.attacks.get(entity);
+    Motion& enemy_motion = registry.motions.get(entity);
+    Motion& player_motion = registry.motions.get(player);
+    
+    // Update cooldown
+    attack.cooldown_ms -= elapsed_ms;
+    
+    // Calculate distance to player
+    float distance = calculate_distance_to_target(enemy_motion.position, player_motion.position);
+    
+    // If in range and cooldown ready
+    if (distance <= attack.range && attack.cooldown_ms <= 0) {
+        
+        auto& status_comp = registry.statuses.get(player);
+        
+        // Add attack status
+        Status attack_status{
+            "attack",
+            0.0f,           // 0 duration for immediate effect
+            static_cast<float>(attack.damage)   // Use enemy's attack damage
+        };
+        status_comp.active_statuses.push_back(attack_status);
+        
+        
+        // Reset cooldown
+        attack.cooldown_ms = 1000.0f;  // Reset to 1 second
     }
 }
 

@@ -53,8 +53,15 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 Entity createZombie(RenderSystem* renderer, vec2 position) {
 	auto entity = Entity();
 
-	Zombie& zombie = registry.zombies.emplace(entity);
-	zombie.health = ZOMBIE_HEALTH;
+	registry.zombies.emplace(entity);
+
+    Creature& creature = registry.creatures.emplace(entity);
+    creature.health = ZOMBIE_HEALTH;
+
+	Attack& attack = registry.attacks.emplace(entity);
+    attack.range = 30.0f;         
+    attack.damage = 10.0f;        
+    attack.cooldown_ms = 1000.0f;
 
 	// store a reference to the potentially re-used mesh object
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
@@ -135,14 +142,18 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	registry.players.emplace(entity);
 	Creature& creature = registry.creatures.emplace(entity);
 	creature.health = PLAYER_HEALTH;
+	
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
 	motion.scale = vec2({ INVADER_BB_WIDTH, INVADER_BB_HEIGHT });
+
 	Attack& attack = registry.attacks.emplace(entity);
 	attack.damage = 10;
 	attack.range = 60;
+
+	registry.statuses.emplace(entity);
 
 	//create detection box
 	// createDetectionLine(entity, vec2{position.x+30, position.y-30}, vec2{attack.range, 2});                       //upper -----

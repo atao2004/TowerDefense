@@ -84,4 +84,6 @@ private:
 
 	// Manage spawning zombies
 	SpawnManager spawn_manager;
+    
+	bool test_mode = false;
 };

@@ -13,6 +13,9 @@ public:
     void reset();   // Reset the spawn manager
     void start_game(); // Start the game for spawning zombies
 
+    void set_test_mode(bool enabled);
+    bool is_test_mode() const { return test_mode; }
+
 private:
     struct SpawnPoint {
         vec2 position;
@@ -20,8 +23,7 @@ private:
     };
 
     void initialize_spawn_points();
-    
-    
+     
     std::vector<SpawnPoint> spawn_points;
     float wave_timer_ms;
     float next_wave_ms;
@@ -34,9 +36,12 @@ private:
     
     // Constants
     static constexpr float WAVE_INTERVAL_MS = 5000.0f;
-    static constexpr int INITIAL_ZOMBIES_PER_WAVE = 3;
-    static constexpr float WAVE_SCALING_FACTOR = 1.5f;
+    static constexpr int INITIAL_ZOMBIES_PER_WAVE = 4;
+    static constexpr float WAVE_SCALING_FACTOR = 1.0f;
 
     // Keep track of whether the game has really started
     bool is_game_started = false;
+
+    // Test mode for manual wave generation
+    bool test_mode = false;
 };

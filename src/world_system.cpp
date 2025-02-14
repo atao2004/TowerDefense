@@ -10,7 +10,6 @@
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
 
-
 // create the world
 WorldSystem::WorldSystem() : points(0),
 							 max_zombies(MAX_ZOMBIES),
@@ -165,9 +164,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	// }
 
 	// Using the spawn manager to generate zombies
-    spawn_manager.step(elapsed_ms_since_last_update, renderer);
-	
-    return true;
+	spawn_manager.step(elapsed_ms_since_last_update, renderer);
+
+	return true;
 }
 
 // Reset the world state to its initial state
@@ -269,6 +268,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (action == GLFW_PRESS && key == GLFW_KEY_G)
 	{
 		spawn_manager.generate_wave(renderer);
+		return;
+	}
+
+	// Test mode toggle with 't'
+	if (action == GLFW_PRESS && key == GLFW_KEY_T)
+	{
+		test_mode = !test_mode;
+		spawn_manager.set_test_mode(test_mode);
 		return;
 	}
 
