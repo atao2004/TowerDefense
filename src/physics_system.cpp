@@ -13,7 +13,7 @@ vec2 get_bounding_box(const Motion& motion)
 // This is a SUPER APPROXIMATE check that puts a circle around the bounding boxes and sees
 // if the center point of either object is inside the other's bounding-box-circle. You can
 // surely implement a more accurate detection
-bool collides(const Motion& motion1, const Motion& motion2)
+bool PhysicsSystem::collides(const Motion& motion1, const Motion& motion2)
 {
 	vec2 dp = motion1.position - motion2.position;
 	float dist_squared = dot(dp,dp);

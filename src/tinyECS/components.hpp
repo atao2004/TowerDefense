@@ -4,13 +4,30 @@
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
 
-struct Attack {
+#ifdef Status
+#undef Status
+#endif
+
+struct Attack
+{
 	int range;
 	int damage;
+	float cooldown_ms;
 };
 
-struct Creature {
+struct Creature
+{
 	float health;
+};
+
+struct Status {
+    std::string type;      // Status type (e.g. "injured", "poisoned")
+    float duration_ms;     // Counts down to 0
+    float value;          // Effect value (damage, etc)
+};
+
+struct StatusComponent {
+    std::vector<Status> active_statuses;
 };
 
 struct Dimension {
@@ -18,35 +35,44 @@ struct Dimension {
 	int height;
 };
 
-struct Experience {
+struct Experience
+{
 	int exp;
 };
 
-struct Motion {
-	vec2  position = { 0, 0 };
-	float angle    = 0;
-	vec2  velocity = { 0, 0 };
-	vec2  scale    = { 10, 10 };
+struct Motion
+{
+	vec2 position = {0, 0};
+	float angle = 0;
+	vec2 velocity = {0, 0};
+	vec2 scale = {10, 10};
+	Motion()
+	{
+	vec2 position = {0, 0};
+	float angle = 0;
+	vec2 velocity = {0, 0};
+	vec2 scale = {10, 10};
+	}
 };
 
-
-struct Texture {
-
+struct Texture
+{
 };
 
 struct Player
 {
-
 };
 
-struct Zombie {
+struct Zombie
+{
 	float health;
 };
 
 // Tower
-struct Tower {
-	float range;	// for vision / detection
-	int timer_ms;	// when to shoot - this could also be a separate timer component...
+struct Tower
+{
+	float range;  // for vision / detection
+	int timer_ms; // when to shoot - this could also be a separate timer component...
 };
 
 // Stucture to store collision information
@@ -54,7 +80,7 @@ struct Collision
 {
 	// Note, the first object is stored in the ECS container.entities
 	Entity other; // the second object involved in the collision
-	Collision(Entity& other) { this->other = other; };
+	Collision(Entity &other) { this->other = other; };
 };
 
 struct Grass {
@@ -79,9 +105,10 @@ struct ScreenState
 };
 
 // used to hold grid line start and end positions
-struct GridLine {
-	vec2 start_pos = {  0,  0 };
-	vec2 end_pos   = { 10, 10 };	// default to diagonal line
+struct GridLine
+{
+	vec2 start_pos = {0, 0};
+	vec2 end_pos = {10, 10}; // default to diagonal line
 };
 
 // Single Vertex Buffer element for non-textured meshes (chicken.vs.glsl)
@@ -101,8 +128,8 @@ struct TexturedVertex
 // Mesh datastructure for storing vertex and index buffers
 struct Mesh
 {
-	static bool loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out_vertices, std::vector<uint16_t>& out_vertex_indices, vec2& out_size);
-	vec2 original_size = {1,1};
+	static bool loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex> &out_vertices, std::vector<uint16_t> &out_vertex_indices, vec2 &out_size);
+	vec2 original_size = {1, 1};
 	std::vector<ColoredVertex> vertices;
 	std::vector<uint16_t> vertex_indices;
 };
@@ -131,7 +158,8 @@ struct Mesh
  * enums there are, and as a default value to represent uninitialized fields.
  */
 
-enum class TEXTURE_ASSET_ID {
+enum class TEXTURE_ASSET_ID
+{
 	INVADER = 0,
 	TOWER = INVADER + 1,
 	GRASS = TOWER + 1,
@@ -142,7 +170,8 @@ enum class TEXTURE_ASSET_ID {
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
-enum class EFFECT_ASSET_ID {
+enum class EFFECT_ASSET_ID
+{
 	EGG = 0,
 	CHICKEN = EGG + 1,
 	TEXTURED = CHICKEN + 1,
@@ -151,7 +180,8 @@ enum class EFFECT_ASSET_ID {
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
-enum class GEOMETRY_BUFFER_ID {
+enum class GEOMETRY_BUFFER_ID
+{
 	CHICKEN = 0,
 	SPRITE = CHICKEN + 1,
 	EGG = SPRITE + 1,
@@ -161,9 +191,9 @@ enum class GEOMETRY_BUFFER_ID {
 };
 const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 
-struct RenderRequest {
-	TEXTURE_ASSET_ID   used_texture  = TEXTURE_ASSET_ID::TEXTURE_COUNT;
-	EFFECT_ASSET_ID    used_effect   = EFFECT_ASSET_ID::EFFECT_COUNT;
+struct RenderRequest
+{
+	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
+	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
 	GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 };
-
