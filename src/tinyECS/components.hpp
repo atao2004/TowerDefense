@@ -58,7 +58,7 @@ struct Collision
 };
 
 struct HealthBar {
-
+	float health_points = 500;
 };
 
 struct ExpBar {

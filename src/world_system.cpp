@@ -146,10 +146,10 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		createZombie(renderer, vec2(50.f + uniform_dist(rng) * (WINDOW_WIDTH_PX - 100.f), 100.f));
 	}
 
-	createHealthbar();
+	//createHealthbar();
+	//createExpbar();
 	createPause();
 	createToolbar();
-	createExpbar();
 
 	return true;
 }

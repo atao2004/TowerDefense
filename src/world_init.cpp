@@ -188,7 +188,7 @@ Entity createToolbar()
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(toolbar_entity);
 	motion_component.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX - 50);
-	motion_component.scale = vec2(325, 75);
+	motion_component.scale = vec2(600, 75);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.

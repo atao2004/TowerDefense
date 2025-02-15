@@ -10,6 +10,10 @@ layout(location = 0) out vec4 color;
 
 vec4 vignette(vec4 in_color) 
 {
+	if (texcoord[0] > 0.725 && texcoord[0] < 0.975) {
+		if (texcoord[1] > 0.925 && texcoord[1] < 0.975) in_color = vec4(1, 0, 0, 0);
+		else if (texcoord[1] > 0.85 && texcoord[1] < 0.9) in_color = vec4(0.3, 0.3, 1, 0);
+	}
 	return in_color;
 }
 
@@ -25,4 +29,5 @@ void main()
 {
     vec4 in_color = texture(screen_texture, texcoord);
     color = fade_color(in_color);
+	color = vignette(color);
 }
