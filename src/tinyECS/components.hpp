@@ -4,6 +4,10 @@
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
 
+#ifdef Status
+#undef Status
+#endif
+
 struct Attack
 {
 	int range;
