@@ -11,7 +11,6 @@ struct Attack {
 
 struct Creature {
 	float health;
-	float speed;
 };
 
 struct Dimension {
@@ -23,57 +22,31 @@ struct Experience {
 	int exp;
 };
 
-struct Position {
-	float x;
-	float y;
+struct Motion {
+	vec2  position = { 0, 0 };
+	float angle    = 0;
+	vec2  velocity = { 0, 0 };
+	vec2  scale    = { 10, 10 };
 };
+
 
 struct Texture {
 
 };
 
-
-// original components that will be deleted later
-// Player component
 struct Player
 {
 
+};
+
+struct Zombie {
+	float health;
 };
 
 // Tower
 struct Tower {
 	float range;	// for vision / detection
 	int timer_ms;	// when to shoot - this could also be a separate timer component...
-};
-
-// Invader
-struct Invader {
-	int health;
-};
-
-// Projectile
-struct Projectile {
-	int damage;
-};
-
-// used for Entities that cause damage
-struct Deadly
-{
-
-};
-
-// used for edible entities
-struct Eatable
-{
-
-};
-
-// All data relevant to the shape and motion of entities
-struct Motion {
-	vec2  position = { 0, 0 };
-	float angle    = 0;
-	vec2  velocity = { 0, 0 };
-	vec2  scale    = { 10, 10 };
 };
 
 // Stucture to store collision information
@@ -84,6 +57,7 @@ struct Collision
 	Collision(Entity& other) { this->other = other; };
 };
 
+<<<<<<< HEAD
 struct HealthBar {
 
 };
@@ -107,16 +81,12 @@ struct Debug {
 };
 extern Debug debugging;
 
+=======
+>>>>>>> main
 // Sets the brightness of the screen
 struct ScreenState
 {
 	float darken_screen_factor = -1;
-};
-
-// A struct to refer to debugging graphics in the ECS
-struct DebugComponent
-{
-	// Note, an empty struct has size 1
 };
 
 // used to hold grid line start and end positions
@@ -125,13 +95,7 @@ struct GridLine {
 	vec2 end_pos   = { 10, 10 };	// default to diagonal line
 };
 
-// A timer that will be associated to dying chicken
-struct DeathTimer
-{
-	float counter_ms = 3000;
-};
-
-// Single Vertex Buffer element for non-textured meshes (coloured.vs.glsl & chicken.vs.glsl)
+// Single Vertex Buffer element for non-textured meshes (chicken.vs.glsl)
 struct ColoredVertex
 {
 	vec3 position;
@@ -186,13 +150,13 @@ enum class TEXTURE_ASSET_ID {
 	EXPBAR = HEALTHBAR + 1,
 	TOOLBAR = EXPBAR + 1,
 	PAUSE = TOOLBAR + 1,
-	TEXTURE_COUNT = PAUSE + 1
+	ZOMBIE = PAUSE + 1,
+	TEXTURE_COUNT = ZOMBIE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
 enum class EFFECT_ASSET_ID {
-	COLOURED = 0,
-	EGG = COLOURED + 1,
+	EGG = 0,
 	CHICKEN = EGG + 1,
 	TEXTURED = CHICKEN + 1,
 	VIGNETTE = TEXTURED + 1,

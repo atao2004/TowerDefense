@@ -1,4 +1,32 @@
-<TODO: student-name>: <TODO: student-num>
-
 Comments to TA about your implementation (optional):
 - Examples: known bugs or incomplete implementation
+
+# CPSC 427 Farmer-Defense - The Last Days
+
+**Group**
+
+- Kung Lim
+- Daniel Lee
+- Anna Tao
+- Ziqing Wang
+- Haonan Zhang
+
+**Video**
+
+- []
+
+**Description**
+
+- []
+
+**Feature**
+
+- []
+
+**Setup**
+
+- []
+
+**Citation**
+
+- []
