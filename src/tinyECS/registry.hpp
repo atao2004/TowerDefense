@@ -20,8 +20,7 @@ public:
 	ComponentContainer<vec3> colors;
 	ComponentContainer<Tower> towers;
 	ComponentContainer<GridLine> gridLines;
-	ComponentContainer<HealthBar> healthbars;
-	ComponentContainer<ExpBar> expbars;
+	ComponentContainer<Grass> grasses;
 	ComponentContainer<Toolbar> toolbars;
 	ComponentContainer<Pause> pauses;
 

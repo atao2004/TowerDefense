@@ -40,6 +40,8 @@ const int GRID_CELL_WIDTH_PX = 60;
 const int GRID_CELL_HEIGHT_PX = 60;
 const int GRID_LINE_WIDTH_PX = 2;
 
+const int GRASS_DIMENSION_PX = 512;
+
 const int TOWER_TIMER_MS = 1000;	// number of milliseconds between tower shots
 const int MAX_ZOMBIES = 5;
 

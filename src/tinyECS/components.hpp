@@ -57,11 +57,7 @@ struct Collision
 	Collision(Entity& other) { this->other = other; };
 };
 
-struct HealthBar {
-	float health_points = 500;
-};
-
-struct ExpBar {
+struct Grass {
 
 };
 
@@ -74,9 +70,12 @@ struct Pause {
 };
 
 // Sets the brightness of the screen
+// Includes HP and EXP parameters
 struct ScreenState
 {
 	float darken_screen_factor = -1;
+	float hp_percentage = 1.0;
+	float exp_percentage = 0.0;
 };
 
 // used to hold grid line start and end positions
@@ -135,9 +134,8 @@ struct Mesh
 enum class TEXTURE_ASSET_ID {
 	INVADER = 0,
 	TOWER = INVADER + 1,
-	HEALTHBAR = TOWER + 1,
-	EXPBAR = HEALTHBAR + 1,
-	TOOLBAR = EXPBAR + 1,
+	GRASS = TOWER + 1,
+	TOOLBAR = GRASS + 1,
 	PAUSE = TOOLBAR + 1,
 	ZOMBIE = PAUSE + 1,
 	TEXTURE_COUNT = ZOMBIE + 1

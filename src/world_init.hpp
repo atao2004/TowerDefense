@@ -11,11 +11,13 @@ Entity createZombie(RenderSystem* renderer, vec2 position);
 Entity createTower(RenderSystem* renderer, vec2 position);
 void removeTower(vec2 position);
 
+// texture elements
+Entity createGrass(vec2 position);
+void removeGrasses();
+
 // ui elements
-Entity createHealthbar();
 Entity createPause();
 Entity createToolbar();
-Entity createExpbar();
 
 // grid lines to show tile positions
 Entity createGridLine(vec2 start_pos, vec2 end_pos);

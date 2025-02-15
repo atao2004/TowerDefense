@@ -3,6 +3,8 @@
 uniform sampler2D screen_texture;
 uniform float time;
 uniform float darken_screen_factor;
+uniform float hp_percentage;
+uniform float exp_percentage;
 
 in vec2 texcoord;
 
@@ -10,9 +12,12 @@ layout(location = 0) out vec4 color;
 
 vec4 vignette(vec4 in_color) 
 {
-	if (texcoord[0] > 0.725 && texcoord[0] < 0.975) {
-		if (texcoord[1] > 0.925 && texcoord[1] < 0.975) in_color = vec4(1, 0, 0, 0);
-		else if (texcoord[1] > 0.85 && texcoord[1] < 0.9) in_color = vec4(0.3, 0.3, 1, 0);
+	if (texcoord[0] > 0.725) {
+		if (texcoord[1] > 0.925 && texcoord[1] < 0.975) {
+			if (texcoord[0] < (0.725 + hp_percentage * 0.25)) in_color = vec4(1, 0, 0, 0);
+		} else if (texcoord[1] > 0.85 && texcoord[1] < 0.9) {
+			if (texcoord[0] < (0.725 + exp_percentage * 0.25)) in_color = vec4(0.3, 0.3, 1, 0);
+		}
 	}
 	return in_color;
 }

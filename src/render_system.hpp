@@ -31,8 +31,7 @@ class RenderSystem {
 	const std::array<std::string, texture_count> texture_paths = {
 		textures_path("invaders/blue_1.png"),
 		textures_path("towers/tower01.png"),
-		textures_path("ui/hp_100.jpg"),
-		textures_path("ui/exp_0.jpg"),
+		textures_path("map/grass.png"),
 		textures_path("ui/toolbar.png"),
 		textures_path("ui/pause.png"),
 		textures_path("enemies/zombie_idle.png")

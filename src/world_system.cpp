@@ -146,8 +146,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		createZombie(renderer, vec2(50.f + uniform_dist(rng) * (WINDOW_WIDTH_PX - 100.f), 100.f));
 	}
 
-	//createHealthbar();
-	//createExpbar();
 	createPause();
 	createToolbar();
 
@@ -179,6 +177,14 @@ void WorldSystem::restart_game() {
 
 	int grid_line_width = GRID_LINE_WIDTH_PX;
 
+	// create the grass texture for the background and reset the pre-existing grasses
+	removeGrasses();
+	for (int x = (GRASS_DIMENSION_PX / 2); x < WINDOW_WIDTH_PX + (GRASS_DIMENSION_PX / 2); x += GRASS_DIMENSION_PX) {
+		for (int y = (GRASS_DIMENSION_PX / 2); y < WINDOW_HEIGHT_PX + (GRASS_DIMENSION_PX / 2); y += GRASS_DIMENSION_PX) {
+			createGrass(vec2(x, y));
+		}
+	}
+	
 	//create grid lines if they do not already exist
 	if (grid_lines.size() == 0) {
 		// vertical lines
@@ -234,33 +240,34 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		return;
 	}
 
-// 	Entity player = registry.players.entities[0];
-// 	Motion& motion = registry.motions.get(player);
+	Entity player = registry.players.entities[0];
+	Motion& motion = registry.motions.get(player);
 
-// 	// Move left
-// 	if (action == GLFW_PRESS && key == GLFW_KEY_A) {
-// 		motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
-// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
-// 		motion.velocity.x = 0;
-// 	}// Move right 
-// 	if (action == GLFW_PRESS && key == GLFW_KEY_D) {
-// 		motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
-// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
-// 		motion.velocity.x = 0;
-// 	}
+	// Move left
+	if (action == GLFW_PRESS && key == GLFW_KEY_A) {
+		motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
+	} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
+		motion.velocity.x = 0;
+	}
+	// Move right 
+	if (action == GLFW_PRESS && key == GLFW_KEY_D) {
+		motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
+	} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
+		motion.velocity.x = 0;
+	}
 
-// 	// Move down
-// 	if (action == GLFW_PRESS && key == GLFW_KEY_S) {
-// 		motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
-// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
-// 		motion.velocity.y = 0;
-// 	}
-// 	// Move up
-// 	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
-// 		motion.velocity.y = PLAYER_MOVE_UP_SPEED;
-// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-// 		motion.velocity.y = 0;
-// 	}
+	// Move down
+	if (action == GLFW_PRESS && key == GLFW_KEY_S) {
+		motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
+	} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
+		motion.velocity.y = 0;
+	}
+	// Move up
+	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
+		motion.velocity.y = PLAYER_MOVE_UP_SPEED;
+	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+		motion.velocity.y = 0;
+	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {

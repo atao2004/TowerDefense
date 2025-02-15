@@ -129,54 +129,38 @@ void removeTower(vec2 position) {
 	}
 }
 
-Entity createHealthbar()
+Entity createGrass(vec2 position)
 {
-	Entity healthbar_entity = Entity();
+	Entity grass_entity = Entity();
 
-	HealthBar& healthbar_component = registry.healthbars.emplace(healthbar_entity);
+	Grass& grass_component = registry.grasses.emplace(grass_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(healthbar_entity);
-	motion_component.position = vec2(WINDOW_WIDTH_PX - 100, 50);
-	motion_component.scale = vec2(200, 50);
+	Motion& motion_component = registry.motions.emplace(grass_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(GRASS_DIMENSION_PX, GRASS_DIMENSION_PX);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
 	registry.renderRequests.insert(
-		healthbar_entity,
+		grass_entity,
 		{
-			TEXTURE_ASSET_ID::HEALTHBAR,
+			TEXTURE_ASSET_ID::GRASS,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
 	);
 
-	return healthbar_entity;
+	return grass_entity;
 }
 
-Entity createExpbar()
+void removeGrasses()
 {
-	auto expbar_entity = Entity();
-
-	ExpBar& expbar_component = registry.expbars.emplace(expbar_entity);
-
-	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(expbar_entity);
-	motion_component.position = vec2(WINDOW_WIDTH_PX - 100, 150);
-	motion_component.scale = vec2(200, 50);
-	motion_component.velocity = vec2(0, 0);
-
-	// Render the object.
-	registry.renderRequests.insert(
-		expbar_entity,
-		{
-			TEXTURE_ASSET_ID::EXPBAR,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
-
-	return expbar_entity;
+	// remove all grasses
+	for (Entity& grass_entity : registry.grasses.entities) {
+		registry.remove_all_components_of(grass_entity);
+		std::cout << "tower removed" << std::endl;
+	}
 }
 
 Entity createToolbar()
@@ -206,7 +190,7 @@ Entity createToolbar()
 
 Entity createPause()
 {
-	auto pause_entity = Entity();
+	Entity pause_entity = Entity();
 
 	Pause& pause_component = registry.pauses.emplace(pause_entity);
 
