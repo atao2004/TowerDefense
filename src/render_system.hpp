@@ -33,8 +33,8 @@ class RenderSystem {
 		textures_path("towers/tower01.png"),
 		textures_path("ui/hp_100.jpg"),
 		textures_path("ui/exp_0.jpg"),
-		textures_path("ui/toolbar.jpg"),
-		textures_path("ui/pause.jpg"),
+		textures_path("ui/toolbar.png"),
+		textures_path("ui/pause.png"),
 		textures_path("enemies/zombie_idle.png")
 	};
 
