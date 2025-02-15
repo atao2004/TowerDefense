@@ -11,7 +11,7 @@
 struct Attack
 {
 	int range;
-	int damage;
+	float damage = 10.0;
 	float cooldown_ms;
 };
 

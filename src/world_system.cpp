@@ -228,6 +228,12 @@ void WorldSystem::restart_game()
 		}
 	}
 
+	// if the screenState exists, reset the health bar percentages
+	if (registry.screenStates.size() != 0) {
+		registry.screenStates.get(registry.screenStates.entities[0]).hp_percentage = 1.0;
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+	}
+
 	// spawn player in the middle of the screen
 	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
 
@@ -278,12 +284,17 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	Entity player = registry.players.entities[0];
 	Motion& motion = registry.motions.get(player);
 
+	// Opposite keys should result in no movement.
+	if (action == GLFW_PRESS && key == GLFW_KEY_A && key == GLFW_KEY_D) motion.velocity.x = 0;
+	else if (action == GLFW_PRESS && key == GLFW_KEY_W && key == GLFW_KEY_S) motion.velocity.x = 0;
+
 	// Move left
 	if (action == GLFW_PRESS && key == GLFW_KEY_A) {
 		motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
 		motion.velocity.x = 0;
-	}// Move right
+	}
+	// Move right
 	if (action == GLFW_PRESS && key == GLFW_KEY_D) {
 		motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
@@ -367,12 +378,17 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 		for(int i = 0; i < registry.zombies.size(); i++) {
 			if(PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i]))) { // if zombie and player weapon collide, decrease zombie health
 				Zombie currZombie = registry.zombies.get(registry.zombies.entities[i]);
-				std::cout<<"wow u r attacking so nice cool cool"<<std::endl; 
 				registry.zombies.get(registry.zombies.entities[i]).health -= registry.attacks.get(registry.players.entities[0]).damage;
+				std::cout << "Entity " << (int)registry.zombies.entities[i] << " took " << registry.attacks.get(registry.players.entities[0]).damage
+                      << " attack damage. Health: " << registry.zombies.get(registry.zombies.entities[i]).health << std::endl;
 				if(registry.zombies.get(registry.zombies.entities[i]).health <= 0) { // if zombie health is below 0, remove him
 					registry.remove_all_components_of(registry.zombies.entities[i]);
 				}
 
+				// Increase the experience of the player.
+				if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage <= 1.0) {
+					registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
+				}
 			}
 		}
 	}

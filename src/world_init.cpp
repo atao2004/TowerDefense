@@ -60,7 +60,6 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 
 	Attack& attack = registry.attacks.emplace(entity);
     attack.range = 30.0f;         
-    attack.damage = 10.0f;        
     attack.cooldown_ms = 1000.0f;
 
 	// store a reference to the potentially re-used mesh object
@@ -234,7 +233,6 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	motion.scale = vec2({ INVADER_BB_WIDTH, INVADER_BB_HEIGHT });
 
 	Attack& attack = registry.attacks.emplace(entity);
-	attack.damage = 10;
 	attack.range = 60;
 
 	registry.statuses.emplace(entity);
