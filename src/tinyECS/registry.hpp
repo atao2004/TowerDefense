@@ -28,6 +28,11 @@ public:
 	ComponentContainer<GridLine> gridLines;
 	ComponentContainer<Invader> invaders;
 	ComponentContainer<Projectile> projectiles;
+	ComponentContainer<HealthBar> healthbars;
+	ComponentContainer<ExpBar> expbars;
+	ComponentContainer<Toolbar> toolbars;
+	ComponentContainer<Pause> pauses;
+
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry()

@@ -134,6 +134,106 @@ Entity createProjectile(vec2 pos, vec2 size, vec2 velocity)
 	return entity;
 }
 
+Entity createHealthbar()
+{
+	Entity healthbar_entity = Entity();
+
+	HealthBar& healthbar_component = registry.healthbars.emplace(healthbar_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(healthbar_entity);
+	motion_component.position = vec2(WINDOW_WIDTH_PX - 100, 50);
+	motion_component.scale = vec2(200, 50);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		healthbar_entity,
+		{
+			TEXTURE_ASSET_ID::HEALTHBAR,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return healthbar_entity;
+}
+
+Entity createExpbar()
+{
+	auto expbar_entity = Entity();
+
+	ExpBar& expbar_component = registry.expbars.emplace(expbar_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(expbar_entity);
+	motion_component.position = vec2(WINDOW_WIDTH_PX - 100, 150);
+	motion_component.scale = vec2(200, 50);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		expbar_entity,
+		{
+			TEXTURE_ASSET_ID::EXPBAR,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return expbar_entity;
+}
+
+Entity createToolbar()
+{
+	Entity toolbar_entity = Entity();
+
+	Toolbar& toolbar_component = registry.toolbars.emplace(toolbar_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(toolbar_entity);
+	motion_component.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX - 50);
+	motion_component.scale = vec2(325, 75);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		toolbar_entity,
+		{
+			TEXTURE_ASSET_ID::TOOLBAR,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return toolbar_entity;
+}
+
+Entity createPause()
+{
+	auto pause_entity = Entity();
+
+	Pause& pause_component = registry.pauses.emplace(pause_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(pause_entity);
+	motion_component.position = vec2(50, 50);
+	motion_component.scale = vec2(50, 50);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		pause_entity,
+		{
+			TEXTURE_ASSET_ID::PAUSE,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return pause_entity;
+}
+
 Entity createLine(vec2 position, vec2 scale)
 {
 	Entity entity = Entity();

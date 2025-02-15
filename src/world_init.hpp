@@ -14,6 +14,12 @@ void removeTower(vec2 position);
 // projectile
 Entity createProjectile(vec2 pos, vec2 size, vec2 velocity);
 
+// ui elements
+Entity createHealthbar();
+Entity createPause();
+Entity createToolbar();
+Entity createExpbar();
+
 // grid lines to show tile positions
 Entity createGridLine(vec2 start_pos, vec2 end_pos);
 

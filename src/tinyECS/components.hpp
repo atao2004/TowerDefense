@@ -84,6 +84,22 @@ struct Collision
 	Collision(Entity& other) { this->other = other; };
 };
 
+struct HealthBar {
+
+};
+
+struct ExpBar {
+
+};
+
+struct Toolbar {
+
+};
+
+struct Pause {
+
+};
+
 // Data structure for toggling debug mode
 struct Debug {
 	bool in_debug_mode = 0;
@@ -166,7 +182,11 @@ enum class TEXTURE_ASSET_ID {
 	INVADER = 0,
 	TOWER = INVADER + 1,
 	PROJECTILE = TOWER + 1,
-	TEXTURE_COUNT = PROJECTILE + 1
+	HEALTHBAR = PROJECTILE + 1,
+	EXPBAR = HEALTHBAR + 1,
+	TOOLBAR = EXPBAR + 1,
+	PAUSE = TOOLBAR + 1,
+	TEXTURE_COUNT = PAUSE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
