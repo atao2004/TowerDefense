@@ -23,6 +23,7 @@ public:
 	ComponentContainer<Zombie> zombies;
 	
 	ComponentContainer<Player> players;
+	ComponentContainer<StatusComponent> statuses;
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
@@ -38,6 +39,7 @@ public:
 		registry_list.push_back(&gridLines);
 		registry_list.push_back(&zombies);
 		registry_list.push_back(&players);
+		registry_list.push_back(&statuses);
 	}
 
 	void clear_all_components() {

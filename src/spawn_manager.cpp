@@ -44,13 +44,14 @@ void SpawnManager::step(float elapsed_ms, RenderSystem *renderer)
         std::cout << "Game not started yet, skipping wave generation" << std::endl;
         return;
     }
-    wave_timer_ms += elapsed_ms;
 
-    if (wave_timer_ms >= next_wave_ms)
-    {
-        generate_wave(renderer); // Generate wave when timer expires
-        wave_timer_ms = 0.f;
-        next_wave_ms = WAVE_INTERVAL_MS;
+    if (!test_mode) {
+        wave_timer_ms += elapsed_ms;
+        if (wave_timer_ms >= next_wave_ms) {
+            generate_wave(renderer);
+            wave_timer_ms = 0.f;
+            next_wave_ms = WAVE_INTERVAL_MS;
+        }
     }
 }
 
@@ -84,4 +85,9 @@ void SpawnManager::start_game() {
     std::cout << "SpawnManager: Game started!" << std::endl;
     is_game_started = true;
     wave_timer_ms = 0.f;
+}
+
+void SpawnManager::set_test_mode(bool enabled) {
+    test_mode = enabled;
+    std::cout << "Test mode " << (enabled ? "enabled" : "disabled") << std::endl;
 }

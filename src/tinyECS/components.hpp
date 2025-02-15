@@ -8,6 +8,7 @@ struct Attack
 {
 	int range;
 	int damage;
+	float cooldown_ms;
 };
 
 struct Creature
@@ -15,8 +16,17 @@ struct Creature
 	float health;
 };
 
-struct Dimension
-{
+struct Status {
+    std::string type;      // Status type (e.g. "injured", "poisoned")
+    float duration_ms;     // Counts down to 0
+    float value;          // Effect value (damage, etc)
+};
+
+struct StatusComponent {
+    std::vector<Status> active_statuses;
+};
+
+struct Dimension {
 	int width;
 	int height;
 };
