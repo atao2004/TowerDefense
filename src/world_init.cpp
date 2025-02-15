@@ -129,20 +129,6 @@ void removeTower(vec2 position) {
 	}
 }
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!! TODO A1: create a new projectile w/ pos, size, & velocity
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Entity createProjectile(vec2 pos, vec2 size, vec2 velocity)
-{
-	auto entity = Entity();
-
-	// TODO: projectile
-	// TODO: motion
-	// TODO: renderRequests
-
-	return entity;
-}
-
 Entity createHealthbar()
 {
 	Entity healthbar_entity = Entity();

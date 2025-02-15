@@ -20,8 +20,6 @@ public:
 	ComponentContainer<vec3> colors;
 	ComponentContainer<Tower> towers;
 	ComponentContainer<GridLine> gridLines;
-	ComponentContainer<Invader> invaders;
-	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<HealthBar> healthbars;
 	ComponentContainer<ExpBar> expbars;
 	ComponentContainer<Toolbar> toolbars;

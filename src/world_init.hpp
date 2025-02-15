@@ -11,18 +11,12 @@ Entity createZombie(RenderSystem* renderer, vec2 position);
 Entity createTower(RenderSystem* renderer, vec2 position);
 void removeTower(vec2 position);
 
-<<<<<<< HEAD
-// projectile
-Entity createProjectile(vec2 pos, vec2 size, vec2 velocity);
-
 // ui elements
 Entity createHealthbar();
 Entity createPause();
 Entity createToolbar();
 Entity createExpbar();
 
-=======
->>>>>>> main
 // grid lines to show tile positions
 Entity createGridLine(vec2 start_pos, vec2 end_pos);
 

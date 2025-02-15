@@ -57,7 +57,6 @@ struct Collision
 	Collision(Entity& other) { this->other = other; };
 };
 
-<<<<<<< HEAD
 struct HealthBar {
 
 };
@@ -74,15 +73,6 @@ struct Pause {
 
 };
 
-// Data structure for toggling debug mode
-struct Debug {
-	bool in_debug_mode = 0;
-	bool in_freeze_mode = 0;
-};
-extern Debug debugging;
-
-=======
->>>>>>> main
 // Sets the brightness of the screen
 struct ScreenState
 {
@@ -145,8 +135,7 @@ struct Mesh
 enum class TEXTURE_ASSET_ID {
 	INVADER = 0,
 	TOWER = INVADER + 1,
-	PROJECTILE = TOWER + 1,
-	HEALTHBAR = PROJECTILE + 1,
+	HEALTHBAR = TOWER + 1,
 	EXPBAR = HEALTHBAR + 1,
 	TOOLBAR = EXPBAR + 1,
 	PAUSE = TOOLBAR + 1,
