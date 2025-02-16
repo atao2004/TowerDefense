@@ -155,21 +155,6 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
 	} 
-	// else if (render_request.used_effect == EFFECT_ASSET_ID::COLOURED) {
-	// 	//trying to create grey-box
-	// 	GLint in_position_loc = glGetAttribLocation(program, "in_position");
-	// 	gl_has_errors();
-
-	// 	glEnableVertexAttribArray(in_position_loc);
-	// 	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
-	// 						  sizeof(TexturedVertex), (void *)0);
-
-	// 	GLint color_uloc = glGetUniformLocation(program, "color");
-	// 	const vec3 color = registry.colors.has(entity) ? registry.colors.get(entity) : vec3(1);
-	// 	glUniform3fv(color_uloc, 1, (float*)&color);
-	// 	gl_has_errors();
-
-	// } 
 	else if (render_request.used_effect == EFFECT_ASSET_ID::CHICKEN || render_request.used_effect == EFFECT_ASSET_ID::EGG) {
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_color_loc = glGetAttribLocation(program, "in_color");

@@ -46,7 +46,7 @@ const int TOWER_TIMER_MS = 1000;	// number of milliseconds between tower shots
 const int MAX_ZOMBIES = 5;
 
 const int PLAYER_HEALTH = 100;
-const int ZOMBIE_HEALTH = 50;
+const int ZOMBIE_HEALTH = 20;
 const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
 const int PROJECTILE_DAMAGE = 10;

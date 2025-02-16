@@ -228,13 +228,7 @@ void WorldSystem::restart_game()
 // Compute collisions between entities
 void WorldSystem::handle_collisions()
 {
-	ComponentContainer<Collision> &collision_container = registry.collisions;
-	for (uint i = 0; i < collision_container.components.size(); i++)
-	{
-	}
 
-	// Remove all collisions from this simulation step
-	registry.collisions.clear();
 }
 
 // Should the game be over ?
@@ -271,41 +265,33 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
-	// Test mode toggle with 't'
-	if (action == GLFW_PRESS && key == GLFW_KEY_T)
-	{
-		test_mode = !test_mode;
-		spawn_manager.set_test_mode(test_mode);
-		return;
-	}
+		Entity player = registry.players.entities[0];
+		Motion& motion = registry.motions.get(player);
 
-	// 	Entity player = registry.players.entities[0];
-	// 	Motion& motion = registry.motions.get(player);
+		// Move left
+		if (action == GLFW_PRESS && key == GLFW_KEY_A) {
+			motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
+		} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
+			motion.velocity.x = 0;
+		}// Move right
+		if (action == GLFW_PRESS && key == GLFW_KEY_D) {
+			motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
+		} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
+			motion.velocity.x = 0;
+		}
 
-	// 	// Move left
-	// 	if (action == GLFW_PRESS && key == GLFW_KEY_A) {
-	// 		motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
-	// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
-	// 		motion.velocity.x = 0;
-	// 	}// Move right
-	// 	if (action == GLFW_PRESS && key == GLFW_KEY_D) {
-	// 		motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
-	// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
-	// 		motion.velocity.x = 0;
-	// 	}
-
-	// 	// Move down
-	// 	if (action == GLFW_PRESS && key == GLFW_KEY_S) {
-	// 		motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
-	// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
-	// 		motion.velocity.y = 0;
-	// 	}
-	// 	// Move up
-	// 	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
-	// 		motion.velocity.y = PLAYER_MOVE_UP_SPEED;
-	// 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
-	// 		motion.velocity.y = 0;
-	// 	}
+		// Move down
+		if (action == GLFW_PRESS && key == GLFW_KEY_S) {
+			motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
+		} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
+			motion.velocity.y = 0;
+		}
+		// Move up
+		if (action == GLFW_PRESS && key == GLFW_KEY_W) {
+			motion.velocity.y = PLAYER_MOVE_UP_SPEED;
+		} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+			motion.velocity.y = 0;
+		}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
@@ -354,5 +340,30 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 
 		// std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
 		// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
+	}
+
+	if(action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {
+		Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
+		if(less_f_ugly.scale.x < 0) { // face left = minus the range from position
+		less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
+		} else { // face right = add the range from position
+			less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
+		}
+		Motion weapon_motion = Motion();
+		weapon_motion.position = less_f_ugly.position;
+		weapon_motion.angle = less_f_ugly.angle;
+		weapon_motion.velocity = less_f_ugly.velocity;
+		weapon_motion.scale = less_f_ugly.scale;
+		for(int i = 0; i < registry.zombies.size(); i++) {
+			if(PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i]))) { // if zombie and player weapon collide, decrease zombie health
+				Zombie currZombie = registry.zombies.get(registry.zombies.entities[i]);
+				std::cout<<"wow u r attacking so nice cool cool"<<std::endl; 
+				registry.zombies.get(registry.zombies.entities[i]).health -= registry.attacks.get(registry.players.entities[0]).damage;
+				if(registry.zombies.get(registry.zombies.entities[i]).health <= 0) { // if zombie health is below 0, remove him
+					registry.remove_all_components_of(registry.zombies.entities[i]);
+				}
+
+			}
+		}
 	}
 }
