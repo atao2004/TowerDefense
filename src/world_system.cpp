@@ -9,6 +9,7 @@
 
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
+#include "state_system.hpp"
 
 // create the world
 WorldSystem::WorldSystem() : points(0),
@@ -297,10 +298,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W) {
 			State& state = registry.states.get(player);
 			if (motion.velocity == vec2(0, 0)) {
-				state.state = STATE::IDLE;
+				StateSystem::update_state(STATE::IDLE);
 			}
 			else {
-				state.state = STATE::MOVE;
+				StateSystem::update_state(STATE::MOVE);
 			}
 		}
 }

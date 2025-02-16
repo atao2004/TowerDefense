@@ -7,7 +7,8 @@ class StateSystem {
 public:
     void init();
     void step(float elapsed_ms);
+    static void update_state(STATE state_new);
 private:
-    RenderRequest* request = nullptr;
-    State* state = nullptr;
+    static RenderRequest* request;
+    static State* state;
 };
