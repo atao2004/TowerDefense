@@ -284,7 +284,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	Entity player = registry.players.entities[0];
 	Motion& motion = registry.motions.get(player);
 
-	// Opposite keys should result in no movement.
+	// Opposite keys should result in no movement. (WORK IN PROGRESS)
 	if (action == GLFW_PRESS && key == GLFW_KEY_A && key == GLFW_KEY_D) motion.velocity.x = 0;
 	else if (action == GLFW_PRESS && key == GLFW_KEY_W && key == GLFW_KEY_S) motion.velocity.x = 0;
 
