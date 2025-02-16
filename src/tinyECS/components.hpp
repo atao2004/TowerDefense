@@ -15,11 +15,6 @@ struct Attack
 	float cooldown_ms;
 };
 
-struct Creature
-{
-	float health;
-};
-
 struct Status {
     std::string type;      // Status type (e.g. "injured", "poisoned")
     float duration_ms;     // Counts down to 0
@@ -61,6 +56,7 @@ struct Texture
 
 struct Player
 {
+	float health;
 };
 
 struct Zombie

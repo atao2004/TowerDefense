@@ -25,23 +25,23 @@ void StatusSystem::step(float elapsed_ms)
 void StatusSystem::handle_attack(Entity entity, float elapsed_ms)
 {
     // First check if entity has both required components
-    if (!registry.statuses.has(entity) || !registry.creatures.has(entity))
+    if (!registry.statuses.has(entity) || !registry.players.has(entity))
     {
         return;
     }
 
     // Only get the components after confirming they exist
     auto &status_comp = registry.statuses.get(entity);
-    auto &creature = registry.creatures.get(entity);
+    auto &player = registry.players.get(entity);
 
 
     for (auto &status : status_comp.active_statuses)
     {
         if (status.type == "attack")
         {
-            creature.health -= status.value;
+            player.health -= status.value;
             std::cout << "Entity " << (int)entity << " took " << status.value
-                      << " attack damage. Health: " << creature.health << std::endl;
+                      << " attack damage. Health: " << player.health << std::endl;
         }
     }
 }
