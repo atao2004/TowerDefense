@@ -231,6 +231,20 @@ void WorldSystem::handle_collisions()
 
 }
 
+void WorldSystem::handle_cooldowns(float elapsed_ms)
+{
+	auto& registry_cooldown = registry.cooldowns;
+	for (uint i = 0; i < registry_cooldown.size(); i++) {
+		Cooldown& cooldown = registry_cooldown.components[i];
+		std::cout << cooldown.timer_ms << std::endl;
+		cooldown.timer_ms -= elapsed_ms;
+		if (cooldown.timer_ms <= 0) {
+			Entity entity = registry_cooldown.entities[i];
+			registry_cooldown.remove(entity);
+		}
+	}
+}
+
 // Should the game be over ?
 bool WorldSystem::is_over() const
 {
@@ -343,27 +357,33 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 	}
 
 	if(action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {
-		Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
-		if(less_f_ugly.scale.x < 0) { // face left = minus the range from position
-		less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
-		} else { // face right = add the range from position
-			less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
-		}
-		Motion weapon_motion = Motion();
-		weapon_motion.position = less_f_ugly.position;
-		weapon_motion.angle = less_f_ugly.angle;
-		weapon_motion.velocity = less_f_ugly.velocity;
-		weapon_motion.scale = less_f_ugly.scale;
-		for(int i = 0; i < registry.zombies.size(); i++) {
-			if(PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i]))) { // if zombie and player weapon collide, decrease zombie health
-				Zombie currZombie = registry.zombies.get(registry.zombies.entities[i]);
-				std::cout<<"wow u r attacking so nice cool cool"<<std::endl; 
-				registry.zombies.get(registry.zombies.entities[i]).health -= registry.attacks.get(registry.players.entities[0]).damage;
-				if(registry.zombies.get(registry.zombies.entities[i]).health <= 0) { // if zombie health is below 0, remove him
-					registry.remove_all_components_of(registry.zombies.entities[i]);
-				}
-
+		Entity player = registry.players.entities[0];
+		if (!registry.cooldowns.has(player)) {
+			Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
+			if (less_f_ugly.scale.x < 0) { // face left = minus the range from position
+				less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
 			}
+			else { // face right = add the range from position
+				less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
+			}
+			Motion weapon_motion = Motion();
+			weapon_motion.position = less_f_ugly.position;
+			weapon_motion.angle = less_f_ugly.angle;
+			weapon_motion.velocity = less_f_ugly.velocity;
+			weapon_motion.scale = less_f_ugly.scale;
+			for (int i = 0; i < registry.zombies.size(); i++) {
+				if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i]))) { // if zombie and player weapon collide, decrease zombie health
+					Zombie currZombie = registry.zombies.get(registry.zombies.entities[i]);
+					std::cout << "wow u r attacking so nice cool cool" << std::endl;
+					registry.zombies.get(registry.zombies.entities[i]).health -= registry.attacks.get(registry.players.entities[0]).damage;
+					if (registry.zombies.get(registry.zombies.entities[i]).health <= 0) { // if zombie health is below 0, remove him
+						registry.remove_all_components_of(registry.zombies.entities[i]);
+					}
+
+				}
+			}
+			Cooldown& cooldown = registry.cooldowns.emplace(player);
+			cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
 		}
 	}
 }

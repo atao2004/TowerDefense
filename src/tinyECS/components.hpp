@@ -40,6 +40,10 @@ struct Experience
 	int exp;
 };
 
+struct Cooldown {
+	int timer_ms;
+};
+
 struct Motion
 {
 	vec2 position = {0, 0};
