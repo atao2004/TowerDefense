@@ -21,11 +21,11 @@ public:
 	ComponentContainer<Tower> towers;
 	ComponentContainer<GridLine> gridLines;
 	ComponentContainer<Zombie> zombies;
-	
 	ComponentContainer<Player> players;
 	ComponentContainer<StatusComponent> statuses;
 
 	ComponentContainer<Death> deaths;
+	ComponentContainer<Cooldown> cooldowns;
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
@@ -43,6 +43,7 @@ public:
 		registry_list.push_back(&players);
 		registry_list.push_back(&statuses);
 		registry_list.push_back(&deaths);
+		registry_list.push_back(&cooldowns);
 	}
 
 	void clear_all_components() {

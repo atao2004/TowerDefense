@@ -12,7 +12,6 @@ struct Attack
 {
 	int range;
 	int damage;
-	float cooldown_ms;
 };
 
 struct Creature
@@ -43,6 +42,10 @@ struct Dimension {
 struct Experience
 {
 	int exp;
+};
+
+struct Cooldown {
+	int timer_ms;
 };
 
 struct Motion
