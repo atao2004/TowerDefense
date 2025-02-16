@@ -52,6 +52,8 @@ private:
 	float mouse_pos_x = 0.0f;
 	float mouse_pos_y = 0.0f;
 
+	void player_attack();
+
 	// input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
