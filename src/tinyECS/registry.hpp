@@ -11,7 +11,6 @@ class ECSRegistry
 
 public:
 	ComponentContainer<Attack> attacks;
-	ComponentContainer<Creature> creatures;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
 	ComponentContainer<Mesh*> meshPtrs;
@@ -30,7 +29,6 @@ public:
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
 		registry_list.push_back(&attacks);
-		registry_list.push_back(&creatures);
 		registry_list.push_back(&motions);
 		registry_list.push_back(&collisions);
 		registry_list.push_back(&meshPtrs);

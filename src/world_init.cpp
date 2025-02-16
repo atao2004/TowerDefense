@@ -18,9 +18,7 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	);
 
 	vec3& cv = registry.colors.emplace(entity);
-	cv.r = 0;
-	cv.g = 0;
-	cv.b = 1;
+	cv = GRID_COLOR;
 
 	return entity;
 }
@@ -53,10 +51,8 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 Entity createZombie(RenderSystem* renderer, vec2 position) {
 	auto entity = Entity();
 
-	registry.zombies.emplace(entity);
-
-    Creature& creature = registry.creatures.emplace(entity);
-    creature.health = ZOMBIE_HEALTH;
+	Zombie& zombie = registry.zombies.emplace(entity);
+	zombie.health = ZOMBIE_HEALTH;
 
 	Attack& attack = registry.attacks.emplace(entity);
     attack.range = 30.0f;
@@ -138,9 +134,8 @@ void removeTower(vec2 position) {
 Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	Entity entity = Entity();
 
-	registry.players.emplace(entity);
-	Creature& creature = registry.creatures.emplace(entity);
-	creature.health = PLAYER_HEALTH;
+	Player& player = registry.players.emplace(entity);
+	player.health = PLAYER_HEALTH;
 	
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;

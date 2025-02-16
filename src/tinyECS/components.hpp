@@ -14,11 +14,6 @@ struct Attack
 	int damage;
 };
 
-struct Creature
-{
-	float health;
-};
-
 struct Death
 {
 
@@ -69,6 +64,7 @@ struct Texture
 
 struct Player
 {
+	float health;
 };
 
 struct Zombie
