@@ -123,6 +123,12 @@ struct Mesh
 	std::vector<uint16_t> vertex_indices;
 };
 
+struct DeathAnimation {
+    vec2 slide_direction;  // Direction to slide
+    float alpha = 1.0f;    // Transparency (1.0 = solid, 0.0 = invisible)
+    float duration_ms;     // How long the animation lasts
+};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -162,7 +168,8 @@ enum class EFFECT_ASSET_ID
 	CHICKEN = EGG + 1,
 	TEXTURED = CHICKEN + 1,
 	VIGNETTE = TEXTURED + 1,
-	EFFECT_COUNT = VIGNETTE + 1
+	ZOMBIE = VIGNETTE + 1,
+	EFFECT_COUNT = ZOMBIE + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 

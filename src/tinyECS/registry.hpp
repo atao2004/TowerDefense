@@ -25,6 +25,7 @@ public:
 
 	ComponentContainer<Death> deaths;
 	ComponentContainer<Cooldown> cooldowns;
+	ComponentContainer<DeathAnimation> deathAnimations;
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
@@ -42,6 +43,7 @@ public:
 		registry_list.push_back(&statuses);
 		registry_list.push_back(&deaths);
 		registry_list.push_back(&cooldowns);
+		registry_list.push_back(&deathAnimations);
 	}
 
 	void clear_all_components() {

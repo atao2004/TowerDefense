@@ -46,7 +46,7 @@ void StatusSystem::handle_enemy_attack(Entity entity, float elapsed_ms)
             std::cout << "Entity " << (int)entity << " took " << status.value
                       << " attack damage. Health: " << player.health << std::endl;
         }
-        if (registry.players.has(entity) && creature.health <= 0) {
+        if (registry.players.has(entity) && player.health <= 0) {
             WorldSystem::game_over();  // You'll need to pass WorldSystem reference
             return;
         }

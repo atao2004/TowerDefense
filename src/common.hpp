@@ -35,11 +35,11 @@ inline std::string mesh_path(const std::string& name) {return data_path() + "/me
 //
 // game constants
 //
-const int WINDOW_WIDTH_PX = 1920;
-const int WINDOW_HEIGHT_PX = 1080;
+const int WINDOW_WIDTH_PX = 3840;
+const int WINDOW_HEIGHT_PX = 2160;
 
-const int GRID_CELL_WIDTH_PX = 30;
-const int GRID_CELL_HEIGHT_PX = 30;
+const int GRID_CELL_WIDTH_PX = 60;
+const int GRID_CELL_HEIGHT_PX = 60;
 const int GRID_LINE_WIDTH_PX = 2;
 const vec3 GRID_COLOR = vec3(0, 0, 0);
 
@@ -72,8 +72,8 @@ const float TOWER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
 #endif
 
 // enemies
-const float ZOMBIE_WIDTH = 61 / 3;
-const float ZOMBIE_HEIGHT = 90 / 3;
+const float ZOMBIE_WIDTH = 60 ;
+const float ZOMBIE_HEIGHT = 90 ;
 
 // cooldown
 const int COOLDOWN_ENEMY_ATTACK = 1000;

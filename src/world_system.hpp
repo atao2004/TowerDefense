@@ -52,6 +52,7 @@ private:
 	float mouse_pos_y = 0.0f;
 
 	void player_attack();
+	void update_enemy_death_animations(float elapsed_ms);
 
 	// input callback functions
 	void on_key(int key, int, int action, int mod);

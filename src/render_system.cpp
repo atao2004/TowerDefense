@@ -8,9 +8,10 @@
 #include "tinyECS/registry.hpp"
 
 void RenderSystem::drawGridLine(Entity entity,
-								const mat3& projection) {
+								const mat3 &projection)
+{
 
-	GridLine& gridLine = registry.gridLines.get(entity);
+	GridLine &gridLine = registry.gridLines.get(entity);
 
 	// Transformation code, see Rendering and Transformation in the template
 	// specification for more info Incrementally updates transformation matrix,
@@ -20,7 +21,7 @@ void RenderSystem::drawGridLine(Entity entity,
 	transform.scale(gridLine.end_pos);
 
 	assert(registry.renderRequests.has(entity));
-	const RenderRequest& render_request = registry.renderRequests.get(entity);
+	const RenderRequest &render_request = registry.renderRequests.get(entity);
 
 	const GLuint used_effect_enum = (GLuint)render_request.used_effect;
 	assert(used_effect_enum != (GLuint)EFFECT_ASSET_ID::EFFECT_COUNT);
@@ -46,17 +47,17 @@ void RenderSystem::drawGridLine(Entity entity,
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		gl_has_errors();
 
-		GLint in_color_loc    = glGetAttribLocation(program, "in_color");
+		GLint in_color_loc = glGetAttribLocation(program, "in_color");
 		gl_has_errors();
 
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
-			sizeof(ColoredVertex), (void*)0);
+							  sizeof(ColoredVertex), (void *)0);
 		gl_has_errors();
 
 		glEnableVertexAttribArray(in_color_loc);
 		glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE,
-			sizeof(ColoredVertex), (void*)sizeof(vec3));
+							  sizeof(ColoredVertex), (void *)sizeof(vec3));
 		gl_has_errors();
 	}
 	else
@@ -67,7 +68,7 @@ void RenderSystem::drawGridLine(Entity entity,
 	// Getting uniform locations for glUniform* calls
 	GLint color_uloc = glGetUniformLocation(program, "fcolor");
 	const vec3 color = registry.colors.has(entity) ? registry.colors.get(entity) : vec3(1);
-	glUniform3fv(color_uloc, 1, (float*)&color);
+	glUniform3fv(color_uloc, 1, (float *)&color);
 	gl_has_errors();
 
 	// Get number of indices from index buffer, which has elements uint16_t
@@ -81,11 +82,11 @@ void RenderSystem::drawGridLine(Entity entity,
 	glGetIntegerv(GL_CURRENT_PROGRAM, &currProgram);
 	// Setting uniform values to the currently bound program
 	GLuint transform_loc = glGetUniformLocation(currProgram, "transform");
-	glUniformMatrix3fv(transform_loc, 1, GL_FALSE, (float*)&transform.mat);
+	glUniformMatrix3fv(transform_loc, 1, GL_FALSE, (float *)&transform.mat);
 	gl_has_errors();
 
 	GLuint projection_loc = glGetUniformLocation(currProgram, "projection");
-	glUniformMatrix3fv(projection_loc, 1, GL_FALSE, (float*)&projection);
+	glUniformMatrix3fv(projection_loc, 1, GL_FALSE, (float *)&projection);
 	gl_has_errors();
 
 	// Drawing of num_indices/3 triangles specified in the index buffer
@@ -126,7 +127,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	gl_has_errors();
 
 	// texture-mapped entities - use data location as in the vertex buffer
-	if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED)
+	if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED || render_request.used_effect == EFFECT_ASSET_ID::ZOMBIE)
 	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
@@ -144,6 +145,20 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 			(void *)sizeof(
 				vec3)); // note the stride to skip the preceeding vertex position
 
+
+
+		// handle alpha
+		float alpha = 1.0f;
+		if (registry.deathAnimations.has(entity))
+		{
+			alpha = registry.deathAnimations.get(entity).alpha;
+		}
+		GLint alpha_loc = glGetUniformLocation(program, "alpha");
+		glUniform1f(alpha_loc, alpha);
+		gl_has_errors();
+
+
+		
 		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
 		gl_has_errors();
@@ -154,8 +169,9 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
-	} 
-	else if (render_request.used_effect == EFFECT_ASSET_ID::CHICKEN || render_request.used_effect == EFFECT_ASSET_ID::EGG) {
+	}
+	else if (render_request.used_effect == EFFECT_ASSET_ID::CHICKEN || render_request.used_effect == EFFECT_ASSET_ID::EGG)
+	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_color_loc = glGetAttribLocation(program, "in_color");
 		gl_has_errors();
@@ -242,11 +258,11 @@ void RenderSystem::drawToScreen()
 	const GLuint vignette_program = effects[(GLuint)EFFECT_ASSET_ID::VIGNETTE];
 
 	// set clock
-	GLuint time_uloc       = glGetUniformLocation(vignette_program, "time");
+	GLuint time_uloc = glGetUniformLocation(vignette_program, "time");
 	GLuint dead_timer_uloc = glGetUniformLocation(vignette_program, "darken_screen_factor");
 
 	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
-	
+
 	ScreenState &screen = registry.screenStates.get(screen_state_entity);
 	// std::cout << "screen.darken_screen_factor: " << screen.darken_screen_factor << " entity id: " << screen_state_entity << std::endl;
 	glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
@@ -284,11 +300,11 @@ void RenderSystem::draw()
 	// First render to the custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 	gl_has_errors();
-	
+
 	// clear backbuffer
 	glViewport(0, 0, w, h);
 	glDepthRange(0.00001, 10);
-	
+
 	// white background
 	glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
 
@@ -307,13 +323,15 @@ void RenderSystem::draw()
 	for (Entity entity : registry.renderRequests.entities)
 	{
 		// filter to entities that have a motion component
-		if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE) {
+		if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE)
+		{
 			// Note, its not very efficient to access elements indirectly via the entity
 			// albeit iterating through all Sprites in sequence. A good point to optimize
 			drawTexturedMesh(entity, projection_2D);
 		}
 		// draw grid lines separately, as they do not have motion but need to be rendered
-		else if (registry.gridLines.has(entity)) {
+		else if (registry.gridLines.has(entity))
+		{
 			drawGridLine(entity, projection_2D);
 		}
 	}
@@ -330,10 +348,10 @@ void RenderSystem::draw()
 mat3 RenderSystem::createProjectionMatrix()
 {
 	// fake projection matrix, scaled to window coordinates
-	float left   = 0.f;
-	float top    = 0.f;
-	float right  = (float) WINDOW_WIDTH_PX;
-	float bottom = (float) WINDOW_HEIGHT_PX;
+	float left = 0.f;
+	float top = 0.f;
+	float right = (float)WINDOW_WIDTH_PX;
+	float bottom = (float)WINDOW_HEIGHT_PX;
 
 	float sx = 2.f / (right - left);
 	float sy = 2.f / (top - bottom);
@@ -341,8 +359,7 @@ mat3 RenderSystem::createProjectionMatrix()
 	float ty = -(top + bottom) / (top - bottom);
 
 	return {
-		{ sx, 0.f, 0.f},
-		{0.f,  sy, 0.f},
-		{ tx,  ty, 1.f}
-	};
+		{sx, 0.f, 0.f},
+		{0.f, sy, 0.f},
+		{tx, ty, 1.f}};
 }
