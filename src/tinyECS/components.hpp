@@ -51,7 +51,7 @@ struct Player
 };
 
 struct Zombie {
-	
+
 };
 
 // Tower
