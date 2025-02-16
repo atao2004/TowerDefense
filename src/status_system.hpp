@@ -15,7 +15,7 @@ public:
     void step(float elapsed_ms);
     
     // Status handlers
-    void handle_attack(Entity entity, float damage);
+    void handle_enemy_attack(Entity entity, float damage);
 
 private:
     // Helper functions

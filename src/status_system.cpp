@@ -1,6 +1,7 @@
 // In status_system.cpp
 #include "status_system.hpp"
 #include <iostream>
+#include "world_system.hpp"
 
 StatusSystem::StatusSystem()
 {
@@ -12,7 +13,7 @@ void StatusSystem::step(float elapsed_ms)
     // Handle different types of status effects
     for (Entity entity : registry.statuses.entities)
     {
-        handle_attack(entity, elapsed_ms);
+        handle_enemy_attack(entity, elapsed_ms);
     }
 
     // Clean up expired statuses after all processing
@@ -22,7 +23,7 @@ void StatusSystem::step(float elapsed_ms)
     }
 }
 
-void StatusSystem::handle_attack(Entity entity, float elapsed_ms)
+void StatusSystem::handle_enemy_attack(Entity entity, float elapsed_ms)
 {
     // First check if entity has both required components
     if (!registry.statuses.has(entity) || !registry.creatures.has(entity))
@@ -42,6 +43,10 @@ void StatusSystem::handle_attack(Entity entity, float elapsed_ms)
             creature.health -= status.value;
             std::cout << "Entity " << (int)entity << " took " << status.value
                       << " attack damage. Health: " << creature.health << std::endl;
+        }
+        if (registry.players.has(entity) && creature.health <= 0) {
+            WorldSystem::game_over();  // You'll need to pass WorldSystem reference
+            return;
         }
     }
 }

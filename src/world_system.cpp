@@ -10,6 +10,9 @@
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
 
+// Game constants
+bool WorldSystem::game_is_over = false;
+
 // create the world
 WorldSystem::WorldSystem() : points(0),
 							 max_zombies(MAX_ZOMBIES),
@@ -18,6 +21,7 @@ WorldSystem::WorldSystem() : points(0),
 {
 	// seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
+	
 }
 
 WorldSystem::~WorldSystem()
@@ -177,6 +181,8 @@ void WorldSystem::restart_game()
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
+
+	game_is_over = false;
 
 	// Reset the spawn manager
 	spawn_manager.reset();
@@ -366,4 +372,10 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			}
 		}
 	}
+}
+
+void WorldSystem::game_over()
+{
+	std::cout << "Game Over!" << std::endl;
+	game_is_over = true;
 }

@@ -22,7 +22,7 @@ public:
 	WorldSystem();
 
 	// creates main window
-	GLFWwindow* create_window();
+	GLFWwindow *create_window();
 
 	// starts and loads music and sound effects
 	bool start_and_load_sounds();
@@ -31,7 +31,7 @@ public:
 	void close_window();
 
 	// starts the game
-	void init(RenderSystem* renderer);
+	void init(RenderSystem *renderer);
 
 	// releases all associated resources
 	~WorldSystem();
@@ -45,8 +45,9 @@ public:
 	// should the game be over ?
 	bool is_over() const;
 
-private:
+	static void game_over();
 
+private:
 	float mouse_pos_x = 0.0f;
 	float mouse_pos_y = 0.0f;
 
@@ -59,24 +60,24 @@ private:
 	void restart_game();
 
 	// OpenGL window handle
-	GLFWwindow* window;
+	GLFWwindow *window;
 
 	int next_zombie_spawn;
-	int zombie_spawn_rate_ms;	// see default value in common.hpp
-	int max_zombies;	// see default value in common.hpp
+	int zombie_spawn_rate_ms; // see default value in common.hpp
+	int max_zombies;		  // see default value in common.hpp
 
 	// Number of invaders stopped by the towers, displayed in the window title
 	unsigned int points;
 
 	// Game state
-	RenderSystem* renderer;
+	RenderSystem *renderer;
 	float current_speed;
 
 	// grid
 	std::vector<Entity> grid_lines;
 
 	// music references
-	Mix_Music* background_music;
+	Mix_Music *background_music;
 
 	// C++ random number generator
 	std::default_random_engine rng;
@@ -84,6 +85,8 @@ private:
 
 	// Manage spawning zombies
 	SpawnManager spawn_manager;
-    
+
 	bool test_mode = false;
+
+	static bool game_is_over;
 };

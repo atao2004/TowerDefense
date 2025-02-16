@@ -20,6 +20,11 @@ struct Creature
 	float health;
 };
 
+struct Death
+{
+
+};
+
 struct Status {
     std::string type;      // Status type (e.g. "injured", "poisoned")
     float duration_ms;     // Counts down to 0
