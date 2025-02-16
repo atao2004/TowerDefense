@@ -20,4 +20,7 @@ public:
 private:
     // Helper functions
     void remove_expired_statuses(Entity entity);
+
+    // Cooldown
+    void handle_cooldowns(float elapsed_ms);
 };

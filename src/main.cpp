@@ -61,7 +61,6 @@ int main()
 		physics_system.step(elapsed_ms);
 		status_system.step(elapsed_ms);
 		world_system.handle_collisions();
-		world_system.handle_cooldowns(elapsed_ms);
 
 		renderer_system.draw();
 	}

@@ -20,6 +20,8 @@ void StatusSystem::step(float elapsed_ms)
     {
         remove_expired_statuses(entity);
     }
+
+    handle_cooldowns(elapsed_ms);
 }
 
 void StatusSystem::handle_attack(Entity entity, float elapsed_ms)
@@ -64,4 +66,17 @@ void StatusSystem::remove_expired_statuses(Entity entity)
             [](const Status &status)
             { return status.duration_ms <= 0; }),
         status_comp.active_statuses.end());
+}
+
+void StatusSystem::handle_cooldowns(float elapsed_ms)
+{
+    auto& registry_cooldown = registry.cooldowns;
+    for (uint i = 0; i < registry_cooldown.size(); i++) {
+        Cooldown& cooldown = registry_cooldown.components[i];
+        cooldown.timer_ms -= elapsed_ms;
+        if (cooldown.timer_ms <= 0) {
+            Entity entity = registry_cooldown.entities[i];
+            registry_cooldown.remove(entity);
+        }
+    }
 }

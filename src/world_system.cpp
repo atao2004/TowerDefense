@@ -231,19 +231,6 @@ void WorldSystem::handle_collisions()
 
 }
 
-void WorldSystem::handle_cooldowns(float elapsed_ms)
-{
-	auto& registry_cooldown = registry.cooldowns;
-	for (uint i = 0; i < registry_cooldown.size(); i++) {
-		Cooldown& cooldown = registry_cooldown.components[i];
-		cooldown.timer_ms -= elapsed_ms;
-		if (cooldown.timer_ms <= 0) {
-			Entity entity = registry_cooldown.entities[i];
-			registry_cooldown.remove(entity);
-		}
-	}
-}
-
 // Should the game be over ?
 bool WorldSystem::is_over() const
 {
