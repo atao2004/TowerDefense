@@ -165,8 +165,8 @@ void removeGrasses()
 	// remove all grasses
 	for (Entity& grass_entity : registry.grasses.entities) {
 		registry.remove_all_components_of(grass_entity);
-		std::cout << "tower removed" << std::endl;
 	}
+	std::cout << "grass reset" << std::endl;
 }
 
 Entity createToolbar()
