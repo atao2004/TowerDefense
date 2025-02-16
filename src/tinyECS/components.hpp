@@ -12,7 +12,6 @@ struct Attack
 {
 	int range;
 	int damage;
-	float cooldown_ms;
 };
 
 struct Creature

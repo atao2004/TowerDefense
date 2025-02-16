@@ -76,6 +76,7 @@ const float ZOMBIE_WIDTH = 61;
 const float ZOMBIE_HEIGHT = 90;
 
 // cooldown
+const int COOLDOWN_ENEMY_ATTACK = 1000;
 const int COOLDOWN_PLAYER_ATTACK = 1000;
 
 // The 'Transform' component handles transformations passed to the Vertex shader
