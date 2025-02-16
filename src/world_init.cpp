@@ -140,8 +140,12 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	Entity entity = Entity();
 
 	registry.players.emplace(entity);
+
 	Creature& creature = registry.creatures.emplace(entity);
 	creature.health = PLAYER_HEALTH;
+
+	State& state = registry.states.emplace(entity);
+	state.state = STATE::IDLE;
 	
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;

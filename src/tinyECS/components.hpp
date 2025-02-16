@@ -68,6 +68,17 @@ struct Zombie
 	float health;
 };
 
+enum class STATE
+{
+	IDLE = 0,
+	MOVE = 1
+};
+
+struct State
+{
+	STATE state;
+};
+
 // Tower
 struct Tower
 {

@@ -292,6 +292,17 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
 			motion.velocity.y = 0;
 		}
+
+		// State
+		if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W) {
+			State& state = registry.states.get(player);
+			if (motion.velocity == vec2(0, 0)) {
+				state.state = STATE::IDLE;
+			}
+			else {
+				state.state = STATE::MOVE;
+			}
+		}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
