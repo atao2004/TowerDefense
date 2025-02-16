@@ -18,9 +18,7 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	);
 
 	vec3& cv = registry.colors.emplace(entity);
-	cv.r = 0;
-	cv.g = 0;
-	cv.b = 1;
+	cv = GRID_COLOR;
 
 	return entity;
 }
