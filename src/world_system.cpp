@@ -355,8 +355,8 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 		weapon_motion.velocity = less_f_ugly.velocity;
 		weapon_motion.scale = less_f_ugly.scale;
 		for(int i = 0; i < registry.zombies.size(); i++) {
-			if(PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i]))) { // if zombie and player weapon collide, decrease zombie health
-				Zombie currZombie = registry.zombies.get(registry.zombies.entities[i]);
+			if(PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
+			|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.zombies.entities[i]))) { // if zombie and player collide
 				std::cout<<"wow u r attacking so nice cool cool"<<std::endl; 
 				registry.zombies.get(registry.zombies.entities[i]).health -= registry.attacks.get(registry.players.entities[0]).damage;
 				if(registry.zombies.get(registry.zombies.entities[i]).health <= 0) { // if zombie health is below 0, remove him
