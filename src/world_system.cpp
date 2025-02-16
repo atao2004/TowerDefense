@@ -202,19 +202,17 @@ void WorldSystem::restart_game()
 	if (grid_lines.size() == 0)
 	{
 		// vertical lines
-		int cell_width = GRID_CELL_WIDTH_PX;
-		for (int col = 0; col < 24 + 1; col++)
+		for (int col = 0; col <= WINDOW_WIDTH_PX / GRID_CELL_WIDTH_PX; col++)
 		{
 			// width of 2 to make the grid easier to see
-			grid_lines.push_back(createGridLine(vec2(col * cell_width, 0), vec2(grid_line_width, 2 * WINDOW_HEIGHT_PX)));
+			grid_lines.push_back(createGridLine(vec2(col * GRID_CELL_WIDTH_PX, 0), vec2(grid_line_width, 2 * WINDOW_HEIGHT_PX)));
 		}
 
 		// horizontal lines
-		int cell_height = GRID_CELL_HEIGHT_PX;
-		for (int col = 0; col < 14 + 1; col++)
+		for (int row = 0; row <= WINDOW_HEIGHT_PX / GRID_CELL_HEIGHT_PX; row++)
 		{
 			// width of 2 to make the grid easier to see
-			grid_lines.push_back(createGridLine(vec2(0, col * cell_height), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
+			grid_lines.push_back(createGridLine(vec2(0, row * GRID_CELL_HEIGHT_PX), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
 		}
 	}
 
