@@ -5,7 +5,9 @@
 
 class StateSystem {
 public:
+    void init();
     void step(float elapsed_ms);
 private:
-    // Helper functions
+    RenderRequest* request = nullptr;
+    State* state = nullptr;
 };
