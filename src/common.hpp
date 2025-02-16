@@ -71,10 +71,11 @@ const float TOWER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
 #define M_PI 3.14159265358979323846f
 #endif
 
-// enemies
+// textures
+const float PLAYER_WIDTH = 61;
+const float PLAYER_HEIGHT = 90;
 const float ZOMBIE_WIDTH = 61;
 const float ZOMBIE_HEIGHT = 90;
-
 
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)

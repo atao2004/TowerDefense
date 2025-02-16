@@ -147,7 +147,7 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
-	motion.scale = vec2({ INVADER_BB_WIDTH, INVADER_BB_HEIGHT });
+	motion.scale = vec2({ PLAYER_WIDTH, PLAYER_HEIGHT });
 
 	Attack& attack = registry.attacks.emplace(entity);
 	attack.damage = 10;
@@ -163,7 +163,7 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::INVADER,
+			TEXTURE_ASSET_ID::PLAYER_IDLE,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		},
