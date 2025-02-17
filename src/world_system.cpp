@@ -383,70 +383,60 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
-  if (action == GLFW_PRESS && key == GLFW_KEY_T)
+	if (action == GLFW_PRESS && key == GLFW_KEY_T)
 	{
 		test_mode = !test_mode;
 		spawn_manager.set_test_mode(test_mode);
 		std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
 		return;
 	}
-  
+
+	// Player movement
 	Entity player = registry.players.entities[0];
 	Motion& motion = registry.motions.get(player);
 
-	// Kung: I had to research online to determine how to deal with input with multiple keys.
-	// The source I used is https://discourse.glfw.org/t/press-multiple-keys/1207
-
+	// Determine whether the player is within the game boundaries
+	// if (motion.position.x < (PLAYER_BB_WIDTH / 2) && motion.position.y < (PLAYER_BB_HEIGHT / 2)) {
+	// 	motion.velocity.x = 0;
+	// 	motion.velocity.y = 0;
+	// }
+	
 	// Move left
 	if (action == GLFW_PRESS && key == GLFW_KEY_A) {
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-			motion.velocity.x = 0;
-		// } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		// 	motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
-		// 	motion.velocity.y = PLAYER_MOVE_UP_SPEED;
-		// } if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		// 	motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
-		// 	motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
-		} else motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
+		motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
-		motion.velocity.x = 0;
+		motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
 	}
 	// Move right
 	if (action == GLFW_PRESS && key == GLFW_KEY_D) {
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-			motion.velocity.x = 0;
-		} else motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
+		motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
-		motion.velocity.x = 0;
+		motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
 	}
 
 	// Move down
 	if (action == GLFW_PRESS && key == GLFW_KEY_S) {
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-			motion.velocity.y = 0;
-		} else motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
+		motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
-		motion.velocity.y = 0;
+		motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
 	}
 	// Move up
 	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-			motion.velocity.y = 0;
-		} else motion.velocity.y = PLAYER_MOVE_UP_SPEED;
+		motion.velocity.y += PLAYER_MOVE_UP_SPEED;
 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {	
-		motion.velocity.y = 0;
+		motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
 	}
   
-  // State
-  if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W) {
-    State& state = registry.states.get(player);
-    if (motion.velocity == vec2(0, 0)) {
-      StateSystem::update_state(STATE::IDLE);
-    }
-    else {
-      StateSystem::update_state(STATE::MOVE);
-    }
-  }
+	// State
+	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W) {
+		State& state = registry.states.get(player);
+		if (motion.velocity == vec2(0, 0)) {
+			StateSystem::update_state(STATE::IDLE);
+		}
+		else {
+			StateSystem::update_state(STATE::MOVE);
+		}
+	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
