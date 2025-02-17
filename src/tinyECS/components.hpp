@@ -149,10 +149,16 @@ struct Mesh
 	std::vector<uint16_t> vertex_indices;
 };
 
+// Animation related components
 struct DeathAnimation {
     vec2 slide_direction;  // Direction to slide
     float alpha = 1.0f;    // Transparency (1.0 = solid, 0.0 = invisible)
     float duration_ms;     // How long the animation lasts
+};
+
+struct HitEffect {
+    float duration_ms = 200.0f;    // How long the hit effect lasts
+    bool is_white = true;          // For white flash effect
 };
 
 /**

@@ -54,6 +54,7 @@ private:
 	void player_attack();
 	void update_enemy_death_animations(float elapsed_ms);
 
+
 	// input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
@@ -64,10 +65,6 @@ private:
 
 	// OpenGL window handle
 	GLFWwindow *window;
-
-	int next_zombie_spawn;
-	int zombie_spawn_rate_ms; // see default value in common.hpp
-	int max_zombies;		  // see default value in common.hpp
 
 	// Number of players stopped by the towers, displayed in the window title
 	unsigned int points;

@@ -23,6 +23,7 @@ void StatusSystem::step(float elapsed_ms)
     }
 
     handle_cooldowns(elapsed_ms);
+    handle_hit_effects(elapsed_ms);
 }
 
 void StatusSystem::handle_enemy_attack(Entity entity, float elapsed_ms)
@@ -87,6 +88,20 @@ void StatusSystem::handle_cooldowns(float elapsed_ms)
         if (cooldown.timer_ms <= 0) {
             Entity entity = registry_cooldown.entities[i];
             registry_cooldown.remove(entity);
+        }
+    }
+}
+
+void StatusSystem::handle_hit_effects(float elapsed_ms) {
+    for (Entity entity : registry.hitEffects.entities) {
+        auto& hit = registry.hitEffects.get(entity);
+        
+        // Update duration
+        hit.duration_ms -= elapsed_ms;
+        
+        // Remove effect when done
+        if (hit.duration_ms <= 0) {
+            registry.hitEffects.remove(entity);
         }
     }
 }

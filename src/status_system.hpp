@@ -23,4 +23,7 @@ private:
 
     // Cooldown
     void handle_cooldowns(float elapsed_ms);
+
+    // Hit effects
+    void handle_hit_effects(float elapsed_ms);
 };

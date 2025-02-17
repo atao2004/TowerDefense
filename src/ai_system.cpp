@@ -39,11 +39,21 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms) {
     // Calculate direction to player
     vec2 direction = calculate_direction_to_target(motion.position, player_pos);
     
-    // Update velocity
-    float step_seconds = elapsed_ms / 1000.f;
-    motion.velocity = direction * BASE_ENEMY_SPEED;
+    // If entity has hit effect, reduce chase speed
+    float current_speed = BASE_ENEMY_SPEED;
+    if (registry.hitEffects.has(entity)) {
+        // Reduce chase speed when being knocked back
+        current_speed *= 0.2f;  // Only 20% of normal chase speed during hit
+    }
     
-    // Update facing direction
+    // Add to velocity instead of overwriting
+    float step_seconds = elapsed_ms / 1000.f;
+    motion.velocity += direction * current_speed * step_seconds;
+    
+    // Optional: Add some drag to prevent infinite acceleration
+    motion.velocity *= 0.9f;  // Dampening factor
+    
+    // Update facing direction based on total velocity
     if (motion.velocity.x < 0 && motion.scale.x > 0) {
         motion.scale.x *= -1;
     } else if (motion.velocity.x > 0 && motion.scale.x < 0) {
