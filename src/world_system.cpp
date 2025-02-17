@@ -206,23 +206,22 @@ void WorldSystem::restart_game()
 		}
 	}
 	
-	//create grid lines if they do not already exist
-	if (grid_lines.size() == 0) {
-		// vertical lines
-		int cell_width = GRID_CELL_WIDTH_PX;
-		for (int col = 0; col < 24 + 1; col++)
-		{
-			// width of 2 to make the grid easier to see
-			grid_lines.push_back(createGridLine(vec2(col * cell_width, 0), vec2(grid_line_width, 2 * WINDOW_HEIGHT_PX)));
-		}
+	// create grid lines and clear any pre-existing grid lines
+	grid_lines.clear();
+	// vertical lines
+	int cell_width = GRID_CELL_WIDTH_PX;
+	for (int col = 0; col < 24 + 1; col++)
+	{
+		// width of 2 to make the grid easier to see
+		grid_lines.push_back(createGridLine(vec2(col * cell_width, 0), vec2(grid_line_width, 2 * WINDOW_HEIGHT_PX)));
+	}
 
-		// horizontal lines
-		int cell_height = GRID_CELL_HEIGHT_PX;
-		for (int col = 0; col < 14 + 1; col++)
-		{
-			// width of 2 to make the grid easier to see
-			grid_lines.push_back(createGridLine(vec2(0, col * cell_height), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
-		}
+	// horizontal lines
+	int cell_height = GRID_CELL_HEIGHT_PX;
+	for (int col = 0; col < 14 + 1; col++)
+	{
+		// width of 2 to make the grid easier to see
+		grid_lines.push_back(createGridLine(vec2(0, col * cell_height), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
 	}
 
 	// if the screenState exists, reset the health bar percentages
@@ -292,6 +291,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (action == GLFW_PRESS && key == GLFW_KEY_A) {
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 			motion.velocity.x = 0;
+		// } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		// 	motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
+		// 	motion.velocity.y = PLAYER_MOVE_UP_SPEED;
+		// } if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+		// 	motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
+		// 	motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
 		} else motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
 		motion.velocity.x = 0;
