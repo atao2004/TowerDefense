@@ -4,7 +4,7 @@
 #include "tinyECS/tiny_ecs.hpp"
 #include "render_system.hpp"
 
-// invaders
+// zombies
 Entity createZombie(RenderSystem* renderer, vec2 position);
 
 // towers

@@ -160,8 +160,8 @@ struct Mesh
 
 enum class TEXTURE_ASSET_ID
 {
-	INVADER = 0,
-	TOWER = INVADER + 1,
+	PLAYER = 0,
+	TOWER = PLAYER + 1,
 	GRASS = TOWER + 1,
 	TOOLBAR = GRASS + 1,
 	PAUSE = TOOLBAR + 1,
