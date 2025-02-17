@@ -11,7 +11,6 @@ class ECSRegistry
 
 public:
 	ComponentContainer<Attack> attacks;
-	ComponentContainer<Creature> creatures;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
 	ComponentContainer<Mesh*> meshPtrs;
@@ -20,15 +19,22 @@ public:
 	ComponentContainer<vec3> colors;
 	ComponentContainer<Tower> towers;
 	ComponentContainer<GridLine> gridLines;
+	ComponentContainer<Grass> grasses;
+	ComponentContainer<Toolbar> toolbars;
+	ComponentContainer<Pause> pauses;
+
 	ComponentContainer<Zombie> zombies;
 	ComponentContainer<Player> players;
 	ComponentContainer<StatusComponent> statuses;
 	ComponentContainer<State> states;
 
+	ComponentContainer<Death> deaths;
+	ComponentContainer<Cooldown> cooldowns;
+	ComponentContainer<DeathAnimation> deathAnimations;
+
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
 		registry_list.push_back(&attacks);
-		registry_list.push_back(&creatures);
 		registry_list.push_back(&motions);
 		registry_list.push_back(&collisions);
 		registry_list.push_back(&meshPtrs);
@@ -41,6 +47,9 @@ public:
 		registry_list.push_back(&players);
 		registry_list.push_back(&statuses);
 		registry_list.push_back(&states);
+		registry_list.push_back(&deaths);
+		registry_list.push_back(&cooldowns);
+		registry_list.push_back(&deathAnimations);
 	}
 
 	void clear_all_components() {
