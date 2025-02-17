@@ -12,6 +12,7 @@
 #include "render_system.hpp"
 #include "world_system.hpp"
 #include "status_system.hpp"
+#include "state_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -61,6 +62,7 @@ int main()
 		physics_system.step(elapsed_ms);
 		status_system.step(elapsed_ms);
 		world_system.handle_collisions();
+		StateSystem::step(elapsed_ms);
 
 		renderer_system.draw();
 	}

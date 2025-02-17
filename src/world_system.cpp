@@ -9,6 +9,7 @@
 
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
+#include "state_system.hpp"
 
 // Game constants
 bool WorldSystem::game_is_over = false;
@@ -434,6 +435,17 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {	
 		motion.velocity.y = 0;
 	}
+  
+  // State
+  if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W) {
+    State& state = registry.states.get(player);
+    if (motion.velocity == vec2(0, 0)) {
+      StateSystem::update_state(STATE::IDLE);
+    }
+    else {
+      StateSystem::update_state(STATE::MOVE);
+    }
+  }
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
