@@ -35,14 +35,16 @@ inline std::string mesh_path(const std::string& name) {return data_path() + "/me
 //
 // game constants
 //
-const int WINDOW_WIDTH_PX = 1440;
-const int WINDOW_HEIGHT_PX = 840;
+const int WINDOW_WIDTH_PX = 1920;
+const int WINDOW_HEIGHT_PX = 1080;
 
 const int GRID_CELL_WIDTH_PX = 60;
 const int GRID_CELL_HEIGHT_PX = 60;
 const int GRID_LINE_WIDTH_PX = 2;
+const vec3 GRID_COLOR = vec3(0, 0, 0);
 
-const int TOWER_TIMER_MS = 1000;	// number of milliseconds between tower shots
+const int GRASS_DIMENSION_PX = 512;
+
 const int MAX_ZOMBIES = 5;
 
 const int PLAYER_HEALTH = 100;
@@ -59,9 +61,9 @@ const int PLAYER_MOVE_RIGHT_SPEED = 100;
 
 // These are hard coded to the dimensions of the entity's texture
 
-// invaders are 64x64 px, but cells are 60x60
-const float INVADER_BB_WIDTH = (float)GRID_CELL_WIDTH_PX;
-const float INVADER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
+// players are 64x64 px, but cells are 60x60
+const float PLAYER_BB_WIDTH = (float)GRID_CELL_WIDTH_PX;
+const float PLAYER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
 
 // towers are 64x64 px, but cells are 60x60
 const float TOWER_BB_WIDTH = (float)GRID_CELL_WIDTH_PX;
@@ -76,6 +78,10 @@ const float PLAYER_WIDTH = 61;
 const float PLAYER_HEIGHT = 90;
 const float ZOMBIE_WIDTH = 61;
 const float ZOMBIE_HEIGHT = 90;
+
+// cooldown
+const int COOLDOWN_ENEMY_ATTACK = 1000;
+const int COOLDOWN_PLAYER_ATTACK = 1000;
 
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)

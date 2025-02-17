@@ -11,13 +11,12 @@
 struct Attack
 {
 	int range;
-	int damage;
-	float cooldown_ms;
+	float damage = 10.0;
 };
 
-struct Creature
+struct Death
 {
-	float health;
+
 };
 
 struct Status {
@@ -38,6 +37,10 @@ struct Dimension {
 struct Experience
 {
 	int exp;
+};
+
+struct Cooldown {
+	int timer_ms;
 };
 
 struct Motion
@@ -61,11 +64,12 @@ struct Texture
 
 struct Player
 {
+	float health;
 };
 
 struct Zombie
 {
-	float health;
+float health;
 };
 
 // Tower
@@ -83,10 +87,25 @@ struct Collision
 	Collision(Entity &other) { this->other = other; };
 };
 
+struct Grass {
+
+};
+
+struct Toolbar {
+
+};
+
+struct Pause {
+
+};
+
 // Sets the brightness of the screen
+// Includes HP and EXP parameters
 struct ScreenState
 {
 	float darken_screen_factor = -1;
+	float hp_percentage = 1.0;
+	float exp_percentage = 0.0;
 };
 
 // used to hold grid line start and end positions
@@ -117,6 +136,12 @@ struct Mesh
 	vec2 original_size = {1, 1};
 	std::vector<ColoredVertex> vertices;
 	std::vector<uint16_t> vertex_indices;
+};
+
+struct DeathAnimation {
+    vec2 slide_direction;  // Direction to slide
+    float alpha = 1.0f;    // Transparency (1.0 = solid, 0.0 = invisible)
+    float duration_ms;     // How long the animation lasts
 };
 
 /**
@@ -153,7 +178,11 @@ enum class TEXTURE_ASSET_ID
 	PLAYER_WALK_2  = PLAYER_WALK_1 + 1,
 	PLAYER_ACTION_1  = PLAYER_WALK_2 + 1,
 	PLAYER_ACTION_2  = PLAYER_ACTION_1 + 1,
-	TEXTURE_COUNT = PLAYER_ACTION_2 + 1
+	GRASS = PLAYER_ACTION_2 + 1,
+	TOOLBAR = GRASS + 1,
+	PAUSE = TOOLBAR + 1,
+	ZOMBIE = PAUSE + 1,
+	TEXTURE_COUNT = ZOMBIE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -163,7 +192,8 @@ enum class EFFECT_ASSET_ID
 	CHICKEN = EGG + 1,
 	TEXTURED = CHICKEN + 1,
 	VIGNETTE = TEXTURED + 1,
-	EFFECT_COUNT = VIGNETTE + 1
+	ZOMBIE = VIGNETTE + 1,
+	EFFECT_COUNT = ZOMBIE + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 

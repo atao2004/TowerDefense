@@ -59,15 +59,11 @@ void AISystem::handle_enemy_attack(Entity entity, float elapsed_ms) {
     Motion& enemy_motion = registry.motions.get(entity);
     Motion& player_motion = registry.motions.get(player);
     
-    // Update cooldown
-    attack.cooldown_ms -= elapsed_ms;
-    
     // Calculate distance to player
     float distance = calculate_distance_to_target(enemy_motion.position, player_motion.position);
     
     // If in range and cooldown ready
-    if (distance <= attack.range && attack.cooldown_ms <= 0) {
-        
+    if (distance <= attack.range && !registry.cooldowns.has(entity)) {
         auto& status_comp = registry.statuses.get(player);
         
         // Add attack status
@@ -80,7 +76,8 @@ void AISystem::handle_enemy_attack(Entity entity, float elapsed_ms) {
         
         
         // Reset cooldown
-        attack.cooldown_ms = 1000.0f;  // Reset to 1 second
+        Cooldown& cooldown = registry.cooldowns.emplace(entity);
+        cooldown.timer_ms = COOLDOWN_ENEMY_ATTACK;
     }
 }
 
