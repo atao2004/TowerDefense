@@ -36,11 +36,10 @@ class RenderSystem {
 		textures_path("player/walk1.png"),
 		textures_path("player/walk2.png"),
 		textures_path("player/action1.png"),
-		textures_path("player/action2.png")
+		textures_path("player/action2.png"),
 		textures_path("map/grass.png"),
 		textures_path("ui/toolbar.png"),
-		textures_path("ui/pause.png"),
-		textures_path("enemies/zombie_idle.png")
+		textures_path("ui/pause.png")
 	};
 
 	std::array<GLuint, effect_count> effects;
