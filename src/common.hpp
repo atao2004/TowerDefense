@@ -43,6 +43,10 @@ const int GRID_CELL_HEIGHT_PX = 60;
 const int GRID_LINE_WIDTH_PX = 2;
 const vec3 GRID_COLOR = vec3(0, 0, 0);
 
+const int GRASS_DIMENSION_PX = 512;
+
+const int TOWER_TIMER_MS = 1000;	// number of milliseconds between tower shots
+
 const int MAX_ZOMBIES = 5;
 
 const int PLAYER_HEALTH = 100;
@@ -59,9 +63,9 @@ const int PLAYER_MOVE_RIGHT_SPEED = 100;
 
 // These are hard coded to the dimensions of the entity's texture
 
-// invaders are 64x64 px, but cells are 60x60
-const float INVADER_BB_WIDTH = (float)GRID_CELL_WIDTH_PX;
-const float INVADER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
+// players are 64x64 px, but cells are 60x60
+const float PLAYER_BB_WIDTH = (float)GRID_CELL_WIDTH_PX;
+const float PLAYER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
 
 // towers are 64x64 px, but cells are 60x60
 const float TOWER_BB_WIDTH = (float)GRID_CELL_WIDTH_PX;

@@ -44,7 +44,12 @@ void StatusSystem::handle_enemy_attack(Entity entity, float elapsed_ms)
         {
             player.health -= status.value;
             std::cout << "Entity " << (int)entity << " took " << status.value
-                      << " attack damage. Health: " << player.health << std::endl;
+                      << " attack damage. Health: " << creature.health << std::endl;
+
+            // If the creature is an entity, update the hp_percentage.
+            if (registry.players.has(entity)) {
+                registry.screenStates.get(registry.screenStates.entities[0]).hp_percentage = creature.health / PLAYER_HEALTH;
+            }
         }
         if (registry.players.has(entity) && player.health <= 0) {
             WorldSystem::game_over();  // You'll need to pass WorldSystem reference

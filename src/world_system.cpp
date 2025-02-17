@@ -204,23 +204,41 @@ void WorldSystem::restart_game()
 
 	int grid_line_width = GRID_LINE_WIDTH_PX;
 
-	// create grid lines if they do not already exist
-	if (grid_lines.size() == 0)
-	{
-		// vertical lines
-		for (int col = 0; col <= WINDOW_WIDTH_PX / GRID_CELL_WIDTH_PX; col++)
-		{
-			// width of 2 to make the grid easier to see
-			grid_lines.push_back(createGridLine(vec2(col * GRID_CELL_WIDTH_PX, 0), vec2(grid_line_width, 2 * WINDOW_HEIGHT_PX)));
-		}
-
-		// horizontal lines
-		for (int row = 0; row <= WINDOW_HEIGHT_PX / GRID_CELL_HEIGHT_PX; row++)
-		{
-			// width of 2 to make the grid easier to see
-			grid_lines.push_back(createGridLine(vec2(0, row * GRID_CELL_HEIGHT_PX), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
+	// create the grass texture for the background and reset the pre-existing grasses
+	removeGrasses();
+	for (int x = (GRASS_DIMENSION_PX / 2); x < WINDOW_WIDTH_PX + (GRASS_DIMENSION_PX / 2); x += GRASS_DIMENSION_PX) {
+		for (int y = (GRASS_DIMENSION_PX / 2); y < WINDOW_HEIGHT_PX + (GRASS_DIMENSION_PX / 2); y += GRASS_DIMENSION_PX) {
+			createGrass(vec2(x, y));
 		}
 	}
+	
+	// create grid lines and clear any pre-existing grid lines
+	grid_lines.clear();
+	// vertical lines
+	int cell_width = GRID_CELL_WIDTH_PX;
+	for (int col = 0; col < 24 + 1; col++)
+	{
+		// width of 2 to make the grid easier to see
+		grid_lines.push_back(createGridLine(vec2(col * cell_width, 0), vec2(grid_line_width, 2 * WINDOW_HEIGHT_PX)));
+	}
+
+	// horizontal lines
+	int cell_height = GRID_CELL_HEIGHT_PX;
+	for (int col = 0; col < 14 + 1; col++)
+	{
+		// width of 2 to make the grid easier to see
+		grid_lines.push_back(createGridLine(vec2(0, col * cell_height), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
+	}
+
+	// if the screenState exists, reset the health bar percentages
+	if (registry.screenStates.size() != 0) {
+		registry.screenStates.get(registry.screenStates.entities[0]).hp_percentage = 1.0;
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+	}
+
+	// Create the pause button and toolbar
+	createPause();
+	createToolbar();
 
 	// spawn player in the middle of the screen
 	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
@@ -360,51 +378,57 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
-	if (action == GLFW_PRESS && key == GLFW_KEY_T)
+  if (action == GLFW_PRESS && key == GLFW_KEY_T)
 	{
 		test_mode = !test_mode;
 		spawn_manager.set_test_mode(test_mode);
 		std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
 		return;
 	}
-
+  
 	Entity player = registry.players.entities[0];
-	Motion &motion = registry.motions.get(player);
+	Motion& motion = registry.motions.get(player);
+
+	// Kung: I had to research online to determine how to deal with input with multiple keys.
+	// The source I used is https://discourse.glfw.org/t/press-multiple-keys/1207
 
 	// Move left
-	if (action == GLFW_PRESS && key == GLFW_KEY_A)
-	{
-		motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
-	}
-	else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
-	{
+	if (action == GLFW_PRESS && key == GLFW_KEY_A) {
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+			motion.velocity.x = 0;
+		// } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		// 	motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
+		// 	motion.velocity.y = PLAYER_MOVE_UP_SPEED;
+		// } if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+		// 	motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
+		// 	motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
+		} else motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
+	} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
 		motion.velocity.x = 0;
-	} // Move right
-	if (action == GLFW_PRESS && key == GLFW_KEY_D)
-	{
-		motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
 	}
-	else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
-	{
+	// Move right
+	if (action == GLFW_PRESS && key == GLFW_KEY_D) {
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+			motion.velocity.x = 0;
+		} else motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
+	} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
 		motion.velocity.x = 0;
 	}
 
 	// Move down
-	if (action == GLFW_PRESS && key == GLFW_KEY_S)
-	{
-		motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
-	}
-	else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
-	{
+	if (action == GLFW_PRESS && key == GLFW_KEY_S) {
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+			motion.velocity.y = 0;
+		} else motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
+	} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
 		motion.velocity.y = 0;
 	}
 	// Move up
-	if (action == GLFW_PRESS && key == GLFW_KEY_W)
-	{
-		motion.velocity.y = PLAYER_MOVE_UP_SPEED;
-	}
-	else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
-	{
+	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+			motion.velocity.y = 0;
+		} else motion.velocity.y = PLAYER_MOVE_UP_SPEED;
+	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {	
 		motion.velocity.y = 0;
 	}
 }
@@ -457,9 +481,34 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 		// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
 	}
 
-	if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
-	{
-		player_attack();
+	if(action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {
+		Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
+		if(less_f_ugly.scale.x < 0) { // face left = minus the range from position
+		less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
+		} else { // face right = add the range from position
+			less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
+		}
+		Motion weapon_motion = Motion();
+		weapon_motion.position = less_f_ugly.position;
+		weapon_motion.angle = less_f_ugly.angle;
+		weapon_motion.velocity = less_f_ugly.velocity;
+		weapon_motion.scale = less_f_ugly.scale;
+		for(int i = 0; i < registry.zombies.size(); i++) {
+			if(PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i]))) { // if zombie and player weapon collide, decrease zombie health
+				Zombie currZombie = registry.zombies.get(registry.zombies.entities[i]);
+				registry.zombies.get(registry.zombies.entities[i]).health -= registry.attacks.get(registry.players.entities[0]).damage;
+				std::cout << "Entity " << (int)registry.zombies.entities[i] << " took " << registry.attacks.get(registry.players.entities[0]).damage
+                      << " attack damage. Health: " << registry.zombies.get(registry.zombies.entities[i]).health << std::endl;
+				if(registry.zombies.get(registry.zombies.entities[i]).health <= 0) { // if zombie health is below 0, remove him
+					registry.remove_all_components_of(registry.zombies.entities[i]);
+				}
+
+				// Increase the experience of the player.
+				if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage <= 1.0) {
+					registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
+				}
+			}
+		}
 	}
 }
 

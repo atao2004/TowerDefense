@@ -285,12 +285,16 @@ void RenderSystem::drawToScreen()
 	// set clock
 	GLuint time_uloc = glGetUniformLocation(vignette_program, "time");
 	GLuint dead_timer_uloc = glGetUniformLocation(vignette_program, "darken_screen_factor");
+	GLuint hp_uloc = glGetUniformLocation(vignette_program, "hp_percentage");
+	GLuint exp_uloc = glGetUniformLocation(vignette_program, "exp_percentage");
 
 	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
 
 	ScreenState &screen = registry.screenStates.get(screen_state_entity);
 	// std::cout << "screen.darken_screen_factor: " << screen.darken_screen_factor << " entity id: " << screen_state_entity << std::endl;
 	glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
+	glUniform1f(hp_uloc, screen.hp_percentage);
+	glUniform1f(exp_uloc, screen.exp_percentage);
 	gl_has_errors();
 
 	// Set the vertex position and vertex texture coordinates (both stored in the
@@ -331,7 +335,8 @@ void RenderSystem::draw()
 	glDepthRange(0.00001, 10);
 
 	// white background
-	glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	//glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
 
 	glClearDepth(10.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

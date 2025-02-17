@@ -19,6 +19,10 @@ public:
 	ComponentContainer<vec3> colors;
 	ComponentContainer<Tower> towers;
 	ComponentContainer<GridLine> gridLines;
+	ComponentContainer<Grass> grasses;
+	ComponentContainer<Toolbar> toolbars;
+	ComponentContainer<Pause> pauses;
+
 	ComponentContainer<Zombie> zombies;
 	ComponentContainer<Player> players;
 	ComponentContainer<StatusComponent> statuses;

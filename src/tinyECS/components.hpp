@@ -11,7 +11,8 @@
 struct Attack
 {
 	int range;
-	int damage;
+	float damage = 10.0;
+	float cooldown_ms;
 };
 
 struct Death
@@ -87,10 +88,25 @@ struct Collision
 	Collision(Entity &other) { this->other = other; };
 };
 
+struct Grass {
+
+};
+
+struct Toolbar {
+
+};
+
+struct Pause {
+
+};
+
 // Sets the brightness of the screen
+// Includes HP and EXP parameters
 struct ScreenState
 {
 	float darken_screen_factor = -1;
+	float hp_percentage = 1.0;
+	float exp_percentage = 0.0;
 };
 
 // used to hold grid line start and end positions
@@ -155,9 +171,12 @@ struct DeathAnimation {
 
 enum class TEXTURE_ASSET_ID
 {
-	INVADER = 0,
-	TOWER = INVADER + 1,
-	ZOMBIE = TOWER + 1,
+	PLAYER = 0,
+	TOWER = PLAYER + 1,
+	GRASS = TOWER + 1,
+	TOOLBAR = GRASS + 1,
+	PAUSE = TOOLBAR + 1,
+	ZOMBIE = PAUSE + 1,
 	TEXTURE_COUNT = ZOMBIE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;

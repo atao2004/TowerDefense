@@ -55,8 +55,8 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 	zombie.health = ZOMBIE_HEALTH;
 
 	Attack& attack = registry.attacks.emplace(entity);
-    attack.range = 30.0f;
-    attack.damage = 10.0f;
+  attack.range = 30.0f;         
+  attack.cooldown_ms = 1000.0f;
 
 	// store a reference to the potentially re-used mesh object
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
@@ -131,6 +131,90 @@ void removeTower(vec2 position) {
 	}
 }
 
+Entity createGrass(vec2 position)
+{
+	Entity grass_entity = Entity();
+
+	Grass& grass_component = registry.grasses.emplace(grass_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(grass_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(GRASS_DIMENSION_PX, GRASS_DIMENSION_PX);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		grass_entity,
+		{
+			TEXTURE_ASSET_ID::GRASS,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return grass_entity;
+}
+
+void removeGrasses()
+{
+	// remove all grasses
+	for (Entity& grass_entity : registry.grasses.entities) {
+		registry.remove_all_components_of(grass_entity);
+	}
+	std::cout << "grass reset" << std::endl;
+}
+
+Entity createToolbar()
+{
+	Entity toolbar_entity = Entity();
+
+	Toolbar& toolbar_component = registry.toolbars.emplace(toolbar_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(toolbar_entity);
+	motion_component.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX - 50);
+	motion_component.scale = vec2(600, 75);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		toolbar_entity,
+		{
+			TEXTURE_ASSET_ID::TOOLBAR,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return toolbar_entity;
+}
+
+Entity createPause()
+{
+	Entity pause_entity = Entity();
+
+	Pause& pause_component = registry.pauses.emplace(pause_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(pause_entity);
+	motion_component.position = vec2(50, 50);
+	motion_component.scale = vec2(50, 50);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		pause_entity,
+		{
+			TEXTURE_ASSET_ID::PAUSE,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return pause_entity;
+}
+
 Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	Entity entity = Entity();
 
@@ -141,23 +225,22 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
-	motion.scale = vec2({ INVADER_BB_WIDTH, INVADER_BB_HEIGHT });
+	motion.scale = vec2({ PLAYER_BB_WIDTH, PLAYER_BB_HEIGHT });
 
 	Attack& attack = registry.attacks.emplace(entity);
-	attack.damage = 10;
 	attack.range = 60;
 
 	registry.statuses.emplace(entity);
 
 	//create detection box
 	// createDetectionLine(entity, vec2{position.x+30, position.y-30}, vec2{attack.range, 2});                       //upper -----
-	// createDetectionLine(entity, vec2{position.x+attack.range, position.y}, vec2{2, INVADER_BB_HEIGHT});           //          |
-	// createDetectionLine(entity, vec2{position.x+30, position.y-30+INVADER_BB_HEIGHT}, vec2{attack.range, 2});     //lower -----
+	// createDetectionLine(entity, vec2{position.x+attack.range, position.y}, vec2{2, PLAYER_BB_HEIGHT});           //          |
+	// createDetectionLine(entity, vec2{position.x+30, position.y-30+PLAYER_BB_HEIGHT}, vec2{attack.range, 2});     //lower -----
 
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::INVADER,
+			TEXTURE_ASSET_ID::PLAYER,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		},
