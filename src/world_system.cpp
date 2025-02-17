@@ -10,6 +10,9 @@
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
 
+// Game constants
+bool WorldSystem::game_is_over = false;
+
 // create the world
 WorldSystem::WorldSystem() : points(0),
 							 max_zombies(MAX_ZOMBIES),
@@ -166,6 +169,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	// Using the spawn manager to generate zombies
 	spawn_manager.step(elapsed_ms_since_last_update, renderer);
 
+	update_enemy_death_animations(elapsed_ms_since_last_update);
 	return true;
 }
 
@@ -177,6 +181,8 @@ void WorldSystem::restart_game()
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
+
+	game_is_over = false;
 
 	// Reset the spawn manager
 	spawn_manager.reset();
@@ -244,13 +250,104 @@ void WorldSystem::restart_game()
 // Compute collisions between entities
 void WorldSystem::handle_collisions()
 {
-
 }
 
 // Should the game be over ?
 bool WorldSystem::is_over() const
 {
 	return bool(glfwWindowShouldClose(window));
+}
+
+void WorldSystem::player_attack()
+{
+	Entity player = registry.players.entities[0];
+	if (!registry.cooldowns.has(player))
+	{
+		Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
+		if (less_f_ugly.scale.x < 0)
+		{ // face left = minus the range from position
+			less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
+		}
+		else
+		{ // face right = add the range from position
+			less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
+		}
+		Motion weapon_motion = Motion();
+		weapon_motion.position = less_f_ugly.position;
+		weapon_motion.angle = less_f_ugly.angle;
+		weapon_motion.velocity = less_f_ugly.velocity;
+		weapon_motion.scale = less_f_ugly.scale;
+		for (int i = 0; i < registry.zombies.size(); i++)
+		{
+			// if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])))
+			// { // if zombie and player weapon collide, decrease zombie health
+			// 	Zombie currZombie = registry.zombies.get(registry.zombies.entities[i]);
+			// 	std::cout << "wow u r attacking so nice cool cool" << std::endl;
+			// 	registry.zombies.get(registry.zombies.entities[i]).health -= registry.attacks.get(registry.players.entities[0]).damage;
+			// 	if (registry.zombies.get(registry.zombies.entities[i]).health <= 0)
+			// 	{ // if zombie health is below 0, remove him
+			// 		registry.remove_all_components_of(registry.zombies.entities[i]);
+			// 	}
+			// }
+
+			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])))
+			{
+				Entity zombie = registry.zombies.entities[i];
+				if (registry.zombies.has(zombie))
+				{
+					auto &zombie_comp = registry.zombies.get(zombie);
+					zombie_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
+					std::cout << "wow u r attacking so nice cool cool" << std::endl;
+
+					if (zombie_comp.health <= 0)
+					{
+						// Add death animation before removing
+						Entity player = registry.players.entities[0];
+						Motion &player_motion = registry.motions.get(player);
+						vec2 slide_direction = {player_motion.scale.x > 0 ? 1.0f : -1.0f, 0.0f};
+
+						// Add death animation component
+						DeathAnimation &death_anim = registry.deathAnimations.emplace(zombie);
+						death_anim.slide_direction = slide_direction;
+						death_anim.alpha = 1.0f;
+						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
+
+					}
+				}
+			}
+		}
+		Cooldown &cooldown = registry.cooldowns.emplace(player);
+		cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
+	}
+}
+
+void WorldSystem::update_enemy_death_animations(float elapsed_ms) {
+    // Process each entity with a death animation
+    for (Entity entity : registry.deathAnimations.entities) {
+        auto& death_anim = registry.deathAnimations.get(entity);
+        
+        // Update alpha
+        death_anim.duration_ms -= elapsed_ms;
+        death_anim.alpha = death_anim.duration_ms / 500.0f;  // Linear fade out
+        
+        // Update position with increased slide speed and distance
+        if (registry.motions.has(entity)) {
+            auto& motion = registry.motions.get(entity);
+            float slide_speed = 300.0f;  // pixels per second
+            
+            // Calculate movement
+            float step_seconds = elapsed_ms / 1000.0f;
+            vec2 movement = death_anim.slide_direction * (slide_speed * step_seconds);
+            
+            // Apply movement
+            motion.position += movement;
+        }
+        
+        // Remove entity when animation is complete
+        if (death_anim.duration_ms <= 0) {
+            registry.remove_all_components_of(entity);
+        }
+    }
 }
 
 // on key callback
@@ -281,6 +378,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
+  if (action == GLFW_PRESS && key == GLFW_KEY_T)
+	{
+		test_mode = !test_mode;
+		spawn_manager.set_test_mode(test_mode);
+		std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
+		return;
+	}
+  
 	Entity player = registry.players.entities[0];
 	Motion& motion = registry.motions.get(player);
 
@@ -323,7 +428,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 			motion.velocity.y = 0;
 		} else motion.velocity.y = PLAYER_MOVE_UP_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {
+	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {	
 		motion.velocity.y = 0;
 	}
 }
@@ -405,4 +510,10 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			}
 		}
 	}
+}
+
+void WorldSystem::game_over()
+{
+	std::cout << "Game Over!" << std::endl;
+	game_is_over = true;
 }

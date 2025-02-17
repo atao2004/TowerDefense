@@ -15,9 +15,12 @@ public:
     void step(float elapsed_ms);
     
     // Status handlers
-    void handle_attack(Entity entity, float damage);
+    void handle_enemy_attack(Entity entity, float damage);
 
 private:
     // Helper functions
     void remove_expired_statuses(Entity entity);
+
+    // Cooldown
+    void handle_cooldowns(float elapsed_ms);
 };
