@@ -38,6 +38,10 @@ inline std::string mesh_path(const std::string& name) {return data_path() + "/me
 const int WINDOW_WIDTH_PX = 1920;
 const int WINDOW_HEIGHT_PX = 1080;
 
+// Kung: Separate consts for testing on my Mac
+// const int WINDOW_WIDTH_PX = 1920 * 2 / 3;
+// const int WINDOW_HEIGHT_PX = 1080 * 2 / 3;
+
 const int GRID_CELL_WIDTH_PX = 60;
 const int GRID_CELL_HEIGHT_PX = 60;
 const int GRID_LINE_WIDTH_PX = 2;
@@ -55,9 +59,9 @@ const int PROJECTILE_DAMAGE = 10;
 
 //control player movement
 const int PLAYER_MOVE_UP_SPEED = -100;
-const int PLAYER_MOVE_DOWN_SPEED = 100;
+const int PLAYER_MOVE_DOWN_SPEED = -PLAYER_MOVE_UP_SPEED;
 const int PLAYER_MOVE_LEFT_SPEED = -100;
-const int PLAYER_MOVE_RIGHT_SPEED = 100;
+const int PLAYER_MOVE_RIGHT_SPEED = -PLAYER_MOVE_LEFT_SPEED;
 
 // These are hard coded to the dimensions of the entity's texture
 
