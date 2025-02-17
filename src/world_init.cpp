@@ -217,6 +217,9 @@ Entity createPause()
 Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	Entity entity = Entity();
 
+	State& state = registry.states.emplace(entity);
+	state.state = STATE::IDLE;
+
 	Player& player = registry.players.emplace(entity);
 	player.health = PLAYER_HEALTH;
 	

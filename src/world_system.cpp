@@ -9,6 +9,7 @@
 
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
+#include "state_system.hpp"
 
 // Game constants
 bool WorldSystem::game_is_over = false;
@@ -288,7 +289,8 @@ void WorldSystem::player_attack()
 			// 	}
 			// }
 
-			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])))
+			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
+				 			|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.zombies.entities[i])))
 			{
 				Entity zombie = registry.zombies.entities[i];
 				if (registry.zombies.has(zombie))
@@ -434,6 +436,17 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {	
 		motion.velocity.y = 0;
 	}
+  
+  // State
+  if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W) {
+    State& state = registry.states.get(player);
+    if (motion.velocity == vec2(0, 0)) {
+      StateSystem::update_state(STATE::IDLE);
+    }
+    else {
+      StateSystem::update_state(STATE::MOVE);
+    }
+  }
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
@@ -485,28 +498,6 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 	}
 
 	if(action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {
-// 		Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
-// 		if(less_f_ugly.scale.x < 0) { // face left = minus the range from position
-// 		less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
-// 		} else { // face right = add the range from position
-// 			less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
-// 		}
-// 		Motion weapon_motion = Motion();
-// 		weapon_motion.position = less_f_ugly.position;
-// 		weapon_motion.angle = less_f_ugly.angle;
-// 		weapon_motion.velocity = less_f_ugly.velocity;
-// 		weapon_motion.scale = less_f_ugly.scale;
-// 		for(int i = 0; i < registry.zombies.size(); i++) {
-// 			if(PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
-// 			|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.zombies.entities[i]))) { // if zombie and player collide
-// 				std::cout<<"wow u r attacking so nice cool cool"<<std::endl; 
-// 				registry.zombies.get(registry.zombies.entities[i]).health -= registry.attacks.get(registry.players.entities[0]).damage;
-// 				if(registry.zombies.get(registry.zombies.entities[i]).health <= 0) { // if zombie health is below 0, remove him
-// 					registry.remove_all_components_of(registry.zombies.entities[i]);
-// 				}
-
-// 			}
-// 		}
 		player_attack();
 	}
 }

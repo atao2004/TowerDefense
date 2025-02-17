@@ -26,6 +26,7 @@ public:
 	ComponentContainer<Zombie> zombies;
 	ComponentContainer<Player> players;
 	ComponentContainer<StatusComponent> statuses;
+	ComponentContainer<State> states;
 
 	ComponentContainer<Death> deaths;
 	ComponentContainer<Cooldown> cooldowns;
@@ -45,6 +46,7 @@ public:
 		registry_list.push_back(&zombies);
 		registry_list.push_back(&players);
 		registry_list.push_back(&statuses);
+		registry_list.push_back(&states);
 		registry_list.push_back(&deaths);
 		registry_list.push_back(&cooldowns);
 		registry_list.push_back(&deathAnimations);
