@@ -311,6 +311,11 @@ void WorldSystem::player_attack()
 						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
 
 					}
+					
+					// Increase the experience of the player.
+					if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage <= 1.0) {
+						registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
+					}
 				}
 			}
 		}
@@ -480,33 +485,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 	}
 
 	if(action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {
-		Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
-		if(less_f_ugly.scale.x < 0) { // face left = minus the range from position
-		less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
-		} else { // face right = add the range from position
-			less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
-		}
-		Motion weapon_motion = Motion();
-		weapon_motion.position = less_f_ugly.position;
-		weapon_motion.angle = less_f_ugly.angle;
-		weapon_motion.velocity = less_f_ugly.velocity;
-		weapon_motion.scale = less_f_ugly.scale;
-		for(int i = 0; i < registry.zombies.size(); i++) {
-			if(PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i]))) { // if zombie and player weapon collide, decrease zombie health
-				Zombie currZombie = registry.zombies.get(registry.zombies.entities[i]);
-				registry.zombies.get(registry.zombies.entities[i]).health -= registry.attacks.get(registry.players.entities[0]).damage;
-				std::cout << "Entity " << (int)registry.zombies.entities[i] << " took " << registry.attacks.get(registry.players.entities[0]).damage
-                      << " attack damage. Health: " << registry.zombies.get(registry.zombies.entities[i]).health << std::endl;
-				if(registry.zombies.get(registry.zombies.entities[i]).health <= 0) { // if zombie health is below 0, remove him
-					registry.remove_all_components_of(registry.zombies.entities[i]);
-				}
-
-				// Increase the experience of the player.
-				if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage <= 1.0) {
-					registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
-				}
-			}
-		}
+		player_attack();
 	}
 }
 
