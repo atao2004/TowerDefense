@@ -73,8 +73,10 @@ const float TOWER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
 #define M_PI 3.14159265358979323846f
 #endif
 
-// enemies
-const float ZOMBIE_WIDTH = 60;
+// textures
+const float PLAYER_WIDTH = 61;
+const float PLAYER_HEIGHT = 90;
+const float ZOMBIE_WIDTH = 61;
 const float ZOMBIE_HEIGHT = 90;
 
 // cooldown
