@@ -35,8 +35,8 @@ inline std::string mesh_path(const std::string& name) {return data_path() + "/me
 //
 // game constants
 //
-const int WINDOW_WIDTH_PX = 3840;
-const int WINDOW_HEIGHT_PX = 2160;
+const int WINDOW_WIDTH_PX = 1920;
+const int WINDOW_HEIGHT_PX = 1080;
 
 const int GRID_CELL_WIDTH_PX = 60;
 const int GRID_CELL_HEIGHT_PX = 60;
@@ -44,8 +44,6 @@ const int GRID_LINE_WIDTH_PX = 2;
 const vec3 GRID_COLOR = vec3(0, 0, 0);
 
 const int GRASS_DIMENSION_PX = 512;
-
-const int TOWER_TIMER_MS = 1000;	// number of milliseconds between tower shots
 
 const int MAX_ZOMBIES = 5;
 
@@ -76,8 +74,8 @@ const float TOWER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
 #endif
 
 // enemies
-const float ZOMBIE_WIDTH = 60 ;
-const float ZOMBIE_HEIGHT = 90 ;
+const float ZOMBIE_WIDTH = 60;
+const float ZOMBIE_HEIGHT = 90;
 
 // cooldown
 const int COOLDOWN_ENEMY_ATTACK = 1000;
