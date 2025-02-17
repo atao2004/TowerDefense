@@ -25,7 +25,6 @@ int main()
 	RenderSystem  renderer_system;
 	PhysicsSystem physics_system;
 	StatusSystem  status_system;
-	StateSystem	  state_system;
 
 	// initialize window
 	GLFWwindow* window = world_system.create_window();
@@ -43,7 +42,7 @@ int main()
 	// initialize the main systems
 	renderer_system.init(window);
 	world_system.init(&renderer_system);
-	state_system.init();
+	StateSystem::init();
 
 	// variable timestep loop
 	auto t = Clock::now();
@@ -64,7 +63,7 @@ int main()
 		physics_system.step(elapsed_ms);
 		status_system.step(elapsed_ms);
 		world_system.handle_collisions();
-		state_system.step(elapsed_ms);
+		StateSystem::step(elapsed_ms);
 
 		renderer_system.draw();
 	}
