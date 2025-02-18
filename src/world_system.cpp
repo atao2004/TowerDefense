@@ -17,7 +17,6 @@ bool WorldSystem::game_is_over = false;
 // create the world
 WorldSystem::WorldSystem() : points(0)
 {
-
 }
 
 WorldSystem::~WorldSystem()
@@ -134,7 +133,7 @@ bool WorldSystem::start_and_load_sounds()
 	{
 		fprintf(stderr, "Failed to load sounds\n %s\n make sure the data directory is present",
 				audio_path("music.wav").c_str(),
-				audio_path("sword_attack_sound.wav").c_str(), 
+				audio_path("sword_attack_sound.wav").c_str(),
 				audio_path("running_on_grass.wav").c_str());
 		return false;
 	}
@@ -164,7 +163,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 
 	update_enemy_death_animations(elapsed_ms_since_last_update);
 	update_movement_sound(elapsed_ms_since_last_update);
-	
+
 	return true;
 }
 
@@ -295,13 +294,9 @@ void WorldSystem::player_attack()
 						direction = direction / length; // Normalize
 					}
 
-					std::cout << zombie_motion.velocity.x << "  " << zombie_motion.velocity.y << std::endl;
-
 					// Apply knockback velocity immediately
 					float knockback_force = 1000.0f;
 					zombie_motion.velocity += direction * knockback_force;
-
-					std::cout << zombie_motion.velocity.x << "  " << zombie_motion.velocity.y << std::endl;
 
 					// Add hit effect
 					HitEffect &hit = registry.hitEffects.emplace(zombie);
@@ -453,22 +448,27 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	// Play movement sound
-    if ((action == GLFW_PRESS || action == GLFW_REPEAT) &&
-        (key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D))
-    {
-		if (!is_movement_sound_playing && movement_sound_timer <= 0) {
-            Mix_PlayChannel(0, running_on_grass_sound, 0);
-            is_movement_sound_playing = true;
-            movement_sound_timer = 1000.f;
-        }
-    }else if (action == GLFW_RELEASE) {
-		if (motion.velocity.x == 0 && motion.velocity.y == 0) {
-            if (is_movement_sound_playing) {
-                Mix_HaltChannel(0);
-                is_movement_sound_playing = false;
-                movement_sound_timer = 0.f;
-            }
-        }
+	if ((action == GLFW_PRESS || action == GLFW_REPEAT) &&
+		(key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D))
+	{
+		if (!is_movement_sound_playing && movement_sound_timer <= 0)
+		{
+			Mix_PlayChannel(0, running_on_grass_sound, 0);
+			is_movement_sound_playing = true;
+			movement_sound_timer = 1000.f;
+		}
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		if (motion.velocity.x == 0 && motion.velocity.y == 0)
+		{
+			if (is_movement_sound_playing)
+			{
+				Mix_HaltChannel(0);
+				is_movement_sound_playing = false;
+				movement_sound_timer = 0.f;
+			}
+		}
 	}
 
 	// State
