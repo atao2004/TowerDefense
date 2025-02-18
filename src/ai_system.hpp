@@ -4,10 +4,20 @@
 #include "render_system.hpp"
 #include "tinyECS/registry.hpp"
 
+#define SDL_MAIN_HANDLED
+#include <SDL.h>
+#include <SDL_mixer.h>
+
 class AISystem
 {
 public:
+
+	AISystem();
+	~AISystem();
+
 	void step(float elapsed_ms);
+
+	bool start_and_load_sounds();
 
 private:
 	// Core movement and behavior functions
@@ -27,4 +37,9 @@ private:
 
 	// Constants (can be moved to config file later)
 	const float BASE_ENEMY_SPEED = 2000.0f; // Base movement speed for enemies
+
+
+
+	Mix_Chunk *injured_sound;
+
 };

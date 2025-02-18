@@ -17,8 +17,7 @@ bool WorldSystem::game_is_over = false;
 // create the world
 WorldSystem::WorldSystem() : points(0)
 {
-	// seeding rng with random device
-	rng = std::default_random_engine(std::random_device()());
+
 }
 
 WorldSystem::~WorldSystem()
@@ -26,6 +25,10 @@ WorldSystem::~WorldSystem()
 	// Destroy music components
 	if (background_music != nullptr)
 		Mix_FreeMusic(background_music);
+	if (sword_attack_sound != nullptr)
+		Mix_FreeChunk(sword_attack_sound);
+	if (running_on_grass_sound != nullptr)
+		Mix_FreeChunk(running_on_grass_sound);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -124,11 +127,15 @@ bool WorldSystem::start_and_load_sounds()
 	}
 
 	background_music = Mix_LoadMUS(audio_path("music.wav").c_str());
+	sword_attack_sound = Mix_LoadWAV(audio_path("sword_attack_sound.wav").c_str());
+	running_on_grass_sound = Mix_LoadWAV(audio_path("running_on_grass.wav").c_str());
 
-	if (background_music == nullptr)
+	if (background_music == nullptr || sword_attack_sound == nullptr || running_on_grass_sound == nullptr)
 	{
 		fprintf(stderr, "Failed to load sounds\n %s\n make sure the data directory is present",
-				audio_path("music.wav").c_str());
+				audio_path("music.wav").c_str(),
+				audio_path("sword_attack_sound.wav").c_str(), 
+				audio_path("running_on_grass.wav").c_str());
 		return false;
 	}
 
@@ -151,18 +158,6 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
-
-	// // spawn new zombies
-	// next_zombie_spawn -= elapsed_ms_since_last_update * current_speed;
-	// if (next_zombie_spawn < 0.f && registry.zombies.size() < max_zombies)
-	// {
-
-	// 	// reset timer
-	// 	next_zombie_spawn = (ZOMBIE_SPAWN_RATE_MS / 2) + uniform_dist(rng) * (ZOMBIE_SPAWN_RATE_MS / 2);
-
-	// 	// create zombie with random initial position
-	// 	createZombie(renderer, vec2(50.f + uniform_dist(rng) * (WINDOW_WIDTH_PX - 100.f), 100.f));
-	// }
 
 	// Using the spawn manager to generate zombies
 	spawn_manager.step(elapsed_ms_since_last_update, renderer);
@@ -259,6 +254,9 @@ void WorldSystem::player_attack()
 	Entity player = registry.players.entities[0];
 	if (!registry.cooldowns.has(player))
 	{
+		// Play the sword attack sound
+		Mix_PlayChannel(-1, sword_attack_sound, 0);
+
 		Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
 		if (less_f_ugly.scale.x < 0)
 		{ // face left = minus the range from position
@@ -295,13 +293,13 @@ void WorldSystem::player_attack()
 						direction = direction / length; // Normalize
 					}
 
-					std::cout << zombie_motion.velocity.x <<"  "<<  zombie_motion.velocity.y << std::endl;
+					std::cout << zombie_motion.velocity.x << "  " << zombie_motion.velocity.y << std::endl;
 
 					// Apply knockback velocity immediately
 					float knockback_force = 1000.0f;
 					zombie_motion.velocity += direction * knockback_force;
 
-					std::cout << zombie_motion.velocity.x <<"  "<< zombie_motion.velocity.y << std::endl;
+					std::cout << zombie_motion.velocity.x << "  " << zombie_motion.velocity.y << std::endl;
 
 					// Add hit effect
 					HitEffect &hit = registry.hitEffects.emplace(zombie);
@@ -448,6 +446,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
 	{
 		motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
+	}
+
+	// Play the running on grass sound
+	if (action == GLFW_PRESS && (key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D))
+	{
+		//Mix_PlayChannel(-1, running_on_grass_sound, 0);
 	}
 
 	// State

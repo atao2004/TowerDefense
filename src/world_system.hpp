@@ -78,10 +78,9 @@ private:
 
 	// music references
 	Mix_Music *background_music;
+	Mix_Chunk *sword_attack_sound;
+	Mix_Chunk *running_on_grass_sound;
 
-	// C++ random number generator
-	std::default_random_engine rng;
-	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
 	// Manage spawning zombies
 	SpawnManager spawn_manager;
