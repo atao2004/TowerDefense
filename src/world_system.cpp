@@ -402,30 +402,41 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// }
 	
 	// Move left
-	if (action == GLFW_PRESS && key == GLFW_KEY_A) {
-		motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
-		motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
-	}
+	if (motion.position.x >= (PLAYER_BB_WIDTH / 2)) {
+		if (action == GLFW_PRESS && key == GLFW_KEY_A) {
+			motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+		} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
+			if (motion.velocity.x != 0) motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+		}
+	} else if (motion.velocity.x < 0) motion.velocity.x = 0;
+	
 	// Move right
-	if (action == GLFW_PRESS && key == GLFW_KEY_D) {
-		motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
-		motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
-	}
+	if (motion.position.x <= (WINDOW_WIDTH_PX - (PLAYER_BB_WIDTH / 2))) {
+		if (action == GLFW_PRESS && key == GLFW_KEY_D) {
+			motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+		} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
+			if (motion.velocity.x != 0) motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+		}
+	} else if (motion.velocity.x > 0) motion.velocity.x = 0;
+	
 
 	// Move down
-	if (action == GLFW_PRESS && key == GLFW_KEY_S) {
-		motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
-		motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
-	}
+	if (motion.position.y <= (WINDOW_HEIGHT_PX - (PLAYER_BB_HEIGHT / 2))) {
+		if (action == GLFW_PRESS && key == GLFW_KEY_S) {
+			motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
+		} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
+			if (motion.velocity.y != 0) motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+		}
+	} else if (motion.velocity.y > 0) motion.velocity.y = 0;
+	
 	// Move up
-	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
-		motion.velocity.y += PLAYER_MOVE_UP_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {	
-		motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
-	}
+	if (motion.position.y >= (PLAYER_BB_HEIGHT / 2)) {
+		if (action == GLFW_PRESS && key == GLFW_KEY_W) {
+			motion.velocity.y += PLAYER_MOVE_UP_SPEED;
+		} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {	
+			if (motion.velocity.y != 0) motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
+		}
+	} else if (motion.velocity.y < 0) motion.velocity.y = 0;
   
 	// State
 	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W) {
