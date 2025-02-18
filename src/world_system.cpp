@@ -394,19 +394,13 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// Player movement
 	Entity player = registry.players.entities[0];
 	Motion& motion = registry.motions.get(player);
-
-	// Determine whether the player is within the game boundaries
-	// if (motion.position.x < (PLAYER_BB_WIDTH / 2) && motion.position.y < (PLAYER_BB_HEIGHT / 2)) {
-	// 	motion.velocity.x = 0;
-	// 	motion.velocity.y = 0;
-	// }
 	
 	// Move left
 	if (motion.position.x >= (PLAYER_BB_WIDTH / 2)) {
 		if (action == GLFW_PRESS && key == GLFW_KEY_A) {
 			motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
 		} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
-			if (motion.velocity.x != 0) motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+			motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
 		}
 	} else if (motion.velocity.x < 0) motion.velocity.x = 0;
 	
@@ -415,7 +409,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		if (action == GLFW_PRESS && key == GLFW_KEY_D) {
 			motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
 		} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
-			if (motion.velocity.x != 0) motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+			motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
 		}
 	} else if (motion.velocity.x > 0) motion.velocity.x = 0;
 	
@@ -425,7 +419,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		if (action == GLFW_PRESS && key == GLFW_KEY_S) {
 			motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
 		} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
-			if (motion.velocity.y != 0) motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+			motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
 		}
 	} else if (motion.velocity.y > 0) motion.velocity.y = 0;
 	
@@ -434,7 +428,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		if (action == GLFW_PRESS && key == GLFW_KEY_W) {
 			motion.velocity.y += PLAYER_MOVE_UP_SPEED;
 		} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {	
-			if (motion.velocity.y != 0) motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
+			motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
 		}
 	} else if (motion.velocity.y < 0) motion.velocity.y = 0;
   
