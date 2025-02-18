@@ -26,5 +26,5 @@ private:
 	void update_enemy_state(Entity entity);
 
 	// Constants (can be moved to config file later)
-	const float BASE_ENEMY_SPEED = 1500.0f; // Base movement speed for enemies
+	const float BASE_ENEMY_SPEED = 2000.0f; // Base movement speed for enemies
 };

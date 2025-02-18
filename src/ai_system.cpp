@@ -41,10 +41,6 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms) {
     
     // If entity has hit effect, reduce chase speed
     float current_speed = BASE_ENEMY_SPEED;
-    if (registry.hitEffects.has(entity)) {
-        // Reduce chase speed when being knocked back
-        current_speed *= 0.2f;  // Only 20% of normal chase speed during hit
-    }
     
     // Add to velocity instead of overwriting
     float step_seconds = elapsed_ms / 1000.f;
