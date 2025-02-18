@@ -163,6 +163,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	spawn_manager.step(elapsed_ms_since_last_update, renderer);
 
 	update_enemy_death_animations(elapsed_ms_since_last_update);
+	update_movement_sound(elapsed_ms_since_last_update);
+	
 	return true;
 }
 
@@ -255,7 +257,7 @@ void WorldSystem::player_attack()
 	if (!registry.cooldowns.has(player))
 	{
 		// Play the sword attack sound
-		Mix_PlayChannel(-1, sword_attack_sound, 0);
+		Mix_PlayChannel(3, sword_attack_sound, 0);
 
 		Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
 		if (less_f_ugly.scale.x < 0)
@@ -364,6 +366,8 @@ void WorldSystem::update_enemy_death_animations(float elapsed_ms)
 	}
 }
 
+// float runningSoundTimer = 0.0;
+
 // on key callback
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
@@ -448,10 +452,23 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
 	}
 
-	// Play the running on grass sound
-	if (action == GLFW_PRESS && (key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D))
-	{
-		//Mix_PlayChannel(-1, running_on_grass_sound, 0);
+	// Play movement sound
+    if ((action == GLFW_PRESS || action == GLFW_REPEAT) &&
+        (key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D))
+    {
+		if (!is_movement_sound_playing && movement_sound_timer <= 0) {
+            Mix_PlayChannel(0, running_on_grass_sound, 0);
+            is_movement_sound_playing = true;
+            movement_sound_timer = 1000.f;
+        }
+    }else if (action == GLFW_RELEASE) {
+		if (motion.velocity.x == 0 && motion.velocity.y == 0) {
+            if (is_movement_sound_playing) {
+                Mix_HaltChannel(0);
+                is_movement_sound_playing = false;
+                movement_sound_timer = 0.f;
+            }
+        }
 	}
 
 	// State
@@ -527,4 +544,27 @@ void WorldSystem::game_over()
 {
 	std::cout << "Game Over!" << std::endl;
 	game_is_over = true;
+}
+
+void WorldSystem::update_movement_sound(float elapsed_ms)
+{
+	// Update movement sound
+	if (is_movement_sound_playing)
+	{
+		movement_sound_timer -= elapsed_ms;
+
+		// If timer expired and player is still moving, restart sound
+		if (movement_sound_timer <= 0 &&
+			!registry.players.entities.empty())
+		{
+			Entity player = registry.players.entities[0];
+			Motion &motion = registry.motions.get(player);
+
+			if (motion.velocity.x != 0 || motion.velocity.y != 0)
+			{
+				Mix_PlayChannel(0, running_on_grass_sound, 0);
+				movement_sound_timer = 1000.f;
+			}
+		}
+	}
 }

@@ -85,7 +85,7 @@ void AISystem::handle_enemy_attack(Entity entity, float elapsed_ms) {
     
     // If in range and cooldown ready
     if (distance <= attack.range && !registry.cooldowns.has(entity)) {
-        Mix_PlayChannel(-1, injured_sound, 0);
+        Mix_PlayChannel(2, injured_sound, 0);
 
         auto& status_comp = registry.statuses.get(player);
         

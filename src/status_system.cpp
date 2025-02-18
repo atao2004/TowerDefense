@@ -8,6 +8,15 @@ StatusSystem::StatusSystem()
     // Currently empty, but needed for the linker
 }
 
+StatusSystem::~StatusSystem()
+{
+	// Destroy music components
+	if (player_death_sound != nullptr)
+		Mix_FreeChunk(player_death_sound);
+	Mix_CloseAudio();
+
+}
+
 void StatusSystem::step(float elapsed_ms)
 {
     // Handle different types of status effects
@@ -53,6 +62,7 @@ void StatusSystem::handle_enemy_attack(Entity entity, float elapsed_ms)
             }
         }
         if (registry.players.has(entity) && player.health <= 0) {
+            Mix_PlayChannel(1, player_death_sound, 0);
             WorldSystem::game_over();  // You'll need to pass WorldSystem reference
             return;
         }
@@ -104,4 +114,33 @@ void StatusSystem::handle_hit_effects(float elapsed_ms) {
             registry.hitEffects.remove(entity);
         }
     }
+}
+
+bool StatusSystem::start_and_load_sounds()
+{
+
+	//////////////////////////////////////
+	// Loading music and sounds with SDL
+	if (SDL_Init(SDL_INIT_AUDIO) < 0)
+	{
+		fprintf(stderr, "Failed to initialize SDL Audio");
+		return false;
+	}
+
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
+	{
+		fprintf(stderr, "Failed to open audio device");
+		return false;
+	}
+
+	player_death_sound = Mix_LoadWAV(audio_path("player_death_sound.wav").c_str());
+
+	if (player_death_sound == nullptr)
+	{
+		fprintf(stderr, "Failed to load sounds\n %s\n make sure the data directory is present",
+				audio_path("player_death_sound.wav").c_str());
+		return false;
+	}
+
+	return true;
 }
