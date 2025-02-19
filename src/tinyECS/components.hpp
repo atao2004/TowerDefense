@@ -102,6 +102,10 @@ struct Grass {
 
 };
 
+struct ScorchedEarth {
+	
+};
+
 struct Toolbar {
 
 };
@@ -190,7 +194,8 @@ enum class TEXTURE_ASSET_ID
 	PLAYER_ACTION_1  = PLAYER_WALK_2 + 1,
 	PLAYER_ACTION_2  = PLAYER_ACTION_1 + 1,
 	GRASS = PLAYER_ACTION_2 + 1,
-	TOOLBAR = GRASS + 1,
+	SCORCHED_EARTH = GRASS + 1,
+	TOOLBAR = SCORCHED_EARTH + 1,
 	PAUSE = TOOLBAR + 1,
 	TEXTURE_COUNT = PAUSE + 1
 };

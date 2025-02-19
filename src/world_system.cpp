@@ -11,6 +11,12 @@
 #include "spawn_manager.hpp"
 #include "state_system.hpp"
 
+// FreeType
+// #include <ft2build.h>
+// #include FT_FREETYPE_H
+
+// FT_Library library;
+
 // Game constants
 bool WorldSystem::game_is_over = false;
 
@@ -205,11 +211,20 @@ void WorldSystem::restart_game()
 
 	int grid_line_width = GRID_LINE_WIDTH_PX;
 
-	// create the grass texture for the background and reset the pre-existing grasses
-	removeGrasses();
+	// create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
+	removeSurfaces();
 	for (int x = (GRASS_DIMENSION_PX / 2); x < WINDOW_WIDTH_PX + (GRASS_DIMENSION_PX / 2); x += GRASS_DIMENSION_PX) {
 		for (int y = (GRASS_DIMENSION_PX / 2); y < WINDOW_HEIGHT_PX + (GRASS_DIMENSION_PX / 2); y += GRASS_DIMENSION_PX) {
 			createGrass(vec2(x, y));
+		}
+	}
+	for (int x = -SCORCHED_EARTH_BOUNDARY; x < WINDOW_WIDTH_PX + DIRT_DIMENSION_PX; x += DIRT_DIMENSION_PX) {
+		for (int y = -SCORCHED_EARTH_BOUNDARY; y < WINDOW_HEIGHT_PX + DIRT_DIMENSION_PX; y += DIRT_DIMENSION_PX) {
+			if (x < SCORCHED_EARTH_BOUNDARY || (y < SCORCHED_EARTH_BOUNDARY)) {
+				createScorchedEarth(vec2(x, y));
+			} else if (x > WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY || y > WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY) {
+				createScorchedEarth(vec2(min(x, WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY), min(y, WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY)));
+			}
 		}
 	}
 	
@@ -312,6 +327,8 @@ void WorldSystem::player_attack()
 						death_anim.alpha = 1.0f;
 						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
 
+						// Enemy Count update:
+						std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 					}
 					
 					// Increase the experience of the player.
@@ -396,7 +413,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	Motion& motion = registry.motions.get(player);
 	
 	// Move left
-	if (motion.position.x >= (PLAYER_BB_WIDTH / 2)) {
+	if (motion.position.x >= (PLAYER_WIDTH / 2) + SCORCHED_EARTH_BOUNDARY) {
 		if (action == GLFW_PRESS && key == GLFW_KEY_A) {
 			motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
 		} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
@@ -405,7 +422,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	} else if (motion.velocity.x < 0) motion.velocity.x = 0;
 	
 	// Move right
-	if (motion.position.x <= (WINDOW_WIDTH_PX - (PLAYER_BB_WIDTH / 2))) {
+	if (motion.position.x <= (WINDOW_WIDTH_PX - (PLAYER_WIDTH / 2) - SCORCHED_EARTH_BOUNDARY)) {
 		if (action == GLFW_PRESS && key == GLFW_KEY_D) {
 			motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
 		} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
@@ -415,7 +432,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	
 
 	// Move down
-	if (motion.position.y <= (WINDOW_HEIGHT_PX - (PLAYER_BB_HEIGHT / 2))) {
+	if (motion.position.y <= (WINDOW_HEIGHT_PX - (PLAYER_HEIGHT / 2) - SCORCHED_EARTH_BOUNDARY)) {
 		if (action == GLFW_PRESS && key == GLFW_KEY_S) {
 			motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
 		} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
@@ -424,7 +441,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	} else if (motion.velocity.y > 0) motion.velocity.y = 0;
 	
 	// Move up
-	if (motion.position.y >= (PLAYER_BB_HEIGHT / 2)) {
+	if (motion.position.y >= (PLAYER_HEIGHT / 2) + SCORCHED_EARTH_BOUNDARY) {
 		if (action == GLFW_PRESS && key == GLFW_KEY_W) {
 			motion.velocity.y += PLAYER_MOVE_UP_SPEED;
 		} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {	

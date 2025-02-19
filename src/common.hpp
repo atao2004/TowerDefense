@@ -48,6 +48,8 @@ const int GRID_LINE_WIDTH_PX = 2;
 const vec3 GRID_COLOR = vec3(0, 0, 0);
 
 const int GRASS_DIMENSION_PX = 512;
+const int DIRT_DIMENSION_PX = GRASS_DIMENSION_PX / 2;
+const int SCORCHED_EARTH_BOUNDARY = DIRT_DIMENSION_PX / 4;
 
 const int MAX_ZOMBIES = 5;
 
