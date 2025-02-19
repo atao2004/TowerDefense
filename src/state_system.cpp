@@ -44,7 +44,7 @@ void StateSystem::state_move()
     Entity player = registry.players.entities[0];
     RenderRequest& request = registry.renderRequests.get(player);
 
-    if (timer_ms >= 1000) {
+    if (timer_ms >= PLAYER_MOVE_FRAME_DELAY) {
         if (request.used_texture == TEXTURE_ASSET_ID::PLAYER_WALK_1) {
             request.used_texture = TEXTURE_ASSET_ID::PLAYER_WALK_2;
         }
@@ -60,7 +60,7 @@ void StateSystem::state_attack()
     Entity player = registry.players.entities[0];
     RenderRequest& request = registry.renderRequests.get(player);
 
-    if (timer_ms >= 200) {
+    if (timer_ms >= PLAYER_ATTACK_FRAME_DELAY) {
         if (request.used_texture == TEXTURE_ASSET_ID::PLAYER_ACTION_1) {
             request.used_texture = TEXTURE_ASSET_ID::PLAYER_ACTION_2;
         }

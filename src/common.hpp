@@ -83,6 +83,11 @@ const float ZOMBIE_HEIGHT = 90;
 const int COOLDOWN_ENEMY_ATTACK = 1000;
 const int COOLDOWN_PLAYER_ATTACK = 1000;
 
+// animation
+const int PLAYER_MOVE_FRAME_DELAY = 500;
+const int PLAYER_ATTACK_FRAME_DELAY = 250;
+const int ZOMBIE_MOVE_FRAME_DELAY = 500;
+
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)
 // We recommend making all components non-copyable by derving from ComponentNonCopyable
