@@ -75,7 +75,8 @@ float health;
 enum class STATE
 {
 	IDLE = 0,
-	MOVE = 1
+	MOVE = 1,
+	ATTACK = 2
 };
 
 struct State

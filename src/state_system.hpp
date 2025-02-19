@@ -10,4 +10,5 @@ public:
 private:
     static float timer_ms;
     static void state_move();
+    static void state_attack();
 };
