@@ -9,12 +9,8 @@ void AnimationSystem::step(float elapsed_ms)
         animation.timer_ms += elapsed_ms;
         if (animation.timer_ms >= ZOMBIE_MOVE_FRAME_DELAY) {
             RenderRequest& request = registry.renderRequests.get(entity);
-            if (request.used_texture == TEXTURE_ASSET_ID::ZOMBIE_WALK_1) {
-                request.used_texture = TEXTURE_ASSET_ID::ZOMBIE_WALK_2;
-            }
-            else {
-                request.used_texture = TEXTURE_ASSET_ID::ZOMBIE_WALK_1;
-            }
+            animation.pose = (animation.pose + 1) % (sizeof(ZOMBIE_ANIMATION) / sizeof(ZOMBIE_ANIMATION[0]));
+            request.used_texture = ZOMBIE_ANIMATION[animation.pose];
             animation.timer_ms = 0;
         }
     }
