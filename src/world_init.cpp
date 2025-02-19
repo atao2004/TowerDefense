@@ -227,7 +227,7 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
-	motion.scale = vec2({ PLAYER_WIDTH, PLAYER_HEIGHT });
+	motion.scale = vec2({ PLAYER_HEIGHT, PLAYER_HEIGHT });
 
 	Attack& attack = registry.attacks.emplace(entity);
 	attack.range = 60;
