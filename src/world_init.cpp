@@ -57,6 +57,8 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 	Attack& attack = registry.attacks.emplace(entity);
 	attack.range = 30.0f;         
 
+	Animation& animation = registry.animations.emplace(entity);
+
 	// store a reference to the potentially re-used mesh object
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
@@ -70,7 +72,7 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::ZOMBIE,
+			TEXTURE_ASSET_ID::ZOMBIE_WALK_1,
 			EFFECT_ASSET_ID::ZOMBIE,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}

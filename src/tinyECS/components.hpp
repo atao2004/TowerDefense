@@ -83,6 +83,11 @@ struct State
 	STATE state;
 };
 
+struct Animation
+{
+	float timer_ms = 0;
+};
+
 // Tower
 struct Tower
 {
@@ -183,8 +188,9 @@ enum class TEXTURE_ASSET_ID
 {
 	INVADER = 0,
 	TOWER = INVADER + 1,
-	ZOMBIE = TOWER + 1,
-	PLAYER_IDLE = ZOMBIE + 1,
+	ZOMBIE_WALK_1 = TOWER + 1,
+	ZOMBIE_WALK_2 = ZOMBIE_WALK_1 + 1,
+	PLAYER_IDLE = ZOMBIE_WALK_2 + 1,
 	PLAYER_WALK_1  = PLAYER_IDLE + 1,
 	PLAYER_WALK_2  = PLAYER_WALK_1 + 1,
 	PLAYER_ACTION_1  = PLAYER_WALK_2 + 1,
