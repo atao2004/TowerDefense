@@ -259,7 +259,6 @@ bool WorldSystem::is_over() const
 
 void WorldSystem::player_attack()
 {
-	StateSystem::update_state(STATE::ATTACK);
 	Entity player = registry.players.entities[0];
 	if (!registry.cooldowns.has(player))
 	{
@@ -321,6 +320,7 @@ void WorldSystem::player_attack()
 					}
 				}
 			}
+			StateSystem::update_state(STATE::ATTACK);
 		}
 		Cooldown &cooldown = registry.cooldowns.emplace(player);
 		cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
