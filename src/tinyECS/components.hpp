@@ -181,8 +181,7 @@ struct DeathAnimation {
 
 enum class TEXTURE_ASSET_ID
 {
-	INVADER = 0,
-	TOWER = INVADER + 1,
+	TOWER = 0,
 	ZOMBIE = TOWER + 1,
 	PLAYER_IDLE = ZOMBIE + 1,
 	PLAYER_WALK_1  = PLAYER_IDLE + 1,
