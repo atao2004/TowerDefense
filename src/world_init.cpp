@@ -76,6 +76,9 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 		}
 	);
 
+	// Enemy Count update:
+    std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
+
 	return entity;
 }
 
@@ -155,13 +158,41 @@ Entity createGrass(vec2 position)
 	return grass_entity;
 }
 
-void removeGrasses()
+Entity createScorchedEarth(vec2 position)
+{
+	Entity scorched_earth_entity = Entity();
+
+	ScorchedEarth& scorched_earth_component = registry.scorchedEarths.emplace(scorched_earth_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(scorched_earth_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(DIRT_DIMENSION_PX, DIRT_DIMENSION_PX);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		scorched_earth_entity,
+		{
+			TEXTURE_ASSET_ID::SCORCHED_EARTH,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return scorched_earth_entity;
+}
+
+void removeSurfaces()
 {
 	// remove all grasses
 	for (Entity& grass_entity : registry.grasses.entities) {
 		registry.remove_all_components_of(grass_entity);
 	}
-	std::cout << "grass reset" << std::endl;
+	for (Entity& scorched_earth_entity : registry.scorchedEarths.entities) {
+		registry.remove_all_components_of(scorched_earth_entity);
+	}
+	std::cout << "surfaces reset" << std::endl;
 }
 
 Entity createToolbar()

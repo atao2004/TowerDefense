@@ -38,7 +38,7 @@ inline std::string mesh_path(const std::string& name) {return data_path() + "/me
 const int WINDOW_WIDTH_PX = 1920;
 const int WINDOW_HEIGHT_PX = 1080;
 
-// Kung: Separate consts for testing on my Mac
+// Kung: Separate consts for testing on my Mac. Use these Anna!!
 // const int WINDOW_WIDTH_PX = 1920 * 2 / 3;
 // const int WINDOW_HEIGHT_PX = 1080 * 2 / 3;
 
@@ -48,6 +48,8 @@ const int GRID_LINE_WIDTH_PX = 2;
 const vec3 GRID_COLOR = vec3(0, 0, 0);
 
 const int GRASS_DIMENSION_PX = 512;
+const int DIRT_DIMENSION_PX = GRASS_DIMENSION_PX / 2;
+const int SCORCHED_EARTH_BOUNDARY = DIRT_DIMENSION_PX / 4;
 
 const int MAX_ZOMBIES = 5;
 

@@ -102,6 +102,10 @@ struct Grass {
 
 };
 
+struct ScorchedEarth {
+	
+};
+
 struct Toolbar {
 
 };
@@ -200,7 +204,8 @@ enum class TEXTURE_ASSET_ID
 	PLAYER_ACTION_1  = PLAYER_WALK_2 + 1,
 	PLAYER_ACTION_2  = PLAYER_ACTION_1 + 1,
 	GRASS = PLAYER_ACTION_2 + 1,
-	TOOLBAR = GRASS + 1,
+	SCORCHED_EARTH = GRASS + 1,
+	TOOLBAR = SCORCHED_EARTH + 1,
 	PAUSE = TOOLBAR + 1,
 	TEXTURE_COUNT = PAUSE + 1
 };
@@ -211,8 +216,8 @@ enum class EFFECT_ASSET_ID
 	EGG = 0,
 	CHICKEN = EGG + 1,
 	TEXTURED = CHICKEN + 1,
-	VIGNETTE = TEXTURED + 1,
-	ZOMBIE = VIGNETTE + 1,
+	UI = TEXTURED + 1,
+	ZOMBIE = UI + 1,
 	EFFECT_COUNT = ZOMBIE + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;

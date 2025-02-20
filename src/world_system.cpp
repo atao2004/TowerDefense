@@ -11,6 +11,12 @@
 #include "spawn_manager.hpp"
 #include "state_system.hpp"
 
+// FreeType
+// #include <ft2build.h>
+// #include FT_FREETYPE_H
+
+// FT_Library library;
+
 // Game constants
 bool WorldSystem::game_is_over = false;
 
@@ -208,16 +214,23 @@ void WorldSystem::restart_game()
 
 	int grid_line_width = GRID_LINE_WIDTH_PX;
 
-	// create the grass texture for the background and reset the pre-existing grasses
-	removeGrasses();
-	for (int x = (GRASS_DIMENSION_PX / 2); x < WINDOW_WIDTH_PX + (GRASS_DIMENSION_PX / 2); x += GRASS_DIMENSION_PX)
-	{
-		for (int y = (GRASS_DIMENSION_PX / 2); y < WINDOW_HEIGHT_PX + (GRASS_DIMENSION_PX / 2); y += GRASS_DIMENSION_PX)
-		{
+	// create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
+	removeSurfaces();
+	for (int x = (GRASS_DIMENSION_PX / 2); x < WINDOW_WIDTH_PX + (GRASS_DIMENSION_PX / 2); x += GRASS_DIMENSION_PX) {
+		for (int y = (GRASS_DIMENSION_PX / 2); y < WINDOW_HEIGHT_PX + (GRASS_DIMENSION_PX / 2); y += GRASS_DIMENSION_PX) {
 			createGrass(vec2(x, y));
 		}
 	}
-
+	for (int x = -SCORCHED_EARTH_BOUNDARY; x < WINDOW_WIDTH_PX + DIRT_DIMENSION_PX * 1.5; x += DIRT_DIMENSION_PX) {
+		for (int y = -SCORCHED_EARTH_BOUNDARY; y < WINDOW_HEIGHT_PX + DIRT_DIMENSION_PX * 1.5; y += DIRT_DIMENSION_PX) {
+			if (x < SCORCHED_EARTH_BOUNDARY || (y < SCORCHED_EARTH_BOUNDARY)) {
+				createScorchedEarth(vec2(x, y));
+			} else if (x > WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY || y > WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY) {
+				createScorchedEarth(vec2(min(x, WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY), min(y, WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY)));
+			}
+		}
+	}
+	
 	// create grid lines and clear any pre-existing grid lines
 	grid_lines.clear();
 	// vertical lines
@@ -245,8 +258,15 @@ void WorldSystem::restart_game()
 	createPause();
 	createToolbar();
 
-	// spawn player in the middle of the screen
+	// reset player and spawn player in the middle of the screen
+	registry.players.clear();
 	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
+
+	// Reset player movement
+	Entity player = registry.players.entities[0];
+	Motion& player_motion = registry.motions.get(player);
+	player_motion.velocity.x = 0;
+	player_motion.velocity.y = 0;
 
 	// start the spawn manager
 	spawn_manager.start_game();
@@ -326,6 +346,9 @@ void WorldSystem::player_attack()
 						death_anim.slide_direction = slide_direction;
 						death_anim.alpha = 1.0f;
 						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
+
+						// Enemy Count update:
+						std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 					}
 
 					// Increase the experience of the player.
@@ -414,76 +437,45 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
 	// Player movement
 	Entity player = registry.players.entities[0];
-	Motion &motion = registry.motions.get(player);
-
-	// Determine whether the player is within the game boundaries
-	// if (motion.position.x < (PLAYER_BB_WIDTH / 2) && motion.position.y < (PLAYER_BB_HEIGHT / 2)) {
-	// 	motion.velocity.x = 0;
-	// 	motion.velocity.y = 0;
-	// }
-
+	Motion& motion = registry.motions.get(player);
+	
 	// Move left
-	if (action == GLFW_PRESS && key == GLFW_KEY_A)
-	{
-		motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
-	}
-	else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
-	{
-		motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
-	}
+	if (motion.position.x >= (PLAYER_WIDTH / 2) + SCORCHED_EARTH_BOUNDARY) {
+		if (action == GLFW_PRESS && key == GLFW_KEY_A) {
+			motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+		} else if ((action == GLFW_RELEASE && key == GLFW_KEY_A)) {
+			if (motion.velocity.x < 0) motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+		}
+	} else if (motion.velocity.x < 0) motion.velocity.x = 0;
+	
 	// Move right
-	if (action == GLFW_PRESS && key == GLFW_KEY_D)
-	{
-		motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
-	}
-	else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
-	{
-		motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
-	}
+	if (motion.position.x <= (WINDOW_WIDTH_PX - (PLAYER_WIDTH / 2) - SCORCHED_EARTH_BOUNDARY)) {
+		if (action == GLFW_PRESS && key == GLFW_KEY_D) {
+			motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+		} else if ((action == GLFW_RELEASE && key == GLFW_KEY_D)) {
+			if (motion.velocity.x > 0) motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+		}
+	} else if (motion.velocity.x > 0) motion.velocity.x = 0;
+	
 
 	// Move down
-	if (action == GLFW_PRESS && key == GLFW_KEY_S)
-	{
-		motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
-	}
-	else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
-	{
-		motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
-	}
+	if (motion.position.y <= (WINDOW_HEIGHT_PX - (PLAYER_HEIGHT / 2) - SCORCHED_EARTH_BOUNDARY)) {
+		if (action == GLFW_PRESS && key == GLFW_KEY_S) {
+			motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
+		} else if ((action == GLFW_RELEASE && key == GLFW_KEY_S)) {
+			if (motion.velocity.y > 0) motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+		}
+	} else if (motion.velocity.y > 0) motion.velocity.y = 0;
+	
 	// Move up
-	if (action == GLFW_PRESS && key == GLFW_KEY_W)
-	{
-		motion.velocity.y += PLAYER_MOVE_UP_SPEED;
-	}
-	else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
-	{
-		motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
-	}
-
-	// Play movement sound
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) &&
-		(key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D))
-	{
-		if (!is_movement_sound_playing && movement_sound_timer <= 0)
-		{
-			Mix_PlayChannel(0, running_on_grass_sound, 0);
-			is_movement_sound_playing = true;
-			movement_sound_timer = 1000.f;
+	if (motion.position.y >= (PLAYER_HEIGHT / 2) + SCORCHED_EARTH_BOUNDARY) {
+		if (action == GLFW_PRESS && key == GLFW_KEY_W) {
+			motion.velocity.y += PLAYER_MOVE_UP_SPEED;
+		} else if ((action == GLFW_RELEASE && key == GLFW_KEY_W)) {	
+			if (motion.velocity.y < 0) motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
 		}
-	}
-	else if (action == GLFW_RELEASE)
-	{
-		if (motion.velocity.x == 0 && motion.velocity.y == 0)
-		{
-			if (is_movement_sound_playing)
-			{
-				Mix_HaltChannel(0);
-				is_movement_sound_playing = false;
-				movement_sound_timer = 0.f;
-			}
-		}
-	}
-
+	} else if (motion.velocity.y < 0) motion.velocity.y = 0;
+  
 	// State
 	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
 	{

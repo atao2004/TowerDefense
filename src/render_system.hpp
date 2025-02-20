@@ -38,6 +38,7 @@ class RenderSystem {
 		textures_path("player/action1.png"),
 		textures_path("player/action2.png"),
 		textures_path("map/grass.png"),
+		textures_path("map/dirt.png"),
 		textures_path("ui/toolbar.png"),
 		textures_path("ui/pause.png")
 	};
@@ -48,7 +49,7 @@ class RenderSystem {
 		shader_path("egg"),
 		shader_path("chicken"),
 		shader_path("textured"),
-		shader_path("vignette"),
+		shader_path("ui"),
 		shader_path("zombie")
 	};
 
