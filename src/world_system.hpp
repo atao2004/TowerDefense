@@ -53,6 +53,7 @@ private:
 
 	void player_attack();
 	void update_enemy_death_animations(float elapsed_ms);
+	void update_screen_shake(float elapsed_ms);
 
 
 	// input callback functions

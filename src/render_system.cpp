@@ -185,9 +185,43 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		gl_has_errors();
 
 		// handle hit effect
-		bool is_hit = registry.hitEffects.has(entity);
-		GLint hit_loc = glGetUniformLocation(program, "is_hit");
-		glUniform1i(hit_loc, is_hit);
+		bool zombie_is_hit = registry.hitEffects.has(entity);
+		GLint hit_loc = glGetUniformLocation(program, "zombie_is_hit");
+		glUniform1i(hit_loc, zombie_is_hit);
+		gl_has_errors();
+		
+		// Enabling and binding texture to slot 0
+		glActiveTexture(GL_TEXTURE0);
+		gl_has_errors();
+
+		assert(registry.renderRequests.has(entity));
+		GLuint texture_id =
+			texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
+
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+		gl_has_errors();
+	} else if (render_request.used_effect == EFFECT_ASSET_ID::PLAYER)
+	{
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+		gl_has_errors();
+		assert(in_texcoord_loc >= 0);
+
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
+							  sizeof(TexturedVertex), (void *)0);
+		gl_has_errors();
+
+		glEnableVertexAttribArray(in_texcoord_loc);
+		glVertexAttribPointer(
+			in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex),
+			(void *)sizeof(
+				vec3)); // note the stride to skip the preceeding vertex position
+
+		// handle hit effect
+		bool player_is_hit = registry.hitEffects.has(entity);
+		GLint hit_loc = glGetUniformLocation(program, "player_is_hit");
+		glUniform1i(hit_loc, player_is_hit);
 		gl_has_errors();
 		
 		// Enabling and binding texture to slot 0
@@ -388,21 +422,37 @@ void RenderSystem::draw()
 	gl_has_errors();
 }
 
-mat3 RenderSystem::createProjectionMatrix()
-{
-	// fake projection matrix, scaled to window coordinates
-	float left = 0.f;
-	float top = 0.f;
-	float right = (float)WINDOW_WIDTH_PX;
-	float bottom = (float)WINDOW_HEIGHT_PX;
+// mat3 RenderSystem::createProjectionMatrix()
+// {
+// 	// fake projection matrix, scaled to window coordinates
+// 	float left = 0.f;
+// 	float top = 0.f;
+// 	float right = (float)WINDOW_WIDTH_PX;
+// 	float bottom = (float)WINDOW_HEIGHT_PX;
 
-	float sx = 2.f / (right - left);
-	float sy = 2.f / (top - bottom);
-	float tx = -(right + left) / (right - left);
-	float ty = -(top + bottom) / (top - bottom);
+// 	float sx = 2.f / (right - left);
+// 	float sy = 2.f / (top - bottom);
+// 	float tx = -(right + left) / (right - left);
+// 	float ty = -(top + bottom) / (top - bottom);
 
-	return {
-		{sx, 0.f, 0.f},
-		{0.f, sy, 0.f},
-		{tx, ty, 1.f}};
+// 	return {
+// 		{sx, 0.f, 0.f},
+// 		{0.f, sy, 0.f},
+// 		{tx, ty, 1.f}};
+// }
+
+mat3 RenderSystem::createProjectionMatrix() {
+    auto& screen = registry.screenStates.get(screen_state_entity);
+    
+    float left = 0.f + screen.shake_offset.x;
+    float top = 0.f + screen.shake_offset.y;
+    float right = (float)WINDOW_WIDTH_PX + screen.shake_offset.x;
+    float bottom = (float)WINDOW_HEIGHT_PX + screen.shake_offset.y;
+
+    float sx = 2.f / (right - left);
+    float sy = 2.f / (top - bottom);
+    float tx = -(right + left) / (right - left);
+    float ty = -(top + bottom) / (top - bottom);
+
+    return {{sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f}};
 }

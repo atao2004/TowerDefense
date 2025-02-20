@@ -66,6 +66,16 @@ void StatusSystem::handle_enemy_attack(Entity entity, float elapsed_ms)
             WorldSystem::game_over();  // You'll need to pass WorldSystem reference
             return;
         }
+
+        if (registry.players.has(entity)) {
+            // Add hit effect
+            registry.hitEffects.emplace(entity);
+            
+            // Add screen shake
+            auto& screen = registry.screenStates.get(registry.screenStates.entities[0]);
+            screen.shake_duration_ms = 200.0f;
+            screen.shake_intensity = 10.0f;
+        }
     }
 }
 

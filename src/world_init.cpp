@@ -276,7 +276,7 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::PLAYER_IDLE,
-			EFFECT_ASSET_ID::TEXTURED,
+			EFFECT_ASSET_ID::PLAYER,
 			GEOMETRY_BUFFER_ID::SPRITE
 		},
 		false
