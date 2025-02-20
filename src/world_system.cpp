@@ -183,10 +183,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	{
 		spawn_manager.step(elapsed_ms_since_last_update, renderer);
 
-	update_enemy_death_animations(elapsed_ms_since_last_update);
-	update_movement_sound(elapsed_ms_since_last_update);
+		update_enemy_death_animations(elapsed_ms_since_last_update);
+		update_movement_sound(elapsed_ms_since_last_update);
 
-	return true;
+		return true;
+	}
 }
 
 // Reset the world state to its initial state
@@ -221,21 +222,28 @@ void WorldSystem::restart_game()
 
 	// create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
 	removeSurfaces();
-	for (int x = (GRASS_DIMENSION_PX / 2); x < WINDOW_WIDTH_PX + (GRASS_DIMENSION_PX / 2); x += GRASS_DIMENSION_PX) {
-		for (int y = (GRASS_DIMENSION_PX / 2); y < WINDOW_HEIGHT_PX + (GRASS_DIMENSION_PX / 2); y += GRASS_DIMENSION_PX) {
+	for (int x = (GRASS_DIMENSION_PX / 2); x < WINDOW_WIDTH_PX + (GRASS_DIMENSION_PX / 2); x += GRASS_DIMENSION_PX)
+	{
+		for (int y = (GRASS_DIMENSION_PX / 2); y < WINDOW_HEIGHT_PX + (GRASS_DIMENSION_PX / 2); y += GRASS_DIMENSION_PX)
+		{
 			createGrass(vec2(x, y));
 		}
 	}
-	for (int x = -SCORCHED_EARTH_BOUNDARY; x < WINDOW_WIDTH_PX + DIRT_DIMENSION_PX * 1.5; x += DIRT_DIMENSION_PX) {
-		for (int y = -SCORCHED_EARTH_BOUNDARY; y < WINDOW_HEIGHT_PX + DIRT_DIMENSION_PX * 1.5; y += DIRT_DIMENSION_PX) {
-			if (x < SCORCHED_EARTH_BOUNDARY || (y < SCORCHED_EARTH_BOUNDARY)) {
+	for (int x = -SCORCHED_EARTH_BOUNDARY; x < WINDOW_WIDTH_PX + DIRT_DIMENSION_PX * 1.5; x += DIRT_DIMENSION_PX)
+	{
+		for (int y = -SCORCHED_EARTH_BOUNDARY; y < WINDOW_HEIGHT_PX + DIRT_DIMENSION_PX * 1.5; y += DIRT_DIMENSION_PX)
+		{
+			if (x < SCORCHED_EARTH_BOUNDARY || (y < SCORCHED_EARTH_BOUNDARY))
+			{
 				createScorchedEarth(vec2(x, y));
-			} else if (x > WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY || y > WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY) {
+			}
+			else if (x > WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY || y > WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY)
+			{
 				createScorchedEarth(vec2(min(x, WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY), min(y, WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY)));
 			}
 		}
 	}
-	
+
 	// create grid lines and clear any pre-existing grid lines
 	grid_lines.clear();
 	// vertical lines
@@ -255,28 +263,29 @@ void WorldSystem::restart_game()
 	// if the screenState exists, reset the health bar percentages
 	if (registry.screenStates.size() != 0)
 	{
-	if (registry.screenStates.size() != 0)
-	{
-		registry.screenStates.get(registry.screenStates.entities[0]).hp_percentage = 1.0;
-		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+		if (registry.screenStates.size() != 0)
+		{
+			registry.screenStates.get(registry.screenStates.entities[0]).hp_percentage = 1.0;
+			registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+		}
+
+		// Create the pause button and toolbar
+		createPause();
+		createToolbar();
+
+		// reset player and spawn player in the middle of the screen
+		registry.players.clear();
+		createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
+
+		// Reset player movement
+		Entity player = registry.players.entities[0];
+		Motion &player_motion = registry.motions.get(player);
+		player_motion.velocity.x = 0;
+		player_motion.velocity.y = 0;
+
+		// start the spawn manager
+		spawn_manager.start_game();
 	}
-
-	// Create the pause button and toolbar
-	createPause();
-	createToolbar();
-
-	// reset player and spawn player in the middle of the screen
-	registry.players.clear();
-	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
-
-	// Reset player movement
-	Entity player = registry.players.entities[0];
-	Motion& player_motion = registry.motions.get(player);
-	player_motion.velocity.x = 0;
-	player_motion.velocity.y = 0;
-
-	// start the spawn manager
-	spawn_manager.start_game();
 }
 
 // Compute collisions between entities
@@ -316,93 +325,95 @@ void WorldSystem::player_attack()
 		{
 			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
 				|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.zombies.entities[i])))
-				|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.zombies.entities[i])))
-			{
-				Entity zombie = registry.zombies.entities[i];
-				if (registry.zombies.has(zombie))
 				{
-					auto &zombie_comp = registry.zombies.get(zombie);
-					zombie_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
-					std::cout << "wow u r attacking so nice cool cool" << std::endl;
-
-					// Calculate knockback direction (from player to zombie)
-					Motion &zombie_motion = registry.motions.get(zombie);
-					Motion &player_motion = registry.motions.get(player);
-					vec2 direction = zombie_motion.position - player_motion.position;
-					float length = sqrt(dot(direction, direction));
-					if (length > 0)
+					Entity zombie = registry.zombies.entities[i];
+					if (registry.zombies.has(zombie))
 					{
-						direction = direction / length; // Normalize
-					}
+						auto &zombie_comp = registry.zombies.get(zombie);
+						zombie_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
+						std::cout << "wow u r attacking so nice cool cool" << std::endl;
 
-					// Apply knockback velocity immediately
-					float knockback_force = 1000.0f;
-					zombie_motion.velocity += direction * knockback_force;
-
-					// Add hit effect
-					HitEffect &hit = registry.hitEffects.emplace(zombie);
-
-					if (zombie_comp.health <= 0)
-					{
-						// Add death animation before removing
-						Entity player = registry.players.entities[0];
+						// Calculate knockback direction (from player to zombie)
+						Motion &zombie_motion = registry.motions.get(zombie);
 						Motion &player_motion = registry.motions.get(player);
-						vec2 slide_direction = {player_motion.scale.x > 0 ? 1.0f : -1.0f, 0.0f};
+						vec2 direction = zombie_motion.position - player_motion.position;
+						float length = sqrt(dot(direction, direction));
+						if (length > 0)
+						{
+							direction = direction / length; // Normalize
+						}
 
-						// Add death animation component
-						DeathAnimation &death_anim = registry.deathAnimations.emplace(zombie);
-						death_anim.slide_direction = slide_direction;
-						death_anim.alpha = 1.0f;
-						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
+						// Apply knockback velocity immediately
+						float knockback_force = 1000.0f;
+						zombie_motion.velocity += direction * knockback_force;
 
-						// Enemy Count update:
-						std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
+						// Add hit effect
+						HitEffect &hit = registry.hitEffects.emplace(zombie);
+
+						if (zombie_comp.health <= 0)
+						{
+							// Add death animation before removing
+							Entity player = registry.players.entities[0];
+							Motion &player_motion = registry.motions.get(player);
+							vec2 slide_direction = {player_motion.scale.x > 0 ? 1.0f : -1.0f, 0.0f};
+
+							// Add death animation component
+							DeathAnimation &death_anim = registry.deathAnimations.emplace(zombie);
+							death_anim.slide_direction = slide_direction;
+							death_anim.alpha = 1.0f;
+							death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
+
+							// Enemy Count update:
+							std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
+						}
+
+						// Increase the experience of the player.
+						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage <= 1.0)
+						{
+							if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage <= 1.0)
+							{
+								registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
+							}
+						}
 					}
-
-
-					// Increase the experience of the player.
-					if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage <= 1.0)
-					{
-					if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage <= 1.0)
-					{
-						registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
-					}
+					StateSystem::update_state(STATE::ATTACK);
 				}
-			}
-			StateSystem::update_state(STATE::ATTACK);
+			Cooldown &cooldown = registry.cooldowns.emplace(player);
+			cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
 		}
-		Cooldown &cooldown = registry.cooldowns.emplace(player);
-		cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
 	}
 }
+void WorldSystem::update_enemy_death_animations(float elapsed_ms)
+{
+	// Process each entity with a death animation
+	for (Entity entity : registry.deathAnimations.entities)
+	{
+		auto &death_anim = registry.deathAnimations.get(entity);
 
-void WorldSystem::update_enemy_death_animations(float elapsed_ms) {
-    // Process each entity with a death animation
-    for (Entity entity : registry.deathAnimations.entities) {
-        auto& death_anim = registry.deathAnimations.get(entity);
-        
-        // Update alpha
-        death_anim.duration_ms -= elapsed_ms;
-        death_anim.alpha = death_anim.duration_ms / 500.0f;  // Linear fade out
-        
-        // Update position with increased slide speed and distance
-        if (registry.motions.has(entity)) {
-            auto& motion = registry.motions.get(entity);
-            float slide_speed = 300.0f;  // pixels per second
-            
-            // Calculate movement
-            float step_seconds = elapsed_ms / 1000.0f;
-            vec2 movement = death_anim.slide_direction * (slide_speed * step_seconds);
-            
-            // Apply movement
-            motion.position += movement;
-        }
-        
-        // Remove entity when animation is complete
-        if (death_anim.duration_ms <= 0) {
-            registry.remove_all_components_of(entity);
-        }
-    }
+		// Update alpha
+		death_anim.duration_ms -= elapsed_ms;
+		death_anim.alpha = death_anim.duration_ms / 500.0f; // Linear fade out
+
+		// Update position with increased slide speed and distance
+		if (registry.motions.has(entity))
+		{
+			auto &motion = registry.motions.get(entity);
+			float slide_speed = 300.0f; // pixels per second
+
+			// Calculate movement
+			float step_seconds = elapsed_ms / 1000.0f;
+			vec2 movement = death_anim.slide_direction * (slide_speed * step_seconds);
+
+			// Apply movement
+			motion.position += movement;
+		}
+
+		// Remove entity when animation is complete
+		if (death_anim.duration_ms <= 0)
+		{
+			registry.remove_all_components_of(entity);
+		}
+	}
 }
 
 // float runningSoundTimer = 0.0;
@@ -437,70 +448,98 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			return;
 		}
 
-  if (action == GLFW_PRESS && key == GLFW_KEY_T)
-	{
-		test_mode = !test_mode;
-		spawn_manager.set_test_mode(test_mode);
-		std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
-		return;
-	}
-  
-	Entity player = registry.players.entities[0];
-	Motion& motion = registry.motions.get(player);
+		if (action == GLFW_PRESS && key == GLFW_KEY_T)
+		{
+			test_mode = !test_mode;
+			spawn_manager.set_test_mode(test_mode);
+			std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
+			return;
+		}
 
-	// Kung: I had to research online to determine how to deal with input with multiple keys.
-	// The source I used is https://discourse.glfw.org/t/press-multiple-keys/1207
+		Entity player = registry.players.entities[0];
+		Motion &motion = registry.motions.get(player);
 
-	// Move left
-	if (action == GLFW_PRESS && key == GLFW_KEY_A) {
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		// Kung: I had to research online to determine how to deal with input with multiple keys.
+		// The source I used is https://discourse.glfw.org/t/press-multiple-keys/1207
+
+		// Move left
+		if (action == GLFW_PRESS && key == GLFW_KEY_A)
+		{
+			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			{
+				motion.velocity.x = 0;
+				// } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+				// 	motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
+				// 	motion.velocity.y = PLAYER_MOVE_UP_SPEED;
+				// } if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+				// 	motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
+				// 	motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
+			}
+			else
+				motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
+		{
 			motion.velocity.x = 0;
-		// } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		// 	motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
-		// 	motion.velocity.y = PLAYER_MOVE_UP_SPEED;
-		// } if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		// 	motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
-		// 	motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
-		} else motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
-		motion.velocity.x = 0;
-	}
-	// Move right
-	if (action == GLFW_PRESS && key == GLFW_KEY_D) {
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		}
+		// Move right
+		if (action == GLFW_PRESS && key == GLFW_KEY_D)
+		{
+			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			{
+				motion.velocity.x = 0;
+			}
+			else
+				motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
+		{
 			motion.velocity.x = 0;
-		} else motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
-		motion.velocity.x = 0;
-	}
+		}
 
-	// Move down
-	if (action == GLFW_PRESS && key == GLFW_KEY_S) {
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+		// Move down
+		if (action == GLFW_PRESS && key == GLFW_KEY_S)
+		{
+			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			{
+				motion.velocity.y = 0;
+			}
+			else
+				motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
+		{
 			motion.velocity.y = 0;
-		} else motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
-		motion.velocity.y = 0;
-	}
-	// Move up
-	if (action == GLFW_PRESS && key == GLFW_KEY_W) {
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+		}
+		// Move up
+		if (action == GLFW_PRESS && key == GLFW_KEY_W)
+		{
+			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			{
+				motion.velocity.y = 0;
+			}
+			else
+				motion.velocity.y = PLAYER_MOVE_UP_SPEED;
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
+		{
 			motion.velocity.y = 0;
-		} else motion.velocity.y = PLAYER_MOVE_UP_SPEED;
-	} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {	
-		motion.velocity.y = 0;
+		}
+
+		// State
+		if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
+		{
+			State &state = registry.states.get(player);
+			if (motion.velocity == vec2(0, 0))
+			{
+				StateSystem::update_state(STATE::IDLE);
+			}
+			else
+			{
+				StateSystem::update_state(STATE::MOVE);
+			}
+		}
 	}
-  
-  // State
-  if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W) {
-    State& state = registry.states.get(player);
-    if (motion.velocity == vec2(0, 0)) {
-      StateSystem::update_state(STATE::IDLE);
-    }
-    else {
-      StateSystem::update_state(STATE::MOVE);
-    }
-  }
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
@@ -553,9 +592,10 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 
 	if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
 	{
-	if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
-	{
-		player_attack();
+		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
+		{
+			player_attack();
+		}
 	}
 }
 
