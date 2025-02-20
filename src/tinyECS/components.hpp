@@ -75,12 +75,19 @@ float health;
 enum class STATE
 {
 	IDLE = 0,
-	MOVE = 1
+	MOVE = 1,
+	ATTACK = 2
 };
 
 struct State
 {
 	STATE state;
+};
+
+struct Animation
+{
+	float timer_ms = 0;
+	int pose = 0;
 };
 
 // Tower
@@ -102,6 +109,10 @@ struct Grass {
 
 };
 
+struct ScorchedEarth {
+	
+};
+
 struct Toolbar {
 
 };
@@ -115,8 +126,12 @@ struct Pause {
 struct ScreenState
 {
 	float darken_screen_factor = -1;
+	float game_over_darken = -1;
+	float game_over_counter_ms = 0;
 	float hp_percentage = 1.0;
 	float exp_percentage = 0.0;
+	bool game_over = false;
+	float lerp_timer = 0.0;
 };
 
 // used to hold grid line start and end positions
@@ -159,74 +174,4 @@ struct DeathAnimation {
 struct HitEffect {
     float duration_ms = 200.0f;    // How long the hit effect lasts
     bool is_white = true;          // For white flash effect
-};
-
-/**
- * The following enumerators represent global identifiers refering to graphic
- * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
- * currently supported by the system.
- *
- * So, instead of referring to a game asset directly, the game logic just
- * uses these enumerators and the RenderRequest struct to inform the renderer
- * how to structure the next draw command.
- *
- * There are 2 reasons for this:
- *
- * First, game assets such as textures and meshes are large and should not be
- * copied around as this wastes memory and runtime. Thus separating the data
- * from its representation makes the system faster.
- *
- * Second, it is good practice to decouple the game logic from the render logic.
- * Imagine, for example, changing from OpenGL to Vulkan, if the game logic
- * depends on OpenGL semantics it will be much harder to do the switch than if
- * the renderer encapsulates all asset data and the game logic is agnostic to it.
- *
- * The final value in each enumeration is both a way to keep track of how many
- * enums there are, and as a default value to represent uninitialized fields.
- */
-
-enum class TEXTURE_ASSET_ID
-{
-	INVADER = 0,
-	TOWER = INVADER + 1,
-	ZOMBIE = TOWER + 1,
-	PLAYER_IDLE = ZOMBIE + 1,
-	PLAYER_WALK_1  = PLAYER_IDLE + 1,
-	PLAYER_WALK_2  = PLAYER_WALK_1 + 1,
-	PLAYER_ACTION_1  = PLAYER_WALK_2 + 1,
-	PLAYER_ACTION_2  = PLAYER_ACTION_1 + 1,
-	GRASS = PLAYER_ACTION_2 + 1,
-	TOOLBAR = GRASS + 1,
-	PAUSE = TOOLBAR + 1,
-	TEXTURE_COUNT = PAUSE + 1
-};
-const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
-
-enum class EFFECT_ASSET_ID
-{
-	EGG = 0,
-	CHICKEN = EGG + 1,
-	TEXTURED = CHICKEN + 1,
-	VIGNETTE = TEXTURED + 1,
-	ZOMBIE = VIGNETTE + 1,
-	EFFECT_COUNT = ZOMBIE + 1
-};
-const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
-
-enum class GEOMETRY_BUFFER_ID
-{
-	CHICKEN = 0,
-	SPRITE = CHICKEN + 1,
-	EGG = SPRITE + 1,
-	DEBUG_LINE = EGG + 1,
-	SCREEN_TRIANGLE = DEBUG_LINE + 1,
-	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1
-};
-const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
-
-struct RenderRequest
-{
-	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
-	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
-	GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 };
