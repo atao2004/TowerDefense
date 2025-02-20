@@ -39,7 +39,8 @@ class RenderSystem {
 		textures_path("player/action2.png"),
 		textures_path("map/grass.png"),
 		textures_path("ui/toolbar.png"),
-		textures_path("ui/pause.png")
+		textures_path("ui/pause.png"),
+		textures_path("gameover/gameover.png")
 	};
 
 	std::array<GLuint, effect_count> effects;
