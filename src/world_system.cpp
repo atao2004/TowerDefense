@@ -564,4 +564,5 @@ void WorldSystem::game_over()
 	std::cout << "Game Over!" << std::endl;
 	game_is_over = true;
 	registry.screenStates.get(registry.screenStates.entities[0]).game_over = true;
+	createGameOver();
 }
