@@ -58,8 +58,7 @@ inline std::string mesh_path(const std::string& name) {return data_path() + "/me
 
 enum class TEXTURE_ASSET_ID
 {
-	INVADER = 0,
-	TOWER = INVADER + 1,
+	TOWER = 0,
 	ZOMBIE_WALK_1 = TOWER + 1,
 	ZOMBIE_WALK_2 = ZOMBIE_WALK_1 + 1,
 	PLAYER_IDLE = ZOMBIE_WALK_2 + 1,
@@ -68,7 +67,8 @@ enum class TEXTURE_ASSET_ID
 	PLAYER_ACTION_1 = PLAYER_WALK_2 + 1,
 	PLAYER_ACTION_2 = PLAYER_ACTION_1 + 1,
 	GRASS = PLAYER_ACTION_2 + 1,
-	TOOLBAR = GRASS + 1,
+	SCORCHED_EARTH = GRASS + 1,
+	TOOLBAR = SCORCHED_EARTH + 1,
 	PAUSE = TOOLBAR + 1,
 	TEXTURE_COUNT = PAUSE + 1
 };
@@ -79,8 +79,8 @@ enum class EFFECT_ASSET_ID
 	EGG = 0,
 	CHICKEN = EGG + 1,
 	TEXTURED = CHICKEN + 1,
-	VIGNETTE = TEXTURED + 1,
-	ZOMBIE = VIGNETTE + 1,
+	UI = TEXTURED + 1,
+	ZOMBIE = UI + 1,
 	EFFECT_COUNT = ZOMBIE + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
@@ -109,12 +109,18 @@ struct RenderRequest
 const int WINDOW_WIDTH_PX = 1920;
 const int WINDOW_HEIGHT_PX = 1080;
 
+// Kung: Separate consts for testing on my Mac. Use these Anna!!
+// const int WINDOW_WIDTH_PX = 1920 * 2 / 3;
+// const int WINDOW_HEIGHT_PX = 1080 * 2 / 3;
+
 const int GRID_CELL_WIDTH_PX = 60;
 const int GRID_CELL_HEIGHT_PX = 60;
 const int GRID_LINE_WIDTH_PX = 2;
 const vec3 GRID_COLOR = vec3(0, 0, 0);
 
 const int GRASS_DIMENSION_PX = 512;
+const int DIRT_DIMENSION_PX = GRASS_DIMENSION_PX / 2;
+const int SCORCHED_EARTH_BOUNDARY = DIRT_DIMENSION_PX / 4;
 
 const int MAX_ZOMBIES = 5;
 
@@ -125,10 +131,10 @@ const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 const int PROJECTILE_DAMAGE = 10;
 
 //control player movement
-const int PLAYER_MOVE_UP_SPEED = -100;
-const int PLAYER_MOVE_DOWN_SPEED = 100;
-const int PLAYER_MOVE_LEFT_SPEED = -100;
-const int PLAYER_MOVE_RIGHT_SPEED = 100;
+const int PLAYER_MOVE_UP_SPEED = -150;
+const int PLAYER_MOVE_DOWN_SPEED = -PLAYER_MOVE_UP_SPEED;
+const int PLAYER_MOVE_LEFT_SPEED = -150;
+const int PLAYER_MOVE_RIGHT_SPEED = -PLAYER_MOVE_LEFT_SPEED;
 
 // These are hard coded to the dimensions of the entity's texture
 
