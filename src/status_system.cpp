@@ -10,6 +10,9 @@ StatusSystem::StatusSystem()
 
 void StatusSystem::step(float elapsed_ms)
 {
+    if(registry.screenStates.get(registry.screenStates.entities[0]).game_over == true) {
+        return;
+    }
     // Handle different types of status effects
     for (Entity entity : registry.statuses.entities)
     {
@@ -27,6 +30,7 @@ void StatusSystem::step(float elapsed_ms)
 
 void StatusSystem::handle_enemy_attack(Entity entity, float elapsed_ms)
 {
+
     // First check if entity has both required components
     if (!registry.statuses.has(entity) || !registry.players.has(entity))
     {
@@ -37,7 +41,6 @@ void StatusSystem::handle_enemy_attack(Entity entity, float elapsed_ms)
     auto &status_comp = registry.statuses.get(entity);
     auto &player = registry.players.get(entity);
 
-
     for (auto &status : status_comp.active_statuses)
     {
         if (status.type == "attack")
@@ -47,14 +50,16 @@ void StatusSystem::handle_enemy_attack(Entity entity, float elapsed_ms)
                       << " attack damage. Health: " << player.health << std::endl;
 
             // If the creature is an entity, update the hp_percentage.
-            if (registry.players.has(entity)) {
+            if (registry.players.has(entity))
+            {
                 registry.screenStates.get(registry.screenStates.entities[0]).hp_percentage = player.health / PLAYER_HEALTH;
             }
         }
-        if (registry.players.has(entity) && player.health <= 0) {
-            WorldSystem::game_over();  // You'll need to pass WorldSystem reference
-            return;
-        }
+    }
+    if (registry.players.has(entity) && player.health <= 0)
+    {
+        WorldSystem::game_over(); // You'll need to pass WorldSystem reference
+        return;
     }
 }
 
@@ -80,11 +85,13 @@ void StatusSystem::remove_expired_statuses(Entity entity)
 
 void StatusSystem::handle_cooldowns(float elapsed_ms)
 {
-    auto& registry_cooldown = registry.cooldowns;
-    for (uint i = 0; i < registry_cooldown.size(); i++) {
-        Cooldown& cooldown = registry_cooldown.components[i];
+    auto &registry_cooldown = registry.cooldowns;
+    for (uint i = 0; i < registry_cooldown.size(); i++)
+    {
+        Cooldown &cooldown = registry_cooldown.components[i];
         cooldown.timer_ms -= elapsed_ms;
-        if (cooldown.timer_ms <= 0) {
+        if (cooldown.timer_ms <= 0)
+        {
             Entity entity = registry_cooldown.entities[i];
             registry_cooldown.remove(entity);
         }

@@ -545,20 +545,23 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 
 void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 {
-	// on button press
-	if (action == GLFW_PRESS)
+	if (!WorldSystem::game_is_over)
 	{
+		// on button press
+		if (action == GLFW_PRESS)
+		{
 
-		int tile_x = (int)(mouse_pos_x / GRID_CELL_WIDTH_PX);
-		int tile_y = (int)(mouse_pos_y / GRID_CELL_HEIGHT_PX);
+			int tile_x = (int)(mouse_pos_x / GRID_CELL_WIDTH_PX);
+			int tile_y = (int)(mouse_pos_y / GRID_CELL_HEIGHT_PX);
 
-		// std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
-		// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
-	}
+			// std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
+			// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
+		}
 
-	if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
-	{
-		player_attack();
+		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
+		{
+			player_attack();
+		}
 	}
 }
 
