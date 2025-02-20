@@ -27,7 +27,7 @@ vec4 hp_exp_bars(vec4 in_color)
 vec4 fade_color_lerp(vec4 in_color) 
 {
 	if (time > 0 && game_over)
-		in_color = (1 - time) * vec4(0.8, 0.8, 0.8, 0) + vec4(0.8, 0.8, 0.8, 0) * time;
+		in_color = mix(in_color, vec4(0.5, 0.5, 0.5, 1.0), time);//(1 - time) * vec4(0.1, 0.1, 0.1, 0) + vec4(0.1, 0.1, 0.1, 1) * time;
 	return in_color;
 }
 
