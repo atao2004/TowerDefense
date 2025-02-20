@@ -358,6 +358,7 @@ void WorldSystem::player_attack()
 					}
 				}
 			}
+			StateSystem::update_state(STATE::ATTACK);
 		}
 		Cooldown &cooldown = registry.cooldowns.emplace(player);
 		cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
