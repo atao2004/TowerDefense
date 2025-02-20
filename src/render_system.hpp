@@ -49,7 +49,7 @@ class RenderSystem {
 		shader_path("egg"),
 		shader_path("chicken"),
 		shader_path("textured"),
-		shader_path("vignette"),
+		shader_path("ui"),
 		shader_path("zombie")
 	};
 

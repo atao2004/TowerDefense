@@ -254,8 +254,15 @@ void WorldSystem::restart_game()
 	createPause();
 	createToolbar();
 
-	// spawn player in the middle of the screen
+	// reset player and spawn player in the middle of the screen
+	registry.players.clear();
 	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
+
+	// Reset player movement
+	Entity player = registry.players.entities[0];
+	Motion& player_motion = registry.motions.get(player);
+	player_motion.velocity.x = 0;
+	player_motion.velocity.y = 0;
 
 	// start the spawn manager
 	spawn_manager.start_game();
@@ -416,8 +423,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (motion.position.x >= (PLAYER_WIDTH / 2) + SCORCHED_EARTH_BOUNDARY) {
 		if (action == GLFW_PRESS && key == GLFW_KEY_A) {
 			motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
-		} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
-			motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+		} else if ((action == GLFW_RELEASE && key == GLFW_KEY_A)) {
+			if (motion.velocity.x < 0) motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
 		}
 	} else if (motion.velocity.x < 0) motion.velocity.x = 0;
 	
@@ -425,8 +432,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (motion.position.x <= (WINDOW_WIDTH_PX - (PLAYER_WIDTH / 2) - SCORCHED_EARTH_BOUNDARY)) {
 		if (action == GLFW_PRESS && key == GLFW_KEY_D) {
 			motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
-		} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
-			motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+		} else if ((action == GLFW_RELEASE && key == GLFW_KEY_D)) {
+			if (motion.velocity.x > 0) motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
 		}
 	} else if (motion.velocity.x > 0) motion.velocity.x = 0;
 	
@@ -435,8 +442,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (motion.position.y <= (WINDOW_HEIGHT_PX - (PLAYER_HEIGHT / 2) - SCORCHED_EARTH_BOUNDARY)) {
 		if (action == GLFW_PRESS && key == GLFW_KEY_S) {
 			motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
-		} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
-			motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+		} else if ((action == GLFW_RELEASE && key == GLFW_KEY_S)) {
+			if (motion.velocity.y > 0) motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
 		}
 	} else if (motion.velocity.y > 0) motion.velocity.y = 0;
 	
@@ -444,8 +451,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (motion.position.y >= (PLAYER_HEIGHT / 2) + SCORCHED_EARTH_BOUNDARY) {
 		if (action == GLFW_PRESS && key == GLFW_KEY_W) {
 			motion.velocity.y += PLAYER_MOVE_UP_SPEED;
-		} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {	
-			motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
+		} else if ((action == GLFW_RELEASE && key == GLFW_KEY_W)) {	
+			if (motion.velocity.y < 0) motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
 		}
 	} else if (motion.velocity.y < 0) motion.velocity.y = 0;
   
