@@ -34,8 +34,10 @@ vec4 hp_exp_bars(vec4 in_color)
 // darken the screen, i.e., fade to black
 vec4 fade_color_lerp(vec4 in_color) 
 {
+	vec4 grey = vec4(0.8, 0.8, 0.8, 1.0);
+	vec4 B = mix(in_color, grey, 0.7);
 	if (time > 0 && game_over)
-		in_color = (1 - time) * vec4(0.8, 0.8, 0.8, 0) + vec4(0.8, 0.8, 0.8, 0) * time;
+		in_color -= (1 - time/1000) * vec4(0.1, 0.1, 0.1, 0) + vec4(0.5, 0.5, 0.5, 1) * (time/1000); //in_color = mix(in_color, B, time);     //(1 - time) * vec4(0.1, 0.1, 0.1, 0) + vec4(0.5, 0.5, 0.5, 1) * time;
 	return in_color;
 }
 
