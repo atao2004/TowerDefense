@@ -240,8 +240,10 @@ void WorldSystem::restart_game()
 		}
 	}
 
+	
+
 	// create grid lines and clear any pre-existing grid lines
-	grid_lines.clear();
+	registry.gridLines.clear();
 	// vertical lines
 	for (int col = 0; col <= WINDOW_WIDTH_PX / GRID_CELL_WIDTH_PX; col++)
 	{

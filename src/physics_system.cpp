@@ -43,26 +43,26 @@ void PhysicsSystem::step(float elapsed_ms)
 		motion.position.y += step_seconds * motion.velocity.y;
 	}
 
-	// check for collisions between all moving entities
-    ComponentContainer<Motion> &motion_container = registry.motions;
-	for(uint i = 0; i < motion_container.components.size(); i++)
-	{
-		Motion& motion_i = motion_container.components[i];
-		Entity entity_i = motion_container.entities[i];
+	// // check for collisions between all moving entities
+    // ComponentContainer<Motion> &motion_container = registry.motions;
+	// for(uint i = 0; i < motion_container.components.size(); i++)
+	// {
+	// 	Motion& motion_i = motion_container.components[i];
+	// 	Entity entity_i = motion_container.entities[i];
 		
-		// note starting j at i+1 to compare all (i,j) pairs only once (and to not compare with itself)
-		for(uint j = i+1; j < motion_container.components.size(); j++)
-		{
-			Motion& motion_j = motion_container.components[j];
-			if (collides(motion_i, motion_j))
-			{
-				Entity entity_j = motion_container.entities[j];
-				// Create a collisions event
-				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
-				// CK: why the duplication, except to allow searching by entity_id
-				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
-				// registry.collisions.emplace_with_duplicates(entity_j, entity_i);
-			}
-		}
-	}
+	// 	// note starting j at i+1 to compare all (i,j) pairs only once (and to not compare with itself)
+	// 	for(uint j = i+1; j < motion_container.components.size(); j++)
+	// 	{
+	// 		Motion& motion_j = motion_container.components[j];
+	// 		if (collides(motion_i, motion_j))
+	// 		{
+	// 			Entity entity_j = motion_container.entities[j];
+	// 			// Create a collisions event
+	// 			// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
+	// 			// CK: why the duplication, except to allow searching by entity_id
+	// 			registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+	// 			// registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+	// 		}
+	// 	}
+	// }
 }
