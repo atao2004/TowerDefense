@@ -10,11 +10,10 @@ StatusSystem::StatusSystem()
 
 StatusSystem::~StatusSystem()
 {
-	// Destroy music components
-	if (player_death_sound != nullptr)
-		Mix_FreeChunk(player_death_sound);
-	Mix_CloseAudio();
-
+    // Destroy music components
+    if (player_death_sound != nullptr)
+        Mix_FreeChunk(player_death_sound);
+    Mix_CloseAudio();
 }
 
 void StatusSystem::step(float elapsed_ms)
@@ -47,7 +46,6 @@ void StatusSystem::handle_enemy_attack(Entity entity, float elapsed_ms)
     auto &status_comp = registry.statuses.get(entity);
     auto &player = registry.players.get(entity);
 
-
     for (auto &status : status_comp.active_statuses)
     {
         if (status.type == "attack")
@@ -57,22 +55,25 @@ void StatusSystem::handle_enemy_attack(Entity entity, float elapsed_ms)
                       << " attack damage. Health: " << player.health << std::endl;
 
             // If the creature is an entity, update the hp_percentage.
-            if (registry.players.has(entity)) {
+            if (registry.players.has(entity))
+            {
                 registry.screenStates.get(registry.screenStates.entities[0]).hp_percentage = player.health / PLAYER_HEALTH;
             }
         }
-        if (registry.players.has(entity) && player.health <= 0) {
+        if (registry.players.has(entity) && player.health <= 0)
+        {
             Mix_PlayChannel(1, player_death_sound, 0);
-            WorldSystem::game_over();  // You'll need to pass WorldSystem reference
+            WorldSystem::game_over(); // You'll need to pass WorldSystem reference
             return;
         }
 
-        if (registry.players.has(entity)) {
+        if (registry.players.has(entity))
+        {
             // Add hit effect
-            registry.hitEffects.emplace(entity);
-            
+            registry.hitEffects.emplace_with_duplicates(entity);
+
             // Add screen shake
-            auto& screen = registry.screenStates.get(registry.screenStates.entities[0]);
+            auto &screen = registry.screenStates.get(registry.screenStates.entities[0]);
             screen.shake_duration_ms = 200.0f;
             screen.shake_intensity = 10.0f;
         }
@@ -101,27 +102,35 @@ void StatusSystem::remove_expired_statuses(Entity entity)
 
 void StatusSystem::handle_cooldowns(float elapsed_ms)
 {
-    auto& registry_cooldown = registry.cooldowns;
-    for (uint i = 0; i < registry_cooldown.size(); i++) {
-        Cooldown& cooldown = registry_cooldown.components[i];
+    auto &registry_cooldown = registry.cooldowns;
+    for (uint i = 0; i < registry_cooldown.size(); i++)
+    {
+        Cooldown &cooldown = registry_cooldown.components[i];
         cooldown.timer_ms -= elapsed_ms;
-        if (cooldown.timer_ms <= 0) {
+        if (cooldown.timer_ms <= 0)
+        {
             Entity entity = registry_cooldown.entities[i];
             registry_cooldown.remove(entity);
         }
     }
 }
 
-void StatusSystem::handle_hit_effects(float elapsed_ms) {
-    for (Entity entity : registry.hitEffects.entities) {
-        auto& hit = registry.hitEffects.get(entity);
-        
-        // Update duration
-        hit.duration_ms -= elapsed_ms;
-        
-        // Remove effect when done
-        if (hit.duration_ms <= 0) {
-            registry.hitEffects.remove(entity);
+void StatusSystem::handle_hit_effects(float elapsed_ms)
+{
+    for (Entity entity : registry.hitEffects.entities)
+    {
+        if (registry.hitEffects.has(entity))
+        {
+            auto &hit = registry.hitEffects.get(entity);
+
+            // Update duration
+            hit.duration_ms -= elapsed_ms;
+
+            // Remove effect when done
+            if (hit.duration_ms <= 0)
+            {
+                registry.hitEffects.remove(entity);
+            }
         }
     }
 }
@@ -129,28 +138,28 @@ void StatusSystem::handle_hit_effects(float elapsed_ms) {
 bool StatusSystem::start_and_load_sounds()
 {
 
-	//////////////////////////////////////
-	// Loading music and sounds with SDL
-	if (SDL_Init(SDL_INIT_AUDIO) < 0)
-	{
-		fprintf(stderr, "Failed to initialize SDL Audio");
-		return false;
-	}
+    //////////////////////////////////////
+    // Loading music and sounds with SDL
+    if (SDL_Init(SDL_INIT_AUDIO) < 0)
+    {
+        fprintf(stderr, "Failed to initialize SDL Audio");
+        return false;
+    }
 
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
-	{
-		fprintf(stderr, "Failed to open audio device");
-		return false;
-	}
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
+    {
+        fprintf(stderr, "Failed to open audio device");
+        return false;
+    }
 
-	player_death_sound = Mix_LoadWAV(audio_path("player_death_sound.wav").c_str());
+    player_death_sound = Mix_LoadWAV(audio_path("player_death_sound.wav").c_str());
 
-	if (player_death_sound == nullptr)
-	{
-		fprintf(stderr, "Failed to load sounds\n %s\n make sure the data directory is present",
-				audio_path("player_death_sound.wav").c_str());
-		return false;
-	}
+    if (player_death_sound == nullptr)
+    {
+        fprintf(stderr, "Failed to load sounds\n %s\n make sure the data directory is present",
+                audio_path("player_death_sound.wav").c_str());
+        return false;
+    }
 
-	return true;
+    return true;
 }
