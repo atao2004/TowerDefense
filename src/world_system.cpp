@@ -168,6 +168,17 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	// }
 
 	// Using the spawn manager to generate zombies
+	if(WorldSystem::game_is_over) {
+	assert(registry.screenStates.components.size() <= 1);
+	ScreenState &screen = registry.screenStates.components[0];
+		// if (screen.game_over)
+		// {
+		// 	screen.lerp_timer += elapsed_ms_since_last_update;
+		// }
+		// if(screen.lerp_timer == 1) {
+		// 	screen.lerp_timer = 1;
+		// }
+	}
 	spawn_manager.step(elapsed_ms_since_last_update, renderer);
 
 	update_enemy_death_animations(elapsed_ms_since_last_update);
@@ -195,6 +206,8 @@ void WorldSystem::restart_game()
 	max_zombies = MAX_ZOMBIES;
 	next_zombie_spawn = 0;
 	zombie_spawn_rate_ms = ZOMBIE_SPAWN_RATE_MS;
+	registry.screenStates.get(registry.screenStates.entities[0]).game_over = false;
+	registry.screenStates.get(registry.screenStates.entities[0]).lerp_timer = 0.0;
 
 	// Remove all entities that we created
 	while (registry.motions.entities.size() > 0)
@@ -506,4 +519,5 @@ void WorldSystem::game_over()
 {
 	std::cout << "Game Over!" << std::endl;
 	game_is_over = true;
+	registry.screenStates.get(registry.screenStates.entities[0]).game_over = true;
 }

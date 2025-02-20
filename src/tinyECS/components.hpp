@@ -115,8 +115,12 @@ struct Pause {
 struct ScreenState
 {
 	float darken_screen_factor = -1;
+	float game_over_darken = -1;
+	float game_over_counter_ms = 0;
 	float hp_percentage = 1.0;
 	float exp_percentage = 0.0;
+	bool game_over = false;
+	float lerp_timer = 0.0;
 };
 
 // used to hold grid line start and end positions

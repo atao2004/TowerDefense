@@ -288,9 +288,16 @@ void RenderSystem::drawToScreen()
 	GLuint hp_uloc = glGetUniformLocation(vignette_program, "hp_percentage");
 	GLuint exp_uloc = glGetUniformLocation(vignette_program, "exp_percentage");
 
-	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
-
+		// set clock
+	GLuint game_continues_uloc = glGetUniformLocation(vignette_program, "game_over");
+	GLuint game_over_darken_uloc = glGetUniformLocation(vignette_program, "game_over_darken");
+	
 	ScreenState &screen = registry.screenStates.get(screen_state_entity);
+	glUniform1f(time_uloc, screen.lerp_timer);
+	glUniform1f(game_continues_uloc, screen.game_over);
+	glUniform1f(game_over_darken_uloc, screen.game_over_darken);
+
+
 	// std::cout << "screen.darken_screen_factor: " << screen.darken_screen_factor << " entity id: " << screen_state_entity << std::endl;
 	glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
 	glUniform1f(hp_uloc, screen.hp_percentage);
