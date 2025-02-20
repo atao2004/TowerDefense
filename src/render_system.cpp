@@ -184,6 +184,12 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		glUniform1f(alpha_loc, alpha);
 		gl_has_errors();
 
+		// handle hit effect
+		bool is_hit = registry.hitEffects.has(entity);
+		GLint hit_loc = glGetUniformLocation(program, "is_hit");
+		glUniform1i(hit_loc, is_hit);
+		gl_has_errors();
+		
 		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
 		gl_has_errors();
@@ -343,7 +349,7 @@ void RenderSystem::draw()
 
 	// white background
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	//glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
+	// glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
 
 	glClearDepth(10.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
