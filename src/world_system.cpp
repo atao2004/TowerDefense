@@ -454,9 +454,15 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
-	// Player movement
+	// Player movement (unchanged from good version)
 	Entity player = registry.players.entities[0];
 	Motion& motion = registry.motions.get(player);
+
+	// Plant seed (for Milestone #2)
+	if (action == GLFW_PRESS && key == GLFW_KEY_F)
+	{
+		createSeed(vec2(motion.position.x, motion.position.y));
+	}
 	
 	// Move left
 	if (motion.position.x >= (PLAYER_WIDTH / 2) + SCORCHED_EARTH_BOUNDARY) {

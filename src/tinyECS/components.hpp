@@ -72,6 +72,11 @@ struct Zombie
 float health;
 };
 
+// For Milestone #2.
+struct Seed {
+	int type; // Maybe make it a string?
+};
+
 enum class STATE
 {
 	IDLE = 0,

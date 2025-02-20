@@ -29,6 +29,7 @@ public:
 	ComponentContainer<StatusComponent> statuses;
 	ComponentContainer<State> states;
 	ComponentContainer<Animation> animations;
+	ComponentContainer<Seed> seeds;
 
 	ComponentContainer<Death> deaths;
 	ComponentContainer<Cooldown> cooldowns;

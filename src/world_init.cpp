@@ -301,3 +301,28 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	// );
 	return entity;
 }
+
+// This is for Milestone #2.
+Entity createSeed(vec2 pos) {
+	Entity seed_entity = Entity();
+
+	Seed& seed_component = registry.seeds.emplace(seed_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(seed_entity);
+	motion_component.position = pos;
+	motion_component.scale = vec2(600, 75);
+	motion_component.velocity = vec2(0, 0);
+
+	// // Render the object.
+	// registry.renderRequests.insert(
+	// 	seed_entity,
+	// 	{
+	// 		TEXTURE_ASSET_ID::TOOLBAR,
+	// 		EFFECT_ASSET_ID::TEXTURED,
+	// 		GEOMETRY_BUFFER_ID::SPRITE
+	// 	}
+	// );
+
+	return seed_entity;
+}
