@@ -311,18 +311,18 @@ Entity createSeed(vec2 pos) {
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(seed_entity);
 	motion_component.position = pos;
-	motion_component.scale = vec2(600, 75);
+	motion_component.scale = vec2(50, 50);
 	motion_component.velocity = vec2(0, 0);
 
-	// // Render the object.
-	// registry.renderRequests.insert(
-	// 	seed_entity,
-	// 	{
-	// 		TEXTURE_ASSET_ID::TOOLBAR,
-	// 		EFFECT_ASSET_ID::TEXTURED,
-	// 		GEOMETRY_BUFFER_ID::SPRITE
-	// 	}
-	// );
+	// Render the object.
+	registry.renderRequests.insert(
+		seed_entity,
+		{
+			TEXTURE_ASSET_ID::SEED_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
 
 	return seed_entity;
 }

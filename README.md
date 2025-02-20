@@ -31,3 +31,4 @@ Comments to TA about your implementation (optional):
 
 - Grass texture by p0ss sourced from https://opengameart.org/node/9692
 - Dirt texture by Lamoot sourced from https://opengameart.org/node/7805
+- Seeds sourced from _'Crops'_ by SnoopethDuckDuck: https://snoopethduckduck.itch.io/crops

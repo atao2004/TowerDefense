@@ -59,7 +59,8 @@ inline std::string mesh_path(const std::string& name) {return data_path() + "/me
 enum class TEXTURE_ASSET_ID
 {
 	TOWER = 0,
-	ZOMBIE_WALK_1 = TOWER + 1,
+	SEED_1 = TOWER + 1,
+	ZOMBIE_WALK_1 = SEED_1 + 1,
 	ZOMBIE_WALK_2 = ZOMBIE_WALK_1 + 1,
 	PLAYER_IDLE = ZOMBIE_WALK_2 + 1,
 	PLAYER_WALK_1 = PLAYER_IDLE + 1,
