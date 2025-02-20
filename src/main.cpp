@@ -13,6 +13,7 @@
 #include "world_system.hpp"
 #include "status_system.hpp"
 #include "state_system.hpp"
+#include "animation_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -36,7 +37,15 @@ int main()
 	}
 
 	if (!world_system.start_and_load_sounds()) {
-		std::cerr << "ERROR: Failed to start or load sounds." << std::endl;
+		std::cerr << "ERROR: Failed to start or load sounds in world_system." << std::endl;
+	}
+
+	if (!ai_system.start_and_load_sounds()) {
+		std::cerr << "ERROR: Failed to start or load sounds in ai_system." << std::endl;
+	}
+
+	if (!status_system.start_and_load_sounds()) {
+		std::cerr << "ERROR: Failed to start or load sounds in status_system." << std::endl;
 	}
 
 	// initialize the main systems
@@ -63,6 +72,7 @@ int main()
 		status_system.step(elapsed_ms);
 		world_system.handle_collisions();
 		StateSystem::step(elapsed_ms);
+		AnimationSystem::step(elapsed_ms);
 
 		renderer_system.draw();
 	}

@@ -30,4 +30,4 @@ Comments to TA about your implementation (optional):
 **Citation**
 
 - Grass texture by p0ss sourced from https://opengameart.org/node/9692
-- Handling multiple keys (for movement) sourced from https://discourse.glfw.org/t/press-multiple-keys/1207
+- Dirt texture by Lamoot sourced from https://opengameart.org/node/7805

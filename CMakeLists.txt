@@ -1,5 +1,5 @@
 # CMakeLists.txt for Towers vs. Invaders
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.2)
 
 project(tower_defense)
 

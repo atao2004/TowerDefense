@@ -184,6 +184,12 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		glUniform1f(alpha_loc, alpha);
 		gl_has_errors();
 
+		// handle hit effect
+		bool is_hit = registry.hitEffects.has(entity);
+		GLint hit_loc = glGetUniformLocation(program, "is_hit");
+		glUniform1i(hit_loc, is_hit);
+		gl_has_errors();
+		
 		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
 		gl_has_errors();
@@ -247,13 +253,13 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 }
 
 // first draw to an intermediate texture,
-// apply the "vignette" texture, when requested
+// apply the "UI" texture, when requested
 // then draw the intermediate texture
 void RenderSystem::drawToScreen()
 {
 	// Setting shaders
-	// get the vignette texture, sprite mesh, and program
-	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::VIGNETTE]);
+	// get the UI texture, sprite mesh, and program
+	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::UI]);
 	gl_has_errors();
 
 	// Clearing backbuffer
@@ -279,18 +285,18 @@ void RenderSystem::drawToScreen()
 																	 // indices to the bound GL_ARRAY_BUFFER
 	gl_has_errors();
 
-	// add the "vignette" effect
-	const GLuint vignette_program = effects[(GLuint)EFFECT_ASSET_ID::VIGNETTE];
+	// add the "UI" effect
+	const GLuint ui_program = effects[(GLuint)EFFECT_ASSET_ID::UI];
 
 	// set clock
-	GLuint time_uloc = glGetUniformLocation(vignette_program, "time");
-	GLuint dead_timer_uloc = glGetUniformLocation(vignette_program, "darken_screen_factor");
-	GLuint hp_uloc = glGetUniformLocation(vignette_program, "hp_percentage");
-	GLuint exp_uloc = glGetUniformLocation(vignette_program, "exp_percentage");
+	GLuint time_uloc = glGetUniformLocation(ui_program, "time");
+	GLuint dead_timer_uloc = glGetUniformLocation(ui_program, "darken_screen_factor");
+	GLuint hp_uloc = glGetUniformLocation(ui_program, "hp_percentage");
+	GLuint exp_uloc = glGetUniformLocation(ui_program, "exp_percentage");
 
 		// set clock
-	GLuint game_continues_uloc = glGetUniformLocation(vignette_program, "game_over");
-	GLuint game_over_darken_uloc = glGetUniformLocation(vignette_program, "game_over_darken");
+	GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
+	GLuint game_over_darken_uloc = glGetUniformLocation(ui_program, "game_over_darken");
 	
 	ScreenState &screen = registry.screenStates.get(screen_state_entity);
 	glUniform1f(time_uloc, screen.lerp_timer);
@@ -306,7 +312,7 @@ void RenderSystem::drawToScreen()
 
 	// Set the vertex position and vertex texture coordinates (both stored in the
 	// same VBO)
-	GLint in_position_loc = glGetAttribLocation(vignette_program, "in_position");
+	GLint in_position_loc = glGetAttribLocation(ui_program, "in_position");
 	glEnableVertexAttribArray(in_position_loc);
 	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
 	gl_has_errors();
@@ -343,7 +349,7 @@ void RenderSystem::draw()
 
 	// white background
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	//glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
+	// glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
 
 	glClearDepth(10.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -374,7 +380,7 @@ void RenderSystem::draw()
 	}
 
 	// draw framebuffer to screen
-	// adding "vignette" effect when applied
+	// adding "UI" effect when applied
 	drawToScreen();
 
 	// flicker-free display with a double buffer

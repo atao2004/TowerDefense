@@ -13,7 +13,8 @@ void removeTower(vec2 position);
 
 // texture elements
 Entity createGrass(vec2 position);
-void removeGrasses();
+Entity createScorchedEarth(vec2 position);
+void removeSurfaces();
 
 // ui elements
 Entity createPause();
