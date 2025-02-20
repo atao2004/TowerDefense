@@ -2,6 +2,21 @@
 #include "ai_system.hpp"
 #include "status_system.hpp"
 #include "world_init.hpp"
+#include "world_system.hpp"
+
+AISystem::AISystem() 
+{
+
+}
+
+AISystem::~AISystem()
+{
+	// Destroy music components
+	if (injured_sound != nullptr)
+		Mix_FreeChunk(injured_sound);
+	Mix_CloseAudio();
+
+}
 
 
 void AISystem::step(float elapsed_ms) {
@@ -39,11 +54,17 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms) {
     // Calculate direction to player
     vec2 direction = calculate_direction_to_target(motion.position, player_pos);
     
-    // Update velocity
-    float step_seconds = elapsed_ms / 1000.f;
-    motion.velocity = direction * BASE_ENEMY_SPEED;
+    // If entity has hit effect, reduce chase speed
+    float current_speed = BASE_ENEMY_SPEED;
     
-    // Update facing direction
+    // Add to velocity instead of overwriting
+    float step_seconds = elapsed_ms / 1000.f;
+    motion.velocity += direction * current_speed * step_seconds;
+    
+    // Optional: Add some drag to prevent infinite acceleration
+    motion.velocity *= 0.9f;  // Dampening factor
+    
+    // Update facing direction based on total velocity
     if (motion.velocity.x < 0 && motion.scale.x > 0) {
         motion.scale.x *= -1;
     } else if (motion.velocity.x > 0 && motion.scale.x < 0) {
@@ -64,6 +85,8 @@ void AISystem::handle_enemy_attack(Entity entity, float elapsed_ms) {
     
     // If in range and cooldown ready
     if (distance <= attack.range && !registry.cooldowns.has(entity)) {
+        Mix_PlayChannel(2, injured_sound, 0);
+
         auto& status_comp = registry.statuses.get(player);
         
         // Add attack status
@@ -96,4 +119,34 @@ vec2 AISystem::calculate_direction_to_target(vec2 start_pos, vec2 target_pos) {
 float AISystem::calculate_distance_to_target(vec2 start_pos, vec2 target_pos) {
     vec2 diff = target_pos - start_pos;
     return sqrt(diff.x * diff.x + diff.y * diff.y);
+}
+
+
+bool AISystem::start_and_load_sounds()
+{
+
+	//////////////////////////////////////
+	// Loading music and sounds with SDL
+	if (SDL_Init(SDL_INIT_AUDIO) < 0)
+	{
+		fprintf(stderr, "Failed to initialize SDL Audio");
+		return false;
+	}
+
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
+	{
+		fprintf(stderr, "Failed to open audio device");
+		return false;
+	}
+
+	injured_sound = Mix_LoadWAV(audio_path("injured_sound.wav").c_str());
+
+	if (injured_sound == nullptr)
+	{
+		fprintf(stderr, "Failed to load sounds\n %s\n make sure the data directory is present",
+				audio_path("injured_sound.wav").c_str());
+		return false;
+	}
+
+	return true;
 }

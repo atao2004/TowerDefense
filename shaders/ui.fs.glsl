@@ -5,6 +5,7 @@ uniform float time;
 uniform float darken_screen_factor;
 uniform float hp_percentage;
 uniform float exp_percentage;
+uniform bool game_over;
 
 in vec2 texcoord;
 
@@ -31,16 +32,17 @@ vec4 hp_exp_bars(vec4 in_color)
 }
 
 // darken the screen, i.e., fade to black
-vec4 fade_color(vec4 in_color) 
+vec4 fade_color_lerp(vec4 in_color) 
 {
-	if (darken_screen_factor > 0)
-		in_color -= darken_screen_factor * vec4(0.8, 0.8, 0.8, 0);
+	if (time > 0 && game_over)
+		in_color = (1 - time) * vec4(0.8, 0.8, 0.8, 0) + vec4(0.8, 0.8, 0.8, 0) * time;
 	return in_color;
 }
 
 void main()
 {
     vec4 in_color = texture(screen_texture, texcoord);
-    color = fade_color(in_color);
+color = fade_color_lerp(in_color);
+
 	color = hp_exp_bars(color);
 }

@@ -119,8 +119,12 @@ struct Pause {
 struct ScreenState
 {
 	float darken_screen_factor = -1;
+	float game_over_darken = -1;
+	float game_over_counter_ms = 0;
 	float hp_percentage = 1.0;
 	float exp_percentage = 0.0;
+	bool game_over = false;
+	float lerp_timer = 0.0;
 };
 
 // used to hold grid line start and end positions
@@ -153,10 +157,16 @@ struct Mesh
 	std::vector<uint16_t> vertex_indices;
 };
 
+// Animation related components
 struct DeathAnimation {
     vec2 slide_direction;  // Direction to slide
     float alpha = 1.0f;    // Transparency (1.0 = solid, 0.0 = invisible)
     float duration_ms;     // How long the animation lasts
+};
+
+struct HitEffect {
+    float duration_ms = 200.0f;    // How long the hit effect lasts
+    bool is_white = true;          // For white flash effect
 };
 
 /**

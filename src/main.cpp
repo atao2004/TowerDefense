@@ -36,7 +36,15 @@ int main()
 	}
 
 	if (!world_system.start_and_load_sounds()) {
-		std::cerr << "ERROR: Failed to start or load sounds." << std::endl;
+		std::cerr << "ERROR: Failed to start or load sounds in world_system." << std::endl;
+	}
+
+	if (!ai_system.start_and_load_sounds()) {
+		std::cerr << "ERROR: Failed to start or load sounds in ai_system." << std::endl;
+	}
+
+	if (!status_system.start_and_load_sounds()) {
+		std::cerr << "ERROR: Failed to start or load sounds in status_system." << std::endl;
 	}
 
 	// initialize the main systems

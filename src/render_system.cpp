@@ -184,6 +184,12 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		glUniform1f(alpha_loc, alpha);
 		gl_has_errors();
 
+		// handle hit effect
+		bool is_hit = registry.hitEffects.has(entity);
+		GLint hit_loc = glGetUniformLocation(program, "is_hit");
+		glUniform1i(hit_loc, is_hit);
+		gl_has_errors();
+		
 		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
 		gl_has_errors();
@@ -288,9 +294,16 @@ void RenderSystem::drawToScreen()
 	GLuint hp_uloc = glGetUniformLocation(ui_program, "hp_percentage");
 	GLuint exp_uloc = glGetUniformLocation(ui_program, "exp_percentage");
 
-	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
-
+		// set clock
+	GLuint game_continues_uloc = glGetUniformLocation(vignette_program, "game_over");
+	GLuint game_over_darken_uloc = glGetUniformLocation(vignette_program, "game_over_darken");
+	
 	ScreenState &screen = registry.screenStates.get(screen_state_entity);
+	glUniform1f(time_uloc, screen.lerp_timer);
+	glUniform1f(game_continues_uloc, screen.game_over);
+	glUniform1f(game_over_darken_uloc, screen.game_over_darken);
+
+
 	// std::cout << "screen.darken_screen_factor: " << screen.darken_screen_factor << " entity id: " << screen_state_entity << std::endl;
 	glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
 	glUniform1f(hp_uloc, screen.hp_percentage);
@@ -336,7 +349,7 @@ void RenderSystem::draw()
 
 	// white background
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	//glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
+	// glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
 
 	glClearDepth(10.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
