@@ -79,6 +79,8 @@ void AISystem::handle_enemy_attack(Entity entity, float elapsed_ms) {
     Attack& attack = registry.attacks.get(entity);
     Motion& enemy_motion = registry.motions.get(entity);
     Motion& player_motion = registry.motions.get(player);
+
+    attack.range = 60.0f; // set attack range
     
     // Calculate distance to player
     float distance = calculate_distance_to_target(enemy_motion.position, player_motion.position);
