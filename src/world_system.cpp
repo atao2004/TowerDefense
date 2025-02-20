@@ -281,70 +281,73 @@ bool WorldSystem::is_over() const
 
 void WorldSystem::player_attack()
 {
-	Entity player = registry.players.entities[0];
-	if (!registry.cooldowns.has(player))
+	if (!WorldSystem::game_is_over)
 	{
-		Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
-		if (less_f_ugly.scale.x < 0)
-		{ // face left = minus the range from position
-			less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
-		}
-		else
-		{ // face right = add the range from position
-			less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
-		}
-		Motion weapon_motion = Motion();
-		weapon_motion.position = less_f_ugly.position;
-		weapon_motion.angle = less_f_ugly.angle;
-		weapon_motion.velocity = less_f_ugly.velocity;
-		weapon_motion.scale = less_f_ugly.scale;
-		for (int i = 0; i < registry.zombies.size(); i++)
+		Entity player = registry.players.entities[0];
+		if (!registry.cooldowns.has(player))
 		{
-			// if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])))
-			// { // if zombie and player weapon collide, decrease zombie health
-			// 	Zombie currZombie = registry.zombies.get(registry.zombies.entities[i]);
-			// 	std::cout << "wow u r attacking so nice cool cool" << std::endl;
-			// 	registry.zombies.get(registry.zombies.entities[i]).health -= registry.attacks.get(registry.players.entities[0]).damage;
-			// 	if (registry.zombies.get(registry.zombies.entities[i]).health <= 0)
-			// 	{ // if zombie health is below 0, remove him
-			// 		registry.remove_all_components_of(registry.zombies.entities[i]);
-			// 	}
-			// }
-
-			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
-				|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.zombies.entities[i])))
+			Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
+			if (less_f_ugly.scale.x < 0)
+			{ // face left = minus the range from position
+				less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
+			}
+			else
+			{ // face right = add the range from position
+				less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
+			}
+			Motion weapon_motion = Motion();
+			weapon_motion.position = less_f_ugly.position;
+			weapon_motion.angle = less_f_ugly.angle;
+			weapon_motion.velocity = less_f_ugly.velocity;
+			weapon_motion.scale = less_f_ugly.scale;
+			for (int i = 0; i < registry.zombies.size(); i++)
 			{
-				Entity zombie = registry.zombies.entities[i];
-				if (registry.zombies.has(zombie))
+				// if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])))
+				// { // if zombie and player weapon collide, decrease zombie health
+				// 	Zombie currZombie = registry.zombies.get(registry.zombies.entities[i]);
+				// 	std::cout << "wow u r attacking so nice cool cool" << std::endl;
+				// 	registry.zombies.get(registry.zombies.entities[i]).health -= registry.attacks.get(registry.players.entities[0]).damage;
+				// 	if (registry.zombies.get(registry.zombies.entities[i]).health <= 0)
+				// 	{ // if zombie health is below 0, remove him
+				// 		registry.remove_all_components_of(registry.zombies.entities[i]);
+				// 	}
+				// }
+
+				if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
+					|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.zombies.entities[i])))
 				{
-					auto &zombie_comp = registry.zombies.get(zombie);
-					zombie_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
-					std::cout << "wow u r attacking so nice cool cool" << std::endl;
-
-					if (zombie_comp.health <= 0)
+					Entity zombie = registry.zombies.entities[i];
+					if (registry.zombies.has(zombie))
 					{
-						// Add death animation before removing
-						Entity player = registry.players.entities[0];
-						Motion &player_motion = registry.motions.get(player);
-						vec2 slide_direction = {player_motion.scale.x > 0 ? 1.0f : -1.0f, 0.0f};
+						auto &zombie_comp = registry.zombies.get(zombie);
+						zombie_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
+						std::cout << "wow u r attacking so nice cool cool" << std::endl;
 
-						// Add death animation component
-						DeathAnimation &death_anim = registry.deathAnimations.emplace(zombie);
-						death_anim.slide_direction = slide_direction;
-						death_anim.alpha = 1.0f;
-						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
-					}
+						if (zombie_comp.health <= 0)
+						{
+							// Add death animation before removing
+							Entity player = registry.players.entities[0];
+							Motion &player_motion = registry.motions.get(player);
+							vec2 slide_direction = {player_motion.scale.x > 0 ? 1.0f : -1.0f, 0.0f};
 
-					// Increase the experience of the player.
-					if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage <= 1.0)
-					{
-						registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
+							// Add death animation component
+							DeathAnimation &death_anim = registry.deathAnimations.emplace(zombie);
+							death_anim.slide_direction = slide_direction;
+							death_anim.alpha = 1.0f;
+							death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
+						}
+
+						// Increase the experience of the player.
+						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage <= 1.0)
+						{
+							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
+						}
 					}
 				}
 			}
+			Cooldown &cooldown = registry.cooldowns.emplace(player);
+			cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
 		}
-		Cooldown &cooldown = registry.cooldowns.emplace(player);
-		cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
 	}
 }
 
@@ -564,6 +567,6 @@ void WorldSystem::game_over()
 	std::cout << "Game Over!" << std::endl;
 	game_is_over = true;
 	registry.screenStates.get(registry.screenStates.entities[0]).game_over = true;
-	if(game_is_over == true)
+	if (game_is_over == true)
 		createGameOver();
 }
