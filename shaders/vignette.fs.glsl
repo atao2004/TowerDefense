@@ -26,16 +26,15 @@ vec4 hp_exp_bars(vec4 in_color)
 // darken the screen, i.e., fade to black
 vec4 fade_color_lerp(vec4 in_color) 
 {
-	// if (time > 0 && game_over)
-	// 	in_color = (1 - time) * vec4(0.8, 0.8, 0.8, 0) + vec4(0.8, 0.8, 0.8, 0) * time;
+	if (time > 0 && game_over)
+		in_color = (1 - time) * vec4(0.8, 0.8, 0.8, 0) + vec4(0.8, 0.8, 0.8, 0) * time;
 	return in_color;
 }
 
 void main()
 {
     vec4 in_color = texture(screen_texture, texcoord);
-	if(game_over) {
-		color = fade_color_lerp(in_color);
-	}
+color = fade_color_lerp(in_color);
+
 	color = hp_exp_bars(color);
 }
