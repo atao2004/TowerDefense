@@ -56,12 +56,7 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 	zombie.health = ZOMBIE_HEALTH;
 
 	Attack& attack = registry.attacks.emplace(entity);
-	attack.range = 30.0f;         
-
-	Animation& animation = registry.animations.emplace(entity);
-	animation.transition_ms = ZOMBIE_MOVE_FRAME_DELAY;
-	animation.pose_count = sizeof(ZOMBIE_ANIMATION) / sizeof(ZOMBIE_ANIMATION[0]);
-	animation.textures = ZOMBIE_ANIMATION;
+	attack.range = 30.0f;
 
 	// store a reference to the potentially re-used mesh object
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
@@ -81,6 +76,8 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
 	);
+
+	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_FRAME_DELAY, ZOMBIE_ANIMATION, sizeof(ZOMBIE_ANIMATION) / sizeof(ZOMBIE_ANIMATION[0]), true, false);
 
 	// Enemy Count update:
     std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
