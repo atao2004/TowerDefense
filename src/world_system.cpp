@@ -286,6 +286,7 @@ bool WorldSystem::is_over() const
 void WorldSystem::player_attack()
 {
 	Entity player = registry.players.entities[0];
+	createEffect(renderer, vec2{ WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2 });
 	if (!registry.cooldowns.has(player))
 	{
 		// Play the sword attack sound

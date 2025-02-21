@@ -300,3 +300,27 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	// );
 	return entity;
 }
+
+Entity createEffect(RenderSystem* renderer, vec2 position) {
+	Entity entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = vec2({ SLASH_WIDTH, SLASH_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::PLAYER_ATTACK_SLASH_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+
+	AnimationSystem::update_animation(entity, SLASH_FRAME_DELAY, SLASH_ANIMATION, sizeof(SLASH_ANIMATION) / sizeof(SLASH_ANIMATION[0]), false, false);
+
+	return entity;
+}
