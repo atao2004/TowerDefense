@@ -58,6 +58,9 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 	attack.range = 30.0f;         
 
 	Animation& animation = registry.animations.emplace(entity);
+	animation.transition_ms = ZOMBIE_MOVE_FRAME_DELAY;
+	animation.pose_count = sizeof(ZOMBIE_ANIMATION) / sizeof(ZOMBIE_ANIMATION[0]);
+	animation.textures = ZOMBIE_ANIMATION;
 
 	// store a reference to the potentially re-used mesh object
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
