@@ -108,8 +108,8 @@ struct RenderRequest
 //
 // game constants
 //
-const int WINDOW_WIDTH_PX = 1920;
-const int WINDOW_HEIGHT_PX = 1080;
+inline int WINDOW_WIDTH_PX = 1920;
+inline int WINDOW_HEIGHT_PX = 1080;
 
 // Kung: Separate consts for testing on my Mac. Use these Anna!!
 // const int WINDOW_WIDTH_PX = 1920 * 2 / 3;

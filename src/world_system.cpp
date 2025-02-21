@@ -80,8 +80,11 @@ GLFWwindow *WorldSystem::create_window()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+
 #if __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	WINDOW_HEIGHT_PX = WINDOW_HEIGHT_PX * 2 / 3;
+	WINDOW_WIDTH_PX = WINDOW_WIDTH_PX * 2 / 3;
 #endif
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	// CK: setting GLFW_SCALE_TO_MONITOR to true will rescale window but then you must handle different scalings
