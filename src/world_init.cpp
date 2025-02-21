@@ -285,8 +285,6 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 		false
 	);
 
-	Animation& animation = registry.animations.emplace(entity);
-
 	//grey box
 	// vec3& cv = registry.colors.emplace(entity);
 	// cv.r = 0.5;

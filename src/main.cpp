@@ -71,7 +71,6 @@ int main()
 		physics_system.step(elapsed_ms);
 		status_system.step(elapsed_ms);
 		world_system.handle_collisions();
-		StateSystem::step(elapsed_ms);
 		AnimationSystem::step(elapsed_ms);
 
 		renderer_system.draw();

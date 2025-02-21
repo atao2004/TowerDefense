@@ -4,7 +4,7 @@
 
 void AnimationSystem::step(float elapsed_ms)
 {
-    for (Entity entity : registry.zombies.entities) {
+    for (Entity entity : registry.animations.entities) {
         Animation& animation = registry.animations.get(entity);
         animation.timer_ms += elapsed_ms;
         if (animation.timer_ms >= animation.transition_ms) {
