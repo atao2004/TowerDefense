@@ -22,3 +22,24 @@ void AnimationSystem::step(float elapsed_ms)
         }
     }
 }
+
+void AnimationSystem::update_animation(Entity entity, int frame_delay, const TEXTURE_ASSET_ID* textures, int textures_size, bool loop, bool lock)
+{
+    if (registry.animations.has(entity) && registry.animations.get(entity).lock) {
+        //
+    }
+    else {
+        if (registry.animations.has(entity)) {
+            registry.animations.remove(entity);
+        }
+
+        Animation& animation = registry.animations.emplace(entity);
+        animation.transition_ms = frame_delay;
+        animation.pose_count = textures_size;
+        animation.textures = textures;
+        animation.loop = loop;
+        animation.lock = lock;
+        RenderRequest& request = registry.renderRequests.get(entity);
+        request.used_texture = textures[0];
+    }
+}

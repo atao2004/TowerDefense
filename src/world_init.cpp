@@ -1,6 +1,7 @@
 #include "world_init.hpp"
 #include "tinyECS/registry.hpp"
 #include <iostream>
+#include "animation_system.hpp"
 
 Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	Entity entity = Entity();
