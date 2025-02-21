@@ -301,14 +301,14 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-Entity createEffect(RenderSystem* renderer, vec2 position) {
+Entity createEffect(RenderSystem* renderer, vec2 position, vec2 scale) {
 	Entity entity = Entity();
 
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
-	motion.scale = vec2({ SLASH_WIDTH, SLASH_HEIGHT });
+	motion.scale = scale;
 
 	registry.renderRequests.insert(
 		entity,

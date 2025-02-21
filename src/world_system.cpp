@@ -286,7 +286,6 @@ bool WorldSystem::is_over() const
 void WorldSystem::player_attack()
 {
 	Entity player = registry.players.entities[0];
-	createEffect(renderer, vec2{ WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2 });
 	if (!registry.cooldowns.has(player))
 	{
 		// Play the sword attack sound
@@ -306,6 +305,7 @@ void WorldSystem::player_attack()
 		weapon_motion.angle = less_f_ugly.angle;
 		weapon_motion.velocity = less_f_ugly.velocity;
 		weapon_motion.scale = less_f_ugly.scale;
+		createEffect(renderer, weapon_motion.position, weapon_motion.scale);
 		for (int i = 0; i < registry.zombies.size(); i++)
 		{
 			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
