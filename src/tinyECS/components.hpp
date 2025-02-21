@@ -91,6 +91,7 @@ struct Animation
 	int transition_ms;
 	int pose_count;
 	const TEXTURE_ASSET_ID* textures;
+	bool loop = true;
 };
 
 // Tower
