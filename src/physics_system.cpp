@@ -100,7 +100,7 @@ void PhysicsSystem::handle_projectile_collisions()
 				status_comp.active_statuses.push_back(attack_status);
 
 				// Add hit effect for visual feedback
-				registry.hitEffects.emplace(zombie);
+				registry.hitEffects.emplace_with_duplicates(zombie);
 
 				// Remove projectile after hit
 				registry.remove_all_components_of(projectile);

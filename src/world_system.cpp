@@ -240,8 +240,6 @@ void WorldSystem::restart_game()
 		}
 	}
 
-	
-
 	// create grid lines and clear any pre-existing grid lines
 	registry.gridLines.clear();
 	// vertical lines
@@ -343,7 +341,7 @@ void WorldSystem::player_attack()
 					zombie_motion.velocity += direction * knockback_force;
 
 					// Add hit effect
-					HitEffect &hit = registry.hitEffects.emplace(zombie);
+					HitEffect &hit = registry.hitEffects.emplace_with_duplicates(zombie);
 
 					if (zombie_comp.health <= 0)
 					{
@@ -471,22 +469,47 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
-    if (action == GLFW_PRESS && key == GLFW_KEY_F) {
-        // Get mouse position for tower placement
-        
-        // Calculate cell indices
-        int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
-        int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
-        
-        // Calculate center position of the cell
-        vec2 cell_center = {
-            (cell_x * GRID_CELL_WIDTH_PX) + (GRID_CELL_WIDTH_PX / 2.0f),
-            (cell_y * GRID_CELL_HEIGHT_PX) + (GRID_CELL_HEIGHT_PX / 2.0f)
-        };
-        
-        // Create tower at cell center
-        createTower(renderer, cell_center);
-    }
+	if (action == GLFW_PRESS && key == GLFW_KEY_F)
+	{
+		// Get mouse position for tower placement
+
+		// Calculate cell indices
+		int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
+		int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
+
+		// Calculate center position of the cell
+		vec2 cell_center = {
+			(cell_x * GRID_CELL_WIDTH_PX) + (GRID_CELL_WIDTH_PX / 2.0f),
+			(cell_y * GRID_CELL_HEIGHT_PX) + (GRID_CELL_HEIGHT_PX / 2.0f)};
+
+		// Create tower at cell center
+		// Check if cell is already occupied by a tower
+		bool cell_occupied = false;
+		for (Entity tower : registry.towers.entities)
+		{
+			if (!registry.motions.has(tower))
+			{
+				continue;
+			}
+
+			Motion &tower_motion = registry.motions.get(tower);
+			int tower_cell_x = static_cast<int>(tower_motion.position.x) / GRID_CELL_WIDTH_PX;
+			int tower_cell_y = static_cast<int>(tower_motion.position.y) / GRID_CELL_HEIGHT_PX;
+
+			if (tower_cell_x == cell_x && tower_cell_y == cell_y)
+			{
+				cell_occupied = true;
+				std::cout << "Cell already occupied by a tower!" << std::endl;
+				break;
+			}
+		}
+
+		// Only create tower if cell is empty
+		if (!cell_occupied)
+		{
+			createTower(renderer, cell_center);
+		}
+	}
 	// Move left
 	if (motion.position.x >= (PLAYER_WIDTH / 2) + SCORCHED_EARTH_BOUNDARY)
 	{
