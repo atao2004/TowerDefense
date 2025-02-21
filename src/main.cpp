@@ -1,4 +1,3 @@
-
 #define GL3W_IMPLEMENTATION
 #include <gl3w.h>
 
@@ -14,6 +13,7 @@
 #include "status_system.hpp"
 #include "state_system.hpp"
 #include "animation_system.hpp"
+#include "tower_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -28,6 +28,7 @@ int main()
 	StatusSystem  status_system;
 	StateSystem  state_system;
 	AnimationSystem animation_system;
+	TowerSystem tower_system;
 
 	// initialize window
 	GLFWwindow* window = world_system.create_window();
@@ -75,6 +76,7 @@ int main()
 		world_system.handle_collisions();
 		state_system.step(elapsed_ms);
 		animation_system.step(elapsed_ms);
+		tower_system.step(elapsed_ms);
 
 		renderer_system.draw();
 	}

@@ -22,6 +22,7 @@ void StatusSystem::step(float elapsed_ms)
     for (Entity entity : registry.statuses.entities)
     {
         handle_enemy_attack(entity, elapsed_ms);
+        handle_projectile_attack(entity, elapsed_ms);
     }
 
     // Clean up expired statuses after all processing
@@ -162,4 +163,35 @@ bool StatusSystem::start_and_load_sounds()
     }
 
     return true;
+}
+
+void StatusSystem::handle_projectile_attack(Entity entity, float elapsed_ms) {
+    // Check if entity has necessary components
+    if (!registry.statuses.has(entity) || !registry.zombies.has(entity)) {
+        return;
+    }
+
+    auto& status_comp = registry.statuses.get(entity);
+    auto& zombie = registry.zombies.get(entity);
+
+    // Process each status
+    for (auto it = status_comp.active_statuses.begin(); it != status_comp.active_statuses.end();) {
+        if (it->type == "attack") {
+            // Apply projectile damage
+            zombie.health -= it->value;
+            std::cout << "Zombie hit by projectile for " << it->value 
+                      << " damage. Health remaining: " << zombie.health << std::endl;
+
+            // Remove attack status after applying damage
+            it = status_comp.active_statuses.erase(it);
+
+            // Check for zombie death
+            if (zombie.health <= 0) {
+                // Add death animation before removing zombie
+                registry.deathAnimations.emplace(entity);
+            }
+        } else {
+            ++it;
+        }
+    }
 }

@@ -75,6 +75,12 @@ struct Zombie
 	float health;
 };
 
+struct Projectile {
+    Entity source;      // The tower that fired this projectile
+    float damage;       // Damage taken from tower
+    float speed = 200.f; // Projectile speed
+};
+
 enum class STATE
 {
 	IDLE = 0,
@@ -96,8 +102,10 @@ struct Animation
 // Tower
 struct Tower
 {
+	float health;	// health of the tower
+	float damage;   // damage of the tower
 	float range;  // for vision / detection
-	int timer_ms; // when to shoot - this could also be a separate timer component...
+	int timer_ms; // how often the tower attacks
 };
 
 // Stucture to store collision information

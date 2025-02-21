@@ -435,6 +435,10 @@ void WorldSystem::update_screen_shake(float elapsed_ms)
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
 
+	// Player movement
+	Entity player = registry.players.entities[0];
+	Motion &motion = registry.motions.get(player);
+
 	// exit game w/ ESC
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE)
 	{
@@ -467,10 +471,22 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
-	// Player movement
-	Entity player = registry.players.entities[0];
-	Motion &motion = registry.motions.get(player);
-
+    if (action == GLFW_PRESS && key == GLFW_KEY_F) {
+        // Get mouse position for tower placement
+        
+        // Calculate cell indices
+        int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
+        int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
+        
+        // Calculate center position of the cell
+        vec2 cell_center = {
+            (cell_x * GRID_CELL_WIDTH_PX) + (GRID_CELL_WIDTH_PX / 2.0f),
+            (cell_y * GRID_CELL_HEIGHT_PX) + (GRID_CELL_HEIGHT_PX / 2.0f)
+        };
+        
+        // Create tower at cell center
+        createTower(renderer, cell_center);
+    }
 	// Move left
 	if (motion.position.x >= (PLAYER_WIDTH / 2) + SCORCHED_EARTH_BOUNDARY)
 	{

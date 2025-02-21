@@ -40,7 +40,8 @@ class RenderSystem {
 		textures_path("map/grass.png"),
 		textures_path("map/dirt.png"),
 		textures_path("ui/toolbar.png"),
-		textures_path("ui/pause.png")
+		textures_path("ui/pause.png"),
+		textures_path("towers/gold_bubble.png")
 	};
 
 	std::array<GLuint, effect_count> effects;
