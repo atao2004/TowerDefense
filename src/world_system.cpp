@@ -320,7 +320,6 @@ void WorldSystem::player_attack()
 					{
 						auto &zombie_comp = registry.zombies.get(zombie);
 						zombie_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
-						std::cout << "wow u r attacking so nice cool cool" << std::endl;
 
 						if (zombie_comp.health <= 0)
 						{
@@ -334,6 +333,9 @@ void WorldSystem::player_attack()
 							death_anim.slide_direction = slide_direction;
 							death_anim.alpha = 1.0f;
 							death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
+							points++;
+							std::cout << "Zombies killed:"<< points << std::endl;
+
 						}
 
 						// Increase the experience of the player.
