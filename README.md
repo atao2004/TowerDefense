@@ -60,7 +60,9 @@ Comments to TA about your implementation (optional):
 **Citation**
 
 - Grass texture by p0ss sourced from https://opengameart.org/node/9692
-- Dirt texture by Lamoot sourced from https://opengameart.org/node/7805
+- Dirt texture by p0ss (farmland) sourced from https://opengameart.org/node/9021
+- Dirt texture by Lamoot (scorched earth) sourced from https://opengameart.org/node/7805
+- Seeds sourced from _'Crops'_ by SnoopethDuckDuck: https://snoopethduckduck.itch.io/crops
 - https://pixabay.com/sound-effects/
 
 [comment]: <> (* **Scoring System**: Players earn points for killing zombies, which are displayed on the scoreboard.)

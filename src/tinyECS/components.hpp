@@ -81,6 +81,11 @@ struct Projectile {
     float speed = 200.f; // Projectile speed
 };
 
+// For Milestone #2.
+struct Seed {
+	int type; // Maybe make it a string?
+};
+
 enum class STATE
 {
 	IDLE = 0,
@@ -120,8 +125,13 @@ struct Grass
 {
 };
 
-struct ScorchedEarth
-{
+// This is for Milestone #2.
+struct Farmland {
+
+};
+
+struct ScorchedEarth {
+	
 };
 
 struct Toolbar

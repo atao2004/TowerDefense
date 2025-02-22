@@ -200,6 +200,32 @@ Entity createGrass(vec2 position)
 	return grass_entity;
 }
 
+// This is for Milestone #2.
+Entity createFarmland(vec2 position)
+{
+	Entity farmland_entity = Entity();
+
+	Farmland& grass_component = registry.farmlands.emplace(farmland_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(farmland_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(FARMLAND_DIMENSION_PX, FARMLAND_DIMENSION_PX);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		farmland_entity,
+		{
+			TEXTURE_ASSET_ID::FARMLAND,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return farmland_entity;
+}
+
 Entity createScorchedEarth(vec2 position)
 {
 	Entity scorched_earth_entity = Entity();
@@ -209,7 +235,7 @@ Entity createScorchedEarth(vec2 position)
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(scorched_earth_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(DIRT_DIMENSION_PX, DIRT_DIMENSION_PX);
+	motion_component.scale = vec2(SCORCHED_EARTH_DIMENSION_PX, SCORCHED_EARTH_DIMENSION_PX);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
@@ -230,6 +256,9 @@ void removeSurfaces()
 	// remove all grasses
 	for (Entity& grass_entity : registry.grasses.entities) {
 		registry.remove_all_components_of(grass_entity);
+	}
+	for (Entity& farmland_entity : registry.farmlands.entities) {
+		registry.remove_all_components_of(farmland_entity);
 	}
 	for (Entity& scorched_earth_entity : registry.scorchedEarths.entities) {
 		registry.remove_all_components_of(scorched_earth_entity);
@@ -340,4 +369,29 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	// 	}
 	// );
 	return entity;
+}
+
+// This is for Milestone #2.
+Entity createSeed(vec2 pos) {
+	Entity seed_entity = Entity();
+
+	Seed& seed_component = registry.seeds.emplace(seed_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(seed_entity);
+	motion_component.position = pos;
+	motion_component.scale = vec2(50, 50);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		seed_entity,
+		{
+			TEXTURE_ASSET_ID::SEED_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return seed_entity;
 }
