@@ -266,7 +266,7 @@ void WorldSystem::restart_game()
 
 	int grid_line_width = GRID_LINE_WIDTH_PX;
 
-	// create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
+	// Kung: Create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
 	removeSurfaces();
 	for (int x = (GRASS_DIMENSION_PX / 2); x < WINDOW_WIDTH_PX + (GRASS_DIMENSION_PX / 2); x += GRASS_DIMENSION_PX)
 	{
@@ -289,10 +289,11 @@ void WorldSystem::restart_game()
 			}
 		}
 	}
-	// This is for Milestone #2.
+	// Kung: This is for Milestone #2. This creates the farmland.
 	// createFarmland(vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2));
 
 	// create grid lines and clear any pre-existing grid lines
+	// Kung: I cleared the grid lines so that they would now render on top of my textures
 	registry.gridLines.clear();
 	// vertical lines
 	for (int col = 0; col <= WINDOW_WIDTH_PX / GRID_CELL_WIDTH_PX; col++)
@@ -319,7 +320,7 @@ void WorldSystem::restart_game()
 	registry.players.clear();
 	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
 
-	// Reset player movement
+	// Kung: Reset player movement so that the player remains still when no keys are pressed
 	Entity player = registry.players.entities[0];
 	Motion &player_motion = registry.motions.get(player);
 
@@ -347,7 +348,7 @@ void WorldSystem::restart_game()
 		player_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
 	}
 
-	// Create the pause button and toolbar
+	// Kung: Create the pause button and toolbar, and have them overlay the player
 	createPause();
 	createToolbar();
 
@@ -366,6 +367,7 @@ bool WorldSystem::is_over() const
 	return bool(glfwWindowShouldClose(window));
 }
 
+// Helper function to handle what happens when the player does a mouse click
 void WorldSystem::player_attack()
 {
 	Entity player = registry.players.entities[0];
@@ -418,6 +420,7 @@ void WorldSystem::player_attack()
 					// Add hit effect
 					HitEffect &hit = registry.hitEffects.emplace_with_duplicates(zombie);
 
+					// This is what you do when you kill a zombie.
 					if (zombie_comp.health <= 0)
 					{
 						// Add death animation before removing
@@ -431,14 +434,14 @@ void WorldSystem::player_attack()
 						death_anim.alpha = 1.0f;
 						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
 
-						// Enemy Count update:
+						// Kung: Update the enemy count and print it to the console.
 						std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 
-						// Increase the experience of the player or reset the experience bar when it becomes full.
+						// Kung: Increase the experience of the player or reset the experience bar when it becomes full.
 						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 						{
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
-						}
+						} // Kung: If the bar is full, reset the player experience.
 						else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 						{
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
@@ -508,6 +511,72 @@ void WorldSystem::update_screen_shake(float elapsed_ms)
 
 // float runningSoundTimer = 0.0;
 
+// Kung: To make the code easier to read, I split the player movement here.
+// I was responsible for this but Ziqing implemented single and multi-button movement first.
+// However, I then implemented boundary checking and the situation where opposing keys cause no movement.
+// In addition, I did general debugging, including on Ziqing's initial code.
+void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
+	// Move left
+	if (player_motion.position.x >= (PLAYER_WIDTH / 2) + SCORCHED_EARTH_BOUNDARY)
+	{
+		if (action == GLFW_PRESS && key == GLFW_KEY_A)
+		{
+			player_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
+		{
+			player_motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+		}
+	}
+	else if (player_motion.velocity.x < 0)
+		player_motion.velocity.x = 0;
+
+	// Move right
+	if (player_motion.position.x <= (WINDOW_WIDTH_PX - (PLAYER_WIDTH / 2) - SCORCHED_EARTH_BOUNDARY))
+	{
+		if (action == GLFW_PRESS && key == GLFW_KEY_D)
+		{
+			player_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
+		{
+			player_motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+		}
+	}
+	else if (player_motion.velocity.x > 0)
+		player_motion.velocity.x = 0;
+
+	// Move down
+	if (player_motion.position.y <= (WINDOW_HEIGHT_PX - (PLAYER_HEIGHT / 2) - SCORCHED_EARTH_BOUNDARY))
+	{
+		if (action == GLFW_PRESS && key == GLFW_KEY_S)
+		{
+			player_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
+		{
+			player_motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+		}
+	}
+	else if (player_motion.velocity.y > 0)
+		player_motion.velocity.y = 0;
+
+	// Move up
+	if (player_motion.position.y >= (PLAYER_HEIGHT / 2) + SCORCHED_EARTH_BOUNDARY)
+	{
+		if (action == GLFW_PRESS && key == GLFW_KEY_W)
+		{
+			player_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
+		{
+			player_motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
+		}
+	}
+	else if (player_motion.velocity.y < 0)
+		player_motion.velocity.y = 0;
+}
+
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
 
@@ -522,7 +591,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
-	// Resetting game
+	// Resetting game with the 'R' button
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
 	{
 		int w, h;
@@ -539,6 +608,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
+	// test mode with 't'
 	if (action == GLFW_PRESS && key == GLFW_KEY_T)
 	{
 		test_mode = !test_mode;
@@ -551,7 +621,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
 
-	// Plant seed (for Milestone #2)
+	// Kung: Plant seed with the 'H' button (for Milestone #2)
 	// if (action == GLFW_PRESS && key == GLFW_KEY_H)
 	// {
 	// 	// You can only plant where there is farmland.
@@ -572,6 +642,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// 		}
 	// }
 
+	// Haonan: Shoot towers with the 'F' button (for Milestone #2)
 	if (action == GLFW_PRESS && key == GLFW_KEY_F)
 	{
 		// Calculate center position of the cell
@@ -607,67 +678,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			createTower(renderer, cell_center);
 		}
 	}
-	// Move left
-	if (motion.position.x >= (PLAYER_WIDTH / 2) + SCORCHED_EARTH_BOUNDARY)
-	{
-		if (action == GLFW_PRESS && key == GLFW_KEY_A)
-		{
-			motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
-		}
-		else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
-		{
-			motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
-		}
-	}
-	else if (motion.velocity.x < 0)
-		motion.velocity.x = 0;
 
-	// Move right
-	if (motion.position.x <= (WINDOW_WIDTH_PX - (PLAYER_WIDTH / 2) - SCORCHED_EARTH_BOUNDARY))
-	{
-		if (action == GLFW_PRESS && key == GLFW_KEY_D)
-		{
-			motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
-		}
-		else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
-		{
-			motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
-		}
-	}
-	else if (motion.velocity.x > 0)
-		motion.velocity.x = 0;
+	// Kung: Helper function for player movement (see above for description)
+	player_movement(key, action, motion);
 
-	// Move down
-	if (motion.position.y <= (WINDOW_HEIGHT_PX - (PLAYER_HEIGHT / 2) - SCORCHED_EARTH_BOUNDARY))
-	{
-		if (action == GLFW_PRESS && key == GLFW_KEY_S)
-		{
-			motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
-		}
-		else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
-		{
-			motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
-		}
-	}
-	else if (motion.velocity.y > 0)
-		motion.velocity.y = 0;
-
-	// Move up
-	if (motion.position.y >= (PLAYER_HEIGHT / 2) + SCORCHED_EARTH_BOUNDARY)
-	{
-		if (action == GLFW_PRESS && key == GLFW_KEY_W)
-		{
-			motion.velocity.y += PLAYER_MOVE_UP_SPEED;
-		}
-		else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
-		{
-			motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
-		}
-	}
-	else if (motion.velocity.y < 0)
-		motion.velocity.y = 0;
-
-	// State
+	// Update state if player is moving
 	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
 	{
 		if (motion.velocity == vec2(0, 0))
