@@ -175,7 +175,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		if (screen.game_over)
 		{
 			screen.lerp_timer += elapsed_ms_since_last_update;
-			std::cout << "here" << std::endl;
 		}
 		if (screen.lerp_timer == 1)
 		{
