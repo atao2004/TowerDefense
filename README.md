@@ -61,7 +61,6 @@ Comments to TA about your implementation (optional):
 
 - Grass texture by p0ss sourced from https://opengameart.org/node/9692
 - Dirt texture by Lamoot sourced from https://opengameart.org/node/7805
-- Generative AI
 - https://pixabay.com/sound-effects/
 
 [comment]: <> (* **Scoring System**: Players earn points for killing zombies, which are displayed on the scoreboard.)
