@@ -537,14 +537,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
 		return;
 	}
-
-	// Player movement (unchanged from good version)
-	Entity player = registry.players.entities[0];
-	Motion& motion = registry.motions.get(player);
   
-  // Calculate cell indices
-  int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
-  int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
+	// Calculate cell indices
+	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
+	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
 
 	// Plant seed (for Milestone #2)
 	// if (action == GLFW_PRESS && key == GLFW_KEY_H)
