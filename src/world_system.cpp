@@ -190,9 +190,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		{
 			screen.lerp_timer += elapsed_ms_since_last_update;
 		} 
-		if (screen.lerp_timer >= 1000)
+		if (screen.lerp_timer >= 10000)
 		{
-			screen.lerp_timer = 1000;
+			screen.lerp_timer = 10000;
 		}
 	}
 
