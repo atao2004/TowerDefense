@@ -434,14 +434,14 @@ void WorldSystem::player_attack()
 						death_anim.alpha = 1.0f;
 						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
 
-						// Kung: Update the enemy count and print it to the console.
+						// Kung: Upon killing a zombie, update the enemy count and print it to the console.
 						std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 
-						// Kung: Increase the experience of the player or reset the experience bar when it becomes full.
+						// Kung: Upon killing a zombie, increase the experience of the player or reset the experience bar when it becomes full.
 						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 						{
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
-						} // Kung: If the bar is full, reset the player experience.
+						} // Kung: If the bar is full, reset the player experience bar.
 						else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 						{
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
