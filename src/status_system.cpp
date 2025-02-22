@@ -165,32 +165,39 @@ bool StatusSystem::start_and_load_sounds()
     return true;
 }
 
-void StatusSystem::handle_projectile_attack(Entity entity, float elapsed_ms) {
+void StatusSystem::handle_projectile_attack(Entity entity, float elapsed_ms)
+{
     // Check if entity has necessary components
-    if (!registry.statuses.has(entity) || !registry.zombies.has(entity)) {
+    if (!registry.statuses.has(entity) || !registry.zombies.has(entity))
+    {
         return;
     }
 
-    auto& status_comp = registry.statuses.get(entity);
-    auto& zombie = registry.zombies.get(entity);
+    auto &status_comp = registry.statuses.get(entity);
+    auto &zombie = registry.zombies.get(entity);
 
     // Process each status
-    for (auto it = status_comp.active_statuses.begin(); it != status_comp.active_statuses.end();) {
-        if (it->type == "attack") {
+    for (auto it = status_comp.active_statuses.begin(); it != status_comp.active_statuses.end();)
+    {
+        if (it->type == "attack")
+        {
             // Apply projectile damage
             zombie.health -= it->value;
-            std::cout << "Zombie hit by projectile for " << it->value 
+            std::cout << "Zombie hit by projectile for " << it->value
                       << " damage. Health remaining: " << zombie.health << std::endl;
 
             // Remove attack status after applying damage
             it = status_comp.active_statuses.erase(it);
 
-            // Check for zombie death
-            if (zombie.health <= 0) {
-                // Add death animation before removing zombie
+            // Only check for death after all damage is applied
+            if (zombie.health <= 0 && !registry.deathAnimations.has(entity))
+            {
+                // Add death animation only if it doesn't already have one
                 registry.deathAnimations.emplace(entity);
             }
-        } else {
+        }
+        else
+        {
             ++it;
         }
     }

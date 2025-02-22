@@ -83,28 +83,30 @@ void PhysicsSystem::handle_projectile_collisions()
 
 			if (collides(proj_motion, zombie_motion))
 			{
-				// Add attack status to zombie
-				if (!registry.statuses.has(zombie))
+				// Get or create status component
+				StatusComponent *status_comp;
+				if (registry.statuses.has(zombie))
 				{
-					registry.statuses.emplace(zombie);
+					status_comp = &registry.statuses.get(zombie);
+				}
+				else
+				{
+					status_comp = &registry.statuses.emplace(zombie);
 				}
 
-				auto &status_comp = registry.statuses.get(zombie);
-
-				// Add attack status (same as we did for player being hit)
+				// Add attack status
 				Status attack_status{
 					"attack",
-					0.0f,		// 0 duration for immediate effect
-					proj.damage // Use projectile's damage
-				};
-				status_comp.active_statuses.push_back(attack_status);
+					0.0f,
+					proj.damage};
+				status_comp->active_statuses.push_back(attack_status);
 
-				// Add hit effect for visual feedback
+				// Add hit effect
 				registry.hitEffects.emplace_with_duplicates(zombie);
 
-				// Remove projectile after hit
+				// Remove projectile
 				registry.remove_all_components_of(projectile);
-				break; // Exit loop since projectile is destroyed
+				break;
 			}
 		}
 	}
