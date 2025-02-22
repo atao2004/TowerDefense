@@ -49,7 +49,7 @@ Comments to TA about your implementation (optional):
 
 * **User Interface**: The UI displays player health, experience points, inventory, and a pause button.
 
-* **Console Counter**: The counter counts the number of alive zombies left in the game and prints it on console.
+* **Console Counter**: The counter counts the number of alive zombies left in the game and the number of zombies you killed in this round and prints it on console.
 
 
 
@@ -61,6 +61,7 @@ Comments to TA about your implementation (optional):
 
 - Grass texture by p0ss sourced from https://opengameart.org/node/9692
 - Dirt texture by Lamoot sourced from https://opengameart.org/node/7805
-
+- Generative AI
+- https://pixabay.com/sound-effects/
 
 [comment]: <> (* **Scoring System**: Players earn points for killing zombies, which are displayed on the scoreboard.)
