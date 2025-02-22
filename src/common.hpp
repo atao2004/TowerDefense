@@ -72,7 +72,8 @@ enum class TEXTURE_ASSET_ID
 	SCORCHED_EARTH = FARMLAND + 1,
 	TOOLBAR = SCORCHED_EARTH + 1,
 	PAUSE = TOOLBAR + 1,
-	TEXTURE_COUNT = PAUSE + 1
+	PROJECTILE = PAUSE + 1,
+	TEXTURE_COUNT = PROJECTILE + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -83,7 +84,8 @@ enum class EFFECT_ASSET_ID
 	TEXTURED = CHICKEN + 1,
 	UI = TEXTURED + 1,
 	ZOMBIE = UI + 1,
-	EFFECT_COUNT = ZOMBIE + 1
+	PLAYER = ZOMBIE + 1,
+	EFFECT_COUNT = PLAYER + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
@@ -108,8 +110,8 @@ struct RenderRequest
 //
 // game constants
 //
-const int WINDOW_WIDTH_PX = 1920;
-const int WINDOW_HEIGHT_PX = 1080;
+inline int WINDOW_WIDTH_PX = 1920;
+inline int WINDOW_HEIGHT_PX = 1080;
 
 // Kung: Separate consts for testing on my Mac. Use these Anna!!
 // const int WINDOW_WIDTH_PX = 1920 * 2 / 3;

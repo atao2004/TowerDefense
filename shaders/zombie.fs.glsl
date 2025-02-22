@@ -7,7 +7,7 @@ in vec2 texcoord;
 uniform sampler2D sampler0;
 uniform vec3 fcolor;
 uniform float alpha;  // For death animation transparency
-uniform bool is_hit;  // For hit animation
+uniform bool zombie_is_hit;  // For hit animation
 
 // Output color
 layout(location = 0) out vec4 color;
@@ -15,7 +15,7 @@ layout(location = 0) out vec4 color;
 void main()
 {
     color = texture(sampler0, vec2(texcoord.x, texcoord.y));
-    if (is_hit) {
+    if (zombie_is_hit) {
         color.rgb = mix(color.rgb, vec3(1.0), 0.7);  // Mix with white
     }
     color.a *= alpha;

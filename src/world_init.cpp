@@ -84,41 +84,81 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-Entity createTower(RenderSystem* renderer, vec2 position)
-{
-	auto entity = Entity();
+// Entity createTower(RenderSystem* renderer, vec2 position)
+// {
+// 	auto entity = Entity();
 
-	// new tower
-	auto& t = registry.towers.emplace(entity);
-	t.range = (float)WINDOW_WIDTH_PX / (float)GRID_CELL_WIDTH_PX;
-	t.timer_ms = 1000;	// arbitrary for now
+// 	// new tower
+// 	auto& t = registry.towers.emplace(entity);
+// 	t.range = (float)WINDOW_WIDTH_PX / (float)GRID_CELL_WIDTH_PX;
+// 	t.timer_ms = 1000;	// arbitrary for now
 
+// 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+// 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+// 	registry.meshPtrs.emplace(entity, &mesh);
+
+// 	// Initialize the motion
+// 	auto& motion = registry.motions.emplace(entity);
+// 	motion.angle = 180.f;	// A1-TD: CK: rotate to the left 180 degrees to fix orientation
+// 	motion.velocity = { 0.0f, 0.0f };
+// 	motion.position = position;
+
+// 	std::cout << "INFO: tower position: " << position.x << ", " << position.y << std::endl;
+
+// 	// Setting initial values, scale is negative to make it face the opposite way
+// 	motion.scale = vec2({ -TOWER_BB_WIDTH, TOWER_BB_HEIGHT });
+
+// 	// create an (empty) Tower component to be able to refer to all towers
+// 	registry.renderRequests.insert(
+// 		entity,
+// 		{
+// 			TEXTURE_ASSET_ID::TOWER,
+// 			EFFECT_ASSET_ID::TEXTURED,
+// 			GEOMETRY_BUFFER_ID::SPRITE
+// 		}
+// 	);
+
+// 	return entity;
+// }
+
+
+Entity createTower(RenderSystem* renderer, vec2 position) {
+    Entity entity = Entity();
+
+    // Basic tower stats
+    Tower& tower = registry.towers.emplace(entity);
+    tower.health = 100.f;
+    tower.damage = 10.f;
+    tower.range = 2000.f;     // Detection range in pixels
+    tower.timer_ms = 2000;   // Attack every 2 second
+
+    // Motion component for position and rotation
+    Motion& motion = registry.motions.emplace(entity);
+    motion.position = position;
+    motion.angle = 0.f;
+    motion.velocity = { 0, 0 };  // Towers don't move
+    motion.scale = vec2({ TOWER_BB_WIDTH, TOWER_BB_HEIGHT });  // Using constants from common.hpp
+
+	Dimension& dimension = registry.dimensions.emplace(entity);
+	dimension.width = TOWER_BB_WIDTH;
+	dimension.height = TOWER_BB_HEIGHT;
+
+	
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
-	// Initialize the motion
-	auto& motion = registry.motions.emplace(entity);
-	motion.angle = 180.f;	// A1-TD: CK: rotate to the left 180 degrees to fix orientation
-	motion.velocity = { 0.0f, 0.0f };
-	motion.position = position;
+    // Add render request for tower
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::TOWER,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }
+    );
 
-	std::cout << "INFO: tower position: " << position.x << ", " << position.y << std::endl;
-
-	// Setting initial values, scale is negative to make it face the opposite way
-	motion.scale = vec2({ -TOWER_BB_WIDTH, TOWER_BB_HEIGHT });
-
-	// create an (empty) Tower component to be able to refer to all towers
-	registry.renderRequests.insert(
-		entity,
-		{
-			TEXTURE_ASSET_ID::TOWER,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
-
-	return entity;
+    return entity;
 }
 
 void removeTower(vec2 position) {
@@ -305,7 +345,7 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::PLAYER_IDLE,
-			EFFECT_ASSET_ID::TEXTURED,
+			EFFECT_ASSET_ID::PLAYER,
 			GEOMETRY_BUFFER_ID::SPRITE
 		},
 		false

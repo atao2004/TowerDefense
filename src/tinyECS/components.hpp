@@ -16,20 +16,22 @@ struct Attack
 
 struct Death
 {
-
 };
 
-struct Status {
-    std::string type;      // Status type (e.g. "injured", "poisoned")
-    float duration_ms;     // Counts down to 0
-    float value;          // Effect value (damage, etc)
+struct Status
+{
+	std::string type;  // Status type (e.g. "injured", "poisoned")
+	float duration_ms; // Counts down to 0
+	float value;	   // Effect value (damage, etc)
 };
 
-struct StatusComponent {
-    std::vector<Status> active_statuses;
+struct StatusComponent
+{
+	std::vector<Status> active_statuses;
 };
 
-struct Dimension {
+struct Dimension
+{
 	int width;
 	int height;
 };
@@ -39,7 +41,8 @@ struct Experience
 	int exp;
 };
 
-struct Cooldown {
+struct Cooldown
+{
 	int timer_ms;
 };
 
@@ -51,10 +54,10 @@ struct Motion
 	vec2 scale = {10, 10};
 	Motion()
 	{
-	vec2 position = {0, 0};
-	float angle = 0;
-	vec2 velocity = {0, 0};
-	vec2 scale = {10, 10};
+		vec2 position = {0, 0};
+		float angle = 0;
+		vec2 velocity = {0, 0};
+		vec2 scale = {10, 10};
 	}
 };
 
@@ -69,7 +72,13 @@ struct Player
 
 struct Zombie
 {
-float health;
+	float health;
+};
+
+struct Projectile {
+    Entity source;      // The tower that fired this projectile
+    float damage;       // Damage taken from tower
+    float speed = 200.f; // Projectile speed
 };
 
 // For Milestone #2.
@@ -98,8 +107,10 @@ struct Animation
 // Tower
 struct Tower
 {
+	float health;	// health of the tower
+	float damage;   // damage of the tower
 	float range;  // for vision / detection
-	int timer_ms; // when to shoot - this could also be a separate timer component...
+	int timer_ms; // how often the tower attacks
 };
 
 // Stucture to store collision information
@@ -110,8 +121,8 @@ struct Collision
 	Collision(Entity &other) { this->other = other; };
 };
 
-struct Grass {
-
+struct Grass
+{
 };
 
 // This is for Milestone #2.
@@ -123,12 +134,12 @@ struct ScorchedEarth {
 	
 };
 
-struct Toolbar {
-
+struct Toolbar
+{
 };
 
-struct Pause {
-
+struct Pause
+{
 };
 
 // Sets the brightness of the screen
@@ -136,12 +147,20 @@ struct Pause {
 struct ScreenState
 {
 	float darken_screen_factor = -1;
+
 	float game_over_darken = -1;
 	float game_over_counter_ms = 0;
+
 	float hp_percentage = 1.0;
 	float exp_percentage = 0.0;
+
 	bool game_over = false;
 	float lerp_timer = 0.0;
+
+	// Screen shake parameters
+	float shake_duration_ms = 0.f;
+	float shake_intensity = 0.f;
+	vec2 shake_offset = {0.f, 0.f};
 };
 
 // used to hold grid line start and end positions
@@ -175,13 +194,15 @@ struct Mesh
 };
 
 // Animation related components
-struct DeathAnimation {
-    vec2 slide_direction;  // Direction to slide
-    float alpha = 1.0f;    // Transparency (1.0 = solid, 0.0 = invisible)
-    float duration_ms;     // How long the animation lasts
+struct DeathAnimation
+{
+	vec2 slide_direction; // Direction to slide
+	float alpha = 1.0f;	  // Transparency (1.0 = solid, 0.0 = invisible)
+	float duration_ms;	  // How long the animation lasts
 };
 
-struct HitEffect {
-    float duration_ms = 200.0f;    // How long the hit effect lasts
-    bool is_white = true;          // For white flash effect
+struct HitEffect
+{
+	float duration_ms = 200.0f; // How long the hit effect lasts
+	bool is_white = true;		// For white flash effect
 };

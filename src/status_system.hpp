@@ -34,6 +34,9 @@ private:
 
     // Hit effects
     void handle_hit_effects(float elapsed_ms);
+    
+    // handle projectile attack
+    void handle_projectile_attack(Entity entity, float elapsed_ms);
 
     Mix_Chunk *player_death_sound;
 };

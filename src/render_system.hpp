@@ -42,7 +42,8 @@ class RenderSystem {
 		textures_path("map/dirt.png"),
 		textures_path("map/cracked_dirt.png"),
 		textures_path("ui/toolbar.png"),
-		textures_path("ui/pause.png")
+		textures_path("ui/pause.png"),
+		textures_path("towers/gold_bubble.png")
 	};
 
 	std::array<GLuint, effect_count> effects;
@@ -52,7 +53,8 @@ class RenderSystem {
 		shader_path("chicken"),
 		shader_path("textured"),
 		shader_path("ui"),
-		shader_path("zombie")
+		shader_path("zombie"),
+		shader_path("player")
 	};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
