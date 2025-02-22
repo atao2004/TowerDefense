@@ -64,6 +64,7 @@ class RenderSystem {
 		shader_path("chicken"),
 		shader_path("textured"),
 		shader_path("ui"),
+		shader_path("vignette"),
 		shader_path("zombie"),
 		shader_path("player")
 	};

@@ -348,6 +348,7 @@ void RenderSystem::drawToScreen()
 	GLuint game_over_darken_uloc1 = glGetUniformLocation(vignette_program, "game_over_darken");
 
 	GLint in_position_loc1 = glGetAttribLocation(vignette_program, "in_position");
+	glUniform1f(time_uloc1, screen.lerp_timer);
 	glEnableVertexAttribArray(in_position_loc1);
 	glVertexAttribPointer(in_position_loc1, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
 	gl_has_errors();
