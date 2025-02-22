@@ -15,6 +15,7 @@ public:
 
     void set_test_mode(bool enabled);
     bool is_test_mode() const { return test_mode; }
+    int current_wave;
 
 private:
     struct SpawnPoint {
@@ -28,7 +29,7 @@ private:
     float wave_timer_ms;
     float next_wave_ms;
     int zombies_per_wave;
-    int current_wave;
+    
     
     // RNG
     std::default_random_engine rng;

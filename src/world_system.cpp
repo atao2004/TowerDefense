@@ -6,6 +6,7 @@
 #include <cassert>
 #include <sstream>
 #include <iostream>
+#include <thread>
 
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
@@ -28,8 +29,12 @@ WorldSystem::WorldSystem() : points(0)
 WorldSystem::~WorldSystem()
 {
 	// Destroy music components
-	if (background_music != nullptr)
-		Mix_FreeMusic(background_music);
+	if (night_bgm != nullptr)
+		Mix_FreeMusic(night_bgm);
+	if (day_bgm != nullptr)
+		Mix_FreeMusic(day_bgm);
+	if (combat_bgm != nullptr)
+		Mix_FreeMusic(combat_bgm);
 	if (sword_attack_sound != nullptr)
 		Mix_FreeChunk(sword_attack_sound);
 	if (running_on_grass_sound != nullptr)
@@ -80,8 +85,11 @@ GLFWwindow *WorldSystem::create_window()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+
 #if __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	WINDOW_HEIGHT_PX = WINDOW_HEIGHT_PX * 2 / 3;
+	WINDOW_WIDTH_PX = WINDOW_WIDTH_PX * 2 / 3;
 #endif
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	// CK: setting GLFW_SCALE_TO_MONITOR to true will rescale window but then you must handle different scalings
@@ -131,14 +139,18 @@ bool WorldSystem::start_and_load_sounds()
 		return false;
 	}
 
-	background_music = Mix_LoadMUS(audio_path("music.wav").c_str());
+	night_bgm = Mix_LoadMUS(audio_path("night_bgm.wav").c_str());
+	day_bgm = Mix_LoadMUS(audio_path("day_bgm.wav").c_str());
+	combat_bgm = Mix_LoadMUS(audio_path("combat_bgm.wav").c_str());
 	sword_attack_sound = Mix_LoadWAV(audio_path("sword_attack_sound.wav").c_str());
 	running_on_grass_sound = Mix_LoadWAV(audio_path("running_on_grass.wav").c_str());
 
-	if (background_music == nullptr || sword_attack_sound == nullptr || running_on_grass_sound == nullptr)
+	if (night_bgm == nullptr || day_bgm == nullptr || combat_bgm == nullptr || sword_attack_sound == nullptr || running_on_grass_sound == nullptr)
 	{
 		fprintf(stderr, "Failed to load sounds\n %s\n make sure the data directory is present",
-				audio_path("music.wav").c_str(),
+				audio_path("night_bgm.wav").c_str(),
+				audio_path("day_bgm.wav").c_str(),
+				audio_path("combat_bgm.wav").c_str(),
 				audio_path("sword_attack_sound.wav").c_str(),
 				audio_path("running_on_grass.wav").c_str());
 		return false;
@@ -154,8 +166,16 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 
 	// start playing background music indefinitely
 	std::cout << "Starting music..." << std::endl;
-	Mix_PlayMusic(background_music, -1);
-
+	
+	current_bgm = night_bgm;
+	//smooth fade in, thread to prevent blocking
+	std::thread music_thread([this]() {
+		Mix_FadeInMusic(night_bgm, -1, 1000);
+	});
+	music_thread.detach(); // Let it run independently
+	
+	//set volume to 35%, max value is 128
+	Mix_VolumeMusic(128*0.35);
 	// Set all states to default
 	restart_game();
 }
@@ -177,8 +197,25 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		// 	screen.lerp_timer = 1;
 		// }
 	}
+	
+	if (registry.zombies.size() == 0 && current_bgm != night_bgm) {
+		current_bgm = night_bgm;
+		std::thread music_thread([this]() {
+			// Mix_FadeOutMusic(1000);
+			Mix_HaltMusic();
+			Mix_FadeInMusic(night_bgm, -1, 1000);
+		});
+		music_thread.detach();
+	} else if (registry.zombies.size() > 0 && current_bgm != combat_bgm) {
+		current_bgm = combat_bgm;
+		std::thread music_thread([this]() {
+			// Mix_FadeOutMusic(1000);
+			Mix_HaltMusic();
+			Mix_FadeInMusic(combat_bgm, -1, 1000);
+		});
+		music_thread.detach();
+	}
 	spawn_manager.step(elapsed_ms_since_last_update, renderer);
-
 	update_enemy_death_animations(elapsed_ms_since_last_update);
 	update_movement_sound(elapsed_ms_since_last_update);
 	update_screen_shake(elapsed_ms_since_last_update);
