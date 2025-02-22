@@ -79,7 +79,7 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 
 	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_FRAME_DELAY, ZOMBIE_ANIMATION, sizeof(ZOMBIE_ANIMATION) / sizeof(ZOMBIE_ANIMATION[0]), true, false);
 
-	// Enemy Count update:
+	// Kung: Update the enemy count and print it to the console.
     std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 
 	return entity;
@@ -176,10 +176,13 @@ void removeTower(vec2 position) {
 	}
 }
 
+// Kung: Create the grass texture that will be used as part of the texture map.
 Entity createGrass(vec2 position)
 {
+	// Create the associated entity.
 	Entity grass_entity = Entity();
 
+	// Create the associated component.
 	Grass& grass_component = registry.grasses.emplace(grass_entity);
 
 	// Create the relevant motion component.
@@ -201,11 +204,14 @@ Entity createGrass(vec2 position)
 	return grass_entity;
 }
 
-// This is for Milestone #2.
+// Kung: This is for Milestone #2.
+// Create a texture tile that represents areas where you can plant seeds.
 Entity createFarmland(vec2 position)
 {
+	// Create the associated entity.
 	Entity farmland_entity = Entity();
 
+	// Create the associated component.
 	Farmland& grass_component = registry.farmlands.emplace(farmland_entity);
 
 	// Create the relevant motion component.
@@ -227,10 +233,14 @@ Entity createFarmland(vec2 position)
 	return farmland_entity;
 }
 
+// Kung: Create the tiles that border the window and represent areas in which the player cannot walk on.
+// Technically, the tiles represent dirt, but will look different from the farmland that will be implemented later.
 Entity createScorchedEarth(vec2 position)
 {
+	// Create the associated entity.
 	Entity scorched_earth_entity = Entity();
 
+	// Create the associated component.
 	ScorchedEarth& scorched_earth_component = registry.scorchedEarths.emplace(scorched_earth_entity);
 
 	// Create the relevant motion component.
@@ -252,25 +262,34 @@ Entity createScorchedEarth(vec2 position)
 	return scorched_earth_entity;
 }
 
+// Kung: Remove all surfaces before adding in new ones when resetting the game.
+// This includes grass and scorched earth, and eventually farmland as well.
 void removeSurfaces()
 {
 	// remove all grasses
 	for (Entity& grass_entity : registry.grasses.entities) {
 		registry.remove_all_components_of(grass_entity);
 	}
+	// remove all farmlands
 	for (Entity& farmland_entity : registry.farmlands.entities) {
 		registry.remove_all_components_of(farmland_entity);
 	}
+	// remove all scorched earth
 	for (Entity& scorched_earth_entity : registry.scorchedEarths.entities) {
 		registry.remove_all_components_of(scorched_earth_entity);
 	}
+	// print confirmation
 	std::cout << "surfaces reset" << std::endl;
 }
 
+// Kung: Create the toolbar that in the future will store seeds, harvests, and other associated items.
+// As of now, it is purely cosmetic.
 Entity createToolbar()
 {
+	// Create the associated entity.
 	Entity toolbar_entity = Entity();
 
+	// Create the associated component.
 	Toolbar& toolbar_component = registry.toolbars.emplace(toolbar_entity);
 
 	// Create the relevant motion component.
@@ -324,10 +343,14 @@ Entity createGameOver() {
 	return entity;
 }
 
+// Kung: Create the pause button that will eventually pause the game.
+// As of now, it is purely cosmetic.
 Entity createPause()
 {
+	// Create the associated entity.
 	Entity pause_entity = Entity();
 
+	// Create the associated component.
 	Pause& pause_component = registry.pauses.emplace(pause_entity);
 
 	// Create the relevant motion component.
@@ -426,10 +449,14 @@ Entity createEffect(RenderSystem* renderer, vec2 position, vec2 scale) {
 	return entity;
 }
 
-// This is for Milestone #2.
-Entity createSeed(vec2 pos) {
+// Kung: This is for Milestone #2.
+// Create the seed that will be planted whenever there is farmland.
+Entity createSeed(vec2 pos)
+{
+	// Create the associated entity.
 	Entity seed_entity = Entity();
 
+	// Create the associated component.
 	Seed& seed_component = registry.seeds.emplace(seed_entity);
 
 	// Create the relevant motion component.
