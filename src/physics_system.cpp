@@ -29,7 +29,7 @@ bool PhysicsSystem::collides(const Motion &motion1, const Motion &motion2)
 
 void PhysicsSystem::step(float elapsed_ms)
 {
-	if (registry.screenStates.get(registry.screenStates.entities[0]).game_over)
+	if (!registry.screenStates.get(registry.screenStates.entities[0]).game_over)
 	{
 
 		// Move each entity that has motion (players, and even towers [they have 0 for velocity])
