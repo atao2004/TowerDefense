@@ -6,6 +6,7 @@
 // internal
 #include "render_system.hpp"
 #include "tinyECS/registry.hpp"
+#include "world_system.hpp"
 
 void RenderSystem::drawGridLine(Entity entity,
 								const mat3 &projection)
@@ -313,7 +314,9 @@ void RenderSystem::drawToScreen()
 		index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]); // Note, GL_ELEMENT_ARRAY_BUFFER associates
 																	 // indices to the bound GL_ARRAY_BUFFER
 	gl_has_errors();
-
+	
+	ScreenState &screen = registry.screenStates.get(screen_state_entity);
+	if (!WorldSystem::game_is_over) {
 	// add the "UI" effect
 	const GLuint ui_program = effects[(GLuint)EFFECT_ASSET_ID::UI];
 	glUseProgram(ui_program);
@@ -322,7 +325,6 @@ void RenderSystem::drawToScreen()
 	GLuint exp_uloc = glGetUniformLocation(ui_program, "exp_percentage");
 	GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
 	
-	ScreenState &screen = registry.screenStates.get(screen_state_entity);
 	glUniform1f(game_continues_uloc, screen.game_over);
 	glUniform1f(hp_uloc, screen.hp_percentage);
 	glUniform1f(exp_uloc, screen.exp_percentage);
@@ -334,25 +336,25 @@ void RenderSystem::drawToScreen()
 	glEnableVertexAttribArray(in_position_loc);
 	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
 	gl_has_errors();
-
+	} else {
 	// add the "gameover" effect
-	const GLuint vignette_program = effects[(GLuint)EFFECT_ASSET_ID::VIGNETTE];
-	glUseProgram(vignette_program);
-	GLuint time_uloc1 = glGetUniformLocation(vignette_program, "time");
-	GLuint dead_timer_uloc1 = glGetUniformLocation(vignette_program, "darken_screen_factor");
-	GLuint game_continues_uloc1 = glGetUniformLocation(vignette_program, "game_over");
-	GLuint game_over_darken_uloc1 = glGetUniformLocation(vignette_program, "game_over_darken");
+		const GLuint vignette_program = effects[(GLuint)EFFECT_ASSET_ID::VIGNETTE];
+		glUseProgram(vignette_program);
+		GLuint time_uloc1 = glGetUniformLocation(vignette_program, "time");
+		GLuint dead_timer_uloc1 = glGetUniformLocation(vignette_program, "darken_screen_factor");
+		GLuint game_continues_uloc1 = glGetUniformLocation(vignette_program, "game_over");
 
-	GLint in_position_loc1 = glGetAttribLocation(vignette_program, "in_position");
-	glUniform1f(time_uloc1, screen.lerp_timer);
-	glEnableVertexAttribArray(in_position_loc1);
-	glVertexAttribPointer(in_position_loc1, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
-	gl_has_errors();
+		GLint in_position_loc1 = glGetAttribLocation(vignette_program, "in_position");
+		glUniform1f(time_uloc1, screen.lerp_timer);
+		glUniform1f(game_continues_uloc1, screen.game_over);
+		glEnableVertexAttribArray(in_position_loc1);
+		glVertexAttribPointer(in_position_loc1, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
+		gl_has_errors();
+	}
 
 
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
-
 	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
 	gl_has_errors();
 
