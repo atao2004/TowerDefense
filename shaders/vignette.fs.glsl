@@ -35,7 +35,5 @@ vec4 fade_color_lerp(vec4 in_color)
 void main()
 {
     vec4 in_color = texture(screen_texture, texcoord);
-color = fade_color_lerp(in_color);
-
-	color = hp_exp_bars(color);
+	color = fade_color_lerp(in_color);	
 }
