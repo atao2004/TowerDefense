@@ -291,11 +291,6 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 // then draw the intermediate texture
 void RenderSystem::drawToScreen()
 {
-	// Setting shaders
-	// get the UI texture, sprite mesh, and program
-	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::UI]);
-	gl_has_errors();
-
 	// Clearing backbuffer
 	int w, h;
 	glfwGetFramebufferSize(window, &w, &h); // Note, this will be 2x the resolution given to glfwCreateWindow on retina displays
@@ -321,7 +316,7 @@ void RenderSystem::drawToScreen()
 
 	// add the "UI" effect
 	const GLuint ui_program = effects[(GLuint)EFFECT_ASSET_ID::UI];
-
+	glUseProgram(ui_program);
 	// set clock
 	GLuint hp_uloc = glGetUniformLocation(ui_program, "hp_percentage");
 	GLuint exp_uloc = glGetUniformLocation(ui_program, "exp_percentage");
@@ -342,6 +337,7 @@ void RenderSystem::drawToScreen()
 
 	// add the "gameover" effect
 	const GLuint vignette_program = effects[(GLuint)EFFECT_ASSET_ID::VIGNETTE];
+	glUseProgram(vignette_program);
 	GLuint time_uloc1 = glGetUniformLocation(vignette_program, "time");
 	GLuint dead_timer_uloc1 = glGetUniformLocation(vignette_program, "darken_screen_factor");
 	GLuint game_continues_uloc1 = glGetUniformLocation(vignette_program, "game_over");
