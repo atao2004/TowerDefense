@@ -133,15 +133,15 @@ bool WorldSystem::start_and_load_sounds()
 		return false;
 	}
 
-	if (Mix_OpenAudio(48000, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
 	{
 		fprintf(stderr, "Failed to open audio device");
 		return false;
 	}
 
-	night_bgm = Mix_LoadMUS(audio_path("night_bgm.ogg").c_str());
-	day_bgm = Mix_LoadMUS(audio_path("day_bgm.ogg").c_str());
-	combat_bgm = Mix_LoadMUS(audio_path("combat_bgm.ogg").c_str());
+	night_bgm = Mix_LoadMUS(audio_path("night_bgm.wav").c_str());
+	day_bgm = Mix_LoadMUS(audio_path("day_bgm.wav").c_str());
+	combat_bgm = Mix_LoadMUS(audio_path("combat_bgm.wav").c_str());
 	sword_attack_sound = Mix_LoadWAV(audio_path("sword_attack_sound.wav").c_str());
 	running_on_grass_sound = Mix_LoadWAV(audio_path("running_on_grass.wav").c_str());
 
