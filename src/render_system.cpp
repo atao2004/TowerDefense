@@ -296,6 +296,10 @@ void RenderSystem::drawToScreen()
 	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::UI]);
 	gl_has_errors();
 
+	// get the vignette texture, sprite mesh, and program
+	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::VIGNETTE]);
+	gl_has_errors();
+
 	// Clearing backbuffer
 	int w, h;
 	glfwGetFramebufferSize(window, &w, &h); // Note, this will be 2x the resolution given to glfwCreateWindow on retina displays
@@ -322,33 +326,51 @@ void RenderSystem::drawToScreen()
 	// add the "UI" effect
 	const GLuint ui_program = effects[(GLuint)EFFECT_ASSET_ID::UI];
 
-	// set clock
+	// // set clock
 	GLuint time_uloc = glGetUniformLocation(ui_program, "time");
 	GLuint dead_timer_uloc = glGetUniformLocation(ui_program, "darken_screen_factor");
 	GLuint hp_uloc = glGetUniformLocation(ui_program, "hp_percentage");
 	GLuint exp_uloc = glGetUniformLocation(ui_program, "exp_percentage");
 
-		// set clock
+	// 	// set clock
 	GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
 	GLuint game_over_darken_uloc = glGetUniformLocation(ui_program, "game_over_darken");
 	
-	ScreenState &screen = registry.screenStates.get(screen_state_entity);
+	 ScreenState &screen = registry.screenStates.get(screen_state_entity);
 	glUniform1f(time_uloc, screen.lerp_timer);
 	glUniform1f(game_continues_uloc, screen.game_over);
 	glUniform1f(game_over_darken_uloc, screen.game_over_darken);
 
+	//Gameover effect
+	// add the "vignette" effect
+
+	const GLuint vignette_program = effects[(GLuint)EFFECT_ASSET_ID::VIGNETTE];
+	// set clock
+	GLuint time_uloc1 = glGetUniformLocation(vignette_program, "time");
+	GLuint dead_timer_uloc1 = glGetUniformLocation(vignette_program, "darken_screen_factor");
+	GLuint hp_uloc1 = glGetUniformLocation(vignette_program, "hp_percentage");
+	GLuint exp_uloc1 = glGetUniformLocation(vignette_program, "exp_percentage");
+		// set clock
+	GLuint game_continues_uloc1 = glGetUniformLocation(vignette_program, "game_over");
+	GLuint game_over_darken_uloc1 = glGetUniformLocation(vignette_program, "game_over_darken");
 
 	// std::cout << "screen.darken_screen_factor: " << screen.darken_screen_factor << " entity id: " << screen_state_entity << std::endl;
-	glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
-	glUniform1f(hp_uloc, screen.hp_percentage);
-	glUniform1f(exp_uloc, screen.exp_percentage);
+	glUniform1f(dead_timer_uloc1, screen.darken_screen_factor);
+	glUniform1f(game_continues_uloc1, screen.game_over);
+	glUniform1f(time_uloc1, screen.lerp_timer);
+	glUniform1f(hp_uloc1, screen.hp_percentage);
+	glUniform1f(exp_uloc1, screen.exp_percentage);
 	gl_has_errors();
 
 	// Set the vertex position and vertex texture coordinates (both stored in the
 	// same VBO)
 	GLint in_position_loc = glGetAttribLocation(ui_program, "in_position");
+	GLint in_position_loc1 = glGetAttribLocation(vignette_program, "in_position");
 	glEnableVertexAttribArray(in_position_loc);
+	glEnableVertexAttribArray(in_position_loc1);
 	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
+	glVertexAttribPointer(in_position_loc1, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
+
 	gl_has_errors();
 
 	// Bind our texture in Texture Unit 0

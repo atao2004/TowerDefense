@@ -228,14 +228,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	// 	createToolbar();
 	// }
 
-	update_enemy_death_animations(elapsed_ms_since_last_update);
-	update_movement_sound(elapsed_ms_since_last_update);
-	update_screen_shake(elapsed_ms_since_last_update);
+
 	if (!WorldSystem::game_is_over)
 	{
 		spawn_manager.step(elapsed_ms_since_last_update, renderer);
 
-		update_enemy_death_animations(elapsed_ms_since_last_update);
+	update_enemy_death_animations(elapsed_ms_since_last_update);
+	update_movement_sound(elapsed_ms_since_last_update);
+	update_screen_shake(elapsed_ms_since_last_update);
 		return true;
 	}
 
