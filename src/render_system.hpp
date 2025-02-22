@@ -51,7 +51,7 @@ class RenderSystem {
 		textures_path("attacks/Slash3_color1_frame6.png"),
 		textures_path("attacks/Slash3_color1_frame7.png"),
 		textures_path("attacks/Slash3_color1_frame8.png"),
-		textures_path("attacks/Slash3_color1_frame9.png")
+		textures_path("attacks/Slash3_color1_frame9.png"),
 		textures_path("towers/gold_bubble.png")
 	};
 
