@@ -19,6 +19,7 @@
 // FT_Library library;
 
 bool WorldSystem::game_is_over = false;
+Mix_Chunk* WorldSystem::game_over_sound = nullptr;
 
 // create the world
 WorldSystem::WorldSystem() : points(0)
@@ -143,7 +144,7 @@ bool WorldSystem::start_and_load_sounds()
 	combat_bgm = Mix_LoadMUS(audio_path("combat_bgm.wav").c_str());
 	sword_attack_sound = Mix_LoadWAV(audio_path("sword_attack_sound.wav").c_str());
 	running_on_grass_sound = Mix_LoadWAV(audio_path("running_on_grass.wav").c_str());
-	game_over_sound = Mix_LoadWAV(audio_path("game_over.mp3").c_str());
+	WorldSystem::game_over_sound = Mix_LoadWAV(audio_path("game_over.wav").c_str());
 
 	if (night_bgm == nullptr || day_bgm == nullptr || combat_bgm == nullptr || sword_attack_sound == nullptr || running_on_grass_sound == nullptr || game_over_sound == nullptr)
 	{
@@ -751,7 +752,7 @@ void WorldSystem::game_over()
 	game_is_over = true;
 	registry.screenStates.get(registry.screenStates.entities[0]).game_over = true;
 	Mix_HaltMusic();
-	Mix_PlayChannel(3, game_over_sound, 0);
+	Mix_PlayChannel(0, WorldSystem::game_over_sound, 0);
 	createGameOver();
 }
 

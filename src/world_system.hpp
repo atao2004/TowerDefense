@@ -85,7 +85,7 @@ private:
 	Mix_Music *combat_bgm;
 	Mix_Chunk *sword_attack_sound;
 	Mix_Chunk *running_on_grass_sound;
-	Mix_Chunk *game_over_sound;
+	static Mix_Chunk *game_over_sound;
 
 	// Manage spawning zombies
 	SpawnManager spawn_manager;
