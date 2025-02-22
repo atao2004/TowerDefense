@@ -17,7 +17,7 @@ Comments to TA about your implementation (optional):
 
 **Description**
 
-- []
+- This is a 2D survival game where players control a farmer while fending off endless waves of zombies.
 
 **Feature**
 
