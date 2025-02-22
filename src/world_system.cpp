@@ -219,14 +219,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			Mix_FadeInMusic(combat_bgm, -1, 1000); });
 		music_thread.detach();
 	}
-	// // Player movement (unchanged from good version)
-	// Entity player = registry.players.entities[0];
-	// Motion& motion = registry.motions.get(player);
-
-	// if (motion.position.y >= WINDOW_HEIGHT_PX - 100) {
-	// 	registry.toolbars.clear();
-	// 	createToolbar();
-	// }
 
 	if (!WorldSystem::game_is_over)
 	{
@@ -323,10 +315,6 @@ void WorldSystem::restart_game()
 		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 	}
 
-	// Create the pause button and toolbar
-	createPause();
-	createToolbar();
-
 	// reset player and spawn player in the middle of the screen
 	registry.players.clear();
 	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
@@ -358,6 +346,10 @@ void WorldSystem::restart_game()
 	{
 		player_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
 	}
+
+	// Create the pause button and toolbar
+	createPause();
+	createToolbar();
 
 	// start the spawn manager
 	spawn_manager.start_game();
