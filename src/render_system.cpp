@@ -340,6 +340,19 @@ void RenderSystem::drawToScreen()
 	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
 	gl_has_errors();
 
+	// add the "gameover" effect
+	const GLuint vignette_program = effects[(GLuint)EFFECT_ASSET_ID::VIGNETTE];
+	GLuint time_uloc1 = glGetUniformLocation(vignette_program, "time");
+	GLuint dead_timer_uloc1 = glGetUniformLocation(vignette_program, "darken_screen_factor");
+	GLuint game_continues_uloc1 = glGetUniformLocation(vignette_program, "game_over");
+	GLuint game_over_darken_uloc1 = glGetUniformLocation(vignette_program, "game_over_darken");
+
+	GLint in_position_loc1 = glGetAttribLocation(vignette_program, "in_position");
+	glEnableVertexAttribArray(in_position_loc1);
+	glVertexAttribPointer(in_position_loc1, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
+	gl_has_errors();
+
+
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
 
