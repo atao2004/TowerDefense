@@ -143,15 +143,17 @@ bool WorldSystem::start_and_load_sounds()
 	combat_bgm = Mix_LoadMUS(audio_path("combat_bgm.wav").c_str());
 	sword_attack_sound = Mix_LoadWAV(audio_path("sword_attack_sound.wav").c_str());
 	running_on_grass_sound = Mix_LoadWAV(audio_path("running_on_grass.wav").c_str());
+	game_over_sound = Mix_LoadWAV(audio_path("game_over.mp3").c_str());
 
-	if (night_bgm == nullptr || day_bgm == nullptr || combat_bgm == nullptr || sword_attack_sound == nullptr || running_on_grass_sound == nullptr)
+	if (night_bgm == nullptr || day_bgm == nullptr || combat_bgm == nullptr || sword_attack_sound == nullptr || running_on_grass_sound == nullptr || game_over_sound == nullptr)
 	{
 		fprintf(stderr, "Failed to load sounds\n %s\n make sure the data directory is present",
 				audio_path("night_bgm.wav").c_str(),
 				audio_path("day_bgm.wav").c_str(),
 				audio_path("combat_bgm.wav").c_str(),
 				audio_path("sword_attack_sound.wav").c_str(),
-				audio_path("running_on_grass.wav").c_str());
+				audio_path("running_on_grass.wav").c_str(),
+				audio_path("game_over.mp3").c_str());
 		return false;
 	}
 
@@ -748,6 +750,8 @@ void WorldSystem::game_over()
 	std::cout << "Game Over!" << std::endl;
 	game_is_over = true;
 	registry.screenStates.get(registry.screenStates.entities[0]).game_over = true;
+	Mix_HaltMusic();
+	Mix_PlayChannel(3, game_over_sound, 0);
 	createGameOver();
 }
 
