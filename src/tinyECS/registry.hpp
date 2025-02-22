@@ -14,12 +14,14 @@ public:
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;
 	ComponentContainer<Mesh*> meshPtrs;
+	ComponentContainer<Dimension> dimensions;
 	ComponentContainer<RenderRequest> renderRequests;
 	ComponentContainer<ScreenState> screenStates;
 	ComponentContainer<vec3> colors;
 	ComponentContainer<Tower> towers;
 	ComponentContainer<GridLine> gridLines;
 	ComponentContainer<Grass> grasses;
+	ComponentContainer<Farmland> farmlands;
 	ComponentContainer<ScorchedEarth> scorchedEarths;
 	ComponentContainer<Toolbar> toolbars;
 	ComponentContainer<Pause> pauses;
@@ -29,11 +31,14 @@ public:
 	ComponentContainer<StatusComponent> statuses;
 	ComponentContainer<State> states;
 	ComponentContainer<Animation> animations;
+	ComponentContainer<Seed> seeds;
 
 	ComponentContainer<Death> deaths;
 	ComponentContainer<Cooldown> cooldowns;
 	ComponentContainer<DeathAnimation> deathAnimations;
 	ComponentContainer<HitEffect> hitEffects;
+
+	ComponentContainer<Projectile> projectiles;
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
@@ -41,6 +46,7 @@ public:
 		registry_list.push_back(&motions);
 		registry_list.push_back(&collisions);
 		registry_list.push_back(&meshPtrs);
+		registry_list.push_back(&dimensions);
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&screenStates);
 		registry_list.push_back(&colors);
@@ -55,6 +61,8 @@ public:
 		registry_list.push_back(&cooldowns);
 		registry_list.push_back(&deathAnimations);
 		registry_list.push_back(&hitEffects);
+		registry_list.push_back(&projectiles);
+		
 	}
 
 	void clear_all_components() {

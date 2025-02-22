@@ -13,7 +13,7 @@ layout(location = 0) out vec4 color;
 
 vec4 hp_exp_bars(vec4 in_color) 
 {
-	if (texcoord[0] > 0.725) {
+	if (texcoord[0] > 0.725 && !game_over) {
 		if (texcoord[1] > 0.925 && texcoord[1] < 0.975) {
 			if (texcoord[0] < (0.725 + hp_percentage * 0.25)) {
 				if (hp_percentage <= 0.2) {

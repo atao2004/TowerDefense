@@ -11,5 +11,8 @@ class PhysicsSystem
 public:
 	void step(float elapsed_ms);
 
-	static bool collides(const Motion& motion1, const Motion& motion2);
+	static bool collides(const Motion &motion1, const Motion &motion2);
+
+private:
+	void handle_projectile_collisions();
 };
