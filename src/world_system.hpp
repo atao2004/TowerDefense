@@ -46,6 +46,7 @@ public:
 	bool is_over() const;
 
 	static void game_over();
+	static bool game_is_over;
 
 private:
 	float mouse_pos_x = 0.0f;
@@ -91,7 +92,6 @@ private:
 
 	bool test_mode = false;
 
-	static bool game_is_over;
 	
     // Sound effects
 	float movement_sound_timer = 0.f;

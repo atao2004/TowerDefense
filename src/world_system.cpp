@@ -18,7 +18,6 @@
 
 // FT_Library library;
 
-// Game constants
 bool WorldSystem::game_is_over = false;
 
 // create the world
@@ -378,112 +377,86 @@ bool WorldSystem::is_over() const
 
 void WorldSystem::player_attack()
 {
-	if (!WorldSystem::game_is_over)
+	Entity player = registry.players.entities[0];
+	if (!registry.cooldowns.has(player))
 	{
-		Entity player = registry.players.entities[0];
-		if (!registry.cooldowns.has(player))
+		// Play the sword attack sound
+		Mix_PlayChannel(3, sword_attack_sound, 0);
+
+		Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
+		if (less_f_ugly.scale.x < 0)
+		{ // face left = minus the range from position
+			less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
+		}
+		else
+		{ // face right = add the range from position
+			less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
+		}
+		Motion weapon_motion = Motion();
+		weapon_motion.position = less_f_ugly.position;
+		weapon_motion.angle = less_f_ugly.angle;
+		weapon_motion.velocity = less_f_ugly.velocity;
+		weapon_motion.scale = less_f_ugly.scale;
+		createEffect(renderer, weapon_motion.position, weapon_motion.scale);
+		for (int i = 0; i < registry.zombies.size(); i++)
 		{
-			// Play the sword attack sound
-			Mix_PlayChannel(3, sword_attack_sound, 0);
-
-			Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
-			if (less_f_ugly.scale.x < 0)
-			{ // face left = minus the range from position
-				less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
-			}
-			else
-			{ // face right = add the range from position
-				less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
-			}
-			Motion weapon_motion = Motion();
-			weapon_motion.position = less_f_ugly.position;
-			weapon_motion.angle = less_f_ugly.angle;
-			weapon_motion.velocity = less_f_ugly.velocity;
-			weapon_motion.scale = less_f_ugly.scale;
-			createEffect(renderer, weapon_motion.position, weapon_motion.scale);
-			for (int i = 0; i < registry.zombies.size(); i++)
+			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
+				|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.zombies.entities[i])))
 			{
-				// Play the sword attack sound
-				Mix_PlayChannel(3, sword_attack_sound, 0);
-
-				Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
-				if (less_f_ugly.scale.x < 0)
-				{ // face left = minus the range from position
-					less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
-				}
-				else
-				{ // face right = add the range from position
-					less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
-				}
-				Motion weapon_motion = Motion();
-				weapon_motion.position = less_f_ugly.position;
-				weapon_motion.angle = less_f_ugly.angle;
-				weapon_motion.velocity = less_f_ugly.velocity;
-				weapon_motion.scale = less_f_ugly.scale;
-				for (int i = 0; i < registry.zombies.size(); i++)
+				Entity zombie = registry.zombies.entities[i];
+				if (registry.zombies.has(zombie))
 				{
-					if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
-						|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.zombies.entities[i])))
+					auto &zombie_comp = registry.zombies.get(zombie);
+					zombie_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
+					std::cout << "wow u r attacking so nice cool cool" << std::endl;
+
+					// Calculate knockback direction (from player to zombie)
+					Motion &zombie_motion = registry.motions.get(zombie);
+					Motion &player_motion = registry.motions.get(player);
+					vec2 direction = zombie_motion.position - player_motion.position;
+					float length = sqrt(dot(direction, direction));
+					if (length > 0)
 					{
-						Entity zombie = registry.zombies.entities[i];
-						if (registry.zombies.has(zombie))
+						direction = direction / length; // Normalize
+					}
+
+					// Apply knockback velocity immediately
+					float knockback_force = 1000.0f;
+					zombie_motion.velocity += direction * knockback_force;
+
+					// Add hit effect
+					HitEffect &hit = registry.hitEffects.emplace_with_duplicates(zombie);
+
+					if (zombie_comp.health <= 0)
+					{
+						// Add death animation before removing
+						Entity player = registry.players.entities[0];
+						Motion &player_motion = registry.motions.get(player);
+						vec2 slide_direction = {player_motion.scale.x > 0 ? 1.0f : -1.0f, 0.0f};
+
+						// Add death animation component
+						DeathAnimation &death_anim = registry.deathAnimations.emplace(zombie);
+						death_anim.slide_direction = slide_direction;
+						death_anim.alpha = 1.0f;
+						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
+
+						// Enemy Count update:
+						std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
+					
+						// Increase the experience of the player or reset the experience bar when it becomes full.
+						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 						{
-							auto &zombie_comp = registry.zombies.get(zombie);
-							zombie_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
-							std::cout << "wow u r attacking so nice cool cool" << std::endl;
-
-							// Calculate knockback direction (from player to zombie)
-							Motion &zombie_motion = registry.motions.get(zombie);
-							Motion &player_motion = registry.motions.get(player);
-							vec2 direction = zombie_motion.position - player_motion.position;
-							float length = sqrt(dot(direction, direction));
-							if (length > 0)
-							{
-								direction = direction / length; // Normalize
-							}
-
-							// Apply knockback velocity immediately
-							float knockback_force = 1000.0f;
-							zombie_motion.velocity += direction * knockback_force;
-
-							// Add hit effect
-							HitEffect &hit = registry.hitEffects.emplace_with_duplicates(zombie);
-
-							if (zombie_comp.health <= 0)
-							{
-								// Add death animation before removing
-								Entity player = registry.players.entities[0];
-								Motion &player_motion = registry.motions.get(player);
-								vec2 slide_direction = {player_motion.scale.x > 0 ? 1.0f : -1.0f, 0.0f};
-
-								// Add death animation component
-								DeathAnimation &death_anim = registry.deathAnimations.emplace(zombie);
-								death_anim.slide_direction = slide_direction;
-								death_anim.alpha = 1.0f;
-								death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
-
-								// Enemy Count update:
-								std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
-
-								// Increase the experience of the player or reset the experience bar when it becomes full.
-								if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
-								{
-									registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
-								}
-								else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
-								{
-									registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
-								}
-							}
+							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
+						} else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0) {
+							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 						}
-						StateSystem::update_state(STATE::ATTACK);
 					}
 				}
-				StateSystem::update_state(STATE::ATTACK);
-				Cooldown &cooldown = registry.cooldowns.emplace(player);
-				cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
 			}
 		}
+		StateSystem::update_state(STATE::ATTACK);
+		Cooldown &cooldown = registry.cooldowns.emplace(player);
+		cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
 	}
 }
 
@@ -542,166 +515,157 @@ void WorldSystem::player_attack()
 
 	// float runningSoundTimer = 0.0;
 
-	// on key callback
 	void WorldSystem::on_key(int key, int, int action, int mod)
 	{
-
+	
 		// Player movement
 		Entity player = registry.players.entities[0];
 		Motion &motion = registry.motions.get(player);
-
+	
 		// exit game w/ ESC
 		if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE)
 		{
 			close_window();
 			return;
 		}
-
+	
 		// Resetting game
 		if (action == GLFW_RELEASE && key == GLFW_KEY_R)
 		{
 			int w, h;
 			glfwGetWindowSize(window, &w, &h);
-
+	
 			restart_game();
 			return;
 		}
-
-		if (!WorldSystem::game_is_over)
+	
+		// Manual wave generation with 'g'
+		if (action == GLFW_PRESS && key == GLFW_KEY_G)
 		{
-			// Manual wave generation with 'g'
-			if (action == GLFW_PRESS && key == GLFW_KEY_G)
+			spawn_manager.generate_wave(renderer);
+			return;
+		}
+	
+		if (action == GLFW_PRESS && key == GLFW_KEY_T)
+		{
+			test_mode = !test_mode;
+			spawn_manager.set_test_mode(test_mode);
+			std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
+			return;
+		}
+	  
+		// Calculate cell indices
+		int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
+		int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
+	
+		// Plant seed (for Milestone #2)
+		// if (action == GLFW_PRESS && key == GLFW_KEY_H)
+		// {
+		// 	// You can only plant where there is farmland.
+		// 	if (motion.position.x < (WINDOW_WIDTH_PX / 2 + FARMLAND_DIMENSION_PX / 2)
+		// 		&& motion.position.x > (WINDOW_WIDTH_PX / 2 - FARMLAND_DIMENSION_PX / 2)
+		// 		&& motion.position.y < (WINDOW_HEIGHT_PX / 2 + FARMLAND_DIMENSION_PX / 2)
+		// 		&& motion.position.y > (WINDOW_HEIGHT_PX / 2 - FARMLAND_DIMENSION_PX / 2)) {
+		// 			// Remove any seeds that have already been planted to begin with.
+		// 			for (Entity entity : registry.seeds.entities) {
+		// 				if (registry.motions.has(entity)) {
+		// 					if (registry.motions.get(entity).position == vec2((cell_x + 0.5) * GRID_CELL_WIDTH_PX, (cell_y + 0.5) * GRID_CELL_HEIGHT_PX)) {
+		// 						registry.motions.remove(entity);
+		// 						registry.seeds.remove(entity);
+		// 					}
+		// 				}
+		// 			}
+		// 			createSeed(vec2((cell_x + 0.5) * GRID_CELL_WIDTH_PX, (cell_y + 0.5) * GRID_CELL_HEIGHT_PX));
+		// 		}
+		// }
+		
+		if (action == GLFW_PRESS && key == GLFW_KEY_F)
+		{
+			// Calculate center position of the cell
+			vec2 cell_center = {
+				(cell_x * GRID_CELL_WIDTH_PX) + (GRID_CELL_WIDTH_PX / 2.0f),
+				(cell_y * GRID_CELL_HEIGHT_PX) + (GRID_CELL_HEIGHT_PX / 2.0f)};
+	
+			// Create tower at cell center
+			// Check if cell is already occupied by a tower
+			bool cell_occupied = false;
+			for (Entity tower : registry.towers.entities)
 			{
-				spawn_manager.generate_wave(renderer);
-				return;
-			}
-
-			if (action == GLFW_PRESS && key == GLFW_KEY_T)
-			{
-				test_mode = !test_mode;
-				spawn_manager.set_test_mode(test_mode);
-				std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
-				return;
-			}
-
-			// Calculate cell indices
-			int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
-			int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
-
-			// Plant seed (for Milestone #2)
-			// if (action == GLFW_PRESS && key == GLFW_KEY_H)
-			// {
-			// 	// You can only plant where there is farmland.
-			// 	if (motion.position.x < (WINDOW_WIDTH_PX / 2 + FARMLAND_DIMENSION_PX / 2)
-			// 		&& motion.position.x > (WINDOW_WIDTH_PX / 2 - FARMLAND_DIMENSION_PX / 2)
-			// 		&& motion.position.y < (WINDOW_HEIGHT_PX / 2 + FARMLAND_DIMENSION_PX / 2)
-			// 		&& motion.position.y > (WINDOW_HEIGHT_PX / 2 - FARMLAND_DIMENSION_PX / 2)) {
-			// 			// Remove any seeds that have already been planted to begin with.
-			// 			for (Entity entity : registry.seeds.entities) {
-			// 				if (registry.motions.has(entity)) {
-			// 					if (registry.motions.get(entity).position == vec2((cell_x + 0.5) * GRID_CELL_WIDTH_PX, (cell_y + 0.5) * GRID_CELL_HEIGHT_PX)) {
-			// 						registry.motions.remove(entity);
-			// 						registry.seeds.remove(entity);
-			// 					}
-			// 				}
-			// 			}
-			// 			createSeed(vec2((cell_x + 0.5) * GRID_CELL_WIDTH_PX, (cell_y + 0.5) * GRID_CELL_HEIGHT_PX));
-			// 		}
-			// }
-
-			if (action == GLFW_PRESS && key == GLFW_KEY_F)
-			{
-				// Calculate center position of the cell
-				vec2 cell_center = {
-					(cell_x * GRID_CELL_WIDTH_PX) + (GRID_CELL_WIDTH_PX / 2.0f),
-					(cell_y * GRID_CELL_HEIGHT_PX) + (GRID_CELL_HEIGHT_PX / 2.0f)};
-
-				// Create tower at cell center
-				// Check if cell is already occupied by a tower
-				bool cell_occupied = false;
-				for (Entity tower : registry.towers.entities)
+				if (!registry.motions.has(tower))
 				{
-					if (!registry.motions.has(tower))
-					{
-						continue;
-					}
-
-					Motion &tower_motion = registry.motions.get(tower);
-					int tower_cell_x = static_cast<int>(tower_motion.position.x) / GRID_CELL_WIDTH_PX;
-					int tower_cell_y = static_cast<int>(tower_motion.position.y) / GRID_CELL_HEIGHT_PX;
-
-					if (tower_cell_x == cell_x && tower_cell_y == cell_y)
-					{
-						cell_occupied = true;
-						std::cout << "Cell already occupied by a tower!" << std::endl;
-						break;
-					}
+					continue;
 				}
-
-				// Only create tower if cell is empty
-				if (!cell_occupied)
+	
+				Motion &tower_motion = registry.motions.get(tower);
+				int tower_cell_x = static_cast<int>(tower_motion.position.x) / GRID_CELL_WIDTH_PX;
+				int tower_cell_y = static_cast<int>(tower_motion.position.y) / GRID_CELL_HEIGHT_PX;
+	
+				if (tower_cell_x == cell_x && tower_cell_y == cell_y)
 				{
-					createTower(renderer, cell_center);
+					cell_occupied = true;
+					std::cout << "Cell already occupied by a tower!" << std::endl;
+					break;
 				}
 			}
-			// Move left
-			if (motion.position.x >= (PLAYER_WIDTH / 2) + SCORCHED_EARTH_BOUNDARY)
+	
+			// Only create tower if cell is empty
+			if (!cell_occupied)
 			{
-				if (action == GLFW_PRESS && key == GLFW_KEY_A)
-				{
-					motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
-				}
-				else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
-				{
-					motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
-				}
+				createTower(renderer, cell_center);
 			}
-			else if (motion.velocity.x < 0)
-				motion.velocity.x = 0;
-
-			// Move right
-			if (motion.position.x <= (WINDOW_WIDTH_PX - (PLAYER_WIDTH / 2) - SCORCHED_EARTH_BOUNDARY))
+		}
+		// Move left
+		if (motion.position.x >= (PLAYER_WIDTH / 2) + SCORCHED_EARTH_BOUNDARY)
+		{
+			if (action == GLFW_PRESS && key == GLFW_KEY_A)
 			{
-				if (action == GLFW_PRESS && key == GLFW_KEY_D)
-				{
-					motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
-				}
-				else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
-				{
-					motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
-				}
+				motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+			} else if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
+				motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+		}
+		}
+		else if (motion.velocity.x < 0)
+			motion.velocity.x = 0;
+	
+		// Move right
+		if (motion.position.x <= (WINDOW_WIDTH_PX - (PLAYER_WIDTH / 2) - SCORCHED_EARTH_BOUNDARY))
+		{
+			if (action == GLFW_PRESS && key == GLFW_KEY_D)
+			{
+				motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+			} else if (action == GLFW_RELEASE && key == GLFW_KEY_D) {
+				motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
 			}
-			else if (motion.velocity.x > 0)
-				motion.velocity.x = 0;
-
-			// Move down
-			if (motion.position.y <= (WINDOW_HEIGHT_PX - (PLAYER_HEIGHT / 2) - SCORCHED_EARTH_BOUNDARY))
+		}
+		else if (motion.velocity.x > 0)
+			motion.velocity.x = 0;
+	
+		// Move down
+		if (motion.position.y <= (WINDOW_HEIGHT_PX - (PLAYER_HEIGHT / 2) - SCORCHED_EARTH_BOUNDARY))
+		{
+			if (action == GLFW_PRESS && key == GLFW_KEY_S)
 			{
 				motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
-			}
-			else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
-			{
+			} else if (action == GLFW_RELEASE && key == GLFW_KEY_S) {
 				motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
-			}
+		}
 		}
 		else if (motion.velocity.y > 0)
 			motion.velocity.y = 0;
-
+	
 		// Move up
 		if (motion.position.y >= (PLAYER_HEIGHT / 2) + SCORCHED_EARTH_BOUNDARY)
 		{
 			if (action == GLFW_PRESS && key == GLFW_KEY_W)
 			{
 				motion.velocity.y += PLAYER_MOVE_UP_SPEED;
-			}
-			else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
-			{
+			} else if (action == GLFW_RELEASE && key == GLFW_KEY_W) {	
 				motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
-			}
+		}
 		}
 		else if (motion.velocity.y < 0)
 			motion.velocity.y = 0;
-
+	
 		// State
 		if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
 		{
@@ -709,39 +673,13 @@ void WorldSystem::player_attack()
 			{
 				StateSystem::update_state(STATE::IDLE);
 			}
-			else if (motion.velocity.y > 0)
-				motion.velocity.y = 0;
-
-			// Move up
-			if (motion.position.y >= (PLAYER_HEIGHT / 2) + SCORCHED_EARTH_BOUNDARY)
+			else
 			{
-				if (action == GLFW_PRESS && key == GLFW_KEY_W)
-				{
-					motion.velocity.y += PLAYER_MOVE_UP_SPEED;
-				}
-				else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
-				{
-					motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
-				}
-			}
-			else if (motion.velocity.y < 0)
-				motion.velocity.y = 0;
-
-			// State
-			if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
-			{
-				State &state = registry.states.get(player);
-				if (motion.velocity == vec2(0, 0))
-				{
-					StateSystem::update_state(STATE::IDLE);
-				}
-				else
-				{
-					StateSystem::update_state(STATE::MOVE);
-				}
+				StateSystem::update_state(STATE::MOVE);
 			}
 		}
 	}
+	
 
 	void WorldSystem::on_mouse_move(vec2 mouse_position)
 	{

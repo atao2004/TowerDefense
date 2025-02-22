@@ -68,14 +68,17 @@ int main()
 		t = now;
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
+		
 		world_system.step(elapsed_ms);
-		ai_system.step(elapsed_ms);
-		physics_system.step(elapsed_ms);
-		status_system.step(elapsed_ms);
-		world_system.handle_collisions();
+		if (!WorldSystem::game_is_over) {
+			ai_system.step(elapsed_ms);
+			physics_system.step(elapsed_ms);
+			status_system.step(elapsed_ms);
+			world_system.handle_collisions();
+			tower_system.step(elapsed_ms);
+		}
 		animation_system.step(elapsed_ms);
-		tower_system.step(elapsed_ms);
-
+		
 		renderer_system.draw();
 	}
 

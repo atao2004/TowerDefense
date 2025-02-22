@@ -18,8 +18,6 @@ StatusSystem::~StatusSystem()
 
 void StatusSystem::step(float elapsed_ms)
 {
-    if (!WorldSystem::game_over)
-    {
         // Handle different types of status effects
         for (Entity entity : registry.statuses.entities)
         {
@@ -35,7 +33,6 @@ void StatusSystem::step(float elapsed_ms)
 
         handle_cooldowns(elapsed_ms);
         handle_hit_effects(elapsed_ms);
-    }
 }
 
 void StatusSystem::handle_enemy_attack(Entity entity, float elapsed_ms)
