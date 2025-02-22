@@ -345,6 +345,7 @@ void RenderSystem::drawToScreen()
 		GLuint game_continues_uloc1 = glGetUniformLocation(vignette_program, "game_over");
 
 		GLint in_position_loc1 = glGetAttribLocation(vignette_program, "in_position");
+		// std::cout<<screen.lerp_timer/2000<<std::endl;
 		glUniform1f(time_uloc1, screen.lerp_timer);
 		glUniform1f(game_continues_uloc1, screen.game_over);
 		glEnableVertexAttribArray(in_position_loc1);

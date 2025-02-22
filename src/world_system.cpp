@@ -181,7 +181,6 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
-
 	// Using the spawn manager to generate zombies
 	if (WorldSystem::game_is_over)
 	{
@@ -191,9 +190,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		{
 			screen.lerp_timer += elapsed_ms_since_last_update;
 		} 
-		if (screen.lerp_timer >= 1)
+		if (screen.lerp_timer >= 1000)
 		{
-			screen.lerp_timer = 1;
+			screen.lerp_timer = 1000;
 		}
 	}
 

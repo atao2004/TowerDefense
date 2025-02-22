@@ -26,13 +26,9 @@ vec4 hp_exp_bars(vec4 in_color)
 // darken the screen, i.e., fade to black
 vec4 fade_color_lerp(vec4 in_color) 
 {
-	
 	//M1 interpolation implementation
-	//(1 - time) * vec4(0.1, 0.1, 0.1, 0) + vec4(0.5, 0.5, 0.5, 1) * time;
-	//in_color = mix(in_color, B, time);     
 	if (time > 0 && game_over)
-		in_color *= time/1000;
-		// in_color +=  (1 - time/2000) * vec4(0.0, 0.0, 0.0, 1.0) + vec4(0.5, 1,1, 0)*(time/8000); 
+		in_color -=  (1 - time/1000) * vec4(0.0, 0.0, 0.0, 1.0) + vec4(0, 1, 1, 0)*(time/1000);
 	return in_color;
 }
 
