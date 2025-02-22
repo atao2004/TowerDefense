@@ -26,6 +26,6 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos);
 
 // the player
 Entity createPlayer(RenderSystem* renderer, vec2 position);
-
+Entity createEffect(RenderSystem* renderer, vec2 position, vec2 scale);
 // create seed (for milestone #2)
 Entity createSeed(vec2 pos);

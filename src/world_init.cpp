@@ -1,6 +1,7 @@
 #include "world_init.hpp"
 #include "tinyECS/registry.hpp"
 #include <iostream>
+#include "animation_system.hpp"
 
 Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	Entity entity = Entity();
@@ -55,9 +56,7 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 	zombie.health = ZOMBIE_HEALTH;
 
 	Attack& attack = registry.attacks.emplace(entity);
-	attack.range = 30.0f;         
-
-	Animation& animation = registry.animations.emplace(entity);
+	attack.range = 30.0f;
 
 	// store a reference to the potentially re-used mesh object
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
@@ -77,6 +76,8 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
 	);
+
+	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_FRAME_DELAY, ZOMBIE_ANIMATION, sizeof(ZOMBIE_ANIMATION) / sizeof(ZOMBIE_ANIMATION[0]), true, false);
 
 	// Enemy Count update:
     std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
@@ -351,8 +352,6 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 		false
 	);
 
-	Animation& animation = registry.animations.emplace(entity);
-
 	//grey box
 	// vec3& cv = registry.colors.emplace(entity);
 	// cv.r = 0.5;
@@ -368,6 +367,30 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	// 		GEOMETRY_BUFFER_ID::SPRITE
 	// 	}
 	// );
+	return entity;
+}
+
+Entity createEffect(RenderSystem* renderer, vec2 position, vec2 scale) {
+	Entity entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = scale;
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::PLAYER_ATTACK_SLASH_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+
+	AnimationSystem::update_animation(entity, SLASH_FRAME_DELAY, SLASH_ANIMATION, sizeof(SLASH_ANIMATION) / sizeof(SLASH_ANIMATION[0]), false, false);
+
 	return entity;
 }
 

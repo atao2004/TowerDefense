@@ -26,7 +26,6 @@ int main()
 	RenderSystem  renderer_system;
 	PhysicsSystem physics_system;
 	StatusSystem  status_system;
-	StateSystem  state_system;
 	AnimationSystem animation_system;
 	TowerSystem tower_system;
 
@@ -74,7 +73,6 @@ int main()
 		physics_system.step(elapsed_ms);
 		status_system.step(elapsed_ms);
 		world_system.handle_collisions();
-		state_system.step(elapsed_ms);
 		animation_system.step(elapsed_ms);
 		tower_system.step(elapsed_ms);
 

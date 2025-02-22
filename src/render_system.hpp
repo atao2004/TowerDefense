@@ -43,6 +43,15 @@ class RenderSystem {
 		textures_path("map/cracked_dirt.png"),
 		textures_path("ui/toolbar.png"),
 		textures_path("ui/pause.png"),
+		textures_path("attacks/Slash3_color1_frame1.png"),
+		textures_path("attacks/Slash3_color1_frame2.png"),
+		textures_path("attacks/Slash3_color1_frame3.png"),
+		textures_path("attacks/Slash3_color1_frame4.png"),
+		textures_path("attacks/Slash3_color1_frame5.png"),
+		textures_path("attacks/Slash3_color1_frame6.png"),
+		textures_path("attacks/Slash3_color1_frame7.png"),
+		textures_path("attacks/Slash3_color1_frame8.png"),
+		textures_path("attacks/Slash3_color1_frame9.png")
 		textures_path("towers/gold_bubble.png")
 	};
 
