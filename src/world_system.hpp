@@ -78,7 +78,10 @@ private:
 	std::vector<Entity> grid_lines;
 
 	// music references
-	Mix_Music *background_music;
+	Mix_Music *current_bgm; //handle switching soundtrack
+	Mix_Music *night_bgm;
+	Mix_Music *day_bgm;
+	Mix_Music *combat_bgm;
 	Mix_Chunk *sword_attack_sound;
 	Mix_Chunk *running_on_grass_sound;
 
