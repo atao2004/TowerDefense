@@ -178,6 +178,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	}
 	spawn_manager.step(elapsed_ms_since_last_update, renderer);
 
+	// // Player movement (unchanged from good version)
+	// Entity player = registry.players.entities[0];
+	// Motion& motion = registry.motions.get(player);
+
+	// if (motion.position.y >= WINDOW_HEIGHT_PX - 100) {
+	// 	registry.toolbars.clear();
+	// 	createToolbar();
+	// }
+
 	update_enemy_death_animations(elapsed_ms_since_last_update);
 	update_movement_sound(elapsed_ms_since_last_update);
 
@@ -372,12 +381,14 @@ void WorldSystem::player_attack()
 
 						// Enemy Count update:
 						std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
-					}
-
-					// Increase the experience of the player.
-					if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage <= 1.0)
-					{
-						registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
+					
+						// Increase the experience of the player or reset the experience bar when it becomes full.
+						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
+						{
+							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
+						} else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0) {
+							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+						}
 					}
 				}
 			}
