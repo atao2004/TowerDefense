@@ -234,7 +234,7 @@ void WorldSystem::restart_game()
 		}
 	}
 	// This is for Milestone #2.
-	createFarmland(vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2));
+	// createFarmland(vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2));
 	
 	// create grid lines and clear any pre-existing grid lines
 	grid_lines.clear();
@@ -464,29 +464,29 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	Motion& motion = registry.motions.get(player);
 
 	// Plant seed (for Milestone #2)
-	if (action == GLFW_PRESS && key == GLFW_KEY_H)
-	{
-		// You can only plant where there is farmland.
-		if (motion.position.x < (WINDOW_WIDTH_PX / 2 + FARMLAND_DIMENSION_PX / 2)
-			&& motion.position.x > (WINDOW_WIDTH_PX / 2 - FARMLAND_DIMENSION_PX / 2)
-			&& motion.position.y < (WINDOW_HEIGHT_PX / 2 + FARMLAND_DIMENSION_PX / 2)
-			&& motion.position.y > (WINDOW_HEIGHT_PX / 2 - FARMLAND_DIMENSION_PX / 2)) {
-				// You can only plant within tiles.
-				int tile_x = (int)(motion.position.x / GRID_CELL_WIDTH_PX);
-				int tile_y = (int)(motion.position.y / GRID_CELL_HEIGHT_PX);
+	// if (action == GLFW_PRESS && key == GLFW_KEY_H)
+	// {
+	// 	// You can only plant where there is farmland.
+	// 	if (motion.position.x < (WINDOW_WIDTH_PX / 2 + FARMLAND_DIMENSION_PX / 2)
+	// 		&& motion.position.x > (WINDOW_WIDTH_PX / 2 - FARMLAND_DIMENSION_PX / 2)
+	// 		&& motion.position.y < (WINDOW_HEIGHT_PX / 2 + FARMLAND_DIMENSION_PX / 2)
+	// 		&& motion.position.y > (WINDOW_HEIGHT_PX / 2 - FARMLAND_DIMENSION_PX / 2)) {
+	// 			// You can only plant within tiles.
+	// 			int tile_x = (int)(motion.position.x / GRID_CELL_WIDTH_PX);
+	// 			int tile_y = (int)(motion.position.y / GRID_CELL_HEIGHT_PX);
 
-				// Remove any seeds that have already been planted to begin with.
-				for (Entity entity : registry.seeds.entities) {
-					if (registry.motions.has(entity)) {
-						if (registry.motions.get(entity).position == vec2((tile_x + 0.5) * GRID_CELL_WIDTH_PX, (tile_y + 0.5) * GRID_CELL_HEIGHT_PX)) {
-							registry.motions.remove(entity);
-							registry.seeds.remove(entity);
-						}
-					}
-				}
-				createSeed(vec2((tile_x + 0.5) * GRID_CELL_WIDTH_PX, (tile_y + 0.5) * GRID_CELL_HEIGHT_PX));
-			}
-	}
+	// 			// Remove any seeds that have already been planted to begin with.
+	// 			for (Entity entity : registry.seeds.entities) {
+	// 				if (registry.motions.has(entity)) {
+	// 					if (registry.motions.get(entity).position == vec2((tile_x + 0.5) * GRID_CELL_WIDTH_PX, (tile_y + 0.5) * GRID_CELL_HEIGHT_PX)) {
+	// 						registry.motions.remove(entity);
+	// 						registry.seeds.remove(entity);
+	// 					}
+	// 				}
+	// 			}
+	// 			createSeed(vec2((tile_x + 0.5) * GRID_CELL_WIDTH_PX, (tile_y + 0.5) * GRID_CELL_HEIGHT_PX));
+	// 		}
+	// }
 	
 	// Move left
 	if (motion.position.x >= (PLAYER_WIDTH / 2) + SCORCHED_EARTH_BOUNDARY) {
