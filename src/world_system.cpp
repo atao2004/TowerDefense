@@ -224,8 +224,8 @@ void WorldSystem::restart_game()
 			createGrass(vec2(x, y));
 		}
 	}
-	for (int x = -SCORCHED_EARTH_BOUNDARY; x < WINDOW_WIDTH_PX + DIRT_DIMENSION_PX * 1.5; x += DIRT_DIMENSION_PX) {
-		for (int y = -SCORCHED_EARTH_BOUNDARY; y < WINDOW_HEIGHT_PX + DIRT_DIMENSION_PX * 1.5; y += DIRT_DIMENSION_PX) {
+	for (int x = -SCORCHED_EARTH_BOUNDARY; x < WINDOW_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 1.5; x += SCORCHED_EARTH_DIMENSION_PX) {
+		for (int y = -SCORCHED_EARTH_BOUNDARY; y < WINDOW_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 1.5; y += SCORCHED_EARTH_DIMENSION_PX) {
 			if (x < SCORCHED_EARTH_BOUNDARY || (y < SCORCHED_EARTH_BOUNDARY)) {
 				createScorchedEarth(vec2(x, y));
 			} else if (x > WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY || y > WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY) {
@@ -233,6 +233,8 @@ void WorldSystem::restart_game()
 			}
 		}
 	}
+	// This is for Milestone #2.
+	createFarmland(vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2));
 	
 	// create grid lines and clear any pre-existing grid lines
 	grid_lines.clear();
@@ -464,7 +466,26 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// Plant seed (for Milestone #2)
 	if (action == GLFW_PRESS && key == GLFW_KEY_H)
 	{
-		createSeed(vec2(motion.position.x, motion.position.y));
+		// You can only plant where there is farmland.
+		if (motion.position.x < (WINDOW_WIDTH_PX / 2 + FARMLAND_DIMENSION_PX / 2)
+			&& motion.position.x > (WINDOW_WIDTH_PX / 2 - FARMLAND_DIMENSION_PX / 2)
+			&& motion.position.y < (WINDOW_HEIGHT_PX / 2 + FARMLAND_DIMENSION_PX / 2)
+			&& motion.position.y > (WINDOW_HEIGHT_PX / 2 - FARMLAND_DIMENSION_PX / 2)) {
+				// You can only plant within tiles.
+				int tile_x = (int)(motion.position.x / GRID_CELL_WIDTH_PX);
+				int tile_y = (int)(motion.position.y / GRID_CELL_HEIGHT_PX);
+
+				// Remove any seeds that have already been planted to begin with.
+				for (Entity entity : registry.seeds.entities) {
+					if (registry.motions.has(entity)) {
+						if (registry.motions.get(entity).position == vec2((tile_x + 0.5) * GRID_CELL_WIDTH_PX, (tile_y + 0.5) * GRID_CELL_HEIGHT_PX)) {
+							registry.motions.remove(entity);
+							registry.seeds.remove(entity);
+						}
+					}
+				}
+				createSeed(vec2((tile_x + 0.5) * GRID_CELL_WIDTH_PX, (tile_y + 0.5) * GRID_CELL_HEIGHT_PX));
+			}
 	}
 	
 	// Move left

@@ -114,6 +114,11 @@ struct Grass {
 
 };
 
+// This is for Milestone #2.
+struct Farmland {
+
+};
+
 struct ScorchedEarth {
 	
 };

@@ -20,6 +20,7 @@ public:
 	ComponentContainer<Tower> towers;
 	ComponentContainer<GridLine> gridLines;
 	ComponentContainer<Grass> grasses;
+	ComponentContainer<Farmland> farmlands;
 	ComponentContainer<ScorchedEarth> scorchedEarths;
 	ComponentContainer<Toolbar> toolbars;
 	ComponentContainer<Pause> pauses;

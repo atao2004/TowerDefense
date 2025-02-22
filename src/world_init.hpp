@@ -13,6 +13,7 @@ void removeTower(vec2 position);
 
 // texture elements
 Entity createGrass(vec2 position);
+Entity createFarmland(vec2 position);
 Entity createScorchedEarth(vec2 position);
 void removeSurfaces();
 

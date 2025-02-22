@@ -40,6 +40,7 @@ class RenderSystem {
 		textures_path("player/action2_weapon.png"),
 		textures_path("map/grass.png"),
 		textures_path("map/dirt.png"),
+		textures_path("map/cracked_dirt.png"),
 		textures_path("ui/toolbar.png"),
 		textures_path("ui/pause.png")
 	};
