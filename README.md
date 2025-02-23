@@ -64,5 +64,7 @@ Comments to TA about your implementation (optional):
 - Dirt texture by Lamoot (scorched earth) sourced from https://opengameart.org/node/7805
 - Seeds sourced from _'Crops'_ by SnoopethDuckDuck: https://snoopethduckduck.itch.io/crops
 - https://pixabay.com/sound-effects/
+- combat/night bgms from https://www.gamedevmarket.net/asset/celtic-countryside-music
+- game_over sound effect from https://pixabay.com/sound-effects/search/game-over/
 
 [comment]: <> (* **Scoring System**: Players earn points for killing zombies, which are displayed on the scoreboard.)
