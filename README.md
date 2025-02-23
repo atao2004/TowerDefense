@@ -19,9 +19,22 @@ Comments to TA about your implementation (optional):
 
 - This is a 2D survival game where players control a farmer while fending off endless waves of zombies.
 
-**Feature**
+**Citation**
 
-## M1 stage:
+- Grass texture by p0ss sourced from https://opengameart.org/node/9692
+- Dirt texture by p0ss (farmland) sourced from https://opengameart.org/node/9021
+- Dirt texture by Lamoot (scorched earth) sourced from https://opengameart.org/node/7805
+- Seeds sourced from _'Crops'_ by SnoopethDuckDuck: https://snoopethduckduck.itch.io/crops
+- https://pixabay.com/sound-effects/
+- combat/night bgms from https://www.gamedevmarket.net/asset/celtic-countryside-music
+- game_over sound effect from https://pixabay.com/sound-effects/search/game-over/
+- attack effect from https://frostwindz.itch.io/pixel-art-slashes
+- zombie and player characters from https://kenney.nl/assets/platformer-characters
+- gameover png https://stock.adobe.com/search?k=%22game+over%22&asset_id=244026851
+
+[comment]: <> (* **Scoring System**: Players earn points for killing zombies, which are displayed on the scoreboard.)
+
+## M1 Features:
 
 * **Player Movement**: Players can move within a defined game space (lawn area) using "WASD" keys(well-defined game-space boundaries).
 
@@ -50,24 +63,3 @@ Comments to TA about your implementation (optional):
 * **User Interface**: The UI displays player health, experience points, inventory, and a pause button.
 
 * **Console Counter**: The counter counts the number of alive zombies left in the game and the number of zombies you killed in this round and prints it on console.
-
-
-
-**Setup**
-
-- []
-
-**Citation**
-
-- Grass texture by p0ss sourced from https://opengameart.org/node/9692
-- Dirt texture by p0ss (farmland) sourced from https://opengameart.org/node/9021
-- Dirt texture by Lamoot (scorched earth) sourced from https://opengameart.org/node/7805
-- Seeds sourced from _'Crops'_ by SnoopethDuckDuck: https://snoopethduckduck.itch.io/crops
-- https://pixabay.com/sound-effects/
-- combat/night bgms from https://www.gamedevmarket.net/asset/celtic-countryside-music
-- game_over sound effect from https://pixabay.com/sound-effects/search/game-over/
-- attack effect from https://frostwindz.itch.io/pixel-art-slashes
-- zombie and player characters from https://kenney.nl/assets/platformer-characters
-- gameover png https://stock.adobe.com/search?k=%22game+over%22&asset_id=244026851
-
-[comment]: <> (* **Scoring System**: Players earn points for killing zombies, which are displayed on the scoreboard.)
