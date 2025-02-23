@@ -1,6 +1,3 @@
-Comments to TA about your implementation (optional):
-- Examples: known bugs or incomplete implementation
-
 # CPSC 427 Farmer-Defense - The Last Days
 
 **Group**
@@ -33,6 +30,14 @@ Comments to TA about your implementation (optional):
 - gameover png https://stock.adobe.com/search?k=%22game+over%22&asset_id=244026851
 
 [comment]: <> (* **Scoring System**: Players earn points for killing zombies, which are displayed on the scoreboard.)
+
+## Controls:
+
+- **WASD** – Move the player  
+- **Left Click** – Attack  
+- **G** – Spawn enemy  
+- **R** – Restart game  
+- **ESC** – Close game 
 
 ## M1 Features:
 
