@@ -434,9 +434,6 @@ void WorldSystem::player_attack()
 						death_anim.alpha = 1.0f;
 						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
 
-						// Kung: Upon killing a zombie, update the enemy count and print it to the console.
-						std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
-
 						// Kung: Upon killing a zombie, increase the experience of the player or reset the experience bar when it becomes full.
 						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 						{
@@ -485,6 +482,9 @@ void WorldSystem::update_enemy_death_animations(float elapsed_ms)
 		if (death_anim.duration_ms <= 0)
 		{
 			registry.remove_all_components_of(entity);
+
+			// Kung: Upon killing a zombie, update the enemy count and print it to the console.
+			std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 		}
 	}
 }
