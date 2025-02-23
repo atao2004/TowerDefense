@@ -45,7 +45,7 @@ Comments to TA about your implementation (optional):
 
 * **Hit Effects**: Both players and zombies have special effects when taking damage.
 
-* **Audio Features**: The game includes background music and sound effects for player movement, player attacks, player damage, and enemy damage.
+* **Audio Features**: The game includes background music and sound effects for player movement, player attacks, player damage, and enemy damage. Background music will switch between 2 soundtracks when player is in combat and out of combat.
 
 * **User Interface**: The UI displays player health, experience points, inventory, and a pause button.
 
