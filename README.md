@@ -41,33 +41,35 @@
 
 ## M1 Features:
 
-* **Player Movement**: Players can move within a defined game space (lawn area) using "WASD" keys(well-defined game-space boundaries).
+**All**
 
-* **Combat System**: Players can attack by clicking the left mouse button, featuring simple collision detection & resolution.
+- **Player Movement**: Player can move within a defined game space (lawn area) using "WASD" keys (well-defined game-space boundaries).
 
-* **Game Controls**: Players can restart the game by pressing "R" and exit the game by pressing "Esc".
+- **Combat System**: Players can attack by clicking the left mouse button, featuring simple collision detection & resolution.
 
-* **Enemy System**: Zombies spawn in waves and continuously chase (Basic 2D transformations) and attack the player (Random/coded action).
+- **Game Controls**: Players can restart the game by pressing "R" and exit the game by pressing "Esc".
 
-* **Manual Wave Spawn**: Players can manually trigger zombie waves by pressing "G".
+- **Enemy System**: Zombies spawn in waves and continuously chase (Basic 2D transformations) and attack the player (Random/coded action).
 
-* **Experience System**: Players gain experience from killing zombies, which are displayed with an experience bar.
+- **Manual Wave Spawn**: Players can manually trigger zombie waves by pressing "G".
 
-* **Health System**: When the player is attacked, they will lose a certain amount of health. If their health reaches zero, they will be eliminated. This is displayed with an health bar.
+- **Experience System**: Players gain experience from killing zombies, which are displayed with an experience bar.
 
-* **Game Progression**: Players can continue playing until they want to end or are eliminated.
+- **Health System**: When the player is attacked, they will lose a certain amount of health. If their health reaches zero, they will be eliminated. This is displayed with a health bar.
 
-* **Game Over State**: Upon player death, a "Game Over" screen appears and all entities in the game freeze. This uses linear interpolation, implemented in the vignette.fs.glsl file
+- **Game Progression**: Players can continue playing until they want to end or are eliminated.
 
-* **Visual Assets**: Both players and zombies feature unique textures and animations.
+- **Game Over State**: Upon player death, a "Game Over" screen appears and all entities in the game freeze.
 
-* **Hit Effects**: Both players and zombies have special effects when taking damage.
+- **Visual Assets**: Both players and zombies feature unique textures and animations.
 
-* **Audio Features**: The game includes background music and sound effects for player movement, player attacks, player damage, and enemy damage. Background music will switch between 2 soundtracks when player is in combat and out of combat.
+- **Hit Effects**: Both players and zombies have special effects when taking damage.
 
-* **User Interface**: The UI displays player health, experience points, inventory, and a pause button.
+- **Audio Features**: The game includes background music and sound effects for player movement, player attacks, player damage, and enemy damage. Background music will switch between 2 soundtracks when player is in combat and out of combat.
 
-* **Console Counter**: The counter counts the number of alive zombies left in the game and the number of zombies you killed in this round and prints it on console.
+- **User Interface**: The UI displays player health, experience points, inventory, and a pause button.
+
+- **Console Counter**: The counter counts the number of alive zombies left in the game and the number of zombies you killed in this round and prints it on console.
 
 **Required [3] Rendering: Key-frame/state interpolation**
 
