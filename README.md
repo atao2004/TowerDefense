@@ -39,7 +39,7 @@ Comments to TA about your implementation (optional):
 
 * **Game Progression**: Players can continue playing until they want to end or are eliminated.
 
-* **Game Over State**: Upon player death, a "Game Over" screen appears and all entities in the game freeze.
+* **Game Over State**: Upon player death, a "Game Over" screen appears and all entities in the game freeze. This uses linear interpolation, implemented in the vignette.fs.glsl file
 
 * **Visual Assets**: Both players and zombies feature unique textures and animations.
 
