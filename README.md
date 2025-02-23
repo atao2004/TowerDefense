@@ -68,3 +68,17 @@
 * **User Interface**: The UI displays player health, experience points, inventory, and a pause button.
 
 * **Console Counter**: The counter counts the number of alive zombies left in the game and the number of zombies you killed in this round and prints it on console.
+
+**Required [3] Rendering: Key-frame/state interpolation**
+
+- The game over screen fades out to black. This uses linear interpolation implemented in vignette.fs.glsl.
+
+**Creative [1] Graphics: Simple rendering effects**
+
+- The player when taking damage flashes red.
+- The enemy when taking damage flashes white.
+- The enemy when killed is knocked back while fading out.
+
+**Creative [23] User Interface: Audio feedback**
+- There are two background tracks depending on whether the player is in combat (there is at least 1 zombie).
+- There are sound effects for player attacks, player taking damage, and enemies taking damage.
