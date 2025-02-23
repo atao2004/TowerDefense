@@ -721,6 +721,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			}
 		}
 	}
+
+	// Debug
+	if (action == GLFW_PRESS && key == GLFW_KEY_L)
+	{
+		registry.list_all_components();
+	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
