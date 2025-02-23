@@ -396,7 +396,10 @@ void WorldSystem::player_attack()
 		weapon_motion.angle = less_f_ugly.angle;
 		weapon_motion.velocity = less_f_ugly.velocity;
 		weapon_motion.scale = less_f_ugly.scale;
+
+		// Slash Animation
 		createEffect(renderer, weapon_motion.position, weapon_motion.scale);
+
 		for (int i = 0; i < registry.zombies.size(); i++)
 		{
 			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
@@ -455,7 +458,10 @@ void WorldSystem::player_attack()
 				}
 			}
 		}
+		// Player State
 		StateSystem::update_state(STATE::ATTACK);
+
+		// Cooldown
 		Cooldown &cooldown = registry.cooldowns.emplace(player);
 		cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
 	}
@@ -675,7 +681,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	else if (motion.velocity.y < 0)
 		motion.velocity.y = 0;
 
-	// State
+	// Player State
 	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
 	{
 		if (motion.velocity == vec2(0, 0))
