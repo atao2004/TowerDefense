@@ -66,5 +66,7 @@ Comments to TA about your implementation (optional):
 - https://pixabay.com/sound-effects/
 - combat/night bgms from https://www.gamedevmarket.net/asset/celtic-countryside-music
 - game_over sound effect from https://pixabay.com/sound-effects/search/game-over/
+- attack effect from https://frostwindz.itch.io/pixel-art-slashes
+- zombie and player characters from https://kenney.nl/assets/platformer-characters
 
 [comment]: <> (* **Scoring System**: Players earn points for killing zombies, which are displayed on the scoreboard.)
