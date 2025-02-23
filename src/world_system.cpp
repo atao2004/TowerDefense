@@ -587,6 +587,29 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			StateSystem::update_state(STATE::MOVE);
 		}
 	}
+
+	if ((action == GLFW_PRESS || action == GLFW_REPEAT) &&
+		(key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D))
+	{
+		if (!is_movement_sound_playing && movement_sound_timer <= 0)
+		{
+			Mix_PlayChannel(0, running_on_grass_sound, 0);
+			is_movement_sound_playing = true;
+			movement_sound_timer = 1000.f;
+		}
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		if (motion.velocity.x == 0 && motion.velocity.y == 0)
+		{
+			if (is_movement_sound_playing)
+			{
+				Mix_HaltChannel(0);
+				is_movement_sound_playing = false;
+				movement_sound_timer = 0.f;
+			}
+		}
+	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
