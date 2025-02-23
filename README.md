@@ -68,5 +68,6 @@ Comments to TA about your implementation (optional):
 - game_over sound effect from https://pixabay.com/sound-effects/search/game-over/
 - attack effect from https://frostwindz.itch.io/pixel-art-slashes
 - zombie and player characters from https://kenney.nl/assets/platformer-characters
+- gameover png https://stock.adobe.com/search?k=%22game+over%22&asset_id=244026851
 
 [comment]: <> (* **Scoring System**: Players earn points for killing zombies, which are displayed on the scoreboard.)
