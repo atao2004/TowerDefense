@@ -18,21 +18,21 @@ StatusSystem::~StatusSystem()
 
 void StatusSystem::step(float elapsed_ms)
 {
-    // Handle different types of status effects
-    for (Entity entity : registry.statuses.entities)
-    {
-        handle_enemy_attack(entity, elapsed_ms);
-        handle_projectile_attack(entity, elapsed_ms);
-    }
+        // Handle different types of status effects
+        for (Entity entity : registry.statuses.entities)
+        {
+            handle_enemy_attack(entity, elapsed_ms);
+            handle_projectile_attack(entity, elapsed_ms);
+        }
 
-    // Clean up expired statuses after all processing
-    for (auto entity : registry.statuses.entities)
-    {
-        remove_expired_statuses(entity);
-    }
+        // Clean up expired statuses after all processing
+        for (auto entity : registry.statuses.entities)
+        {
+            remove_expired_statuses(entity);
+        }
 
-    handle_cooldowns(elapsed_ms);
-    handle_hit_effects(elapsed_ms);
+        handle_cooldowns(elapsed_ms);
+        handle_hit_effects(elapsed_ms);
 }
 
 void StatusSystem::handle_enemy_attack(Entity entity, float elapsed_ms)
@@ -169,6 +169,7 @@ void StatusSystem::handle_projectile_attack(Entity entity, float elapsed_ms)
 {
     // Check if entity has necessary components
     if (!registry.statuses.has(entity) || !registry.zombies.has(entity))
+   
     {
         return;
     }
@@ -178,8 +179,10 @@ void StatusSystem::handle_projectile_attack(Entity entity, float elapsed_ms)
 
     // Process each status
     for (auto it = status_comp.active_statuses.begin(); it != status_comp.active_statuses.end();)
+   
     {
         if (it->type == "attack")
+       
         {
             // Apply projectile damage
             zombie.health -= it->value;

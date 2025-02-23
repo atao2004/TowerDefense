@@ -6,6 +6,7 @@
 // internal
 #include "render_system.hpp"
 #include "tinyECS/registry.hpp"
+#include "world_system.hpp"
 
 void RenderSystem::drawGridLine(Entity entity,
 								const mat3 &projection)
@@ -291,11 +292,6 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 // then draw the intermediate texture
 void RenderSystem::drawToScreen()
 {
-	// Setting shaders
-	// get the UI texture, sprite mesh, and program
-	glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::UI]);
-	gl_has_errors();
-
 	// Clearing backbuffer
 	int w, h;
 	glfwGetFramebufferSize(window, &w, &h); // Note, this will be 2x the resolution given to glfwCreateWindow on retina displays
@@ -318,28 +314,18 @@ void RenderSystem::drawToScreen()
 		index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]); // Note, GL_ELEMENT_ARRAY_BUFFER associates
 																	 // indices to the bound GL_ARRAY_BUFFER
 	gl_has_errors();
-
-	// add the "UI" effect
-	const GLuint ui_program = effects[(GLuint)EFFECT_ASSET_ID::UI];
-
-	// set clock
-	GLuint time_uloc = glGetUniformLocation(ui_program, "time");
-	GLuint dead_timer_uloc = glGetUniformLocation(ui_program, "darken_screen_factor");
-	GLuint hp_uloc = glGetUniformLocation(ui_program, "hp_percentage");
-	GLuint exp_uloc = glGetUniformLocation(ui_program, "exp_percentage");
-
-		// set clock
-	GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
-	GLuint game_over_darken_uloc = glGetUniformLocation(ui_program, "game_over_darken");
 	
 	ScreenState &screen = registry.screenStates.get(screen_state_entity);
-	glUniform1f(time_uloc, screen.lerp_timer);
+	if (!WorldSystem::game_is_over) {
+	// add the "UI" effect
+	const GLuint ui_program = effects[(GLuint)EFFECT_ASSET_ID::UI];
+	glUseProgram(ui_program);
+	// set clock
+	GLuint hp_uloc = glGetUniformLocation(ui_program, "hp_percentage");
+	GLuint exp_uloc = glGetUniformLocation(ui_program, "exp_percentage");
+	GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
+	
 	glUniform1f(game_continues_uloc, screen.game_over);
-	glUniform1f(game_over_darken_uloc, screen.game_over_darken);
-
-
-	// std::cout << "screen.darken_screen_factor: " << screen.darken_screen_factor << " entity id: " << screen_state_entity << std::endl;
-	glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
 	glUniform1f(hp_uloc, screen.hp_percentage);
 	glUniform1f(exp_uloc, screen.exp_percentage);
 	gl_has_errors();
@@ -350,10 +336,26 @@ void RenderSystem::drawToScreen()
 	glEnableVertexAttribArray(in_position_loc);
 	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
 	gl_has_errors();
+	} else {
+	// add the "gameover" effect
+		const GLuint vignette_program = effects[(GLuint)EFFECT_ASSET_ID::VIGNETTE];
+		glUseProgram(vignette_program);
+		GLuint time_uloc1 = glGetUniformLocation(vignette_program, "time");
+		GLuint dead_timer_uloc1 = glGetUniformLocation(vignette_program, "darken_screen_factor");
+		GLuint game_continues_uloc1 = glGetUniformLocation(vignette_program, "game_over");
+
+		GLint in_position_loc1 = glGetAttribLocation(vignette_program, "in_position");
+		// std::cout<<screen.lerp_timer/2000<<std::endl;
+		glUniform1f(time_uloc1, screen.lerp_timer);
+		glUniform1f(game_continues_uloc1, screen.game_over);
+		glEnableVertexAttribArray(in_position_loc1);
+		glVertexAttribPointer(in_position_loc1, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
+		gl_has_errors();
+	}
+
 
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
-
 	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
 	gl_has_errors();
 

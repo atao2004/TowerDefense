@@ -81,6 +81,11 @@ struct Projectile {
     float speed = 200.f; // Projectile speed
 };
 
+// For Milestone #2.
+struct Seed {
+	int type; // Maybe make it a string?
+};
+
 enum class STATE
 {
 	IDLE = 0,
@@ -97,6 +102,11 @@ struct Animation
 {
 	float timer_ms = 0;
 	int pose = 0;
+	int transition_ms;
+	int pose_count;
+	const TEXTURE_ASSET_ID* textures;
+	bool loop = true;
+	bool lock = false;
 };
 
 // Tower
@@ -120,8 +130,13 @@ struct Grass
 {
 };
 
-struct ScorchedEarth
-{
+// This is for Milestone #2.
+struct Farmland {
+
+};
+
+struct ScorchedEarth {
+	
 };
 
 struct Toolbar

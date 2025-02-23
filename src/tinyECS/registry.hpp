@@ -21,6 +21,7 @@ public:
 	ComponentContainer<Tower> towers;
 	ComponentContainer<GridLine> gridLines;
 	ComponentContainer<Grass> grasses;
+	ComponentContainer<Farmland> farmlands;
 	ComponentContainer<ScorchedEarth> scorchedEarths;
 	ComponentContainer<Toolbar> toolbars;
 	ComponentContainer<Pause> pauses;
@@ -30,6 +31,7 @@ public:
 	ComponentContainer<StatusComponent> statuses;
 	ComponentContainer<State> states;
 	ComponentContainer<Animation> animations;
+	ComponentContainer<Seed> seeds;
 
 	ComponentContainer<Death> deaths;
 	ComponentContainer<Cooldown> cooldowns;

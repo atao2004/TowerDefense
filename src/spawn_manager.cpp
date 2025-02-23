@@ -36,18 +36,20 @@ void SpawnManager::initialize_spawn_points()
     spawn_points.push_back({{OFFSET, WINDOW_HEIGHT_PX * 0.75f}, true});
 }
 
-
 void SpawnManager::step(float elapsed_ms, RenderSystem *renderer)
 {
+
     if (!is_game_started)
     {
         std::cout << "Game not started yet, skipping wave generation" << std::endl;
         return;
     }
 
-    if (!test_mode) {
+    if (!test_mode)
+    {
         wave_timer_ms += elapsed_ms;
-        if (wave_timer_ms >= next_wave_ms) {
+        if (wave_timer_ms >= next_wave_ms)
+        {
             generate_wave(renderer);
             wave_timer_ms = 0.f;
             next_wave_ms = WAVE_INTERVAL_MS;
@@ -55,18 +57,20 @@ void SpawnManager::step(float elapsed_ms, RenderSystem *renderer)
     }
 }
 
-void SpawnManager::generate_wave(RenderSystem* renderer) {
+void SpawnManager::generate_wave(RenderSystem *renderer)
+{
     current_wave++;
     std::cout << "=== Wave " << current_wave << " Starting ===" << std::endl;
-    
+
     // Spawn zombies at random points until we reach the target number
-    for (int i = 0; i < zombies_per_wave; i++) {
+    for (int i = 0; i < zombies_per_wave; i++)
+    {
         // Get a random spawn point index
         int random_point = (int)(uniform_dist(rng) * spawn_points.size());
         vec2 spawn_pos = spawn_points[random_point].position;
         createZombie(renderer, spawn_pos);
     }
-    
+
     zombies_per_wave = (int)(zombies_per_wave * WAVE_SCALING_FACTOR);
     std::cout << "Next wave will have " << zombies_per_wave << " zombies" << std::endl;
 }
@@ -81,13 +85,15 @@ void SpawnManager::reset()
     is_game_started = false;
 }
 
-void SpawnManager::start_game() {
+void SpawnManager::start_game()
+{
     std::cout << "SpawnManager: Game started!" << std::endl;
     is_game_started = true;
     wave_timer_ms = 0.f;
 }
 
-void SpawnManager::set_test_mode(bool enabled) {
+void SpawnManager::set_test_mode(bool enabled)
+{
     test_mode = enabled;
     std::cout << "Test mode " << (enabled ? "enabled" : "disabled") << std::endl;
 }

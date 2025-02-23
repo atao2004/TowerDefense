@@ -6,6 +6,7 @@
 #include <cassert>
 #include <sstream>
 #include <iostream>
+#include <thread>
 
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
@@ -17,8 +18,8 @@
 
 // FT_Library library;
 
-// Game constants
 bool WorldSystem::game_is_over = false;
+Mix_Chunk *WorldSystem::game_over_sound = nullptr;
 
 // create the world
 WorldSystem::WorldSystem() : points(0)
@@ -28,8 +29,12 @@ WorldSystem::WorldSystem() : points(0)
 WorldSystem::~WorldSystem()
 {
 	// Destroy music components
-	if (background_music != nullptr)
-		Mix_FreeMusic(background_music);
+	if (night_bgm != nullptr)
+		Mix_FreeMusic(night_bgm);
+	if (day_bgm != nullptr)
+		Mix_FreeMusic(day_bgm);
+	if (combat_bgm != nullptr)
+		Mix_FreeMusic(combat_bgm);
 	if (sword_attack_sound != nullptr)
 		Mix_FreeChunk(sword_attack_sound);
 	if (running_on_grass_sound != nullptr)
@@ -80,8 +85,11 @@ GLFWwindow *WorldSystem::create_window()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+
 #if __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	WINDOW_HEIGHT_PX = WINDOW_HEIGHT_PX * 2 / 3;
+	WINDOW_WIDTH_PX = WINDOW_WIDTH_PX * 2 / 3;
 #endif
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	// CK: setting GLFW_SCALE_TO_MONITOR to true will rescale window but then you must handle different scalings
@@ -131,16 +139,22 @@ bool WorldSystem::start_and_load_sounds()
 		return false;
 	}
 
-	background_music = Mix_LoadMUS(audio_path("music.wav").c_str());
+	night_bgm = Mix_LoadMUS(audio_path("night_bgm.wav").c_str());
+	day_bgm = Mix_LoadMUS(audio_path("day_bgm.wav").c_str());
+	combat_bgm = Mix_LoadMUS(audio_path("combat_bgm.wav").c_str());
 	sword_attack_sound = Mix_LoadWAV(audio_path("sword_attack_sound.wav").c_str());
 	running_on_grass_sound = Mix_LoadWAV(audio_path("running_on_grass.wav").c_str());
+	WorldSystem::game_over_sound = Mix_LoadWAV(audio_path("game_over.wav").c_str());
 
-	if (background_music == nullptr || sword_attack_sound == nullptr || running_on_grass_sound == nullptr)
+	if (night_bgm == nullptr || day_bgm == nullptr || combat_bgm == nullptr || sword_attack_sound == nullptr || running_on_grass_sound == nullptr || game_over_sound == nullptr)
 	{
 		fprintf(stderr, "Failed to load sounds\n %s\n make sure the data directory is present",
-				audio_path("music.wav").c_str(),
+				audio_path("night_bgm.wav").c_str(),
+				audio_path("day_bgm.wav").c_str(),
+				audio_path("combat_bgm.wav").c_str(),
 				audio_path("sword_attack_sound.wav").c_str(),
-				audio_path("running_on_grass.wav").c_str());
+				audio_path("running_on_grass.wav").c_str(),
+				audio_path("game_over.mp3").c_str());
 		return false;
 	}
 
@@ -154,8 +168,15 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 
 	// start playing background music indefinitely
 	std::cout << "Starting music..." << std::endl;
-	Mix_PlayMusic(background_music, -1);
 
+	current_bgm = night_bgm;
+	// smooth fade in, thread to prevent blocking
+	std::thread music_thread([this]()
+							 { Mix_FadeInMusic(night_bgm, -1, 1000); });
+	music_thread.detach(); // Let it run independently
+
+	// set volume to 35%, max value is 128
+	Mix_VolumeMusic(128 * 0.35);
 	// Set all states to default
 	restart_game();
 }
@@ -163,25 +184,59 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
-
 	// Using the spawn manager to generate zombies
 	if (WorldSystem::game_is_over)
 	{
 		assert(registry.screenStates.components.size() <= 1);
 		ScreenState &screen = registry.screenStates.components[0];
-		// if (screen.game_over)
-		// {
-		// 	screen.lerp_timer += elapsed_ms_since_last_update;
-		// }
-		// if(screen.lerp_timer == 1) {
-		// 	screen.lerp_timer = 1;
-		// }
+		if (screen.game_over)
+		{
+			screen.lerp_timer += elapsed_ms_since_last_update;
+		}
+		if (screen.lerp_timer >= 10000)
+		{
+			screen.lerp_timer = 10000;
+		}
 	}
-	spawn_manager.step(elapsed_ms_since_last_update, renderer);
 
-	update_enemy_death_animations(elapsed_ms_since_last_update);
-	update_movement_sound(elapsed_ms_since_last_update);
-	update_screen_shake(elapsed_ms_since_last_update);
+	if (registry.zombies.size() == 0 && current_bgm != night_bgm)
+	{
+		current_bgm = night_bgm;
+		std::thread music_thread([this]()
+								 {
+			// Mix_FadeOutMusic(1000);
+			Mix_HaltMusic();
+			Mix_FadeInMusic(night_bgm, -1, 1000); });
+		music_thread.detach();
+	}
+	else if (registry.zombies.size() > 0 && current_bgm != combat_bgm)
+	{
+		current_bgm = combat_bgm;
+		std::thread music_thread([this]()
+								 {
+			// Mix_FadeOutMusic(1000);
+			Mix_HaltMusic();
+			Mix_FadeInMusic(combat_bgm, -1, 1000); });
+		music_thread.detach();
+	}
+	// // Player movement (unchanged from good version)
+	// Entity player = registry.players.entities[0];
+	// Motion& motion = registry.motions.get(player);
+
+	// if (motion.position.y >= WINDOW_HEIGHT_PX - 100) {
+	// 	registry.toolbars.clear();
+	// 	createToolbar();
+	// }
+
+	if (!WorldSystem::game_is_over)
+	{
+		spawn_manager.step(elapsed_ms_since_last_update, renderer);
+
+		update_enemy_death_animations(elapsed_ms_since_last_update);
+		update_movement_sound(elapsed_ms_since_last_update);
+		update_screen_shake(elapsed_ms_since_last_update);
+		return true;
+	}
 
 	return true;
 }
@@ -199,6 +254,9 @@ void WorldSystem::restart_game()
 
 	// Reset the spawn manager
 	spawn_manager.reset();
+
+	// Clear the RenderRequests
+	registry.renderRequests.clear();
 
 	// Reset the game speed
 	current_speed = 1.f;
@@ -225,9 +283,9 @@ void WorldSystem::restart_game()
 			createGrass(vec2(x, y));
 		}
 	}
-	for (int x = -SCORCHED_EARTH_BOUNDARY; x < WINDOW_WIDTH_PX + DIRT_DIMENSION_PX * 1.5; x += DIRT_DIMENSION_PX)
+	for (int x = -SCORCHED_EARTH_BOUNDARY; x < WINDOW_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 1.5; x += SCORCHED_EARTH_DIMENSION_PX)
 	{
-		for (int y = -SCORCHED_EARTH_BOUNDARY; y < WINDOW_HEIGHT_PX + DIRT_DIMENSION_PX * 1.5; y += DIRT_DIMENSION_PX)
+		for (int y = -SCORCHED_EARTH_BOUNDARY; y < WINDOW_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 1.5; y += SCORCHED_EARTH_DIMENSION_PX)
 		{
 			if (x < SCORCHED_EARTH_BOUNDARY || (y < SCORCHED_EARTH_BOUNDARY))
 			{
@@ -239,6 +297,8 @@ void WorldSystem::restart_game()
 			}
 		}
 	}
+	// This is for Milestone #2.
+	// createFarmland(vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2));
 
 	// create grid lines and clear any pre-existing grid lines
 	registry.gridLines.clear();
@@ -274,8 +334,30 @@ void WorldSystem::restart_game()
 	// Reset player movement
 	Entity player = registry.players.entities[0];
 	Motion &player_motion = registry.motions.get(player);
-	player_motion.velocity.x = 0;
-	player_motion.velocity.y = 0;
+
+	// Move left
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		player_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+	}
+
+	// Move right
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		player_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+	}
+
+	// Move down
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		player_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
+	}
+
+	// Move up
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		player_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
+	}
 
 	// start the spawn manager
 	spawn_manager.start_game();
@@ -314,6 +396,7 @@ void WorldSystem::player_attack()
 		weapon_motion.angle = less_f_ugly.angle;
 		weapon_motion.velocity = less_f_ugly.velocity;
 		weapon_motion.scale = less_f_ugly.scale;
+		createEffect(renderer, weapon_motion.position, weapon_motion.scale);
 		for (int i = 0; i < registry.zombies.size(); i++)
 		{
 			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
@@ -358,17 +441,21 @@ void WorldSystem::player_attack()
 
 						// Enemy Count update:
 						std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
-					}
 
-					// Increase the experience of the player.
-					if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage <= 1.0)
-					{
-						registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
+						// Increase the experience of the player or reset the experience bar when it becomes full.
+						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
+						{
+							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
+						}
+						else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
+						{
+							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+						}
 					}
 				}
 			}
-			StateSystem::update_state(STATE::ATTACK);
 		}
+		StateSystem::update_state(STATE::ATTACK);
 		Cooldown &cooldown = registry.cooldowns.emplace(player);
 		cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
 	}
@@ -429,7 +516,6 @@ void WorldSystem::update_screen_shake(float elapsed_ms)
 
 // float runningSoundTimer = 0.0;
 
-// on key callback
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
 
@@ -469,14 +555,33 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
+	// Calculate cell indices
+	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
+	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
+
+	// Plant seed (for Milestone #2)
+	// if (action == GLFW_PRESS && key == GLFW_KEY_H)
+	// {
+	// 	// You can only plant where there is farmland.
+	// 	if (motion.position.x < (WINDOW_WIDTH_PX / 2 + FARMLAND_DIMENSION_PX / 2)
+	// 		&& motion.position.x > (WINDOW_WIDTH_PX / 2 - FARMLAND_DIMENSION_PX / 2)
+	// 		&& motion.position.y < (WINDOW_HEIGHT_PX / 2 + FARMLAND_DIMENSION_PX / 2)
+	// 		&& motion.position.y > (WINDOW_HEIGHT_PX / 2 - FARMLAND_DIMENSION_PX / 2)) {
+	// 			// Remove any seeds that have already been planted to begin with.
+	// 			for (Entity entity : registry.seeds.entities) {
+	// 				if (registry.motions.has(entity)) {
+	// 					if (registry.motions.get(entity).position == vec2((cell_x + 0.5) * GRID_CELL_WIDTH_PX, (cell_y + 0.5) * GRID_CELL_HEIGHT_PX)) {
+	// 						registry.motions.remove(entity);
+	// 						registry.seeds.remove(entity);
+	// 					}
+	// 				}
+	// 			}
+	// 			createSeed(vec2((cell_x + 0.5) * GRID_CELL_WIDTH_PX, (cell_y + 0.5) * GRID_CELL_HEIGHT_PX));
+	// 		}
+	// }
+
 	if (action == GLFW_PRESS && key == GLFW_KEY_F)
 	{
-		// Get mouse position for tower placement
-
-		// Calculate cell indices
-		int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
-		int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
-
 		// Calculate center position of the cell
 		vec2 cell_center = {
 			(cell_x * GRID_CELL_WIDTH_PX) + (GRID_CELL_WIDTH_PX / 2.0f),
@@ -517,10 +622,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		{
 			motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
 		}
-		else if ((action == GLFW_RELEASE && key == GLFW_KEY_A))
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
 		{
-			if (motion.velocity.x < 0)
-				motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+			motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
 		}
 	}
 	else if (motion.velocity.x < 0)
@@ -533,10 +637,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		{
 			motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
 		}
-		else if ((action == GLFW_RELEASE && key == GLFW_KEY_D))
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
 		{
-			if (motion.velocity.x > 0)
-				motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+			motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
 		}
 	}
 	else if (motion.velocity.x > 0)
@@ -549,10 +652,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		{
 			motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
 		}
-		else if ((action == GLFW_RELEASE && key == GLFW_KEY_S))
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
 		{
-			if (motion.velocity.y > 0)
-				motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+			motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
 		}
 	}
 	else if (motion.velocity.y > 0)
@@ -565,10 +667,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		{
 			motion.velocity.y += PLAYER_MOVE_UP_SPEED;
 		}
-		else if ((action == GLFW_RELEASE && key == GLFW_KEY_W))
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
 		{
-			if (motion.velocity.y < 0)
-				motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
+			motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
 		}
 	}
 	else if (motion.velocity.y < 0)
@@ -577,7 +678,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// State
 	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
 	{
-		State &state = registry.states.get(player);
 		if (motion.velocity == vec2(0, 0))
 		{
 			StateSystem::update_state(STATE::IDLE);
@@ -588,25 +688,30 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		}
 	}
 
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) &&
-		(key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D))
+	// Player movement sound
+	if (!WorldSystem::game_is_over)
 	{
-		if (!is_movement_sound_playing && movement_sound_timer <= 0)
+
+		if ((action == GLFW_PRESS || action == GLFW_REPEAT) &&
+			(key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D))
 		{
-			Mix_PlayChannel(0, running_on_grass_sound, 0);
-			is_movement_sound_playing = true;
-			movement_sound_timer = 1000.f;
-		}
-	}
-	else if (action == GLFW_RELEASE)
-	{
-		if (motion.velocity.x == 0 && motion.velocity.y == 0)
-		{
-			if (is_movement_sound_playing)
+			if (!is_movement_sound_playing && movement_sound_timer <= 0)
 			{
-				Mix_HaltChannel(0);
-				is_movement_sound_playing = false;
-				movement_sound_timer = 0.f;
+				Mix_PlayChannel(0, running_on_grass_sound, 0);
+				is_movement_sound_playing = true;
+				movement_sound_timer = 1000.f;
+			}
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			if (motion.velocity.x == 0 && motion.velocity.y == 0)
+			{
+				if (is_movement_sound_playing)
+				{
+					Mix_HaltChannel(0);
+					is_movement_sound_playing = false;
+					movement_sound_timer = 0.f;
+				}
 			}
 		}
 	}
@@ -649,20 +754,23 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 
 void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 {
-	// on button press
-	if (action == GLFW_PRESS)
+	if (!WorldSystem::game_is_over)
 	{
+		// on button press
+		if (action == GLFW_PRESS)
+		{
 
-		int tile_x = (int)(mouse_pos_x / GRID_CELL_WIDTH_PX);
-		int tile_y = (int)(mouse_pos_y / GRID_CELL_HEIGHT_PX);
+			int tile_x = (int)(mouse_pos_x / GRID_CELL_WIDTH_PX);
+			int tile_y = (int)(mouse_pos_y / GRID_CELL_HEIGHT_PX);
 
-		// std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
-		// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
-	}
+			// std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
+			// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
+		}
 
-	if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
-	{
-		player_attack();
+		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
+		{
+			player_attack();
+		}
 	}
 }
 
@@ -671,6 +779,9 @@ void WorldSystem::game_over()
 	std::cout << "Game Over!" << std::endl;
 	game_is_over = true;
 	registry.screenStates.get(registry.screenStates.entities[0]).game_over = true;
+	Mix_HaltMusic();
+	Mix_PlayChannel(0, WorldSystem::game_over_sound, 0);
+	createGameOver();
 }
 
 void WorldSystem::update_movement_sound(float elapsed_ms)

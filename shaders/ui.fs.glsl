@@ -1,8 +1,6 @@
 #version 330
 
 uniform sampler2D screen_texture;
-uniform float time;
-uniform float darken_screen_factor;
 uniform float hp_percentage;
 uniform float exp_percentage;
 uniform bool game_over;
@@ -13,7 +11,7 @@ layout(location = 0) out vec4 color;
 
 vec4 hp_exp_bars(vec4 in_color) 
 {
-	if (texcoord[0] > 0.725) {
+	if (texcoord[0] > 0.725 && !game_over) {
 		if (texcoord[1] > 0.925 && texcoord[1] < 0.975) {
 			if (texcoord[0] < (0.725 + hp_percentage * 0.25)) {
 				if (hp_percentage <= 0.2) {
@@ -31,18 +29,9 @@ vec4 hp_exp_bars(vec4 in_color)
 	return in_color;
 }
 
-// darken the screen, i.e., fade to black
-vec4 fade_color_lerp(vec4 in_color) 
-{
-	if (time > 0 && game_over)
-		in_color = (1 - time) * vec4(0.8, 0.8, 0.8, 0) + vec4(0.8, 0.8, 0.8, 0) * time;
-	return in_color;
-}
-
 void main()
 {
     vec4 in_color = texture(screen_texture, texcoord);
-color = fade_color_lerp(in_color);
-
+	color = in_color;
 	color = hp_exp_bars(color);
 }

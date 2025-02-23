@@ -46,6 +46,7 @@ public:
 	bool is_over() const;
 
 	static void game_over();
+	static bool game_is_over;
 
 private:
 	float mouse_pos_x = 0.0f;
@@ -78,17 +79,19 @@ private:
 	std::vector<Entity> grid_lines;
 
 	// music references
-	Mix_Music *background_music;
+	Mix_Music *current_bgm; //handle switching soundtrack
+	Mix_Music *night_bgm;
+	Mix_Music *day_bgm;
+	Mix_Music *combat_bgm;
 	Mix_Chunk *sword_attack_sound;
 	Mix_Chunk *running_on_grass_sound;
-
+	static Mix_Chunk *game_over_sound;
 
 	// Manage spawning zombies
 	SpawnManager spawn_manager;
 
 	bool test_mode = false;
 
-	static bool game_is_over;
 	
     // Sound effects
 	float movement_sound_timer = 0.f;

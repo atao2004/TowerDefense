@@ -1,6 +1,7 @@
 #include "world_init.hpp"
 #include "tinyECS/registry.hpp"
 #include <iostream>
+#include "animation_system.hpp"
 
 Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	Entity entity = Entity();
@@ -55,9 +56,7 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 	zombie.health = ZOMBIE_HEALTH;
 
 	Attack& attack = registry.attacks.emplace(entity);
-	attack.range = 30.0f;         
-
-	Animation& animation = registry.animations.emplace(entity);
+	attack.range = 30.0f;
 
 	// store a reference to the potentially re-used mesh object
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
@@ -77,6 +76,8 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
 	);
+
+	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_FRAME_DELAY, ZOMBIE_ANIMATION, sizeof(ZOMBIE_ANIMATION) / sizeof(ZOMBIE_ANIMATION[0]), true, false);
 
 	// Enemy Count update:
     std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
@@ -200,6 +201,32 @@ Entity createGrass(vec2 position)
 	return grass_entity;
 }
 
+// This is for Milestone #2.
+Entity createFarmland(vec2 position)
+{
+	Entity farmland_entity = Entity();
+
+	Farmland& grass_component = registry.farmlands.emplace(farmland_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(farmland_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(FARMLAND_DIMENSION_PX, FARMLAND_DIMENSION_PX);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		farmland_entity,
+		{
+			TEXTURE_ASSET_ID::FARMLAND,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return farmland_entity;
+}
+
 Entity createScorchedEarth(vec2 position)
 {
 	Entity scorched_earth_entity = Entity();
@@ -209,7 +236,7 @@ Entity createScorchedEarth(vec2 position)
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(scorched_earth_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(DIRT_DIMENSION_PX, DIRT_DIMENSION_PX);
+	motion_component.scale = vec2(SCORCHED_EARTH_DIMENSION_PX, SCORCHED_EARTH_DIMENSION_PX);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
@@ -230,6 +257,9 @@ void removeSurfaces()
 	// remove all grasses
 	for (Entity& grass_entity : registry.grasses.entities) {
 		registry.remove_all_components_of(grass_entity);
+	}
+	for (Entity& farmland_entity : registry.farmlands.entities) {
+		registry.remove_all_components_of(farmland_entity);
 	}
 	for (Entity& scorched_earth_entity : registry.scorchedEarths.entities) {
 		registry.remove_all_components_of(scorched_earth_entity);
@@ -260,6 +290,38 @@ Entity createToolbar()
 	);
 
 	return toolbar_entity;
+}
+
+Entity createGameOver() {
+	Entity entity = Entity();
+
+	State& state = registry.states.emplace(entity);
+	state.state = STATE::IDLE;
+
+	Player& player = registry.players.emplace(entity);
+	player.health = PLAYER_HEALTH;
+	
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = {WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2 };
+	motion.scale = vec2({ WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX });
+
+	Attack& attack = registry.attacks.emplace(entity);
+	attack.range = 60;
+
+	registry.statuses.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::GAMEOVER,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+	return entity;
 }
 
 Entity createPause()
@@ -322,8 +384,6 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 		false
 	);
 
-	Animation& animation = registry.animations.emplace(entity);
-
 	//grey box
 	// vec3& cv = registry.colors.emplace(entity);
 	// cv.r = 0.5;
@@ -340,4 +400,53 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	// 	}
 	// );
 	return entity;
+}
+
+Entity createEffect(RenderSystem* renderer, vec2 position, vec2 scale) {
+	Entity entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = scale;
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::PLAYER_ATTACK_SLASH_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+
+	AnimationSystem::update_animation(entity, SLASH_FRAME_DELAY, SLASH_ANIMATION, sizeof(SLASH_ANIMATION) / sizeof(SLASH_ANIMATION[0]), false, false);
+
+	return entity;
+}
+
+// This is for Milestone #2.
+Entity createSeed(vec2 pos) {
+	Entity seed_entity = Entity();
+
+	Seed& seed_component = registry.seeds.emplace(seed_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(seed_entity);
+	motion_component.position = pos;
+	motion_component.scale = vec2(50, 50);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		seed_entity,
+		{
+			TEXTURE_ASSET_ID::SEED_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return seed_entity;
 }
