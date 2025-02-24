@@ -19,9 +19,9 @@
 **Citation**
 
 - Grass texture by p0ss sourced from https://opengameart.org/node/9692
-- Dirt texture by p0ss (farmland) sourced from https://opengameart.org/node/9021
+- Dirt texture by p0ss (farmland) sourced from https://opengameart.org/node/9021 (Milestone #2)
 - Dirt texture by Lamoot (scorched earth) sourced from https://opengameart.org/node/7805
-- Seeds sourced from _'Crops'_ by SnoopethDuckDuck: https://snoopethduckduck.itch.io/crops
+- Seeds sourced from _'Crops'_ by SnoopethDuckDuck: https://snoopethduckduck.itch.io/crops (Milestone #2)
 - https://pixabay.com/sound-effects/
 - combat/night bgms from https://www.gamedevmarket.net/asset/celtic-countryside-music
 - game_over sound effect from https://pixabay.com/sound-effects/search/game-over/
