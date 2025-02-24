@@ -441,7 +441,8 @@ void WorldSystem::player_attack()
 						death_anim.slide_direction = slide_direction;
 						death_anim.alpha = 1.0f;
 						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
-
+						points++;
+						std::cout<<"Zombies killed: "<<points<<std::endl;
 						// Increase the experience of the player or reset the experience bar when it becomes full.
 						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 						{
