@@ -437,6 +437,10 @@ void WorldSystem::player_attack()
 						death_anim.alpha = 1.0f;
 						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
 
+            // Increase the counter that represents the number of zombies killed.
+						points++;
+						std::cout<<"Zombies killed: "<<points<<std::endl;
+            
 						// Kung: Upon killing a zombie, increase the experience of the player or reset the experience bar when it becomes full.
 						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 						{
@@ -728,6 +732,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				}
 			}
 		}
+	}
+
+	// Debug
+	if (action == GLFW_PRESS && key == GLFW_KEY_L)
+	{
+		registry.list_all_components();
 	}
 }
 

@@ -67,7 +67,7 @@
 
 - **Audio Features**: The game includes background music and sound effects for player movement, player attacks, player damage, and enemy damage. Background music will switch between 2 soundtracks when player is in combat and out of combat.
 
-- **User Interface**: The UI displays player health, experience points, inventory, and a pause button.
+- **User Interface**: The UI displays player health, experience points, inventory (not implemented), and a pause button (not implemented).
 
 - **Console Counter**: The counter counts the number of alive zombies left in the game and the number of zombies you killed in this round and prints it on console.
 

@@ -79,8 +79,8 @@ int main()
 			world_system.handle_collisions();
 			tower_system.step(elapsed_ms);
 			movement_system.step(elapsed_ms);
+			animation_system.step(elapsed_ms);
 		}
-		animation_system.step(elapsed_ms);
 		
 		renderer_system.draw();
 	}
