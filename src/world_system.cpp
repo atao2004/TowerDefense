@@ -517,7 +517,7 @@ void WorldSystem::update_screen_shake(float elapsed_ms)
 // In addition, I did general debugging, including on Ziqing's initial code.
 void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	// Move left
-	if (player_motion.position.x >= (PLAYER_WIDTH / 2) + SCORCHED_EARTH_BOUNDARY)
+	if (player_motion.position.x >= PLAYER_LEFT_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_A)
 		{
@@ -527,12 +527,12 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 		{
 			player_motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
 		}
-	}
-	else if (player_motion.velocity.x < 0)
+	} else if (player_motion.velocity.x < 0) {
 		player_motion.velocity.x = 0;
+	}
 
 	// Move right
-	if (player_motion.position.x <= (WINDOW_WIDTH_PX - (PLAYER_WIDTH / 2) - SCORCHED_EARTH_BOUNDARY))
+	if (player_motion.position.x <= WINDOW_WIDTH_PX - PLAYER_LEFT_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_D)
 		{
@@ -542,12 +542,12 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 		{
 			player_motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
 		}
-	}
-	else if (player_motion.velocity.x > 0)
+	} else if (player_motion.velocity.x > 0) {
 		player_motion.velocity.x = 0;
+	}
 
 	// Move down
-	if (player_motion.position.y <= (WINDOW_HEIGHT_PX - (PLAYER_HEIGHT / 2) - SCORCHED_EARTH_BOUNDARY))
+	if (player_motion.position.y <= WINDOW_HEIGHT_PX - PLAYER_UP_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_S)
 		{
@@ -558,11 +558,12 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 			player_motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
 		}
 	}
-	else if (player_motion.velocity.y > 0)
+	else if (player_motion.velocity.y > 0) {
 		player_motion.velocity.y = 0;
+	}
 
 	// Move up
-	if (player_motion.position.y >= (PLAYER_HEIGHT / 2) + SCORCHED_EARTH_BOUNDARY)
+	if (player_motion.position.y >= PLAYER_UP_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_W)
 		{
@@ -573,13 +574,13 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 			player_motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
 		}
 	}
-	else if (player_motion.velocity.y < 0)
+	else if (player_motion.velocity.y < 0) {
 		player_motion.velocity.y = 0;
+	}
 }
 
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
-
 	// Player movement
 	Entity player = registry.players.entities[0];
 	Motion &motion = registry.motions.get(player);
