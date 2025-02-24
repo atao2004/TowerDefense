@@ -19,7 +19,7 @@
 // FT_Library library;
 
 bool WorldSystem::game_is_over = false;
-Mix_Chunk* WorldSystem::game_over_sound = nullptr;
+Mix_Chunk *WorldSystem::game_over_sound = nullptr;
 
 // create the world
 WorldSystem::WorldSystem() : points(0)
@@ -192,7 +192,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		if (screen.game_over)
 		{
 			screen.lerp_timer += elapsed_ms_since_last_update;
-		} 
+		}
 		if (screen.lerp_timer >= 10000)
 		{
 			screen.lerp_timer = 10000;
@@ -390,7 +390,10 @@ void WorldSystem::player_attack()
 		weapon_motion.angle = less_f_ugly.angle;
 		weapon_motion.velocity = less_f_ugly.velocity;
 		weapon_motion.scale = less_f_ugly.scale;
+
+		// Slash Animation
 		createEffect(renderer, weapon_motion.position, weapon_motion.scale);
+
 		for (int i = 0; i < registry.zombies.size(); i++)
 		{
 			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
@@ -447,7 +450,10 @@ void WorldSystem::player_attack()
 				}
 			}
 		}
+		// Player State
 		StateSystem::update_state(STATE::ATTACK);
+
+		// Cooldown
 		Cooldown &cooldown = registry.cooldowns.emplace(player);
 		cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
 	}
@@ -693,6 +699,34 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		else
 		{
 			StateSystem::update_state(STATE::MOVE);
+		}
+	}
+
+	// Player movement sound
+	if (!WorldSystem::game_is_over)
+	{
+
+		if ((action == GLFW_PRESS || action == GLFW_REPEAT) &&
+			(key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D))
+		{
+			if (!is_movement_sound_playing && movement_sound_timer <= 0)
+			{
+				Mix_PlayChannel(0, running_on_grass_sound, 0);
+				is_movement_sound_playing = true;
+				movement_sound_timer = 1000.f;
+			}
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			if (motion.velocity.x == 0 && motion.velocity.y == 0)
+			{
+				if (is_movement_sound_playing)
+				{
+					Mix_HaltChannel(0);
+					is_movement_sound_playing = false;
+					movement_sound_timer = 0.f;
+				}
+			}
 		}
 	}
 }
