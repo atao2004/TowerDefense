@@ -2,11 +2,6 @@
 #include "animation_system.hpp"
 #include <iostream>
 
-/**
-* Update the texture of each animation component.
-* 
-* @param elapsed_ms The change in time (milliseconds).
-*/
 void AnimationSystem::step(float elapsed_ms)
 {
     for (Entity entity : registry.animations.entities) {
@@ -28,16 +23,6 @@ void AnimationSystem::step(float elapsed_ms)
     }
 }
 
-/**
-* Replace the animation component of the entity.
-* 
-* @param entity The entity.
-* @param frame_delay The transition time between each texture.
-* @param textures The array of textures.
-* @param textures_size The size of textures.
-* @param loop True if the animation should loop.
-* @param lock True if the animation should not be replaced.
-*/
 void AnimationSystem::update_animation(Entity entity, int frame_delay, const TEXTURE_ASSET_ID* textures, int textures_size, bool loop, bool lock)
 {
     if (registry.animations.has(entity) && registry.animations.get(entity).lock) {

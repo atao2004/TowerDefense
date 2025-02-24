@@ -3,11 +3,6 @@
 #include <iostream>
 #include "animation_system.hpp"
 
-/**
-* Update the state of the player and its animation component.
-* 
-* @param state_new The new state.
-*/
 void StateSystem::update_state(STATE state_new)
 {
     Entity player = registry.players.entities[0];
