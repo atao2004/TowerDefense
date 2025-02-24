@@ -14,6 +14,7 @@
 #include "state_system.hpp"
 #include "animation_system.hpp"
 #include "tower_system.hpp"
+#include "movement_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -28,6 +29,7 @@ int main()
 	StatusSystem  status_system;
 	AnimationSystem animation_system;
 	TowerSystem tower_system;
+	MovementSystem movement_system;
 
 	// initialize window
 	GLFWwindow* window = world_system.create_window();
@@ -76,6 +78,7 @@ int main()
 			status_system.step(elapsed_ms);
 			world_system.handle_collisions();
 			tower_system.step(elapsed_ms);
+			movement_system.step(elapsed_ms);
 		}
 		animation_system.step(elapsed_ms);
 		
