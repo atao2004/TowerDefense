@@ -425,6 +425,14 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
+/**
+* Create a slash animation.
+* 
+* @param renderer The renderer.
+* @param position The position of the slash.
+* @param scale The scale of the slash.
+* @return The slash entity.
+*/
 Entity createEffect(RenderSystem* renderer, vec2 position, vec2 scale) {
 	Entity entity = Entity();
 
