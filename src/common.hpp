@@ -124,10 +124,6 @@ struct RenderRequest
 inline int WINDOW_WIDTH_PX = 1920;
 inline int WINDOW_HEIGHT_PX = 1080;
 
-// Kung: Separate consts for testing on my Mac. Use these Anna!!
-// const int WINDOW_WIDTH_PX = 1920 * 2 / 3;
-// const int WINDOW_HEIGHT_PX = 1080 * 2 / 3;
-
 const int GRID_CELL_WIDTH_PX = 60;
 const int GRID_CELL_HEIGHT_PX = 60;
 const int GRID_LINE_WIDTH_PX = 2;
@@ -184,9 +180,13 @@ const int COOLDOWN_PLAYER_ATTACK = 1000;
 
 // animation
 const int PLAYER_MOVE_FRAME_DELAY = 500;
-const int PLAYER_ATTACK_FRAME_DELAY = 250;
+const int PLAYER_ATTACK_FRAME_DELAY = 150;
 const int ZOMBIE_MOVE_FRAME_DELAY = 500;
-const int SLASH_FRAME_DELAY = 50;
+const int SLASH_FRAME_DELAY = 20;
+
+// player movement boundaries
+const int PLAYER_UP_BOUNDARY = (PLAYER_HEIGHT / 2) + SCORCHED_EARTH_BOUNDARY;
+const int PLAYER_LEFT_BOUNDARY = (PLAYER_WIDTH / 2) + SCORCHED_EARTH_BOUNDARY;
 
 const TEXTURE_ASSET_ID PLAYER_ANIMATION_MOVE[] = {
 	TEXTURE_ASSET_ID::PLAYER_WALK_1,

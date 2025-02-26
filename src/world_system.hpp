@@ -56,6 +56,8 @@ private:
 	void update_enemy_death_animations(float elapsed_ms);
 	void update_screen_shake(float elapsed_ms);
 
+	// Kung: player movement helper function
+	void player_movement(int key, int action, Motion& player_motion);
 
 	// input callback functions
 	void on_key(int key, int, int action, int mod);
