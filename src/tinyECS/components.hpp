@@ -211,3 +211,10 @@ struct HitEffect
 	float duration_ms = 200.0f; // How long the hit effect lasts
 	bool is_white = true;		// For white flash effect
 };
+
+struct Camera {
+    vec2 position = {WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2};
+	float camera_width = WINDOW_WIDTH_PX;
+	float camera_height = WINDOW_HEIGHT_PX;
+    float lerp_factor = 0.1f;
+};

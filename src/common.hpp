@@ -162,6 +162,10 @@ const float PLAYER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
 const float TOWER_BB_WIDTH = (float)GRID_CELL_WIDTH_PX;
 const float TOWER_BB_HEIGHT = (float)GRID_CELL_HEIGHT_PX;
 
+// Add these camera constants
+const float CAMERA_VIEW_WIDTH = 500;    
+const float CAMERA_VIEW_HEIGHT = 300;
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
 #endif

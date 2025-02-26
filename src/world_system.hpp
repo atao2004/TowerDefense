@@ -97,4 +97,6 @@ private:
 	float movement_sound_timer = 0.f;
     bool is_movement_sound_playing = false;
 	void update_movement_sound(float elapsed_ms);
+
+	void update_camera();
 };
