@@ -327,8 +327,7 @@ void WorldSystem::restart_game()
 	
 	// reset camera position
 	registry.cameras.clear();
-	auto &camera = registry.cameras.get(registry.cameras.entities[0]);
-	camera.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2);
+	createCamera(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
 
 	// Move left
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)

@@ -214,7 +214,7 @@ struct HitEffect
 
 struct Camera {
     vec2 position = {WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2};
-	float camera_width = WINDOW_WIDTH_PX;
-	float camera_height = WINDOW_HEIGHT_PX;
+	float camera_width = CAMERA_VIEW_WIDTH;
+	float camera_height = CAMERA_VIEW_HEIGHT;
     float lerp_factor = 0.1f;
 };

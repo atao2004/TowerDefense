@@ -475,3 +475,17 @@ Entity createSeed(vec2 pos)
 
 	return seed_entity;
 }
+
+// create a camera
+Entity createCamera(RenderSystem* renderer,vec2 position) {
+    // Create camera entity
+    Entity camera = Entity();
+
+    // Create camera component
+    Camera& camera_component = registry.cameras.emplace(camera);
+    camera_component.position = position;
+    camera_component.lerp_factor = 0.1f; // Smooth camera movement
+
+    
+    return camera;
+}
