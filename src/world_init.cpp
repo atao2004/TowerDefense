@@ -1,6 +1,7 @@
 #include "world_init.hpp"
 #include "tinyECS/registry.hpp"
 #include <iostream>
+#include "animation_system.hpp"
 
 Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	Entity entity = Entity();
@@ -55,9 +56,7 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 	zombie.health = ZOMBIE_HEALTH;
 
 	Attack& attack = registry.attacks.emplace(entity);
-	attack.range = 30.0f;         
-
-	Animation& animation = registry.animations.emplace(entity);
+	attack.range = 30.0f;
 
 	// store a reference to the potentially re-used mesh object
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
@@ -78,47 +77,89 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 		}
 	);
 
-	// Enemy Count update:
+	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_FRAME_DELAY, ZOMBIE_ANIMATION, sizeof(ZOMBIE_ANIMATION) / sizeof(ZOMBIE_ANIMATION[0]), true, false);
+
+	// Kung: Update the enemy count and print it to the console.
     std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 
 	return entity;
 }
 
-Entity createTower(RenderSystem* renderer, vec2 position)
-{
-	auto entity = Entity();
+// Entity createTower(RenderSystem* renderer, vec2 position)
+// {
+// 	auto entity = Entity();
 
-	// new tower
-	auto& t = registry.towers.emplace(entity);
-	t.range = (float)WINDOW_WIDTH_PX / (float)GRID_CELL_WIDTH_PX;
-	t.timer_ms = 1000;	// arbitrary for now
+// 	// new tower
+// 	auto& t = registry.towers.emplace(entity);
+// 	t.range = (float)WINDOW_WIDTH_PX / (float)GRID_CELL_WIDTH_PX;
+// 	t.timer_ms = 1000;	// arbitrary for now
 
+// 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+// 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+// 	registry.meshPtrs.emplace(entity, &mesh);
+
+// 	// Initialize the motion
+// 	auto& motion = registry.motions.emplace(entity);
+// 	motion.angle = 180.f;	// A1-TD: CK: rotate to the left 180 degrees to fix orientation
+// 	motion.velocity = { 0.0f, 0.0f };
+// 	motion.position = position;
+
+// 	std::cout << "INFO: tower position: " << position.x << ", " << position.y << std::endl;
+
+// 	// Setting initial values, scale is negative to make it face the opposite way
+// 	motion.scale = vec2({ -TOWER_BB_WIDTH, TOWER_BB_HEIGHT });
+
+// 	// create an (empty) Tower component to be able to refer to all towers
+// 	registry.renderRequests.insert(
+// 		entity,
+// 		{
+// 			TEXTURE_ASSET_ID::TOWER,
+// 			EFFECT_ASSET_ID::TEXTURED,
+// 			GEOMETRY_BUFFER_ID::SPRITE
+// 		}
+// 	);
+
+// 	return entity;
+// }
+
+
+Entity createTower(RenderSystem* renderer, vec2 position) {
+    Entity entity = Entity();
+
+    // Basic tower stats
+    Tower& tower = registry.towers.emplace(entity);
+    tower.health = 100.f;
+    tower.damage = 10.f;
+    tower.range = 2000.f;     // Detection range in pixels
+    tower.timer_ms = 2000;   // Attack every 2 second
+
+    // Motion component for position and rotation
+    Motion& motion = registry.motions.emplace(entity);
+    motion.position = position;
+    motion.angle = 0.f;
+    motion.velocity = { 0, 0 };  // Towers don't move
+    motion.scale = vec2({ TOWER_BB_WIDTH, TOWER_BB_HEIGHT });  // Using constants from common.hpp
+
+	Dimension& dimension = registry.dimensions.emplace(entity);
+	dimension.width = TOWER_BB_WIDTH;
+	dimension.height = TOWER_BB_HEIGHT;
+
+	
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
-	// Initialize the motion
-	auto& motion = registry.motions.emplace(entity);
-	motion.angle = 180.f;	// A1-TD: CK: rotate to the left 180 degrees to fix orientation
-	motion.velocity = { 0.0f, 0.0f };
-	motion.position = position;
+    // Add render request for tower
+    registry.renderRequests.insert(
+        entity,
+        {
+            TEXTURE_ASSET_ID::TOWER,
+            EFFECT_ASSET_ID::TEXTURED,
+            GEOMETRY_BUFFER_ID::SPRITE
+        }
+    );
 
-	std::cout << "INFO: tower position: " << position.x << ", " << position.y << std::endl;
-
-	// Setting initial values, scale is negative to make it face the opposite way
-	motion.scale = vec2({ -TOWER_BB_WIDTH, TOWER_BB_HEIGHT });
-
-	// create an (empty) Tower component to be able to refer to all towers
-	registry.renderRequests.insert(
-		entity,
-		{
-			TEXTURE_ASSET_ID::TOWER,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
-
-	return entity;
+    return entity;
 }
 
 void removeTower(vec2 position) {
@@ -135,10 +176,13 @@ void removeTower(vec2 position) {
 	}
 }
 
+// Kung: Create the grass texture that will be used as part of the texture map.
 Entity createGrass(vec2 position)
 {
+	// Create the associated entity.
 	Entity grass_entity = Entity();
 
+	// Create the associated component.
 	Grass& grass_component = registry.grasses.emplace(grass_entity);
 
 	// Create the relevant motion component.
@@ -160,16 +204,49 @@ Entity createGrass(vec2 position)
 	return grass_entity;
 }
 
+// Kung: This is for Milestone #2.
+// Create a texture tile that represents areas where you can plant seeds.
+Entity createFarmland(vec2 position)
+{
+	// Create the associated entity.
+	Entity farmland_entity = Entity();
+
+	// Create the associated component.
+	Farmland& grass_component = registry.farmlands.emplace(farmland_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(farmland_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(FARMLAND_DIMENSION_PX, FARMLAND_DIMENSION_PX);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		farmland_entity,
+		{
+			TEXTURE_ASSET_ID::FARMLAND,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return farmland_entity;
+}
+
+// Kung: Create the tiles that border the window and represent areas in which the player cannot walk on.
+// Technically, the tiles represent dirt, but will look different from the farmland that will be implemented later.
 Entity createScorchedEarth(vec2 position)
 {
+	// Create the associated entity.
 	Entity scorched_earth_entity = Entity();
 
+	// Create the associated component.
 	ScorchedEarth& scorched_earth_component = registry.scorchedEarths.emplace(scorched_earth_entity);
 
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(scorched_earth_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(DIRT_DIMENSION_PX, DIRT_DIMENSION_PX);
+	motion_component.scale = vec2(SCORCHED_EARTH_DIMENSION_PX, SCORCHED_EARTH_DIMENSION_PX);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
@@ -185,22 +262,34 @@ Entity createScorchedEarth(vec2 position)
 	return scorched_earth_entity;
 }
 
+// Kung: Remove all surfaces before adding in new ones when resetting the game.
+// This includes grass and scorched earth, and eventually farmland as well.
 void removeSurfaces()
 {
 	// remove all grasses
 	for (Entity& grass_entity : registry.grasses.entities) {
 		registry.remove_all_components_of(grass_entity);
 	}
+	// remove all farmlands
+	for (Entity& farmland_entity : registry.farmlands.entities) {
+		registry.remove_all_components_of(farmland_entity);
+	}
+	// remove all scorched earth
 	for (Entity& scorched_earth_entity : registry.scorchedEarths.entities) {
 		registry.remove_all_components_of(scorched_earth_entity);
 	}
+	// print confirmation
 	std::cout << "surfaces reset" << std::endl;
 }
 
+// Kung: Create the toolbar that in the future will store seeds, harvests, and other associated items.
+// As of now, it is purely cosmetic.
 Entity createToolbar()
 {
+	// Create the associated entity.
 	Entity toolbar_entity = Entity();
 
+	// Create the associated component.
 	Toolbar& toolbar_component = registry.toolbars.emplace(toolbar_entity);
 
 	// Create the relevant motion component.
@@ -222,10 +311,46 @@ Entity createToolbar()
 	return toolbar_entity;
 }
 
+Entity createGameOver() {
+	Entity entity = Entity();
+
+	State& state = registry.states.emplace(entity);
+	state.state = STATE::IDLE;
+
+	Player& player = registry.players.emplace(entity);
+	player.health = PLAYER_HEALTH;
+	
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = {WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2 };
+	motion.scale = vec2({ WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX });
+
+	Attack& attack = registry.attacks.emplace(entity);
+	attack.range = 60;
+
+	registry.statuses.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::GAMEOVER,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+	return entity;
+}
+
+// Kung: Create the pause button that will eventually pause the game.
+// As of now, it is purely cosmetic.
 Entity createPause()
 {
+	// Create the associated entity.
 	Entity pause_entity = Entity();
 
+	// Create the associated component.
 	Pause& pause_component = registry.pauses.emplace(pause_entity);
 
 	// Create the relevant motion component.
@@ -276,13 +401,11 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 		entity,
 		{
 			TEXTURE_ASSET_ID::PLAYER_IDLE,
-			EFFECT_ASSET_ID::TEXTURED,
+			EFFECT_ASSET_ID::PLAYER,
 			GEOMETRY_BUFFER_ID::SPRITE
 		},
 		false
 	);
-
-	Animation& animation = registry.animations.emplace(entity);
 
 	//grey box
 	// vec3& cv = registry.colors.emplace(entity);
@@ -302,34 +425,63 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-Entity createGameOver() {
+/**
+* Create a slash animation.
+* 
+* @param renderer The renderer.
+* @param position The position of the slash.
+* @param scale The scale of the slash.
+* @return The slash entity.
+*/
+Entity createEffect(RenderSystem* renderer, vec2 position, vec2 scale) {
 	Entity entity = Entity();
 
-	State& state = registry.states.emplace(entity);
-	state.state = STATE::IDLE;
-
-	Player& player = registry.players.emplace(entity);
-	player.health = PLAYER_HEALTH;
-	
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
-	motion.position = {WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2};
-	motion.scale = vec2({ PLAYER_WIDTH, PLAYER_HEIGHT });
-
-	Attack& attack = registry.attacks.emplace(entity);
-	attack.range = 60;
-
-	registry.statuses.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
 
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::PLAYER_IDLE,
+			TEXTURE_ASSET_ID::PLAYER_ATTACK_SLASH_1,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		},
 		false
 	);
+
+	AnimationSystem::update_animation(entity, SLASH_FRAME_DELAY, SLASH_ANIMATION, sizeof(SLASH_ANIMATION) / sizeof(SLASH_ANIMATION[0]), false, false);
+
 	return entity;
+}
+
+// Kung: This is for Milestone #2.
+// Create the seed that will be planted whenever there is farmland.
+Entity createSeed(vec2 pos)
+{
+	// Create the associated entity.
+	Entity seed_entity = Entity();
+
+	// Create the associated component.
+	Seed& seed_component = registry.seeds.emplace(seed_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(seed_entity);
+	motion_component.position = pos;
+	motion_component.scale = vec2(50, 50);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		seed_entity,
+		{
+			TEXTURE_ASSET_ID::SEED_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return seed_entity;
 }

@@ -46,6 +46,7 @@ public:
 	bool is_over() const;
 
 	static void game_over();
+	static bool game_is_over;
 
 private:
 	float mouse_pos_x = 0.0f;
@@ -53,7 +54,10 @@ private:
 
 	void player_attack();
 	void update_enemy_death_animations(float elapsed_ms);
+	void update_screen_shake(float elapsed_ms);
 
+	// Kung: player movement helper function
+	void player_movement(int key, int action, Motion& player_motion);
 
 	// input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -77,17 +81,19 @@ private:
 	std::vector<Entity> grid_lines;
 
 	// music references
-	Mix_Music *background_music;
+	Mix_Music *current_bgm; //handle switching soundtrack
+	Mix_Music *night_bgm;
+	Mix_Music *day_bgm;
+	Mix_Music *combat_bgm;
 	Mix_Chunk *sword_attack_sound;
 	Mix_Chunk *running_on_grass_sound;
-
+	static Mix_Chunk *game_over_sound;
 
 	// Manage spawning zombies
 	SpawnManager spawn_manager;
 
 	bool test_mode = false;
 
-	static bool game_is_over;
 	
     // Sound effects
 	float movement_sound_timer = 0.f;

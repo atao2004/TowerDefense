@@ -6,6 +6,7 @@
 #include <cassert>
 #include <sstream>
 #include <iostream>
+#include <thread>
 
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
@@ -17,8 +18,8 @@
 
 // FT_Library library;
 
-// Game constants
 bool WorldSystem::game_is_over = false;
+Mix_Chunk *WorldSystem::game_over_sound = nullptr;
 
 // create the world
 WorldSystem::WorldSystem() : points(0)
@@ -28,8 +29,12 @@ WorldSystem::WorldSystem() : points(0)
 WorldSystem::~WorldSystem()
 {
 	// Destroy music components
-	if (background_music != nullptr)
-		Mix_FreeMusic(background_music);
+	if (night_bgm != nullptr)
+		Mix_FreeMusic(night_bgm);
+	if (day_bgm != nullptr)
+		Mix_FreeMusic(day_bgm);
+	if (combat_bgm != nullptr)
+		Mix_FreeMusic(combat_bgm);
 	if (sword_attack_sound != nullptr)
 		Mix_FreeChunk(sword_attack_sound);
 	if (running_on_grass_sound != nullptr)
@@ -80,8 +85,11 @@ GLFWwindow *WorldSystem::create_window()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+
 #if __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	WINDOW_HEIGHT_PX = WINDOW_HEIGHT_PX * 2 / 3;
+	WINDOW_WIDTH_PX = WINDOW_WIDTH_PX * 2 / 3;
 #endif
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	// CK: setting GLFW_SCALE_TO_MONITOR to true will rescale window but then you must handle different scalings
@@ -131,16 +139,22 @@ bool WorldSystem::start_and_load_sounds()
 		return false;
 	}
 
-	background_music = Mix_LoadMUS(audio_path("music.wav").c_str());
+	night_bgm = Mix_LoadMUS(audio_path("night_bgm.wav").c_str());
+	day_bgm = Mix_LoadMUS(audio_path("day_bgm.wav").c_str());
+	combat_bgm = Mix_LoadMUS(audio_path("combat_bgm.wav").c_str());
 	sword_attack_sound = Mix_LoadWAV(audio_path("sword_attack_sound.wav").c_str());
 	running_on_grass_sound = Mix_LoadWAV(audio_path("running_on_grass.wav").c_str());
+	WorldSystem::game_over_sound = Mix_LoadWAV(audio_path("game_over.wav").c_str());
 
-	if (background_music == nullptr || sword_attack_sound == nullptr || running_on_grass_sound == nullptr)
+	if (night_bgm == nullptr || day_bgm == nullptr || combat_bgm == nullptr || sword_attack_sound == nullptr || running_on_grass_sound == nullptr || game_over_sound == nullptr)
 	{
 		fprintf(stderr, "Failed to load sounds\n %s\n make sure the data directory is present",
-				audio_path("music.wav").c_str(),
+				audio_path("night_bgm.wav").c_str(),
+				audio_path("day_bgm.wav").c_str(),
+				audio_path("combat_bgm.wav").c_str(),
 				audio_path("sword_attack_sound.wav").c_str(),
-				audio_path("running_on_grass.wav").c_str());
+				audio_path("running_on_grass.wav").c_str(),
+				audio_path("game_over.mp3").c_str());
 		return false;
 	}
 
@@ -154,8 +168,15 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 
 	// start playing background music indefinitely
 	std::cout << "Starting music..." << std::endl;
-	Mix_PlayMusic(background_music, -1);
 
+	current_bgm = night_bgm;
+	// smooth fade in, thread to prevent blocking
+	std::thread music_thread([this]()
+							 { Mix_FadeInMusic(night_bgm, -1, 1000); });
+	music_thread.detach(); // Let it run independently
+
+	// set volume to 35%, max value is 128
+	Mix_VolumeMusic(128 * 0.35);
 	// Set all states to default
 	restart_game();
 }
@@ -163,7 +184,6 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
-
 	// Using the spawn manager to generate zombies
 	if (WorldSystem::game_is_over)
 	{
@@ -172,22 +192,45 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		if (screen.game_over)
 		{
 			screen.lerp_timer += elapsed_ms_since_last_update;
-			std::cout << "here" << std::endl;
 		}
-		if (screen.lerp_timer == 1)
+		if (screen.lerp_timer >= 10000)
 		{
-			screen.lerp_timer = 1;
+			screen.lerp_timer = 10000;
 		}
 	}
+
+	if (registry.zombies.size() == 0 && current_bgm != night_bgm)
+	{
+		current_bgm = night_bgm;
+		std::thread music_thread([this]()
+								 {
+			// Mix_FadeOutMusic(1000);
+			Mix_HaltMusic();
+			Mix_FadeInMusic(night_bgm, -1, 1000); });
+		music_thread.detach();
+	}
+	else if (registry.zombies.size() > 0 && current_bgm != combat_bgm)
+	{
+		current_bgm = combat_bgm;
+		std::thread music_thread([this]()
+								 {
+			// Mix_FadeOutMusic(1000);
+			Mix_HaltMusic();
+			Mix_FadeInMusic(combat_bgm, -1, 1000); });
+		music_thread.detach();
+	}
+
 	if (!WorldSystem::game_is_over)
 	{
 		spawn_manager.step(elapsed_ms_since_last_update, renderer);
 
 		update_enemy_death_animations(elapsed_ms_since_last_update);
 		update_movement_sound(elapsed_ms_since_last_update);
-
+		update_screen_shake(elapsed_ms_since_last_update);
 		return true;
 	}
+
+	return true;
 }
 
 // Reset the world state to its initial state
@@ -203,6 +246,9 @@ void WorldSystem::restart_game()
 
 	// Reset the spawn manager
 	spawn_manager.reset();
+
+	// Clear the RenderRequests
+	registry.renderRequests.clear();
 
 	// Reset the game speed
 	current_speed = 1.f;
@@ -220,7 +266,7 @@ void WorldSystem::restart_game()
 
 	int grid_line_width = GRID_LINE_WIDTH_PX;
 
-	// create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
+	// Kung: Create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
 	removeSurfaces();
 	for (int x = (GRASS_DIMENSION_PX / 2); x < WINDOW_WIDTH_PX + (GRASS_DIMENSION_PX / 2); x += GRASS_DIMENSION_PX)
 	{
@@ -229,9 +275,9 @@ void WorldSystem::restart_game()
 			createGrass(vec2(x, y));
 		}
 	}
-	for (int x = -SCORCHED_EARTH_BOUNDARY; x < WINDOW_WIDTH_PX + DIRT_DIMENSION_PX * 1.5; x += DIRT_DIMENSION_PX)
+	for (int x = -SCORCHED_EARTH_BOUNDARY; x < WINDOW_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 1.5; x += SCORCHED_EARTH_DIMENSION_PX)
 	{
-		for (int y = -SCORCHED_EARTH_BOUNDARY; y < WINDOW_HEIGHT_PX + DIRT_DIMENSION_PX * 1.5; y += DIRT_DIMENSION_PX)
+		for (int y = -SCORCHED_EARTH_BOUNDARY; y < WINDOW_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 1.5; y += SCORCHED_EARTH_DIMENSION_PX)
 		{
 			if (x < SCORCHED_EARTH_BOUNDARY || (y < SCORCHED_EARTH_BOUNDARY))
 			{
@@ -243,9 +289,12 @@ void WorldSystem::restart_game()
 			}
 		}
 	}
+	// Kung: This is for Milestone #2. This creates the farmland.
+	// createFarmland(vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2));
 
 	// create grid lines and clear any pre-existing grid lines
-	grid_lines.clear();
+	// Kung: I cleared the grid lines so that they would now render on top of my textures
+	registry.gridLines.clear();
 	// vertical lines
 	for (int col = 0; col <= WINDOW_WIDTH_PX / GRID_CELL_WIDTH_PX; col++)
 	{
@@ -263,29 +312,48 @@ void WorldSystem::restart_game()
 	// if the screenState exists, reset the health bar percentages
 	if (registry.screenStates.size() != 0)
 	{
-		if (registry.screenStates.size() != 0)
-		{
-			registry.screenStates.get(registry.screenStates.entities[0]).hp_percentage = 1.0;
-			registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
-		}
-
-		// Create the pause button and toolbar
-		createPause();
-		createToolbar();
-
-		// reset player and spawn player in the middle of the screen
-		registry.players.clear();
-		createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
-
-		// Reset player movement
-		Entity player = registry.players.entities[0];
-		Motion &player_motion = registry.motions.get(player);
-		player_motion.velocity.x = 0;
-		player_motion.velocity.y = 0;
-
-		// start the spawn manager
-		spawn_manager.start_game();
+		registry.screenStates.get(registry.screenStates.entities[0]).hp_percentage = 1.0;
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 	}
+
+	// reset player and spawn player in the middle of the screen
+	registry.players.clear();
+	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
+
+	// Kung: Reset player movement so that the player remains still when no keys are pressed
+	Entity player = registry.players.entities[0];
+	Motion &player_motion = registry.motions.get(player);
+
+	// Move left
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		player_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+	}
+
+	// Move right
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		player_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+	}
+
+	// Move down
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		player_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
+	}
+
+	// Move up
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		player_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
+	}
+
+	// Kung: Create the pause button and toolbar, and have them overlay the player
+	createPause();
+	createToolbar();
+
+	// start the spawn manager
+	spawn_manager.start_game();
 }
 
 // Compute collisions between entities
@@ -299,6 +367,7 @@ bool WorldSystem::is_over() const
 	return bool(glfwWindowShouldClose(window));
 }
 
+// Helper function to handle what happens when the player does a mouse click
 void WorldSystem::player_attack()
 {
 	Entity player = registry.players.entities[0];
@@ -321,68 +390,79 @@ void WorldSystem::player_attack()
 		weapon_motion.angle = less_f_ugly.angle;
 		weapon_motion.velocity = less_f_ugly.velocity;
 		weapon_motion.scale = less_f_ugly.scale;
+
+		// Slash Animation
+		createEffect(renderer, weapon_motion.position, weapon_motion.scale);
+
 		for (int i = 0; i < registry.zombies.size(); i++)
 		{
 			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
 				|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.zombies.entities[i])))
+			{
+				Entity zombie = registry.zombies.entities[i];
+				if (registry.zombies.has(zombie))
 				{
-					Entity zombie = registry.zombies.entities[i];
-					if (registry.zombies.has(zombie))
+					auto &zombie_comp = registry.zombies.get(zombie);
+					zombie_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
+					std::cout << "wow u r attacking so nice cool cool" << std::endl;
+
+					// Calculate knockback direction (from player to zombie)
+					Motion &zombie_motion = registry.motions.get(zombie);
+					Motion &player_motion = registry.motions.get(player);
+					vec2 direction = zombie_motion.position - player_motion.position;
+					float length = sqrt(dot(direction, direction));
+					if (length > 0)
 					{
-						auto &zombie_comp = registry.zombies.get(zombie);
-						zombie_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
-						std::cout << "wow u r attacking so nice cool cool" << std::endl;
+						direction = direction / length; // Normalize
+					}
 
-						// Calculate knockback direction (from player to zombie)
-						Motion &zombie_motion = registry.motions.get(zombie);
+					// Apply knockback velocity immediately
+					float knockback_force = 1000.0f;
+					zombie_motion.velocity += direction * knockback_force;
+
+					// Add hit effect
+					HitEffect &hit = registry.hitEffects.emplace_with_duplicates(zombie);
+
+					// This is what you do when you kill a zombie.
+					if (zombie_comp.health <= 0)
+					{
+						// Add death animation before removing
+						Entity player = registry.players.entities[0];
 						Motion &player_motion = registry.motions.get(player);
-						vec2 direction = zombie_motion.position - player_motion.position;
-						float length = sqrt(dot(direction, direction));
-						if (length > 0)
+						vec2 slide_direction = {player_motion.scale.x > 0 ? 1.0f : -1.0f, 0.0f};
+
+						// Add death animation component
+						DeathAnimation &death_anim = registry.deathAnimations.emplace(zombie);
+						death_anim.slide_direction = slide_direction;
+						death_anim.alpha = 1.0f;
+						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
+
+            // Increase the counter that represents the number of zombies killed.
+						points++;
+						std::cout<<"Zombies killed: "<<points<<std::endl;
+            
+						// Kung: Upon killing a zombie, increase the experience of the player or reset the experience bar when it becomes full.
+						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 						{
-							direction = direction / length; // Normalize
-						}
-
-						// Apply knockback velocity immediately
-						float knockback_force = 1000.0f;
-						zombie_motion.velocity += direction * knockback_force;
-
-						// Add hit effect
-						HitEffect &hit = registry.hitEffects.emplace(zombie);
-
-						if (zombie_comp.health <= 0)
+							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
+						} // Kung: If the bar is full, reset the player experience bar.
+						else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 						{
-							// Add death animation before removing
-							Entity player = registry.players.entities[0];
-							Motion &player_motion = registry.motions.get(player);
-							vec2 slide_direction = {player_motion.scale.x > 0 ? 1.0f : -1.0f, 0.0f};
-
-							// Add death animation component
-							DeathAnimation &death_anim = registry.deathAnimations.emplace(zombie);
-							death_anim.slide_direction = slide_direction;
-							death_anim.alpha = 1.0f;
-							death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
-
-							// Enemy Count update:
-							std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
-						}
-
-						// Increase the experience of the player.
-						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage <= 1.0)
-						{
-							if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage <= 1.0)
-							{
-								registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
-							}
+							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 						}
 					}
-					StateSystem::update_state(STATE::ATTACK);
 				}
-			Cooldown &cooldown = registry.cooldowns.emplace(player);
-			cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
+			}
 		}
+		// Player State
+		StateSystem::update_state(STATE::ATTACK);
+
+		// Cooldown
+		Cooldown &cooldown = registry.cooldowns.emplace(player);
+		cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
 	}
 }
+
 void WorldSystem::update_enemy_death_animations(float elapsed_ms)
 {
 	// Process each entity with a death animation
@@ -412,15 +492,108 @@ void WorldSystem::update_enemy_death_animations(float elapsed_ms)
 		if (death_anim.duration_ms <= 0)
 		{
 			registry.remove_all_components_of(entity);
+
+			// Kung: Upon killing a zombie, update the enemy count and print it to the console.
+			std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
+		}
+	}
+}
+
+void WorldSystem::update_screen_shake(float elapsed_ms)
+{
+	auto &screen = registry.screenStates.get(registry.screenStates.entities[0]);
+	if (screen.shake_duration_ms > 0)
+	{
+		screen.shake_duration_ms -= elapsed_ms;
+
+		// Calculate random shake offset
+		float intensity = screen.shake_intensity * (screen.shake_duration_ms / 200.0f);
+		screen.shake_offset = {
+			((rand() % 100) / 50.0f - 1.0f) * intensity,
+			((rand() % 100) / 50.0f - 1.0f) * intensity};
+
+		if (screen.shake_duration_ms <= 0)
+		{
+			screen.shake_offset = {0.f, 0.f};
 		}
 	}
 }
 
 // float runningSoundTimer = 0.0;
 
-// on key callback
+// Kung: To make the code easier to read, I split the player movement here.
+// I was responsible for this but Ziqing implemented single and multi-button movement first.
+// However, I then implemented boundary checking and the situation where opposing keys cause no movement.
+// In addition, I did general debugging, including on Ziqing's initial code.
+void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
+	// Move left
+	if (player_motion.position.x >= PLAYER_LEFT_BOUNDARY)
+	{
+		if (action == GLFW_PRESS && key == GLFW_KEY_A)
+		{
+			player_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
+		{
+			player_motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+		}
+	} else if (player_motion.velocity.x < 0) {
+		player_motion.velocity.x = 0;
+	}
+
+	// Move right
+	if (player_motion.position.x <= WINDOW_WIDTH_PX - PLAYER_LEFT_BOUNDARY)
+	{
+		if (action == GLFW_PRESS && key == GLFW_KEY_D)
+		{
+			player_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
+		{
+			player_motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+		}
+	} else if (player_motion.velocity.x > 0) {
+		player_motion.velocity.x = 0;
+	}
+
+	// Move down
+	if (player_motion.position.y <= WINDOW_HEIGHT_PX - PLAYER_UP_BOUNDARY)
+	{
+		if (action == GLFW_PRESS && key == GLFW_KEY_S)
+		{
+			player_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
+		{
+			player_motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+		}
+	}
+	else if (player_motion.velocity.y > 0) {
+		player_motion.velocity.y = 0;
+	}
+
+	// Move up
+	if (player_motion.position.y >= PLAYER_UP_BOUNDARY)
+	{
+		if (action == GLFW_PRESS && key == GLFW_KEY_W)
+		{
+			player_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
+		{
+			player_motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
+		}
+	}
+	else if (player_motion.velocity.y < 0) {
+		player_motion.velocity.y = 0;
+	}
+}
+
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
+	// Player movement
+	Entity player = registry.players.entities[0];
+	Motion &motion = registry.motions.get(player);
 
 	// exit game w/ ESC
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE)
@@ -429,7 +602,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
-	// Resetting game
+	// Resetting game with the 'R' button
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
 	{
 		int w, h;
@@ -438,107 +611,133 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		restart_game();
 		return;
 	}
+
+	// Manual wave generation with 'g'
+	if (action == GLFW_PRESS && key == GLFW_KEY_G)
+	{
+		spawn_manager.generate_wave(renderer);
+		return;
+	}
+
+	// test mode with 't'
+	if (action == GLFW_PRESS && key == GLFW_KEY_T)
+	{
+		test_mode = !test_mode;
+		spawn_manager.set_test_mode(test_mode);
+		std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
+		return;
+	}
+
+	// Calculate cell indices
+	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
+	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
+
+	// Kung: Plant seed with the 'H' button (for Milestone #2)
+	// if (action == GLFW_PRESS && key == GLFW_KEY_H)
+	// {
+	// 	// You can only plant where there is farmland.
+	// 	if (motion.position.x < (WINDOW_WIDTH_PX / 2 + FARMLAND_DIMENSION_PX / 2)
+	// 		&& motion.position.x > (WINDOW_WIDTH_PX / 2 - FARMLAND_DIMENSION_PX / 2)
+	// 		&& motion.position.y < (WINDOW_HEIGHT_PX / 2 + FARMLAND_DIMENSION_PX / 2)
+	// 		&& motion.position.y > (WINDOW_HEIGHT_PX / 2 - FARMLAND_DIMENSION_PX / 2)) {
+	// 			// Remove any seeds that have already been planted to begin with.
+	// 			for (Entity entity : registry.seeds.entities) {
+	// 				if (registry.motions.has(entity)) {
+	// 					if (registry.motions.get(entity).position == vec2((cell_x + 0.5) * GRID_CELL_WIDTH_PX, (cell_y + 0.5) * GRID_CELL_HEIGHT_PX)) {
+	// 						registry.motions.remove(entity);
+	// 						registry.seeds.remove(entity);
+	// 					}
+	// 				}
+	// 			}
+	// 			createSeed(vec2((cell_x + 0.5) * GRID_CELL_WIDTH_PX, (cell_y + 0.5) * GRID_CELL_HEIGHT_PX));
+	// 		}
+	// }
+
+	// Haonan: Shoot towers with the 'F' button (for Milestone #2)
+	// if (action == GLFW_PRESS && key == GLFW_KEY_F)
+	// {
+	// 	// Calculate center position of the cell
+	// 	vec2 cell_center = {
+	// 		(cell_x * GRID_CELL_WIDTH_PX) + (GRID_CELL_WIDTH_PX / 2.0f),
+	// 		(cell_y * GRID_CELL_HEIGHT_PX) + (GRID_CELL_HEIGHT_PX / 2.0f)};
+
+	// 	// Create tower at cell center
+	// 	// Check if cell is already occupied by a tower
+	// 	bool cell_occupied = false;
+	// 	for (Entity tower : registry.towers.entities)
+	// 	{
+	// 		if (!registry.motions.has(tower))
+	// 		{
+	// 			continue;
+	// 		}
+
+	// 		Motion &tower_motion = registry.motions.get(tower);
+	// 		int tower_cell_x = static_cast<int>(tower_motion.position.x) / GRID_CELL_WIDTH_PX;
+	// 		int tower_cell_y = static_cast<int>(tower_motion.position.y) / GRID_CELL_HEIGHT_PX;
+
+	// 		if (tower_cell_x == cell_x && tower_cell_y == cell_y)
+	// 		{
+	// 			cell_occupied = true;
+	// 			std::cout << "Cell already occupied by a tower!" << std::endl;
+	// 			break;
+	// 		}
+	// 	}
+
+	// 	// Only create tower if cell is empty
+	// 	if (!cell_occupied)
+	// 	{
+	// 		createTower(renderer, cell_center);
+	// 	}
+	// }
+
+	// Kung: Helper function for player movement (see above for description)
+	player_movement(key, action, motion);
+
+	// Update state if player is moving
+	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
+	{
+		if (motion.velocity == vec2(0, 0))
+		{
+			StateSystem::update_state(STATE::IDLE);
+		}
+		else
+		{
+			StateSystem::update_state(STATE::MOVE);
+		}
+	}
+
+	// Player movement sound
 	if (!WorldSystem::game_is_over)
 	{
 
-		// Manual wave generation with 'g'
-		if (action == GLFW_PRESS && key == GLFW_KEY_G)
+		if ((action == GLFW_PRESS || action == GLFW_REPEAT) &&
+			(key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D))
 		{
-			spawn_manager.generate_wave(renderer);
-			return;
-		}
-
-		if (action == GLFW_PRESS && key == GLFW_KEY_T)
-		{
-			test_mode = !test_mode;
-			spawn_manager.set_test_mode(test_mode);
-			std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
-			return;
-		}
-
-		Entity player = registry.players.entities[0];
-		Motion &motion = registry.motions.get(player);
-
-		// Kung: I had to research online to determine how to deal with input with multiple keys.
-		// The source I used is https://discourse.glfw.org/t/press-multiple-keys/1207
-
-		// Move left
-		if (action == GLFW_PRESS && key == GLFW_KEY_A)
-		{
-			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			if (!is_movement_sound_playing && movement_sound_timer <= 0)
 			{
-				motion.velocity.x = 0;
-				// } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-				// 	motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
-				// 	motion.velocity.y = PLAYER_MOVE_UP_SPEED;
-				// } if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-				// 	motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
-				// 	motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
-			}
-			else
-				motion.velocity.x = PLAYER_MOVE_LEFT_SPEED;
-		}
-		else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
-		{
-			motion.velocity.x = 0;
-		}
-		// Move right
-		if (action == GLFW_PRESS && key == GLFW_KEY_D)
-		{
-			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			{
-				motion.velocity.x = 0;
-			}
-			else
-				motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED;
-		}
-		else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
-		{
-			motion.velocity.x = 0;
-		}
-
-		// Move down
-		if (action == GLFW_PRESS && key == GLFW_KEY_S)
-		{
-			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			{
-				motion.velocity.y = 0;
-			}
-			else
-				motion.velocity.y = PLAYER_MOVE_DOWN_SPEED;
-		}
-		else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
-		{
-			motion.velocity.y = 0;
-		}
-		// Move up
-		if (action == GLFW_PRESS && key == GLFW_KEY_W)
-		{
-			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			{
-				motion.velocity.y = 0;
-			}
-			else
-				motion.velocity.y = PLAYER_MOVE_UP_SPEED;
-		}
-		else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
-		{
-			motion.velocity.y = 0;
-		}
-
-		// State
-		if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
-		{
-			State &state = registry.states.get(player);
-			if (motion.velocity == vec2(0, 0))
-			{
-				StateSystem::update_state(STATE::IDLE);
-			}
-			else
-			{
-				StateSystem::update_state(STATE::MOVE);
+				Mix_PlayChannel(0, running_on_grass_sound, 0);
+				is_movement_sound_playing = true;
+				movement_sound_timer = 1000.f;
 			}
 		}
+		else if (action == GLFW_RELEASE)
+		{
+			if (motion.velocity.x == 0 && motion.velocity.y == 0)
+			{
+				if (is_movement_sound_playing)
+				{
+					Mix_HaltChannel(0);
+					is_movement_sound_playing = false;
+					movement_sound_timer = 0.f;
+				}
+			}
+		}
+	}
+
+	// Debug
+	if (action == GLFW_PRESS && key == GLFW_KEY_L)
+	{
+		registry.list_all_components();
 	}
 }
 
@@ -579,19 +778,19 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 
 void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 {
-	// on button press
-	if (action == GLFW_PRESS)
+	if (!WorldSystem::game_is_over)
 	{
+		// on button press
+		if (action == GLFW_PRESS)
+		{
 
-		int tile_x = (int)(mouse_pos_x / GRID_CELL_WIDTH_PX);
-		int tile_y = (int)(mouse_pos_y / GRID_CELL_HEIGHT_PX);
+			int tile_x = (int)(mouse_pos_x / GRID_CELL_WIDTH_PX);
+			int tile_y = (int)(mouse_pos_y / GRID_CELL_HEIGHT_PX);
 
-		// std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
-		// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
-	}
+			// std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
+			// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
+		}
 
-	if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
-	{
 		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
 		{
 			player_attack();
@@ -604,6 +803,8 @@ void WorldSystem::game_over()
 	std::cout << "Game Over!" << std::endl;
 	game_is_over = true;
 	registry.screenStates.get(registry.screenStates.entities[0]).game_over = true;
+	Mix_HaltMusic();
+	Mix_PlayChannel(0, WorldSystem::game_over_sound, 0);
 	createGameOver();
 }
 
