@@ -484,7 +484,6 @@ Entity createCamera(RenderSystem* renderer,vec2 position) {
     // Create camera component
     Camera& camera_component = registry.cameras.emplace(camera);
     camera_component.position = position;
-    camera_component.lerp_factor = 0.1f; // Smooth camera movement
 
     
     return camera;

@@ -847,8 +847,7 @@ void WorldSystem::update_camera()
 		Motion &player_motion = registry.motions.get(player);
 		Camera &cam = registry.cameras.get(camera);
 
-		// Smoothly move camera to player position
-		vec2 target = player_motion.position;
-		cam.position = cam.position + (target - cam.position) * cam.lerp_factor;
+		// move camera to player position
+		cam.position = player_motion.position;
 	}
 }
