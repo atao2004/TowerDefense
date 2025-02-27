@@ -88,8 +88,8 @@ GLFWwindow *WorldSystem::create_window()
 
 #if __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	WINDOW_HEIGHT_PX = WINDOW_HEIGHT_PX * 2 / 3;
-	WINDOW_WIDTH_PX = WINDOW_WIDTH_PX * 2 / 3;
+	WINDOW_HEIGHT_PX = WINDOW_HEIGHT_PX * 3 / 4;
+	WINDOW_WIDTH_PX = WINDOW_WIDTH_PX * 3 / 4;
 #endif
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	// CK: setting GLFW_SCALE_TO_MONITOR to true will rescale window but then you must handle different scalings
@@ -290,7 +290,7 @@ void WorldSystem::restart_game()
 		}
 	}
 	// Kung: This is for Milestone #2. This creates the farmland.
-	// createFarmland(vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2));
+	createFarmland(vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2));
 
 	// create grid lines and clear any pre-existing grid lines
 	// Kung: I cleared the grid lines so that they would now render on top of my textures
@@ -633,62 +633,62 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
 
 	// Kung: Plant seed with the 'H' button (for Milestone #2)
-	// if (action == GLFW_PRESS && key == GLFW_KEY_H)
-	// {
-	// 	// You can only plant where there is farmland.
-	// 	if (motion.position.x < (WINDOW_WIDTH_PX / 2 + FARMLAND_DIMENSION_PX / 2)
-	// 		&& motion.position.x > (WINDOW_WIDTH_PX / 2 - FARMLAND_DIMENSION_PX / 2)
-	// 		&& motion.position.y < (WINDOW_HEIGHT_PX / 2 + FARMLAND_DIMENSION_PX / 2)
-	// 		&& motion.position.y > (WINDOW_HEIGHT_PX / 2 - FARMLAND_DIMENSION_PX / 2)) {
-	// 			// Remove any seeds that have already been planted to begin with.
-	// 			for (Entity entity : registry.seeds.entities) {
-	// 				if (registry.motions.has(entity)) {
-	// 					if (registry.motions.get(entity).position == vec2((cell_x + 0.5) * GRID_CELL_WIDTH_PX, (cell_y + 0.5) * GRID_CELL_HEIGHT_PX)) {
-	// 						registry.motions.remove(entity);
-	// 						registry.seeds.remove(entity);
-	// 					}
-	// 				}
-	// 			}
-	// 			createSeed(vec2((cell_x + 0.5) * GRID_CELL_WIDTH_PX, (cell_y + 0.5) * GRID_CELL_HEIGHT_PX));
-	// 		}
-	// }
+	if (action == GLFW_PRESS && key == GLFW_KEY_H)
+	{
+		// You can only plant where there is farmland.
+		if (motion.position.x < (WINDOW_WIDTH_PX / 2 + FARMLAND_DIMENSION_PX / 2)
+			&& motion.position.x > (WINDOW_WIDTH_PX / 2 - FARMLAND_DIMENSION_PX / 2)
+			&& motion.position.y < (WINDOW_HEIGHT_PX / 2 + FARMLAND_DIMENSION_PX / 2)
+			&& motion.position.y > (WINDOW_HEIGHT_PX / 2 - FARMLAND_DIMENSION_PX / 2)) {
+				// Remove any seeds that have already been planted to begin with.
+				for (Entity entity : registry.seeds.entities) {
+					if (registry.motions.has(entity)) {
+						if (registry.motions.get(entity).position == vec2((cell_x + 0.5) * GRID_CELL_WIDTH_PX, (cell_y + 0.5) * GRID_CELL_HEIGHT_PX)) {
+							registry.motions.remove(entity);
+							registry.seeds.remove(entity);
+						}
+					}
+				}
+				createSeed(vec2((cell_x + 0.5) * GRID_CELL_WIDTH_PX, (cell_y + 0.5) * GRID_CELL_HEIGHT_PX));
+			}
+	}
 
 	// Haonan: Shoot towers with the 'F' button (for Milestone #2)
-	// if (action == GLFW_PRESS && key == GLFW_KEY_F)
-	// {
-	// 	// Calculate center position of the cell
-	// 	vec2 cell_center = {
-	// 		(cell_x * GRID_CELL_WIDTH_PX) + (GRID_CELL_WIDTH_PX / 2.0f),
-	// 		(cell_y * GRID_CELL_HEIGHT_PX) + (GRID_CELL_HEIGHT_PX / 2.0f)};
+	if (action == GLFW_PRESS && key == GLFW_KEY_F)
+	{
+		// Calculate center position of the cell
+		vec2 cell_center = {
+			(cell_x * GRID_CELL_WIDTH_PX) + (GRID_CELL_WIDTH_PX / 2.0f),
+			(cell_y * GRID_CELL_HEIGHT_PX) + (GRID_CELL_HEIGHT_PX / 2.0f)};
 
-	// 	// Create tower at cell center
-	// 	// Check if cell is already occupied by a tower
-	// 	bool cell_occupied = false;
-	// 	for (Entity tower : registry.towers.entities)
-	// 	{
-	// 		if (!registry.motions.has(tower))
-	// 		{
-	// 			continue;
-	// 		}
+		// Create tower at cell center
+		// Check if cell is already occupied by a tower
+		bool cell_occupied = false;
+		for (Entity tower : registry.towers.entities)
+		{
+			if (!registry.motions.has(tower))
+			{
+				continue;
+			}
 
-	// 		Motion &tower_motion = registry.motions.get(tower);
-	// 		int tower_cell_x = static_cast<int>(tower_motion.position.x) / GRID_CELL_WIDTH_PX;
-	// 		int tower_cell_y = static_cast<int>(tower_motion.position.y) / GRID_CELL_HEIGHT_PX;
+			Motion &tower_motion = registry.motions.get(tower);
+			int tower_cell_x = static_cast<int>(tower_motion.position.x) / GRID_CELL_WIDTH_PX;
+			int tower_cell_y = static_cast<int>(tower_motion.position.y) / GRID_CELL_HEIGHT_PX;
 
-	// 		if (tower_cell_x == cell_x && tower_cell_y == cell_y)
-	// 		{
-	// 			cell_occupied = true;
-	// 			std::cout << "Cell already occupied by a tower!" << std::endl;
-	// 			break;
-	// 		}
-	// 	}
+			if (tower_cell_x == cell_x && tower_cell_y == cell_y)
+			{
+				cell_occupied = true;
+				std::cout << "Cell already occupied by a tower!" << std::endl;
+				break;
+			}
+		}
 
-	// 	// Only create tower if cell is empty
-	// 	if (!cell_occupied)
-	// 	{
-	// 		createTower(renderer, cell_center);
-	// 	}
-	// }
+		// Only create tower if cell is empty
+		if (!cell_occupied)
+		{
+			createTower(renderer, cell_center);
+		}
+	}
 
 	// Kung: Helper function for player movement (see above for description)
 	player_movement(key, action, motion);
