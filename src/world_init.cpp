@@ -313,12 +313,6 @@ Entity createToolbar()
 
 Entity createGameOver() {
 	Entity entity = Entity();
-
-	State& state = registry.states.emplace(entity);
-	state.state = STATE::IDLE;
-
-	Player& player = registry.players.emplace(entity);
-	player.health = PLAYER_HEALTH;
 	
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
@@ -326,10 +320,6 @@ Entity createGameOver() {
 	motion.position = {WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2 };
 	motion.scale = vec2({ WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX });
 
-	Attack& attack = registry.attacks.emplace(entity);
-	attack.range = 60;
-
-	registry.statuses.emplace(entity);
 
 	registry.renderRequests.insert(
 		entity,
@@ -484,4 +474,17 @@ Entity createSeed(vec2 pos)
 	);
 
 	return seed_entity;
+}
+
+// create a camera
+Entity createCamera(RenderSystem* renderer,vec2 position) {
+    // Create camera entity
+    Entity camera = Entity();
+
+    // Create camera component
+    Camera& camera_component = registry.cameras.emplace(camera);
+    camera_component.position = position;
+
+    
+    return camera;
 }

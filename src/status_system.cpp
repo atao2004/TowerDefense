@@ -169,6 +169,7 @@ void StatusSystem::handle_projectile_attack(Entity entity, float elapsed_ms)
 {
     // Check if entity has necessary components
     if (!registry.statuses.has(entity) || !registry.zombies.has(entity))
+   
     {
         return;
     }
@@ -178,8 +179,10 @@ void StatusSystem::handle_projectile_attack(Entity entity, float elapsed_ms)
 
     // Process each status
     for (auto it = status_comp.active_statuses.begin(); it != status_comp.active_statuses.end();)
+   
     {
         if (it->type == "attack")
+       
         {
             // Apply projectile damage
             zombie.health -= it->value;
@@ -189,10 +192,10 @@ void StatusSystem::handle_projectile_attack(Entity entity, float elapsed_ms)
             // Remove attack status after applying damage
             it = status_comp.active_statuses.erase(it);
 
-            // Check for zombie death
-            if (zombie.health <= 0)
+            // Only check for death after all damage is applied
+            if (zombie.health <= 0 && !registry.deathAnimations.has(entity))
             {
-                // Add death animation before removing zombie
+                // Add death animation only if it doesn't already have one
                 registry.deathAnimations.emplace(entity);
             }
         }
