@@ -68,7 +68,7 @@ void SpawnManager::generate_wave(RenderSystem *renderer)
         // Get a random spawn point index
         int random_point = (int)(uniform_dist(rng) * spawn_points.size());
         vec2 spawn_pos = spawn_points[random_point].position;
-        createZombie(renderer, spawn_pos);
+        createZombieSpawn(renderer, spawn_pos);
     }
 
     if (IS_WAVE_MODE_LINEAR)
