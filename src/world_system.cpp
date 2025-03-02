@@ -22,7 +22,7 @@ bool WorldSystem::game_is_over = false;
 Mix_Chunk *WorldSystem::game_over_sound = nullptr;
 
 // create the world
-WorldSystem::WorldSystem() : points(0)
+WorldSystem::WorldSystem() : points(0), level(1)
 {
 }
 
@@ -255,6 +255,7 @@ void WorldSystem::restart_game()
 	current_speed = 1.f;
 
 	points = 0;
+	level = 1;
 	registry.screenStates.get(registry.screenStates.entities[0]).game_over = false;
 	registry.screenStates.get(registry.screenStates.entities[0]).lerp_timer = 0.0;
 
@@ -339,8 +340,6 @@ void WorldSystem::restart_game()
 	Motion &pause_motion = registry.motions.get(pause);
 	Motion &toolbar_motion = registry.motions.get(toolbar);
 
-	std::cout << "Retrieved the motions" << std::endl;
-
 	// Move left
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
@@ -375,6 +374,9 @@ void WorldSystem::restart_game()
 
 	// start the spawn manager
 	spawn_manager.start_game();
+
+	// Print the starting level (Level 1)
+	std::cout << "==== LEVEL " << level << " ====" << std::endl;
 }
 
 // Compute collisions between entities
@@ -458,7 +460,7 @@ void WorldSystem::player_attack()
 						death_anim.alpha = 1.0f;
 						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
 
-            // Increase the counter that represents the number of zombies killed.
+            			// Increase the counter that represents the number of zombies killed.
 						points++;
 						std::cout<<"Zombies killed: "<<points<<std::endl;
             
@@ -466,10 +468,12 @@ void WorldSystem::player_attack()
 						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 						{
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
-						} // Kung: If the bar is full, reset the player experience bar.
+						} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
 						else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 						{
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+							level++;
+							std::cout << "==== LEVEL " << level << " ====" << std::endl;
 						}
 					}
 				}
@@ -546,21 +550,21 @@ void WorldSystem::update_screen_shake(float elapsed_ms)
 // I was responsible for this but Ziqing implemented single and multi-button movement first.
 // However, I then implemented boundary checking and the situation where opposing keys cause no movement.
 // In addition, I did general debugging, including on Ziqing's initial code.
-void WorldSystem::player_movement(int key, int action, Motion& player_motion, Motion& pause_motion, Motion& toolbar_motion) {
+void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	// Move left
 	if (player_motion.position.x >= PLAYER_LEFT_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_A)
 		{
-			player_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
-			pause_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
-			toolbar_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_LEFT_SPEED;
+			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
 		{
-			player_motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
-			pause_motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
-			toolbar_motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+			}
 		}
 	}
 
@@ -569,15 +573,15 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion, Mo
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_D)
 		{
-			player_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
-			pause_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
-			toolbar_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
 		{
-			player_motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
-			pause_motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
-			toolbar_motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+			}
 		}
 	}
 
@@ -586,15 +590,15 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion, Mo
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_S)
 		{
-			player_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
-			pause_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
-			toolbar_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_DOWN_SPEED;
+			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
 		{
-			player_motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
-			pause_motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
-			toolbar_motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+			}
 		}
 	}
 
@@ -603,15 +607,15 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion, Mo
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_W)
 		{
-			player_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
-			pause_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
-			toolbar_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_UP_SPEED;
+			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
 		{
-			player_motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
-			pause_motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
-			toolbar_motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y -= PLAYER_MOVE_UP_SPEED;
+			}
 		}
 	}
 }
@@ -722,7 +726,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	Entity toolbar = registry.toolbars.entities[0];
 	Motion &pause_motion = registry.motions.get(pause);
 	Motion &toolbar_motion = registry.motions.get(toolbar);
-	player_movement(key, action, motion, pause_motion, toolbar_motion);
+	player_movement(key, action, motion);
 
 	// Update state if player is moving
 	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
