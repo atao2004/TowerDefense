@@ -25,16 +25,12 @@ void AnimationSystem::step(float elapsed_ms)
             animation.pose += 1;
             if (!(animation.pose < animation.pose_count)) {
                 if (!animation.loop) {
-                    if (animation.textures[animation.pose - 1] == registry.renderRequests.get(entity).used_texture) {
-                        Motion& motion = registry.motions.get(entity);
-                        createZombie(renderer, motion.position);
-                    }
-                    registry.animations.remove(entity);
-                    if (registry.states.has(entity)) {
-                        StateSystem::update_state(STATE::IDLE);
-                    }
+                    handle_animation_end(entity);
                     if (animation.destroy) {
                         registry.remove_all_components_of(entity);
+                    }
+                    else {
+                        registry.animations.remove(entity);
                     }
                     break;
                 }
@@ -76,5 +72,17 @@ void AnimationSystem::update_animation(Entity entity, int frame_delay, const TEX
         animation.destroy = destroy;
         RenderRequest& request = registry.renderRequests.get(entity);
         request.used_texture = textures[0];
+    }
+}
+
+void AnimationSystem::handle_animation_end(Entity entity)
+{
+    Animation& animation = registry.animations.get(entity);
+    if (animation.textures[animation.pose - 1] == registry.renderRequests.get(entity).used_texture) {
+        Motion& motion = registry.motions.get(entity);
+        //createZombie(renderer, motion.position);
+    }
+    if (registry.states.has(entity)) {
+        StateSystem::update_state(STATE::IDLE);
     }
 }
