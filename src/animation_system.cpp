@@ -1,6 +1,14 @@
 // In status_system.cpp
 #include "animation_system.hpp"
+#include "world_init.hpp"
 #include <iostream>
+
+RenderSystem* AnimationSystem::renderer;
+
+void AnimationSystem::init(RenderSystem* renderer_arg)
+{
+    renderer = renderer_arg;
+}
 
 /**
 * Update the texture of each animation component.
@@ -16,6 +24,10 @@ void AnimationSystem::step(float elapsed_ms)
             animation.pose += 1;
             if (!(animation.pose < animation.pose_count)) {
                 if (!animation.loop) {
+                    if (animation.textures[animation.pose - 1] == registry.renderRequests.get(entity).used_texture) {
+                        Motion& motion = registry.motions.get(entity);
+                        createZombie(renderer, motion.position);
+                    }
                     registry.animations.remove(entity);
                     break;
                 }
