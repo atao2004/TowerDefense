@@ -57,6 +57,7 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 
 	Attack& attack = registry.attacks.emplace(entity);
 	attack.range = 30.0f;
+	attack.damage = ZOMBIE_DAMAGE;
 
 	// store a reference to the potentially re-used mesh object
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);

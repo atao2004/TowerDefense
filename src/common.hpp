@@ -138,6 +138,8 @@ const int MAX_ZOMBIES = 5;
 
 const int PLAYER_HEALTH = 100;
 const int ZOMBIE_HEALTH = 20;
+const int ZOMBIE_DAMAGE = 5;
+const float BASE_ENEMY_SPEED = 500.0f; // Base movement speed for enemies
 const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
 const int PROJECTILE_DAMAGE = 10;
