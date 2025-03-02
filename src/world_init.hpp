@@ -5,6 +5,7 @@
 #include "render_system.hpp"
 
 // zombies
+Entity createZombieSpawn(RenderSystem* renderer, vec2 position);
 Entity createZombie(RenderSystem* renderer, vec2 position);
 
 // towers

@@ -179,6 +179,7 @@ const float SLASH_HEIGHT = 60;
 // cooldown
 const int COOLDOWN_ENEMY_ATTACK = 1000;
 const int COOLDOWN_PLAYER_ATTACK = 1000;
+const int COOLDOWN_ZOMBIE_SPAWN = 3000;
 
 // animation
 const int PLAYER_MOVE_FRAME_DELAY = 500;
@@ -216,6 +217,13 @@ const TEXTURE_ASSET_ID SLASH_ANIMATION[] = {
 	TEXTURE_ASSET_ID::PLAYER_ATTACK_SLASH_8,
 	TEXTURE_ASSET_ID::PLAYER_ATTACK_SLASH_9,
 };
+
+const TEXTURE_ASSET_ID ZOMBIE_SPAWN_ANIMATION[] = {
+	TEXTURE_ASSET_ID::ZOMBIE_SPAWN_1,
+	TEXTURE_ASSET_ID::ZOMBIE_SPAWN_2
+};
+
+const int ZOMBIE_SPAWN_FRAME_DELAY = COOLDOWN_ZOMBIE_SPAWN / (sizeof(ZOMBIE_SPAWN_ANIMATION) / sizeof(ZOMBIE_SPAWN_ANIMATION[0]));
 
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)

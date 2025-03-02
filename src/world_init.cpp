@@ -49,6 +49,32 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 // 	return entity;
 // }
 
+// createZombieSpawn
+
+Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
+	Entity entity = Entity();
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::ZOMBIE_SPAWN_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+
+	AnimationSystem::update_animation(entity, ZOMBIE_SPAWN_FRAME_DELAY, ZOMBIE_SPAWN_ANIMATION, sizeof(ZOMBIE_SPAWN_ANIMATION) / sizeof(ZOMBIE_SPAWN_ANIMATION[0]), false, false);
+
+	return entity;
+}
+
 Entity createZombie(RenderSystem* renderer, vec2 position) {
 	auto entity = Entity();
 
