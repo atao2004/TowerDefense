@@ -21,6 +21,9 @@ void AnimationSystem::step(float elapsed_ms)
                     if (registry.states.has(entity)) {
                         StateSystem::update_state(STATE::IDLE);
                     }
+                    if (animation.destroy) {
+                        registry.remove_all_components_of(entity);
+                    }
                     break;
                 }
                 animation.pose = 0;
@@ -42,7 +45,7 @@ void AnimationSystem::step(float elapsed_ms)
 * @param loop True if the animation should loop.
 * @param lock True if the animation should not be replaced.
 */
-void AnimationSystem::update_animation(Entity entity, int frame_delay, const TEXTURE_ASSET_ID* textures, int textures_size, bool loop, bool lock)
+void AnimationSystem::update_animation(Entity entity, int frame_delay, const TEXTURE_ASSET_ID* textures, int textures_size, bool loop, bool lock, bool destroy)
 {
     if (registry.animations.has(entity) && registry.animations.get(entity).lock) {
         //
@@ -58,6 +61,7 @@ void AnimationSystem::update_animation(Entity entity, int frame_delay, const TEX
         animation.textures = textures;
         animation.loop = loop;
         animation.lock = lock;
+        animation.destroy = destroy;
         RenderRequest& request = registry.renderRequests.get(entity);
         request.used_texture = textures[0];
     }
