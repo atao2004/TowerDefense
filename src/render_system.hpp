@@ -33,6 +33,8 @@ class RenderSystem {
 		textures_path("seeds/seed_1.png"),
 		textures_path("enemies/zombie_walk1.png"),
 		textures_path("enemies/zombie_walk2.png"),
+		textures_path("enemies/zombie_spawn1.png"),
+		textures_path("enemies/zombie_spawn2.png"),
 		textures_path("player/idle.png"),
 		textures_path("player/walk1.png"),
 		textures_path("player/walk2.png"),
