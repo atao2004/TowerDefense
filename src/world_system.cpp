@@ -349,8 +349,8 @@ void WorldSystem::restart_game()
 	}
 
 	// Kung: Create the pause button and toolbar, and have them overlay the player
-	createPause();
-	createToolbar();
+	createPause(player_motion.velocity);
+	createToolbar(player_motion.velocity);
 
 	// start the spawn manager
 	spawn_manager.start_game();
