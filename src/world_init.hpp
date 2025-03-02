@@ -18,8 +18,8 @@ Entity createScorchedEarth(vec2 position);
 void removeSurfaces();
 
 // ui elements
-Entity createPause(vec2 velocity);
-Entity createToolbar(vec2 velocity);
+Entity createPause();
+Entity createToolbar();
 
 // grid lines to show tile positions
 Entity createGridLine(vec2 start_pos, vec2 end_pos);

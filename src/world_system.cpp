@@ -276,17 +276,17 @@ void WorldSystem::restart_game()
 			createGrass(vec2(x, y));
 		}
 	}
-	for (int x = -SCORCHED_EARTH_BOUNDARY; x < WINDOW_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 1.5; x += SCORCHED_EARTH_DIMENSION_PX)
+	for (int x = -SCORCHED_EARTH_BOUNDARY * 12; x < WINDOW_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 5; x += SCORCHED_EARTH_DIMENSION_PX)
 	{
-		for (int y = -SCORCHED_EARTH_BOUNDARY; y < WINDOW_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 1.5; y += SCORCHED_EARTH_DIMENSION_PX)
+		for (int y = -SCORCHED_EARTH_BOUNDARY * 5; y < WINDOW_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 5; y += SCORCHED_EARTH_DIMENSION_PX)
 		{
-			if (x < SCORCHED_EARTH_BOUNDARY || (y < SCORCHED_EARTH_BOUNDARY))
+			if (x < SCORCHED_EARTH_BOUNDARY || y < SCORCHED_EARTH_BOUNDARY)
 			{
 				createScorchedEarth(vec2(x, y));
 			}
 			else if (x > WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY || y > WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY)
 			{
-				createScorchedEarth(vec2(min(x, WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY), min(y, WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY)));
+				createScorchedEarth(vec2(x, y));
 			}
 		}
 	}
@@ -320,42 +320,58 @@ void WorldSystem::restart_game()
 	// reset player and spawn player in the middle of the screen
 	registry.players.clear();
 	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
-
-	// Kung: Reset player movement so that the player remains still when no keys are pressed
-	Entity player = registry.players.entities[0];
-	Motion &player_motion = registry.motions.get(player);
 	
 	// reset camera position
 	registry.cameras.clear();
 	createCamera(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
 
+	// Kung: Create the pause button and toolbar, and have them overlay the player
+	registry.pauses.clear();
+	registry.toolbars.clear();
+	createPause();
+	createToolbar();
+
+	// Kung: Reset player movement so that the player remains still when no keys are pressed
+	Entity player = registry.players.entities[0];
+	Entity pause = registry.pauses.entities[0];
+	Entity toolbar = registry.toolbars.entities[0];
+	Motion &player_motion = registry.motions.get(player);
+	Motion &pause_motion = registry.motions.get(pause);
+	Motion &toolbar_motion = registry.motions.get(toolbar);
+
+	std::cout << "Retrieved the motions" << std::endl;
+
 	// Move left
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
 		player_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+		pause_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+		toolbar_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
 	}
 
 	// Move right
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
 		player_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+		pause_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+		toolbar_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
 	}
 
 	// Move down
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
 		player_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
+		pause_motion.velocity.x += PLAYER_MOVE_DOWN_SPEED;
+		toolbar_motion.velocity.x += PLAYER_MOVE_DOWN_SPEED;
 	}
 
 	// Move up
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		player_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
+		pause_motion.velocity.x += PLAYER_MOVE_UP_SPEED;
+		toolbar_motion.velocity.x += PLAYER_MOVE_UP_SPEED;
 	}
-
-	// Kung: Create the pause button and toolbar, and have them overlay the player
-	createPause(player_motion.velocity);
-	createToolbar(player_motion.velocity);
 
 	// start the spawn manager
 	spawn_manager.start_game();
@@ -530,20 +546,22 @@ void WorldSystem::update_screen_shake(float elapsed_ms)
 // I was responsible for this but Ziqing implemented single and multi-button movement first.
 // However, I then implemented boundary checking and the situation where opposing keys cause no movement.
 // In addition, I did general debugging, including on Ziqing's initial code.
-void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
+void WorldSystem::player_movement(int key, int action, Motion& player_motion, Motion& pause_motion, Motion& toolbar_motion) {
 	// Move left
 	if (player_motion.position.x >= PLAYER_LEFT_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_A)
 		{
 			player_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+			pause_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+			toolbar_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
 		{
 			player_motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+			pause_motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+			toolbar_motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
 		}
-	} else if (player_motion.velocity.x < 0) {
-		player_motion.velocity.x = 0;
 	}
 
 	// Move right
@@ -552,13 +570,15 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 		if (action == GLFW_PRESS && key == GLFW_KEY_D)
 		{
 			player_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+			pause_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+			toolbar_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
 		{
 			player_motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+			pause_motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+			toolbar_motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
 		}
-	} else if (player_motion.velocity.x > 0) {
-		player_motion.velocity.x = 0;
 	}
 
 	// Move down
@@ -567,14 +587,15 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 		if (action == GLFW_PRESS && key == GLFW_KEY_S)
 		{
 			player_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
+			pause_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
+			toolbar_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
 		{
 			player_motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+			pause_motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+			toolbar_motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
 		}
-	}
-	else if (player_motion.velocity.y > 0) {
-		player_motion.velocity.y = 0;
 	}
 
 	// Move up
@@ -583,14 +604,15 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 		if (action == GLFW_PRESS && key == GLFW_KEY_W)
 		{
 			player_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
+			pause_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
+			toolbar_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
 		{
 			player_motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
+			pause_motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
+			toolbar_motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
 		}
-	}
-	else if (player_motion.velocity.y < 0) {
-		player_motion.velocity.y = 0;
 	}
 }
 
@@ -696,7 +718,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	// Kung: Helper function for player movement (see above for description)
-	player_movement(key, action, motion);
+	Entity pause = registry.pauses.entities[0];
+	Entity toolbar = registry.toolbars.entities[0];
+	Motion &pause_motion = registry.motions.get(pause);
+	Motion &toolbar_motion = registry.motions.get(toolbar);
+	player_movement(key, action, motion, pause_motion, toolbar_motion);
 
 	// Update state if player is moving
 	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)

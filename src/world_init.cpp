@@ -284,7 +284,7 @@ void removeSurfaces()
 
 // Kung: Create the toolbar that in the future will store seeds, harvests, and other associated items.
 // As of now, it is purely cosmetic.
-Entity createToolbar(vec2 velocity)
+Entity createToolbar()
 {
 	// Create the associated entity.
 	Entity toolbar_entity = Entity();
@@ -294,9 +294,9 @@ Entity createToolbar(vec2 velocity)
 
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(toolbar_entity);
-	motion_component.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX - 50);
-	motion_component.scale = vec2(600, 75);
-	motion_component.velocity = velocity;
+	motion_component.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX + 50);
+	motion_component.scale = vec2(960, 120);
+	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
 	registry.renderRequests.insert(
@@ -335,7 +335,7 @@ Entity createGameOver() {
 
 // Kung: Create the pause button that will eventually pause the game.
 // As of now, it is purely cosmetic.
-Entity createPause(vec2 velocity)
+Entity createPause()
 {
 	// Create the associated entity.
 	Entity pause_entity = Entity();
@@ -345,9 +345,9 @@ Entity createPause(vec2 velocity)
 
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(pause_entity);
-	motion_component.position = vec2(50, 50);
-	motion_component.scale = vec2(50, 50);
-	motion_component.velocity = velocity;
+	motion_component.position = vec2(-150, -50);
+	motion_component.scale = vec2(120, 120);
+	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
 	registry.renderRequests.insert(
