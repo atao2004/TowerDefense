@@ -10,7 +10,7 @@
 
 **Video**
 
-- []
+- https://youtu.be/HwS0V2wAJzY
 
 **Description**
 
@@ -83,4 +83,4 @@
 
 **Creative [23] User Interface: Audio feedback**
 - There are two background tracks depending on whether the player is in combat (there is at least 1 zombie).
-- There are sound effects for player attacks, player taking damage, and enemies taking damage.
+- There are sound effects for player move, player attack, enemy attack, player death, and game over.

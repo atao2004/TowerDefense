@@ -443,13 +443,31 @@ void RenderSystem::draw()
 // 		{tx, ty, 1.f}};
 // }
 
-mat3 RenderSystem::createProjectionMatrix() {
-    auto& screen = registry.screenStates.get(screen_state_entity);
+// mat3 RenderSystem::createProjectionMatrix() {
+//     auto& screen = registry.screenStates.get(screen_state_entity);
     
-    float left = 0.f + screen.shake_offset.x;
-    float top = 0.f + screen.shake_offset.y;
-    float right = (float)WINDOW_WIDTH_PX + screen.shake_offset.x;
-    float bottom = (float)WINDOW_HEIGHT_PX + screen.shake_offset.y;
+//     float left = 0.f + screen.shake_offset.x;
+//     float top = 0.f + screen.shake_offset.y;
+//     float right = (float)WINDOW_WIDTH_PX + screen.shake_offset.x;
+//     float bottom = (float)WINDOW_HEIGHT_PX + screen.shake_offset.y;
+
+//     float sx = 2.f / (right - left);
+//     float sy = 2.f / (top - bottom);
+//     float tx = -(right + left) / (right - left);
+//     float ty = -(top + bottom) / (top - bottom);
+
+//     return {{sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f}};
+// }
+
+mat3 RenderSystem::createProjectionMatrix() {
+	auto& screen = registry.screenStates.get(screen_state_entity);
+	auto& camera = registry.cameras.get(registry.cameras.entities[0]);
+    
+    // Center camera on player, accounting for window size
+    float left = camera.position.x - camera.camera_width/2 + screen.shake_offset.x;
+    float top = camera.position.y - camera.camera_height/2 + screen.shake_offset.y;
+    float right = camera.position.x + camera.camera_width/2 + screen.shake_offset.x;
+    float bottom = camera.position.y + camera.camera_height/2 + screen.shake_offset.y;
 
     float sx = 2.f / (right - left);
     float sy = 2.f / (top - bottom);
