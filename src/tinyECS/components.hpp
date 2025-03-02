@@ -107,6 +107,7 @@ struct Animation
 	const TEXTURE_ASSET_ID* textures;
 	bool loop = true;
 	bool lock = false;
+	bool destroy = false;
 };
 
 // Tower
