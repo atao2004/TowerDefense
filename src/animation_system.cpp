@@ -1,6 +1,7 @@
 // In status_system.cpp
 #include "animation_system.hpp"
 #include <iostream>
+#include "state_system.hpp"
 
 /**
 * Update the texture of each animation component.
@@ -17,6 +18,9 @@ void AnimationSystem::step(float elapsed_ms)
             if (!(animation.pose < animation.pose_count)) {
                 if (!animation.loop) {
                     registry.animations.remove(entity);
+                    if (registry.states.has(entity)) {
+                        StateSystem::update_state(STATE::IDLE);
+                    }
                     break;
                 }
                 animation.pose = 0;
