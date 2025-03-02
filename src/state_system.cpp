@@ -12,15 +12,12 @@ void StateSystem::update_state(STATE state_new)
 {
     Entity player = registry.players.entities[0];
     State& state = registry.states.get(player);
-    RenderRequest& request = registry.renderRequests.get(player);
 
     if (state.state != state_new) {
         state.state = state_new;
 
         if (state.state == STATE::IDLE) {
-            if (registry.animations.has(player)) {
-                registry.animations.remove(player);
-            }
+            RenderRequest& request = registry.renderRequests.get(player);
             request.used_texture = TEXTURE_ASSET_ID::PLAYER_IDLE;
         }
         else if (state.state == STATE::MOVE) {

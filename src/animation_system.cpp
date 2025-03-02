@@ -62,7 +62,6 @@ void AnimationSystem::update_animation(Entity entity, int frame_delay, const TEX
         if (registry.animations.has(entity)) {
             registry.animations.remove(entity);
         }
-
         Animation& animation = registry.animations.emplace(entity);
         animation.transition_ms = frame_delay;
         animation.pose_count = textures_size;
@@ -77,11 +76,12 @@ void AnimationSystem::update_animation(Entity entity, int frame_delay, const TEX
 
 void AnimationSystem::handle_animation_end(Entity entity)
 {
-    Animation& animation = registry.animations.get(entity);
-    if (animation.textures[animation.pose - 1] == registry.renderRequests.get(entity).used_texture) {
-        Motion& motion = registry.motions.get(entity);
-        //createZombie(renderer, motion.position);
-    }
+    //std::cout << entity << std::endl;
+    //Animation& animation = registry.animations.get(entity);
+    //if (animation.textures[animation.pose - 1] == registry.renderRequests.get(entity).used_texture) {
+    //    //Motion& motion = registry.motions.get(entity);
+    //    //createZombie(renderer, motion.position);
+    //}
     if (registry.states.has(entity)) {
         StateSystem::update_state(STATE::IDLE);
     }
