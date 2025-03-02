@@ -70,7 +70,7 @@ Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
 		false
 	);
 
-	AnimationSystem::update_animation(entity, ZOMBIE_SPAWN_FRAME_DELAY, ZOMBIE_SPAWN_ANIMATION, sizeof(ZOMBIE_SPAWN_ANIMATION) / sizeof(ZOMBIE_SPAWN_ANIMATION[0]), false, false);
+	AnimationSystem::update_animation(entity, ZOMBIE_SPAWN_FRAME_DELAY, ZOMBIE_SPAWN_ANIMATION, sizeof(ZOMBIE_SPAWN_ANIMATION) / sizeof(ZOMBIE_SPAWN_ANIMATION[0]), false, false, true);
 
 	return entity;
 }
