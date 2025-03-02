@@ -75,6 +75,9 @@ struct Zombie
 	float health;
 };
 
+struct ZombieSpawn {
+};
+
 struct Projectile {
     Entity source;      // The tower that fired this projectile
     float damage;       // Damage taken from tower

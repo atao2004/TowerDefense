@@ -54,6 +54,8 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
 	Entity entity = Entity();
 
+	registry.zombieSpawns.emplace(entity);
+
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
