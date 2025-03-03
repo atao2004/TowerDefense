@@ -327,49 +327,43 @@ void WorldSystem::restart_game()
 	createCamera(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
 
 	// Kung: Create the pause button and toolbar, and have them overlay the player
-	registry.pauses.clear();
+	// registry.pauses.clear();
 	registry.toolbars.clear();
-	createPause();
+	// createPause();
 	createToolbar();
 
 	// Kung: Reset player movement so that the player remains still when no keys are pressed
-	Entity player = registry.players.entities[0];
-	Entity pause = registry.pauses.entities[0];
-	Entity toolbar = registry.toolbars.entities[0];
-	Motion &player_motion = registry.motions.get(player);
-	Motion &pause_motion = registry.motions.get(pause);
-	Motion &toolbar_motion = registry.motions.get(toolbar);
 
 	// Move left
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		player_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
-		pause_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
-		toolbar_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+		for (Entity mwc_entity : registry.moveWithCameras.entities) {
+            if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_LEFT_SPEED;
+        }
 	}
 
 	// Move right
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		player_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
-		pause_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
-		toolbar_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+		for (Entity mwc_entity : registry.moveWithCameras.entities) {
+            if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+        }
 	}
 
 	// Move down
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		player_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
-		pause_motion.velocity.x += PLAYER_MOVE_DOWN_SPEED;
-		toolbar_motion.velocity.x += PLAYER_MOVE_DOWN_SPEED;
+		for (Entity mwc_entity : registry.moveWithCameras.entities) {
+            if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_DOWN_SPEED;
+        }
 	}
 
 	// Move up
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		player_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
-		pause_motion.velocity.x += PLAYER_MOVE_UP_SPEED;
-		toolbar_motion.velocity.x += PLAYER_MOVE_UP_SPEED;
+		for (Entity mwc_entity : registry.moveWithCameras.entities) {
+            if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_UP_SPEED;
+        }
 	}
 
 	// start the spawn manager
@@ -722,10 +716,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	// Kung: Helper function for player movement (see above for description)
-	Entity pause = registry.pauses.entities[0];
-	Entity toolbar = registry.toolbars.entities[0];
-	Motion &pause_motion = registry.motions.get(pause);
-	Motion &toolbar_motion = registry.motions.get(toolbar);
 	player_movement(key, action, motion);
 
 	// Update state if player is moving

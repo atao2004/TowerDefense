@@ -20,11 +20,7 @@ void MovementSystem::step(float elapsed_ms)
 void MovementSystem::checkBoundaries(float elapsed_ms) {
     // Player movement
 	Entity player = registry.players.entities[0];
-	Entity pause = registry.pauses.entities[0];
-	Entity toolbar = registry.toolbars.entities[0];
 	Motion &player_motion = registry.motions.get(player);
-	Motion &pause_motion = registry.motions.get(pause);
-	Motion &toolbar_motion = registry.motions.get(toolbar);
 
     if (player_motion.position.x < PLAYER_LEFT_BOUNDARY && player_motion.velocity.x < 0) {
         for (Entity mwc_entity : registry.moveWithCameras.entities) {
