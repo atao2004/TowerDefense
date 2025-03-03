@@ -169,14 +169,6 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 	// start playing background music indefinitely
 	std::cout << "Starting music..." << std::endl;
 
-	current_bgm = night_bgm;
-	// smooth fade in, thread to prevent blocking
-	std::thread music_thread([this]()
-							 { Mix_FadeInMusic(night_bgm, -1, 1000); });
-	music_thread.detach(); // Let it run independently
-
-	// set volume to 35%, max value is 128
-	Mix_VolumeMusic(128 * 0.35);
 	// Set all states to default
 	restart_game();
 }
@@ -237,8 +229,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 // Reset the world state to its initial state
 void WorldSystem::restart_game()
 {
-
+	registry.clear_all_components();
 	std::cout << "Restarting..." << std::endl;
+	current_bgm = night_bgm;
+	// smooth fade in, thread to prevent blocking
+	std::thread music_thread([this]()
+							 { Mix_FadeInMusic(night_bgm, -1, 1000); });
+	music_thread.detach(); // Let it run independently
+	// set volume to 35%, max value is 128
+	Mix_VolumeMusic(128 * 0.35);
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
@@ -247,9 +246,6 @@ void WorldSystem::restart_game()
 
 	// Reset the spawn manager
 	spawn_manager.reset();
-
-	// Clear the RenderRequests
-	registry.renderRequests.clear();
 
 	// Reset the game speed
 	current_speed = 1.f;
@@ -295,20 +291,19 @@ void WorldSystem::restart_game()
 
 	// create grid lines and clear any pre-existing grid lines
 	// Kung: I cleared the grid lines so that they would now render on top of my textures
-	// registry.gridLines.clear();
-	// // vertical lines
-	// for (int col = 0; col <= WINDOW_WIDTH_PX / GRID_CELL_WIDTH_PX; col++)
-	// {
-	// 	// width of 2 to make the grid easier to see
-	// 	grid_lines.push_back(createGridLine(vec2(col * GRID_CELL_WIDTH_PX, 0), vec2(grid_line_width, 2 * WINDOW_HEIGHT_PX)));
-	// }
+	// vertical lines
+	for (int col = 0; col <= WINDOW_WIDTH_PX / GRID_CELL_WIDTH_PX; col++)
+	{
+		// width of 2 to make the grid easier to see
+		grid_lines.push_back(createGridLine(vec2(col * GRID_CELL_WIDTH_PX, 0), vec2(grid_line_width, 2 * WINDOW_HEIGHT_PX)));
+	}
 
-	// // horizontal lines
-	// for (int row = 0; row <= WINDOW_HEIGHT_PX / GRID_CELL_HEIGHT_PX; row++)
-	// {
-	// 	// width of 2 to make the grid easier to see
-	// 	grid_lines.push_back(createGridLine(vec2(0, row * GRID_CELL_HEIGHT_PX), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
-	// }
+	// horizontal lines
+	for (int row = 0; row <= WINDOW_HEIGHT_PX / GRID_CELL_HEIGHT_PX; row++)
+	{
+		// width of 2 to make the grid easier to see
+		grid_lines.push_back(createGridLine(vec2(0, row * GRID_CELL_HEIGHT_PX), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
+	}
 
 	// if the screenState exists, reset the health bar percentages
 	if (registry.screenStates.size() != 0)
@@ -318,7 +313,6 @@ void WorldSystem::restart_game()
 	}
 
 	// reset player and spawn player in the middle of the screen
-	registry.players.clear();
 	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
 
 	// Kung: Reset player movement so that the player remains still when no keys are pressed
@@ -326,7 +320,6 @@ void WorldSystem::restart_game()
 	Motion &player_motion = registry.motions.get(player);
 	
 	// reset camera position
-	registry.cameras.clear();
 	createCamera(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
 
 	// Move left

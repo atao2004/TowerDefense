@@ -67,8 +67,10 @@ public:
 	}
 
 	void clear_all_components() {
-		for (ContainerInterface* reg : registry_list)
-			reg->clear();
+		for (ContainerInterface* reg : registry_list) {
+			if (!dynamic_cast<ComponentContainer<ScreenState>*>(reg))    //do not remove screenstate
+				reg->clear();
+		}
 	}
 
 	void list_all_components() {
