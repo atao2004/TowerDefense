@@ -75,6 +75,9 @@ struct Zombie
 	float health;
 };
 
+struct ZombieSpawn {
+};
+
 struct Projectile {
     Entity source;      // The tower that fired this projectile
     float damage;       // Damage taken from tower
@@ -107,6 +110,7 @@ struct Animation
 	const TEXTURE_ASSET_ID* textures;
 	bool loop = true;
 	bool lock = false;
+	bool destroy = false;
 };
 
 // Tower

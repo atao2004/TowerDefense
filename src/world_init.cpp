@@ -49,6 +49,34 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 // 	return entity;
 // }
 
+// createZombieSpawn
+
+Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
+	Entity entity = Entity();
+
+	registry.zombieSpawns.emplace(entity);
+
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::ZOMBIE_SPAWN_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+
+	AnimationSystem::update_animation(entity, ZOMBIE_SPAWN_FRAME_DELAY, ZOMBIE_SPAWN_ANIMATION, sizeof(ZOMBIE_SPAWN_ANIMATION) / sizeof(ZOMBIE_SPAWN_ANIMATION[0]), false, false, true);
+
+	return entity;
+}
+
 Entity createZombie(RenderSystem* renderer, vec2 position) {
 	auto entity = Entity();
 
@@ -57,6 +85,7 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 
 	Attack& attack = registry.attacks.emplace(entity);
 	attack.range = 30.0f;
+	attack.damage = ZOMBIE_DAMAGE;
 
 	// store a reference to the potentially re-used mesh object
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
@@ -77,7 +106,7 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 		}
 	);
 
-	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_FRAME_DELAY, ZOMBIE_ANIMATION, sizeof(ZOMBIE_ANIMATION) / sizeof(ZOMBIE_ANIMATION[0]), true, false);
+	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_FRAME_DELAY, ZOMBIE_ANIMATION, sizeof(ZOMBIE_ANIMATION) / sizeof(ZOMBIE_ANIMATION[0]), true, false, false);
 
 	// Kung: Update the enemy count and print it to the console.
     std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
@@ -450,7 +479,7 @@ Entity createEffect(RenderSystem* renderer, vec2 position, vec2 scale) {
 		false
 	);
 
-	AnimationSystem::update_animation(entity, SLASH_FRAME_DELAY, SLASH_ANIMATION, sizeof(SLASH_ANIMATION) / sizeof(SLASH_ANIMATION[0]), false, false);
+	AnimationSystem::update_animation(entity, SLASH_FRAME_DELAY, SLASH_ANIMATION, sizeof(SLASH_ANIMATION) / sizeof(SLASH_ANIMATION[0]), false, false, true);
 
 	return entity;
 }

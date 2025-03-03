@@ -470,6 +470,9 @@ void WorldSystem::player_attack()
 		StateSystem::update_state(STATE::ATTACK);
 
 		// Cooldown
+		if (registry.cooldowns.has(player)) {
+			registry.cooldowns.remove(player);
+		}
 		Cooldown &cooldown = registry.cooldowns.emplace(player);
 		cooldown.timer_ms = COOLDOWN_PLAYER_ATTACK;
 	}

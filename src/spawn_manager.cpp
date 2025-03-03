@@ -68,10 +68,16 @@ void SpawnManager::generate_wave(RenderSystem *renderer)
         // Get a random spawn point index
         int random_point = (int)(uniform_dist(rng) * spawn_points.size());
         vec2 spawn_pos = spawn_points[random_point].position;
-        createZombie(renderer, spawn_pos);
+        createZombieSpawn(renderer, spawn_pos);
     }
 
-    zombies_per_wave = (int)(zombies_per_wave * WAVE_SCALING_FACTOR);
+    if (IS_WAVE_MODE_LINEAR)
+    {
+        zombies_per_wave = (int)(zombies_per_wave + WAVE_SCALING_FACTOR);
+    }
+    else {
+        zombies_per_wave = (int)(zombies_per_wave * WAVE_SCALING_FACTOR);
+    }
     std::cout << "Next wave will have " << zombies_per_wave << " zombies" << std::endl;
 }
 

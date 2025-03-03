@@ -28,6 +28,7 @@ public:
 	ComponentContainer<MoveWithCamera> moveWithCameras;
 
 	ComponentContainer<Zombie> zombies;
+	ComponentContainer<ZombieSpawn> zombieSpawns;
 	ComponentContainer<Player> players;
 	ComponentContainer<StatusComponent> statuses;
 	ComponentContainer<State> states;
@@ -55,6 +56,7 @@ public:
 		registry_list.push_back(&towers);
 		registry_list.push_back(&gridLines);
 		registry_list.push_back(&zombies);
+		registry_list.push_back(&zombieSpawns);
 		registry_list.push_back(&players);
 		registry_list.push_back(&statuses);
 		registry_list.push_back(&states);
