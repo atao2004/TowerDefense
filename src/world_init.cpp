@@ -311,6 +311,14 @@ void removeSurfaces()
 	std::cout << "surfaces reset" << std::endl;
 }
 
+Entity createTutorialSign() {
+
+}
+
+Entity createTutorialTile() {
+	
+}
+
 // Kung: Create the toolbar that in the future will store seeds, harvests, and other associated items.
 // As of now, it is purely cosmetic.
 Entity createToolbar()

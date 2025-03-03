@@ -23,6 +23,9 @@ public:
 	ComponentContainer<Grass> grasses;
 	ComponentContainer<Farmland> farmlands;
 	ComponentContainer<ScorchedEarth> scorchedEarths;
+	ComponentContainer<TutorialTile> tutorialTiles;
+	ComponentContainer<TutorialSign> tutorialSigns;
+	
 	ComponentContainer<Toolbar> toolbars;
 	ComponentContainer<Pause> pauses;
 	ComponentContainer<MoveWithCamera> moveWithCameras;
