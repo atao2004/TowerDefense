@@ -147,6 +147,10 @@ struct Pause
 {
 };
 
+struct MoveWithCamera {
+
+};
+
 // Sets the brightness of the screen
 // Includes HP and EXP parameters
 struct ScreenState

@@ -292,10 +292,13 @@ Entity createToolbar()
 	// Create the associated component.
 	Toolbar& toolbar_component = registry.toolbars.emplace(toolbar_entity);
 
+	// Create a component to simplify movement.
+	MoveWithCamera& mwc = registry.moveWithCameras.emplace(toolbar_entity);
+
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(toolbar_entity);
-	motion_component.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX - 50);
-	motion_component.scale = vec2(600, 75);
+	motion_component.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX + 50);
+	motion_component.scale = vec2(960, 120);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
@@ -343,10 +346,13 @@ Entity createPause()
 	// Create the associated component.
 	Pause& pause_component = registry.pauses.emplace(pause_entity);
 
+	// Create a component to simplify movement.
+	MoveWithCamera& mwc = registry.moveWithCameras.emplace(pause_entity);
+
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(pause_entity);
-	motion_component.position = vec2(50, 50);
-	motion_component.scale = vec2(50, 50);
+	motion_component.position = vec2(-150, -50);
+	motion_component.scale = vec2(120, 120);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
@@ -371,6 +377,8 @@ Entity createPlayer(RenderSystem* renderer, vec2 position) {
 	Player& player = registry.players.emplace(entity);
 	player.health = PLAYER_HEALTH;
 	
+	MoveWithCamera& mwc = registry.moveWithCameras.emplace(entity);
+
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
@@ -447,8 +455,7 @@ Entity createEffect(RenderSystem* renderer, vec2 position, vec2 scale) {
 	return entity;
 }
 
-// Kung: This is for Milestone #2.
-// Create the seed that will be planted whenever there is farmland.
+// Kung: Create the seed that will be planted whenever there is farmland.
 Entity createSeed(vec2 pos)
 {
 	// Create the associated entity.
@@ -460,6 +467,34 @@ Entity createSeed(vec2 pos)
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(seed_entity);
 	motion_component.position = pos;
+	motion_component.scale = vec2(50, 50);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		seed_entity,
+		{
+			TEXTURE_ASSET_ID::SEED_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return seed_entity;
+}
+
+// Kung: Create the seed that appears within the toolbar.
+Entity createSeedInventory(int level)
+{
+	// Create the associated entity.
+	Entity seed_entity = Entity();
+
+	// Create the associated component.
+	Seed& seed_component = registry.seeds.emplace(seed_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(seed_entity);
+	motion_component.position = vec2(0, 0);
 	motion_component.scale = vec2(50, 50);
 	motion_component.velocity = vec2(0, 0);
 

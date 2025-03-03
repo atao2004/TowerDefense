@@ -22,7 +22,7 @@ bool WorldSystem::game_is_over = false;
 Mix_Chunk *WorldSystem::game_over_sound = nullptr;
 
 // create the world
-WorldSystem::WorldSystem() : points(0)
+WorldSystem::WorldSystem() : points(0), level(1)
 {
 }
 
@@ -251,6 +251,7 @@ void WorldSystem::restart_game()
 	current_speed = 1.f;
 
 	points = 0;
+	level = 1;
 	registry.screenStates.get(registry.screenStates.entities[0]).game_over = false;
 	registry.screenStates.get(registry.screenStates.entities[0]).lerp_timer = 0.0;
 
@@ -272,17 +273,17 @@ void WorldSystem::restart_game()
 			createGrass(vec2(x, y));
 		}
 	}
-	for (int x = -SCORCHED_EARTH_BOUNDARY; x < WINDOW_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 1.5; x += SCORCHED_EARTH_DIMENSION_PX)
+	for (int x = -SCORCHED_EARTH_BOUNDARY - SCORCHED_EARTH_DIMENSION_PX * 4; x < WINDOW_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 5; x += SCORCHED_EARTH_DIMENSION_PX)
 	{
-		for (int y = -SCORCHED_EARTH_BOUNDARY; y < WINDOW_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 1.5; y += SCORCHED_EARTH_DIMENSION_PX)
+		for (int y = -SCORCHED_EARTH_BOUNDARY - SCORCHED_EARTH_DIMENSION_PX * 2; y < WINDOW_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 5; y += SCORCHED_EARTH_DIMENSION_PX)
 		{
-			if (x < SCORCHED_EARTH_BOUNDARY || (y < SCORCHED_EARTH_BOUNDARY))
+			if (x < SCORCHED_EARTH_BOUNDARY || y < SCORCHED_EARTH_BOUNDARY)
 			{
 				createScorchedEarth(vec2(x, y));
 			}
 			else if (x > WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY || y > WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY)
 			{
-				createScorchedEarth(vec2(min(x, WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY), min(y, WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY)));
+				createScorchedEarth(vec2(x - SCORCHED_EARTH_BOUNDARY * 3, y - SCORCHED_EARTH_BOUNDARY * 1.5));
 			}
 		}
 	}
@@ -314,44 +315,55 @@ void WorldSystem::restart_game()
 
 	// reset player and spawn player in the middle of the screen
 	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
-
-	// Kung: Reset player movement so that the player remains still when no keys are pressed
-	Entity player = registry.players.entities[0];
-	Motion &player_motion = registry.motions.get(player);
 	
 	// reset camera position
 	createCamera(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
 
+	// Kung: Create the pause button and toolbar, and have them overlay the player
+	// registry.pauses.clear();
+	registry.toolbars.clear();
+	// createPause();
+	createToolbar();
+
+	// Kung: Reset player movement so that the player remains still when no keys are pressed
+
 	// Move left
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		player_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+		for (Entity mwc_entity : registry.moveWithCameras.entities) {
+            if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_LEFT_SPEED;
+        }
 	}
 
 	// Move right
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		player_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+		for (Entity mwc_entity : registry.moveWithCameras.entities) {
+            if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+        }
 	}
 
 	// Move down
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		player_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
+		for (Entity mwc_entity : registry.moveWithCameras.entities) {
+            if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_DOWN_SPEED;
+        }
 	}
 
 	// Move up
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		player_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
+		for (Entity mwc_entity : registry.moveWithCameras.entities) {
+            if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_UP_SPEED;
+        }
 	}
-
-	// Kung: Create the pause button and toolbar, and have them overlay the player
-	createPause();
-	createToolbar();
 
 	// start the spawn manager
 	spawn_manager.start_game();
+
+	// Print the starting level (Level 1)
+	std::cout << "==== LEVEL " << level << " ====" << std::endl;
 }
 
 // Compute collisions between entities
@@ -435,7 +447,7 @@ void WorldSystem::player_attack()
 						death_anim.alpha = 1.0f;
 						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
 
-            // Increase the counter that represents the number of zombies killed.
+            			// Increase the counter that represents the number of zombies killed.
 						points++;
 						std::cout<<"Zombies killed: "<<points<<std::endl;
             
@@ -443,10 +455,12 @@ void WorldSystem::player_attack()
 						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 						{
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
-						} // Kung: If the bar is full, reset the player experience bar.
+						} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
 						else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 						{
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+							level++;
+							std::cout << "==== LEVEL " << level << " ====" << std::endl;
 						}
 					}
 				}
@@ -529,14 +543,16 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_A)
 		{
-			player_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_LEFT_SPEED;
+			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
 		{
-			player_motion.velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+			}
 		}
-	} else if (player_motion.velocity.x < 0) {
-		player_motion.velocity.x = 0;
 	}
 
 	// Move right
@@ -544,14 +560,16 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_D)
 		{
-			player_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
 		{
-			player_motion.velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+			}
 		}
-	} else if (player_motion.velocity.x > 0) {
-		player_motion.velocity.x = 0;
 	}
 
 	// Move down
@@ -559,15 +577,16 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_S)
 		{
-			player_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_DOWN_SPEED;
+			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
 		{
-			player_motion.velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+			}
 		}
-	}
-	else if (player_motion.velocity.y > 0) {
-		player_motion.velocity.y = 0;
 	}
 
 	// Move up
@@ -575,15 +594,16 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_W)
 		{
-			player_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_UP_SPEED;
+			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
 		{
-			player_motion.velocity.y -= PLAYER_MOVE_UP_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y -= PLAYER_MOVE_UP_SPEED;
+			}
 		}
-	}
-	else if (player_motion.velocity.y < 0) {
-		player_motion.velocity.y = 0;
 	}
 }
 
