@@ -215,11 +215,11 @@ const TEXTURE_ASSET_ID ZOMBIE_SPAWN_ANIMATION[] = {
 };
 
 // animation (time)
-const int PLAYER_MOVE_FRAME_DELAY = 500;
-const int PLAYER_ATTACK_FRAME_DELAY = COOLDOWN_PLAYER_ATTACK / (sizeof(PLAYER_ANIMATION_ATTACK) / sizeof(PLAYER_ANIMATION_ATTACK[0]));
-const int ZOMBIE_MOVE_FRAME_DELAY = 500;
-const int SLASH_FRAME_DELAY = COOLDOWN_PLAYER_ATTACK / (sizeof(SLASH_ANIMATION) / sizeof(SLASH_ANIMATION[0]));
-const int ZOMBIE_SPAWN_FRAME_DELAY = COOLDOWN_ZOMBIE_SPAWN / (sizeof(ZOMBIE_SPAWN_ANIMATION) / sizeof(ZOMBIE_SPAWN_ANIMATION[0]));
+const int PLAYER_MOVE_DURATION = 1000;
+const int PLAYER_ATTACK_DURATION = 400;
+const int ZOMBIE_MOVE_DURATION = 1000;
+const int SLASH_DURATION = 400;
+const int ZOMBIE_SPAWN_DURATION = 3000;
 
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)
