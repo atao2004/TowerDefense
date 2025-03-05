@@ -36,6 +36,11 @@ public:
 	// releases all associated resources
 	~WorldSystem();
 
+	// Returns the game_screen (inspired by Assignment #2)
+	GAME_SCREEN_ID get_game_screen() {
+		return game_screen;
+	}
+
 	// steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
 
@@ -76,6 +81,9 @@ private:
 	// Current experience level of the player
 	unsigned int level;
 
+	// game_screen (inspired by Assignment #2)
+	GAME_SCREEN_ID game_screen;
+
 	// Game state
 	RenderSystem *renderer;
 	float current_speed;
@@ -96,7 +104,7 @@ private:
 	SpawnManager spawn_manager;
 
 	bool test_mode = false;
-
+	bool tutorial_mode = false;
 	
     // Sound effects
 	float movement_sound_timer = 0.f;

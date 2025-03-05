@@ -114,44 +114,6 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-// Entity createTower(RenderSystem* renderer, vec2 position)
-// {
-// 	auto entity = Entity();
-
-// 	// new tower
-// 	auto& t = registry.towers.emplace(entity);
-// 	t.range = (float)WINDOW_WIDTH_PX / (float)GRID_CELL_WIDTH_PX;
-// 	t.timer_ms = 1000;	// arbitrary for now
-
-// 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-// 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
-// 	registry.meshPtrs.emplace(entity, &mesh);
-
-// 	// Initialize the motion
-// 	auto& motion = registry.motions.emplace(entity);
-// 	motion.angle = 180.f;	// A1-TD: CK: rotate to the left 180 degrees to fix orientation
-// 	motion.velocity = { 0.0f, 0.0f };
-// 	motion.position = position;
-
-// 	std::cout << "INFO: tower position: " << position.x << ", " << position.y << std::endl;
-
-// 	// Setting initial values, scale is negative to make it face the opposite way
-// 	motion.scale = vec2({ -TOWER_BB_WIDTH, TOWER_BB_HEIGHT });
-
-// 	// create an (empty) Tower component to be able to refer to all towers
-// 	registry.renderRequests.insert(
-// 		entity,
-// 		{
-// 			TEXTURE_ASSET_ID::TOWER,
-// 			EFFECT_ASSET_ID::TEXTURED,
-// 			GEOMETRY_BUFFER_ID::SPRITE
-// 		}
-// 	);
-
-// 	return entity;
-// }
-
-
 Entity createTower(RenderSystem* renderer, vec2 position) {
     Entity entity = Entity();
 
@@ -311,8 +273,31 @@ void removeSurfaces()
 	std::cout << "surfaces reset" << std::endl;
 }
 
-Entity createTutorialSign() {
+// Create a sign that will only appear once it appears in a tutorial.
+Entity createTutorialSign(vec2 position, TEXTURE_ASSET_ID asset_id) {
+	// Create the associated entity.
+	Entity tutorial_entity = Entity();
 
+	// Create the associated component.
+	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(tutorial_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(450, 360);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		tutorial_entity,
+		{
+			asset_id,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return tutorial_entity;
 }
 
 Entity createTutorialTile() {
@@ -334,7 +319,7 @@ Entity createToolbar()
 
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(toolbar_entity);
-	motion_component.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX + 50);
+	motion_component.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX * 1.05);
 	motion_component.scale = vec2(960, 120);
 	motion_component.velocity = vec2(0, 0);
 

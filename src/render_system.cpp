@@ -369,7 +369,7 @@ void RenderSystem::drawToScreen()
 
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-void RenderSystem::draw()
+void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 {
 	// Getting size of window
 	int w, h;
@@ -406,7 +406,12 @@ void RenderSystem::draw()
 		{
 			// Note, its not very efficient to access elements indirectly via the entity
 			// albeit iterating through all Sprites in sequence. A good point to optimize
-			drawTexturedMesh(entity, projection_2D);
+			if (game_screen == GAME_SCREEN_ID::TUTORIAL) {
+				drawTexturedMesh(entity, projection_2D);
+			} else if (!registry.tutorialSigns.has(entity)) {
+				drawTexturedMesh(entity, projection_2D);
+			}
+			
 		}
 		// draw grid lines separately, as they do not have motion but need to be rendered
 		else if (registry.gridLines.has(entity))

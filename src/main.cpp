@@ -60,6 +60,8 @@ int main()
 	// variable timestep loop
 	auto t = Clock::now();
 	while (!world_system.is_over()) {
+
+		GAME_SCREEN_ID game_screen = world_system.get_game_screen();
 		
 		// processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
@@ -83,7 +85,7 @@ int main()
 			animation_system.step(elapsed_ms);
 		}
 		
-		renderer_system.draw();
+		renderer_system.draw(game_screen);
 	}
 
 	return EXIT_SUCCESS;

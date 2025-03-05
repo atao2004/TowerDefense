@@ -22,7 +22,7 @@ bool WorldSystem::game_is_over = false;
 Mix_Chunk *WorldSystem::game_over_sound = nullptr;
 
 // create the world
-WorldSystem::WorldSystem() : points(0), level(1)
+WorldSystem::WorldSystem() : points(0), level(1), game_screen(GAME_SCREEN_ID::PLAYING)
 {
 }
 
@@ -252,6 +252,7 @@ void WorldSystem::restart_game()
 
 	points = 0;
 	level = 1;
+	game_screen = GAME_SCREEN_ID::PLAYING;
 	registry.screenStates.get(registry.screenStates.entities[0]).game_over = false;
 	registry.screenStates.get(registry.screenStates.entities[0]).lerp_timer = 0.0;
 
@@ -266,9 +267,9 @@ void WorldSystem::restart_game()
 
 	// Kung: Create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
 	removeSurfaces();
-	for (int x = (GRASS_DIMENSION_PX / 2); x < WINDOW_WIDTH_PX + (GRASS_DIMENSION_PX / 2); x += GRASS_DIMENSION_PX)
+	for (int x = (GRASS_DIMENSION_PX * -1.5); x < WINDOW_WIDTH_PX + (GRASS_DIMENSION_PX * 1.5); x += GRASS_DIMENSION_PX)
 	{
-		for (int y = (GRASS_DIMENSION_PX / 2); y < WINDOW_HEIGHT_PX + (GRASS_DIMENSION_PX / 2); y += GRASS_DIMENSION_PX)
+		for (int y = (GRASS_DIMENSION_PX * -1.5); y < WINDOW_HEIGHT_PX + (GRASS_DIMENSION_PX * 1.5); y += GRASS_DIMENSION_PX)
 		{
 			createGrass(vec2(x, y));
 		}
@@ -312,6 +313,12 @@ void WorldSystem::restart_game()
 		registry.screenStates.get(registry.screenStates.entities[0]).hp_percentage = 1.0;
 		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 	}
+
+	// create the tutorial assets
+	createTutorialSign(vec2(-250, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_MOVE);
+	createTutorialSign(vec2(500, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_ATTACK);
+	createTutorialSign(vec2(1250, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_PLANT);
+	createTutorialSign(vec2(2000, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_RESTART);
 
 	// reset player and spawn player in the middle of the screen
 	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
@@ -645,7 +652,22 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	{
 		test_mode = !test_mode;
 		spawn_manager.set_test_mode(test_mode);
+		if (game_screen != GAME_SCREEN_ID::TEST) {
+			game_screen = GAME_SCREEN_ID::TEST;
+		} else game_screen = GAME_SCREEN_ID::PLAYING;
 		std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
+		return;
+	}
+
+	// tutorial mode with '/'
+	if (action == GLFW_PRESS && key == GLFW_KEY_SLASH)
+	{
+		tutorial_mode = !tutorial_mode;
+		spawn_manager.set_test_mode(tutorial_mode);
+		if (game_screen != GAME_SCREEN_ID::TUTORIAL) {
+			game_screen = GAME_SCREEN_ID::TUTORIAL;
+		} else game_screen = GAME_SCREEN_ID::PLAYING;
+		std::cout << "Game " << (tutorial_mode ? "entered" : "exited") << " test mode" << std::endl;
 		return;
 	}
 

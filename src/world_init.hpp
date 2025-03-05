@@ -18,6 +18,9 @@ Entity createFarmland(vec2 position);
 Entity createScorchedEarth(vec2 position);
 void removeSurfaces();
 
+// tutorial components
+Entity createTutorialSign(vec2 position, TEXTURE_ASSET_ID asset_id);
+
 // ui elements
 Entity createPause();
 Entity createToolbar();

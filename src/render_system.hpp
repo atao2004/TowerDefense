@@ -43,6 +43,10 @@ class RenderSystem {
 		textures_path("map/grass.png"),
 		textures_path("map/dirt.png"),
 		textures_path("map/cracked_dirt.png"),
+		textures_path("tutorials/move.png"),
+		textures_path("tutorials/attack.png"),
+		textures_path("tutorials/plant.png"),
+		textures_path("tutorials/restart.png"),
 		textures_path("ui/toolbar.png"),
 		textures_path("ui/pause.png"),
 		textures_path("attacks/Slash3_color1_frame1.png"),
@@ -99,8 +103,8 @@ public:
 	// Destroy resources associated to one or all entities created by the system
 	~RenderSystem();
 
-	// Draw all entities
-	void draw();
+	// Draw all entities depending on game screen (adapted from Assignment #2)
+	void draw(GAME_SCREEN_ID game_screen);
 
 	mat3 createProjectionMatrix();
 
