@@ -37,8 +37,9 @@ private:
     
     // Constants
     static constexpr float WAVE_INTERVAL_MS = 5000.0f;
-    static constexpr int INITIAL_ZOMBIES_PER_WAVE = 2;
-    static constexpr float WAVE_SCALING_FACTOR = 1.5f;
+    static constexpr int INITIAL_ZOMBIES_PER_WAVE = 1;
+    static constexpr float WAVE_SCALING_FACTOR = 1.0f;
+    static constexpr bool IS_WAVE_MODE_LINEAR = true;
 
     // Keep track of whether the game has really started
     bool is_game_started = false;

@@ -25,8 +25,10 @@ public:
 	ComponentContainer<ScorchedEarth> scorchedEarths;
 	ComponentContainer<Toolbar> toolbars;
 	ComponentContainer<Pause> pauses;
+	ComponentContainer<MoveWithCamera> moveWithCameras;
 
 	ComponentContainer<Zombie> zombies;
+	ComponentContainer<ZombieSpawn> zombieSpawns;
 	ComponentContainer<Player> players;
 	ComponentContainer<StatusComponent> statuses;
 	ComponentContainer<State> states;
@@ -56,6 +58,7 @@ public:
 		registry_list.push_back(&towers);
 		registry_list.push_back(&gridLines);
 		registry_list.push_back(&zombies);
+		registry_list.push_back(&zombieSpawns);
 		registry_list.push_back(&players);
 		registry_list.push_back(&statuses);
 		registry_list.push_back(&states);
@@ -71,8 +74,10 @@ public:
 	}
 
 	void clear_all_components() {
-		for (ContainerInterface* reg : registry_list)
-			reg->clear();
+		for (ContainerInterface* reg : registry_list) {
+			if (!dynamic_cast<ComponentContainer<ScreenState>*>(reg))    //do not remove screenstate
+				reg->clear();
+		}
 	}
 
 	void list_all_components() {

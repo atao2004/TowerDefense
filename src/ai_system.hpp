@@ -37,9 +37,6 @@ private:
 	// State management (for future use)
 	void update_enemy_state(Entity entity);
 
-	// Constants (can be moved to config file later)
-	const float BASE_ENEMY_SPEED = 1000.0f; // Base movement speed for enemies
-
 
 
 	Mix_Chunk *injured_sound;

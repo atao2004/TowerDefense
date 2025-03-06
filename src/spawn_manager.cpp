@@ -86,7 +86,13 @@ void SpawnManager::generate_wave(RenderSystem *renderer)
         }
     }
 
-    zombies_per_wave = (int)(zombies_per_wave * WAVE_SCALING_FACTOR);
+    if (IS_WAVE_MODE_LINEAR)
+    {
+        zombies_per_wave = (int)(zombies_per_wave + WAVE_SCALING_FACTOR);
+    }
+    else {
+        zombies_per_wave = (int)(zombies_per_wave * WAVE_SCALING_FACTOR);
+    }
     std::cout << "Next wave will have " << zombies_per_wave << " zombies" << std::endl;
 }
 

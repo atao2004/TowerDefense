@@ -2,6 +2,8 @@
 #include "tinyECS/registry.hpp"
 #include <iostream>
 #include "animation_system.hpp"
+#include "../ext/json.hpp"
+using json = nlohmann::json;
 
 Entity createGridLine(vec2 start_pos, vec2 end_pos)
 {
@@ -22,30 +24,32 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos)
 	return entity;
 }
 
-// Entity createDetectionLine(Entity entity, vec2 start_pos, vec2 end_pos) {
-// 	GridLine& gl = registry.gridLines.emplace_with_duplicates(entity);
-// 	gl.start_pos = start_pos;
-// 	gl.end_pos = end_pos;
+// createZombieSpawn
+Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
+	Entity entity = Entity();
 
-// 	registry.renderRequests.insert(
-// 		entity,
-// 		{
-// 			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-// 			EFFECT_ASSET_ID::EGG,
-// 			GEOMETRY_BUFFER_ID::DEBUG_LINE
-// 		},
-// 		false
-// 	);
-// 	//only need to create 1 color so all the lines can use the same color
-// 	if (!registry.colors.has(entity)) {
-// 		vec3& cv = registry.colors.emplace(entity);
-// 		cv.r = 1;
-// 		cv.g = 0;
-// 		cv.b = 0;
-// 	}
+	registry.zombieSpawns.emplace(entity);
 
-// 	return entity;
-// }
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::ZOMBIE_SPAWN_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+
+	AnimationSystem::update_animation(entity, ZOMBIE_SPAWN_FRAME_DELAY, ZOMBIE_SPAWN_ANIMATION, sizeof(ZOMBIE_SPAWN_ANIMATION) / sizeof(ZOMBIE_SPAWN_ANIMATION[0]), false, false, true);
+
+	return entity;
+}
 
 Entity createZombie(RenderSystem *renderer, vec2 position)
 {
@@ -56,6 +60,43 @@ Entity createZombie(RenderSystem *renderer, vec2 position)
 
 	Attack &attack = registry.attacks.emplace(entity);
 	attack.range = 30.0f;
+	attack.damage = ZOMBIE_DAMAGE;
+
+	// store a reference to the potentially re-used mesh object
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::ZOMBIE_SPAWN_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+
+	AnimationSystem::update_animation(entity, ZOMBIE_SPAWN_FRAME_DELAY, ZOMBIE_SPAWN_ANIMATION, sizeof(ZOMBIE_SPAWN_ANIMATION) / sizeof(ZOMBIE_SPAWN_ANIMATION[0]), false, false, true);
+
+	return entity;
+}
+
+Entity createZombie(RenderSystem *renderer, vec2 position)
+{
+	auto entity = Entity();
+
+	Zombie &zombie = registry.zombies.emplace(entity);
+	zombie.health = ZOMBIE_HEALTH;
+
+	Attack &attack = registry.attacks.emplace(entity);
+	attack.range = 30.0f;
+	attack.damage = ZOMBIE_DAMAGE;
 
 	// store a reference to the potentially re-used mesh object
 	Mesh &mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
@@ -73,7 +114,7 @@ Entity createZombie(RenderSystem *renderer, vec2 position)
 		 EFFECT_ASSET_ID::ZOMBIE,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
-	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_FRAME_DELAY, ZOMBIE_ANIMATION, sizeof(ZOMBIE_ANIMATION) / sizeof(ZOMBIE_ANIMATION[0]), true, false);
+	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_FRAME_DELAY, ZOMBIE_ANIMATION, sizeof(ZOMBIE_ANIMATION) / sizeof(ZOMBIE_ANIMATION[0]), true, false, false);
 
 	// Kung: Update the enemy count and print it to the console.
 	std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
@@ -189,9 +230,12 @@ Entity createGrass(vec2 position)
 	// Render the object.
 	registry.renderRequests.insert(
 		grass_entity,
-		{TEXTURE_ASSET_ID::GRASS,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE});
+		{
+			DECORATION_LIST[1],
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
 
 	return grass_entity;
 }
@@ -271,6 +315,59 @@ void removeSurfaces()
 	std::cout << "surfaces reset" << std::endl;
 }
 
+Entity createDecoration(int i, vec2 position) {
+	// Create the associated entity.
+	Entity e = Entity();
+
+	// Create the associated component.
+	Grass& grass_component = registry.grasses.emplace(e);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(e);
+	motion_component.position = position;
+	motion_component.scale = DECORATION_SIZE_LIST[i];
+	motion_component.velocity = vec2(0, 0);
+	// Render the object.
+	registry.renderRequests.insert(
+		e,
+		{
+			DECORATION_LIST[i],
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return e;
+}
+
+void parseMap() {
+	json jsonFile;
+	std::ifstream file("../data/map/myMap.json");
+	file>>jsonFile;
+
+	int numCol = jsonFile["width"];
+	int numRow = jsonFile["height"];
+	std::vector<int> map_layer = jsonFile["layers"][0]["data"];
+	std::vector<int> decoration_layer = jsonFile["layers"][1]["data"];
+
+	// create background
+	for (int i=0; i<numRow; i++) { //iterating row-by-row
+		for (int j=0; j<numCol; j++) {
+			if (map_layer[i*numCol+j] == 1) {
+				createGrass({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+			}
+		}
+	}
+
+	// add decorations
+	for (int i=0; i<numRow; i++) { //iterating row-by-row
+		for (int j=0; j<numCol; j++) {	
+			if (decoration_layer[i*numCol+j] != 0) 
+				createDecoration(decoration_layer[i*numCol+j], {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+		}
+	}
+}
+
 // Kung: Create the toolbar that in the future will store seeds, harvests, and other associated items.
 // As of now, it is purely cosmetic.
 Entity createToolbar()
@@ -279,12 +376,15 @@ Entity createToolbar()
 	Entity toolbar_entity = Entity();
 
 	// Create the associated component.
-	Toolbar &toolbar_component = registry.toolbars.emplace(toolbar_entity);
+	Toolbar& toolbar_component = registry.toolbars.emplace(toolbar_entity);
+
+	// Create a component to simplify movement.
+	MoveWithCamera& mwc = registry.moveWithCameras.emplace(toolbar_entity);
 
 	// Create the relevant motion component.
-	Motion &motion_component = registry.motions.emplace(toolbar_entity);
-	motion_component.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX - 50);
-	motion_component.scale = vec2(600, 75);
+	Motion& motion_component = registry.motions.emplace(toolbar_entity);
+	motion_component.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX + 50);
+	motion_component.scale = vec2(960, 120);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
@@ -324,12 +424,15 @@ Entity createPause()
 	Entity pause_entity = Entity();
 
 	// Create the associated component.
-	Pause &pause_component = registry.pauses.emplace(pause_entity);
+	Pause& pause_component = registry.pauses.emplace(pause_entity);
+
+	// Create a component to simplify movement.
+	MoveWithCamera& mwc = registry.moveWithCameras.emplace(pause_entity);
 
 	// Create the relevant motion component.
-	Motion &motion_component = registry.motions.emplace(pause_entity);
-	motion_component.position = vec2(50, 50);
-	motion_component.scale = vec2(50, 50);
+	Motion& motion_component = registry.motions.emplace(pause_entity);
+	motion_component.position = vec2(-150, -50);
+	motion_component.scale = vec2(120, 120);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
@@ -351,8 +454,10 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 
 	Player &player = registry.players.emplace(entity);
 	player.health = PLAYER_HEALTH;
+	
+	MoveWithCamera& mwc = registry.moveWithCameras.emplace(entity);
+	Motion& motion = registry.motions.emplace(entity);
 
-	Motion &motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = {0, 0};
 	motion.position = position;
@@ -417,13 +522,12 @@ Entity createEffect(RenderSystem *renderer, vec2 position, vec2 scale)
 		 GEOMETRY_BUFFER_ID::SPRITE},
 		false);
 
-	AnimationSystem::update_animation(entity, SLASH_FRAME_DELAY, SLASH_ANIMATION, sizeof(SLASH_ANIMATION) / sizeof(SLASH_ANIMATION[0]), false, false);
+	AnimationSystem::update_animation(entity, SLASH_FRAME_DELAY, SLASH_ANIMATION, sizeof(SLASH_ANIMATION) / sizeof(SLASH_ANIMATION[0]), false, false, true);
 
 	return entity;
 }
 
-// Kung: This is for Milestone #2.
-// Create the seed that will be planted whenever there is farmland.
+// Kung: Create the seed that will be planted whenever there is farmland.
 Entity createSeed(vec2 pos)
 {
 	// Create the associated entity.
@@ -444,6 +548,62 @@ Entity createSeed(vec2 pos)
 		{TEXTURE_ASSET_ID::SEED_1,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
+
+	return seed_entity;
+}
+
+// Kung: Create the seed that appears within the toolbar.
+Entity createSeedInventory(int level)
+{
+	// Create the associated entity.
+	Entity seed_entity = Entity();
+
+	// Create the associated component.
+	Seed& seed_component = registry.seeds.emplace(seed_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(seed_entity);
+	motion_component.position = vec2(0, 0);
+	motion_component.scale = vec2(50, 50);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		seed_entity,
+		{
+			TEXTURE_ASSET_ID::SEED_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return seed_entity;
+}
+
+// Kung: Create the seed that appears within the toolbar.
+Entity createSeedInventory(int level)
+{
+	// Create the associated entity.
+	Entity seed_entity = Entity();
+
+	// Create the associated component.
+	Seed& seed_component = registry.seeds.emplace(seed_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(seed_entity);
+	motion_component.position = vec2(0, 0);
+	motion_component.scale = vec2(50, 50);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the object.
+	registry.renderRequests.insert(
+		seed_entity,
+		{
+			TEXTURE_ASSET_ID::SEED_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
 
 	return seed_entity;
 }

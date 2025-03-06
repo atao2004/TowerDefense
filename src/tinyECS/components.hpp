@@ -94,6 +94,9 @@ struct Arrow {
     vec2 direction = {0.f, 0.f};  // Flight direction
 };
 
+struct ZombieSpawn {
+};
+
 struct Projectile {
     Entity source = {};      // The tower that fired this projectile
     float damage = 10.f;       // Damage taken from tower
@@ -128,6 +131,7 @@ struct Animation
 	const TEXTURE_ASSET_ID* textures;
 	bool loop = true;
 	bool lock = false;
+	bool destroy = false;
 };
 
 // Tower
@@ -166,6 +170,10 @@ struct Toolbar
 
 struct Pause
 {
+};
+
+struct MoveWithCamera {
+
 };
 
 // Sets the brightness of the screen

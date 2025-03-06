@@ -5,6 +5,7 @@
 #include "render_system.hpp"
 
 // zombies
+Entity createZombieSpawn(RenderSystem* renderer, vec2 position);
 Entity createZombie(RenderSystem* renderer, vec2 position);
 
 // towers
@@ -35,3 +36,4 @@ Entity createGameOver();
 
 Entity createSkeleton(RenderSystem* renderer, vec2 position);
 Entity createArrow(vec2 position, vec2 direction, Entity source);
+void parseMap();

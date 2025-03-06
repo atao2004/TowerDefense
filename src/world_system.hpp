@@ -73,6 +73,9 @@ private:
 	// Number of players stopped by the towers, displayed in the window title
 	unsigned int points;
 
+	// Current experience level of the player
+	unsigned int level;
+
 	// Game state
 	RenderSystem *renderer;
 	float current_speed;
