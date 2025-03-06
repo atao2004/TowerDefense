@@ -79,7 +79,7 @@ struct Zombie
 struct Skeleton {
     float attack_range = 400.f;      // Attack range
     float stop_distance = 200.f;     // Distance to stop moving
-    float attack_cooldown_ms = 2000.f; // Attack cooldown time
+    float attack_cooldown_ms = 10000.f; // Attack cooldown time
     float cooldown_timer_ms = 0.f;   // Current cooldown timer
     Entity target = {};              // Current target
     bool is_attacking = false;       // Is currently attacking
