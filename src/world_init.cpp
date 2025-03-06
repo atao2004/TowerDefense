@@ -87,40 +87,6 @@ Entity createZombie(RenderSystem *renderer, vec2 position)
 	return entity;
 }
 
-Entity createZombie(RenderSystem *renderer, vec2 position)
-{
-	auto entity = Entity();
-
-	Zombie &zombie = registry.zombies.emplace(entity);
-	zombie.health = ZOMBIE_HEALTH;
-
-	Attack &attack = registry.attacks.emplace(entity);
-	attack.range = 30.0f;
-	attack.damage = ZOMBIE_DAMAGE;
-
-	// store a reference to the potentially re-used mesh object
-	Mesh &mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
-	registry.meshPtrs.emplace(entity, &mesh);
-
-	auto &motion = registry.motions.emplace(entity);
-	motion.angle = 0.f;
-	motion.velocity = {0, 0};
-	motion.position = position;
-	motion.scale = vec2({ZOMBIE_WIDTH, ZOMBIE_HEIGHT});
-
-	registry.renderRequests.insert(
-		entity,
-		{TEXTURE_ASSET_ID::ZOMBIE_WALK_1,
-		 EFFECT_ASSET_ID::ZOMBIE,
-		 GEOMETRY_BUFFER_ID::SPRITE});
-
-	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_FRAME_DELAY, ZOMBIE_ANIMATION, sizeof(ZOMBIE_ANIMATION) / sizeof(ZOMBIE_ANIMATION[0]), true, false, false);
-
-	// Kung: Update the enemy count and print it to the console.
-	std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
-
-	return entity;
-}
 
 // Entity createTower(RenderSystem* renderer, vec2 position)
 // {
@@ -580,33 +546,6 @@ Entity createSeedInventory(int level)
 	return seed_entity;
 }
 
-// Kung: Create the seed that appears within the toolbar.
-Entity createSeedInventory(int level)
-{
-	// Create the associated entity.
-	Entity seed_entity = Entity();
-
-	// Create the associated component.
-	Seed& seed_component = registry.seeds.emplace(seed_entity);
-
-	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(seed_entity);
-	motion_component.position = vec2(0, 0);
-	motion_component.scale = vec2(50, 50);
-	motion_component.velocity = vec2(0, 0);
-
-	// Render the object.
-	registry.renderRequests.insert(
-		seed_entity,
-		{
-			TEXTURE_ASSET_ID::SEED_1,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
-
-	return seed_entity;
-}
 
 // create a camera
 Entity createCamera(RenderSystem *renderer, vec2 position)
@@ -658,7 +597,7 @@ Entity createSkeleton(RenderSystem *renderer, vec2 position)
          GEOMETRY_BUFFER_ID::SPRITE});
 
     // Add animation using zombie textures until skeleton textures are added
-    AnimationSystem::update_animation(entity, SKELETON_FRAME_DELAY, ZOMBIE_ANIMATION, 2, true, true);
+    //AnimationSystem::update_animation(entity, SKELETON_FRAME_DELAY, ZOMBIE_ANIMATION, 2, true, true);
 
     return entity;
 }

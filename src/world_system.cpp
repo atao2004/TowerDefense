@@ -693,19 +693,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			{
 				continue;
 			}
-		// Create tower at cell center
-		// Check if cell is already occupied by a tower
-		bool cell_occupied = false;
-		for (Entity tower : registry.towers.entities)
-		{
-			if (!registry.motions.has(tower))
-			{
-				continue;
-			}
 
-			Motion &tower_motion = registry.motions.get(tower);
-			int tower_cell_x = static_cast<int>(tower_motion.position.x) / GRID_CELL_WIDTH_PX;
-			int tower_cell_y = static_cast<int>(tower_motion.position.y) / GRID_CELL_HEIGHT_PX;
 			Motion &tower_motion = registry.motions.get(tower);
 			int tower_cell_x = static_cast<int>(tower_motion.position.x) / GRID_CELL_WIDTH_PX;
 			int tower_cell_y = static_cast<int>(tower_motion.position.y) / GRID_CELL_HEIGHT_PX;
@@ -717,20 +705,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				break;
 			}
 		}
-			if (tower_cell_x == cell_x && tower_cell_y == cell_y)
-			{
-				cell_occupied = true;
-				std::cout << "Cell already occupied by a tower!" << std::endl;
-				break;
-			}
-		}
 
-		// Only create tower if cell is empty
-		if (!cell_occupied)
-		{
-			createTower(renderer, cell_center);
-		}
-	}
+
 		// Only create tower if cell is empty
 		if (!cell_occupied)
 		{
