@@ -2,6 +2,8 @@
 #include "tinyECS/registry.hpp"
 #include <iostream>
 #include "animation_system.hpp"
+#include "../ext/json.hpp"
+using json = nlohmann::json;
 
 Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	Entity entity = Entity();
@@ -24,33 +26,7 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	return entity;
 }
 
-// Entity createDetectionLine(Entity entity, vec2 start_pos, vec2 end_pos) {
-// 	GridLine& gl = registry.gridLines.emplace_with_duplicates(entity);
-// 	gl.start_pos = start_pos;
-// 	gl.end_pos = end_pos;
-
-// 	registry.renderRequests.insert(
-// 		entity,
-// 		{
-// 			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-// 			EFFECT_ASSET_ID::EGG,
-// 			GEOMETRY_BUFFER_ID::DEBUG_LINE
-// 		},
-// 		false
-// 	);
-// 	//only need to create 1 color so all the lines can use the same color
-// 	if (!registry.colors.has(entity)) {
-// 		vec3& cv = registry.colors.emplace(entity);
-// 		cv.r = 1;
-// 		cv.g = 0;
-// 		cv.b = 0;
-// 	}
-
-// 	return entity;
-// }
-
 // createZombieSpawn
-
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
 	Entity entity = Entity();
 
@@ -309,6 +285,38 @@ void removeSurfaces()
 	}
 	// print confirmation
 	std::cout << "surfaces reset" << std::endl;
+}
+
+Entity createDecoration() {
+
+}
+
+void parseMap() {
+	json jsonFile;
+	std::ifstream file("../data/map/myMap.json");
+	file>>jsonFile;
+	std::vector<json> j = jsonFile["tilesets"];
+	int numCol = jsonFile["width"];
+	int numRow = jsonFile["height"];
+	std::cout << j[0].dump(4) << std::endl;
+
+	std::vector<int> map_layer = jsonFile["layers"][0]["data"];
+	std::vector<int> decoration_layer = jsonFile["layers"][1]["data"];
+
+	for (int i=0; i<numRow; i++) { //iterating row-by-row
+		for (int j=0; j<numCol; j++) {
+			if (map_layer[i*GRID_CELL_HEIGHT_PX+j] == 1) {
+				createGrass({i*GRID_CELL_WIDTH_PX, j*GRID_CELL_HEIGHT_PX});
+			}
+		}
+	}
+
+	for (int i=0; i<numRow; i++) { //iterating row-by-row
+		for (int j=0; j<numCol; j++) {
+
+		}
+	}
+
 }
 
 // Kung: Create the toolbar that in the future will store seeds, harvests, and other associated items.
