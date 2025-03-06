@@ -3,6 +3,48 @@
 #include "world_init.hpp"
 #include <iostream>
 
+PhysicsSystem::PhysicsSystem()
+{
+}
+
+PhysicsSystem::~PhysicsSystem()
+{
+	// Destroy music components
+	if (injured_sound != nullptr)
+		Mix_FreeChunk(injured_sound);
+	Mix_CloseAudio();
+}
+
+bool PhysicsSystem::start_and_load_sounds()
+{
+
+    //////////////////////////////////////
+    // Loading music and sounds with SDL
+    if (SDL_Init(SDL_INIT_AUDIO) < 0)
+    {
+        fprintf(stderr, "Failed to initialize SDL Audio");
+        return false;
+    }
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
+    {
+        fprintf(stderr, "Failed to open audio device");
+        return false;
+    }
+
+    injured_sound = Mix_LoadWAV(audio_path("injured_sound.wav").c_str());
+
+    if (injured_sound == nullptr)
+    {
+        fprintf(stderr, "Failed to load sounds\n %s\n make sure the data directory is present",
+                audio_path("injured_sound.wav").c_str());
+        return false;
+    }
+
+    return true;
+}
+
+
 // Returns the local bounding coordinates scaled by the current size of the entity
 vec2 get_bounding_box(const Motion &motion)
 {
@@ -48,6 +90,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		}
 
 		handle_projectile_collisions();
+		handle_arrows(elapsed_ms);
 		// // check for collisions between all moving entities
 		// ComponentContainer<Motion> &motion_container = registry.motions;
 		// for(uint i = 0; i < motion_container.components.size(); i++)
@@ -133,6 +176,124 @@ void PhysicsSystem::handle_projectile_collisions()
 		{
 			// Remove projectile if it's out of bounds
 			registry.remove_all_components_of(projectile);
+			continue;
+		}
+	}
+}
+
+void PhysicsSystem::handle_arrows(float elapsed_ms)
+{
+	for (auto entity : registry.arrows.entities)
+	{
+		Arrow &arrow = registry.arrows.get(entity);
+
+		// Update lifetime
+		arrow.lifetime_ms -= elapsed_ms;
+		if (arrow.lifetime_ms <= 0)
+		{
+			registry.remove_all_components_of(entity);
+			continue;
+		}
+
+		// Skip if no motion component
+		if (!registry.motions.has(entity))
+		{
+			continue;
+		}
+
+		Motion &motion = registry.motions.get(entity);
+		Entity source = arrow.source;
+
+		// If arrow was fired by skeleton, check collision with player and towers
+		if (registry.skeletons.has(source))
+		{
+			// Check collision with player
+			for (auto player : registry.players.entities)
+			{
+				if (!registry.motions.has(player))
+					continue;
+
+				Motion &player_motion = registry.motions.get(player);
+				if (collides(motion, player_motion))
+				{
+					// play the hit sound
+					Mix_PlayChannel(2, injured_sound, 0);
+
+					// Get or create status component for player
+					StatusComponent *status_comp;
+					if (registry.statuses.has(player))
+					{
+						status_comp = &registry.statuses.get(player);
+					}
+					else
+					{
+						status_comp = &registry.statuses.emplace(player);
+					}
+
+					// Add attack status to apply damage
+					Status attack_status{
+						"attack",
+						0.0f,
+						arrow.damage};
+						status_comp->active_statuses.push_back(attack_status);
+						
+
+					// Add hit effect for visual feedback
+					registry.hitEffects.emplace_with_duplicates(player);
+
+					// Apply screen shake if screen state exists
+					if (registry.screenStates.entities.size() > 0)
+					{
+						auto &screen = registry.screenStates.get(registry.screenStates.entities[0]);
+						screen.shake_duration_ms = 200.0f;
+						screen.shake_intensity = 5.0f;
+					}
+
+					// Remove arrow after hitting
+					registry.remove_all_components_of(entity);
+					break;
+				}
+			}
+
+			// Check collision with towers
+			for (auto tower : registry.towers.entities)
+			{
+				if (!registry.motions.has(tower))
+					continue;
+
+				Motion &tower_motion = registry.motions.get(tower);
+				if (collides(motion, tower_motion))
+				{
+					// Deal damage to tower
+					if (registry.towers.has(tower))
+					{
+						registry.towers.get(tower).health -= arrow.damage;
+
+						// Add hit effect for visual feedback
+						registry.hitEffects.emplace_with_duplicates(tower);
+
+						// Check if tower is destroyed
+						if (registry.towers.get(tower).health <= 0)
+						{
+							registry.remove_all_components_of(tower);
+						}
+					}
+
+					// Remove arrow after hitting
+					registry.remove_all_components_of(entity);
+					break;
+				}
+			}
+		}
+
+		// Check if arrow is out of window bounds
+		if (motion.position.x < 0 ||
+			motion.position.x > WINDOW_WIDTH_PX ||
+			motion.position.y < 0 ||
+			motion.position.y > WINDOW_HEIGHT_PX)
+		{
+			// Remove arrow if it's out of bounds
+			registry.remove_all_components_of(entity);
 			continue;
 		}
 	}

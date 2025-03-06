@@ -52,6 +52,10 @@ int main()
 		std::cerr << "ERROR: Failed to start or load sounds in status_system." << std::endl;
 	}
 
+	if (!physics_system.start_and_load_sounds()) {
+		std::cerr << "ERROR: Failed to start or load sounds in status_system." << std::endl;
+	}
+
 	// initialize the main systems
 	renderer_system.init(window);
 	world_system.init(&renderer_system);
