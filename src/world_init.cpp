@@ -200,7 +200,7 @@ Entity createGrass(vec2 position)
 	registry.renderRequests.insert(
 		grass_entity,
 		{
-			TEXTURE_ASSET_ID::GRASS,
+			DECORATION_LIST[1],
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
@@ -287,36 +287,57 @@ void removeSurfaces()
 	std::cout << "surfaces reset" << std::endl;
 }
 
-Entity createDecoration() {
+Entity createDecoration(int i, vec2 position) {
+	// Create the associated entity.
+	Entity e = Entity();
 
+	// Create the associated component.
+	Grass& grass_component = registry.grasses.emplace(e);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(e);
+	motion_component.position = position;
+	motion_component.scale = DECORATION_SIZE_LIST[i];
+	motion_component.velocity = vec2(0, 0);
+	// Render the object.
+	registry.renderRequests.insert(
+		e,
+		{
+			DECORATION_LIST[i],
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return e;
 }
 
 void parseMap() {
 	json jsonFile;
 	std::ifstream file("../data/map/myMap.json");
 	file>>jsonFile;
-	std::vector<json> j = jsonFile["tilesets"];
+
 	int numCol = jsonFile["width"];
 	int numRow = jsonFile["height"];
-	std::cout << j[0].dump(4) << std::endl;
-
 	std::vector<int> map_layer = jsonFile["layers"][0]["data"];
 	std::vector<int> decoration_layer = jsonFile["layers"][1]["data"];
 
+	// create background
 	for (int i=0; i<numRow; i++) { //iterating row-by-row
 		for (int j=0; j<numCol; j++) {
-			if (map_layer[i*GRID_CELL_HEIGHT_PX+j] == 1) {
-				createGrass({i*GRID_CELL_WIDTH_PX, j*GRID_CELL_HEIGHT_PX});
+			if (map_layer[i*numCol+j] == 1) {
+				createGrass({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
 			}
 		}
 	}
 
+	// add decorations
 	for (int i=0; i<numRow; i++) { //iterating row-by-row
-		for (int j=0; j<numCol; j++) {
-
+		for (int j=0; j<numCol; j++) {	
+			if (decoration_layer[i*numCol+j] != 0) 
+				createDecoration(decoration_layer[i*numCol+j], {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
 		}
 	}
-
 }
 
 // Kung: Create the toolbar that in the future will store seeds, harvests, and other associated items.
