@@ -40,6 +40,7 @@ void AISystem::update_enemy_behaviors(float elapsed_ms)
             // For now, just handle basic movement
             update_enemy_movement(entity, elapsed_ms);
             handle_enemy_attack(entity, elapsed_ms);
+            update_skeletons(elapsed_ms);
         }
     }
 }
@@ -162,4 +163,115 @@ bool AISystem::start_and_load_sounds()
     }
 
     return true;
+}
+
+
+// Add to AI system
+void AISystem::update_skeletons(float elapsed_ms)
+{
+    for (auto entity : registry.skeletons.entities)
+    {
+        if (!registry.motions.has(entity))
+        {
+            continue;
+        }
+        
+        Skeleton &skeleton = registry.skeletons.get(entity);
+        Motion &skeleton_motion = registry.motions.get(entity);
+        
+        // Update cooldown timer
+        if (skeleton.cooldown_timer_ms > 0)
+        {
+            skeleton.cooldown_timer_ms -= elapsed_ms;
+        }
+        
+        // Find target if none exists or is invalid
+        if (!registry.motions.has(skeleton.target))
+        {
+            // First priority: towers
+            if (!registry.towers.entities.empty())
+            {
+                float closest_dist = 10000.f;
+                for (auto tower : registry.towers.entities)
+                {
+                    if (!registry.motions.has(tower)) continue;
+                    
+                    vec2 tower_pos = registry.motions.get(tower).position;
+                    float dist = distance(skeleton_motion.position, tower_pos);
+                    
+                    if (dist < closest_dist)
+                    {
+                        closest_dist = dist;
+                        skeleton.target = tower;
+                    }
+                }
+            }
+            // Second priority: player
+            else if (!registry.players.entities.empty())
+            {
+                skeleton.target = registry.players.entities[0];
+            }
+            else
+            {
+                // No valid targets, idle behavior
+                skeleton_motion.velocity = {0, 0};
+                continue;
+            }
+        }
+        
+        // Make sure target still has motion component
+        if (!registry.motions.has(skeleton.target))
+        {
+            skeleton.target = {};
+            continue;
+        }
+        
+        Motion &target_motion = registry.motions.get(skeleton.target);
+        
+        // Calculate distance and direction to target
+        vec2 direction = target_motion.position - skeleton_motion.position;
+        float dist = length(direction);
+        
+        // Determine behavior based on distance
+        if (dist > skeleton.attack_range)
+        {
+            // Target out of range, move towards it
+            skeleton.is_attacking = false;
+            skeleton_motion.velocity = normalize(direction) * SKELETON_SPEED;
+            
+            // Update facing direction
+            skeleton_motion.scale.x = (direction.x > 0) ? 
+                abs(skeleton_motion.scale.x) : -abs(skeleton_motion.scale.x);
+        }
+        else if (dist < skeleton.stop_distance)
+        {
+            // Stop and attack
+            skeleton_motion.velocity = {0, 0};
+            
+            // If cooldown complete, fire arrow
+            if (skeleton.cooldown_timer_ms <= 0 && !skeleton.is_attacking)
+            {
+                skeleton.is_attacking = true;
+                skeleton.cooldown_timer_ms = skeleton.attack_cooldown_ms;
+                
+                // Calculate arrow spawn position (slightly in front of skeleton)
+                vec2 normalized_dir = normalize(direction);
+                vec2 arrow_pos = skeleton_motion.position + normalized_dir * 30.f;
+                
+                // Create arrow
+                createArrow(arrow_pos, direction, entity);
+                
+                // TODO: Play attack animation
+            }
+        }
+        else
+        {
+            // Within attack range but not at stop distance, approach slowly
+            skeleton_motion.velocity = normalize(direction) * (SKELETON_SPEED * 0.5f);
+            
+            // Update facing direction
+            skeleton_motion.scale.x = (direction.x > 0) ? 
+                abs(skeleton_motion.scale.x) : -abs(skeleton_motion.scale.x);
+        }
+    }
 }

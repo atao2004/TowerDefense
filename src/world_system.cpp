@@ -757,7 +757,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	Motion &motion = registry.motions.get(player);
 
 	// face left
-	if (mouse_pos_x < motion.position.x && motion.scale.x > 0)
+	if (mouse_pos_x < WINDOW_WIDTH_PX / 2 && motion.scale.x > 0)
 	{
 		motion.scale.x = -motion.scale.x;
 		// change the positions of detection lines
@@ -769,7 +769,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	}
 
 	// face right
-	if (mouse_pos_x > motion.position.x && motion.scale.x < 0)
+	if (mouse_pos_x > WINDOW_WIDTH_PX / 2 && motion.scale.x < 0)
 	{
 		motion.scale.x = -motion.scale.x;
 		// change the positions of detection lines

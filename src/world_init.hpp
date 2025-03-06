@@ -32,3 +32,6 @@ Entity createSeed(vec2 pos);
 Entity createCamera(RenderSystem* renderer, vec2 position);
 
 Entity createGameOver();
+
+Entity createSkeleton(RenderSystem* renderer, vec2 position);
+Entity createArrow(vec2 position, vec2 direction, Entity source);

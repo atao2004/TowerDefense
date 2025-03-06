@@ -40,6 +40,8 @@ public:
 
 	ComponentContainer<Projectile> projectiles;
 	ComponentContainer<Camera> cameras;
+	ComponentContainer<Skeleton> skeletons;
+	ComponentContainer<Arrow> arrows;
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
@@ -64,6 +66,8 @@ public:
 		registry_list.push_back(&hitEffects);
 		registry_list.push_back(&projectiles);
 		registry_list.push_back(&cameras);
+		registry_list.push_back(&skeletons);
+		registry_list.push_back(&arrows);
 	}
 
 	void clear_all_components() {

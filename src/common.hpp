@@ -140,6 +140,18 @@ const int PLAYER_HEALTH = 100;
 const int ZOMBIE_HEALTH = 20;
 const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
+// Skeleton properties
+const float SKELETON_WIDTH = 30.f;
+const float SKELETON_HEIGHT = 60.f;
+const float SKELETON_HEALTH = 75.f;
+const float SKELETON_SPEED = 75.f;
+const float SKELETON_FRAME_DELAY = 500.f;
+const float SKELETON_ARROW_DAMAGE = 15.f;
+const int SKELETON_ANIMATION[] = {
+    (int)TEXTURE_ASSET_ID::ZOMBIE_WALK_1,  
+    (int)TEXTURE_ASSET_ID::ZOMBIE_WALK_2
+};
+
 const int PROJECTILE_DAMAGE = 10;
 
 //control player movement
