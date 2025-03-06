@@ -129,6 +129,11 @@ struct RenderRequest
 //
 // game constants
 //
+inline int MAP_WIDTH_TILE_NUM = 40;
+inline int MAP_HEIGHT_TILE_NUM = 30;
+inline int MAP_WIDTH_PX = 2400;
+inline int MAP_HEIGHT_PX = 1800;
+
 inline int WINDOW_WIDTH_PX = 1920;
 inline int WINDOW_HEIGHT_PX = 1080;
 
