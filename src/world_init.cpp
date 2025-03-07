@@ -154,7 +154,11 @@ Entity createMapTile(int i, vec2 position) {
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(maptile_entity);
 	motion_component.position = position;
-	motion_component.scale = DECORATION_SIZE_LIST[i];
+	if (i == 1) {
+		motion_component.scale = vec2(GRASS_DIMENSION_PX, GRASS_DIMENSION_PX);
+	} else {
+		motion_component.scale = DECORATION_SIZE_LIST[i];
+	}
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
@@ -198,31 +202,6 @@ Entity createTutorialTile(int i, vec2 position) {
 
 	return tutorial_tile_entity;
 
-}
-
-Entity createDecoration(int i, vec2 position) {
-	// Create the associated entity.
-	Entity decoration_entity = Entity();
-
-	// Create the associated maptile component.
-	MapTile& maptile_component = registry.mapTiles.emplace(decoration_entity);
-
-	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(decoration_entity);
-	motion_component.position = position;
-	motion_component.scale = DECORATION_SIZE_LIST[i];
-	motion_component.velocity = vec2(0, 0);
-	// Render the object.
-	registry.renderRequests.insert(
-		decoration_entity,
-		{
-			DECORATION_LIST[i],
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
-
-	return decoration_entity;
 }
 
 // Kung: Create the tiles that border the window and represent areas in which the player cannot walk on.
