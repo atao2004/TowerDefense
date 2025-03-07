@@ -46,7 +46,7 @@ Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
 		false
 	);
 
-	AnimationSystem::update_animation(entity, ZOMBIE_SPAWN_FRAME_DELAY, ZOMBIE_SPAWN_ANIMATION, sizeof(ZOMBIE_SPAWN_ANIMATION) / sizeof(ZOMBIE_SPAWN_ANIMATION[0]), false, false, true);
+	AnimationSystem::update_animation(entity, ZOMBIE_SPAWN_DURATION, ZOMBIE_SPAWN_ANIMATION, ZOMBIE_SPAWN_SIZE, false, false, true);
 
 	return entity;
 }
@@ -82,7 +82,10 @@ Entity createZombie(RenderSystem *renderer, vec2 position)
 		false
 	);
 
-	AnimationSystem::update_animation(entity, ZOMBIE_SPAWN_FRAME_DELAY, ZOMBIE_SPAWN_ANIMATION, sizeof(ZOMBIE_SPAWN_ANIMATION) / sizeof(ZOMBIE_SPAWN_ANIMATION[0]), false, false, true);
+	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_DURATION, ZOMBIE_MOVE_ANIMATION, ZOMBIE_MOVE_SIZE, true, false, false);
+
+	// Kung: Update the enemy count and print it to the console.
+    std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 
 	return entity;
 }
@@ -488,7 +491,7 @@ Entity createEffect(RenderSystem *renderer, vec2 position, vec2 scale)
 		 GEOMETRY_BUFFER_ID::SPRITE},
 		false);
 
-	AnimationSystem::update_animation(entity, SLASH_FRAME_DELAY, SLASH_ANIMATION, sizeof(SLASH_ANIMATION) / sizeof(SLASH_ANIMATION[0]), false, false, true);
+	AnimationSystem::update_animation(entity, SLASH_DURATION, SLASH_ANIMATION, SLASH_SIZE, false, false, true);
 
 	return entity;
 }

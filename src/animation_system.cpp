@@ -53,7 +53,7 @@ void AnimationSystem::step(float elapsed_ms)
 * @param loop True if the animation should loop.
 * @param lock True if the animation should not be replaced.
 */
-void AnimationSystem::update_animation(Entity entity, int frame_delay, const TEXTURE_ASSET_ID* textures, int textures_size, bool loop, bool lock, bool destroy)
+void AnimationSystem::update_animation(Entity entity, int duration, const TEXTURE_ASSET_ID* textures, int textures_size, bool loop, bool lock, bool destroy)
 {
     if (registry.animations.has(entity) && registry.animations.get(entity).lock) {
         //
@@ -63,7 +63,7 @@ void AnimationSystem::update_animation(Entity entity, int frame_delay, const TEX
             registry.animations.remove(entity);
         }
         Animation& animation = registry.animations.emplace(entity);
-        animation.transition_ms = frame_delay;
+        animation.transition_ms = duration / textures_size;
         animation.pose_count = textures_size;
         animation.textures = textures;
         animation.loop = loop;
