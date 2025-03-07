@@ -36,3 +36,4 @@ Entity createSeed(vec2 pos);
 Entity createCamera(RenderSystem* renderer, vec2 position);
 
 Entity createGameOver();
+void parseMap();

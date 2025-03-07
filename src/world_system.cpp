@@ -266,30 +266,32 @@ void WorldSystem::restart_game()
 	int grid_line_width = GRID_LINE_WIDTH_PX;
 
 	// Kung: Create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
-	removeSurfaces();
-	for (int x = (GRASS_DIMENSION_PX * -1.5); x < WINDOW_WIDTH_PX + (GRASS_DIMENSION_PX * 1.5); x += GRASS_DIMENSION_PX)
-	{
-		for (int y = (GRASS_DIMENSION_PX * -1.5); y < WINDOW_HEIGHT_PX + (GRASS_DIMENSION_PX * 1.5); y += GRASS_DIMENSION_PX)
-		{
-			createGrass(vec2(x, y));
-		}
-	}
-	for (int x = -SCORCHED_EARTH_BOUNDARY - SCORCHED_EARTH_DIMENSION_PX * 4; x < WINDOW_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 5; x += SCORCHED_EARTH_DIMENSION_PX)
-	{
-		for (int y = -SCORCHED_EARTH_BOUNDARY - SCORCHED_EARTH_DIMENSION_PX * 2; y < WINDOW_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 5; y += SCORCHED_EARTH_DIMENSION_PX)
-		{
-			if (x < SCORCHED_EARTH_BOUNDARY || y < SCORCHED_EARTH_BOUNDARY)
-			{
-				createScorchedEarth(vec2(x, y));
-			}
-			else if (x > WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY || y > WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY)
-			{
-				createScorchedEarth(vec2(x - SCORCHED_EARTH_BOUNDARY * 3, y - SCORCHED_EARTH_BOUNDARY * 1.5));
-			}
-		}
-	}
+	// removeSurfaces();
+	//commented out Kung's code
+	// for (int x = (GRASS_DIMENSION_PX / 2); x < WINDOW_WIDTH_PX + (GRASS_DIMENSION_PX / 2); x += GRASS_DIMENSION_PX)
+	// {
+	// 	for (int y = (GRASS_DIMENSION_PX / 2); y < WINDOW_HEIGHT_PX + (GRASS_DIMENSION_PX / 2); y += GRASS_DIMENSION_PX)
+	// 	{
+	// 		createGrass(vec2(x, y));
+	// 	}
+	// }
+	// for (int x = -SCORCHED_EARTH_BOUNDARY - SCORCHED_EARTH_DIMENSION_PX * 4; x < WINDOW_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 5; x += SCORCHED_EARTH_DIMENSION_PX)
+	// {
+	// 	for (int y = -SCORCHED_EARTH_BOUNDARY - SCORCHED_EARTH_DIMENSION_PX * 2; y < WINDOW_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 5; y += SCORCHED_EARTH_DIMENSION_PX)
+	// 	{
+	// 		if (x < SCORCHED_EARTH_BOUNDARY || y < SCORCHED_EARTH_BOUNDARY)
+	// 		{
+	// 			createScorchedEarth(vec2(x, y));
+	// 		}
+	// 		else if (x > WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY || y > WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY)
+	// 		{
+	// 			createScorchedEarth(vec2(x - SCORCHED_EARTH_BOUNDARY * 3, y - SCORCHED_EARTH_BOUNDARY * 1.5));
+	// 		}
+	// 	}
+	// }
 	// Kung: This is for Milestone #2. This creates the farmland.
-	createFarmland(vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2));
+	// createFarmland(vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2));
+	parseMap();
 
 	// create grid lines and clear any pre-existing grid lines
 	// Kung: I cleared the grid lines so that they would now render on top of my textures

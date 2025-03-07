@@ -2,6 +2,8 @@
 #include "tinyECS/registry.hpp"
 #include <iostream>
 #include "animation_system.hpp"
+#include "../ext/json.hpp"
+using json = nlohmann::json;
 
 Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	Entity entity = Entity();
@@ -24,33 +26,7 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	return entity;
 }
 
-// Entity createDetectionLine(Entity entity, vec2 start_pos, vec2 end_pos) {
-// 	GridLine& gl = registry.gridLines.emplace_with_duplicates(entity);
-// 	gl.start_pos = start_pos;
-// 	gl.end_pos = end_pos;
-
-// 	registry.renderRequests.insert(
-// 		entity,
-// 		{
-// 			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-// 			EFFECT_ASSET_ID::EGG,
-// 			GEOMETRY_BUFFER_ID::DEBUG_LINE
-// 		},
-// 		false
-// 	);
-// 	//only need to create 1 color so all the lines can use the same color
-// 	if (!registry.colors.has(entity)) {
-// 		vec3& cv = registry.colors.emplace(entity);
-// 		cv.r = 1;
-// 		cv.g = 0;
-// 		cv.b = 0;
-// 	}
-
-// 	return entity;
-// }
-
 // createZombieSpawn
-
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
 	Entity entity = Entity();
 
@@ -186,7 +162,7 @@ Entity createGrass(vec2 position)
 	registry.renderRequests.insert(
 		grass_entity,
 		{
-			TEXTURE_ASSET_ID::GRASS,
+			DECORATION_LIST[1],
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
@@ -300,8 +276,62 @@ Entity createTutorialSign(vec2 position, TEXTURE_ASSET_ID asset_id) {
 	return tutorial_entity;
 }
 
-Entity createTutorialTile() {
+// Entity createTutorialTile() {
 	
+// }
+
+
+Entity createDecoration(int i, vec2 position) {
+	// Create the associated entity.
+	Entity decoration_entity = Entity();
+
+	// Create the associated component.
+	Grass& grass_component = registry.grasses.emplace(decoration_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(decoration_entity);
+	motion_component.position = position;
+	motion_component.scale = DECORATION_SIZE_LIST[i];
+	motion_component.velocity = vec2(0, 0);
+	// Render the object.
+	registry.renderRequests.insert(
+		decoration_entity,
+		{
+			DECORATION_LIST[i],
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return decoration_entity;
+}
+
+void parseMap() {
+	json jsonFile;
+	std::ifstream file("../data/map/myMap.json");
+	file>>jsonFile;
+
+	int numCol = jsonFile["width"];
+	int numRow = jsonFile["height"];
+	std::vector<int> map_layer = jsonFile["layers"][0]["data"];
+	std::vector<int> decoration_layer = jsonFile["layers"][1]["data"];
+
+	// create background
+	for (int i=0; i<numRow; i++) { //iterating row-by-row
+		for (int j=0; j<numCol; j++) {
+			if (map_layer[i*numCol+j] == 1) {
+				createGrass({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+			}
+		}
+	}
+
+	// add decorations
+	for (int i=0; i<numRow; i++) { //iterating row-by-row
+		for (int j=0; j<numCol; j++) {	
+			if (decoration_layer[i*numCol+j] != 0) 
+				createDecoration(decoration_layer[i*numCol+j], {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+		}
+	}
 }
 
 // Kung: Create the toolbar that in the future will store seeds, harvests, and other associated items.

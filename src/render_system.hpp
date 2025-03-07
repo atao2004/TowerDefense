@@ -59,8 +59,13 @@ class RenderSystem {
 		textures_path("attacks/Slash3_color1_frame8.png"),
 		textures_path("attacks/Slash3_color1_frame9.png"),
 		textures_path("towers/gold_bubble.png"),
-		textures_path("gameover/gameover.png")
-		
+		textures_path("gameover/gameover.png"),
+		textures_path("map/grass_background.png"),
+		textures_path("map/flower_1.png"),
+		textures_path("map/stone_1.png"),
+		textures_path("map/grass_decoration_1.png"),
+		textures_path("map/tree_1.png"),
+		textures_path("map/farmland_1.png"),
 	};
 
 	std::array<GLuint, effect_count> effects;
