@@ -130,12 +130,8 @@ struct Collision
 	Collision(Entity &other) { this->other = other; };
 };
 
-struct Grass
+struct MapTile
 {
-};
-
-struct Farmland {
-
 };
 
 struct TutorialTile {

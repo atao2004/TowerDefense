@@ -8,8 +8,8 @@ class MovementSystem
     public:
     MovementSystem();
     ~MovementSystem();
-    void step(float elapsed_ms);
+    void step(float elapsed_ms, GAME_SCREEN_ID game_screen);
 
     private:
-    void checkBoundaries(float elapsed_ms);
+    void checkBoundaries(float elapsed_ms, GAME_SCREEN_ID game_screen);
 };

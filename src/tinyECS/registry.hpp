@@ -20,8 +20,7 @@ public:
 	ComponentContainer<vec3> colors;
 	ComponentContainer<Tower> towers;
 	ComponentContainer<GridLine> gridLines;
-	ComponentContainer<Grass> grasses;
-	ComponentContainer<Farmland> farmlands;
+	ComponentContainer<MapTile> mapTiles;
 	ComponentContainer<ScorchedEarth> scorchedEarths;
 	ComponentContainer<TutorialTile> tutorialTiles;
 	ComponentContainer<TutorialSign> tutorialSigns;

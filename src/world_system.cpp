@@ -290,8 +290,8 @@ void WorldSystem::restart_game()
 	// 	}
 	// }
 	// Kung: This is for Milestone #2. This creates the farmland.
-	// createFarmland(vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2));
-	parseMap();
+	parseMap(true);
+	parseMap(false);
 
 	// create grid lines and clear any pre-existing grid lines
 	// Kung: I cleared the grid lines so that they would now render on top of my textures
@@ -568,7 +568,7 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	}
 
 	// Move right
-	if (player_motion.position.x <= WINDOW_WIDTH_PX - PLAYER_LEFT_BOUNDARY)
+	if (player_motion.position.x <= PLAYER_RIGHT_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_D)
 		{
@@ -585,7 +585,7 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	}
 
 	// Move down
-	if (player_motion.position.y <= WINDOW_HEIGHT_PX - PLAYER_UP_BOUNDARY)
+	if (player_motion.position.y <= PLAYER_DOWN_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_S)
 		{
@@ -668,7 +668,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		spawn_manager.set_test_mode(tutorial_mode);
 		if (game_screen != GAME_SCREEN_ID::TUTORIAL) {
 			game_screen = GAME_SCREEN_ID::TUTORIAL;
-		} else game_screen = GAME_SCREEN_ID::PLAYING;
+		} else {
+			game_screen = GAME_SCREEN_ID::PLAYING;
+		}
 		std::cout << "Game " << (tutorial_mode ? "entered" : "exited") << " test mode" << std::endl;
 		return;
 	}

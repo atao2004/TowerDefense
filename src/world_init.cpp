@@ -144,60 +144,85 @@ void removeTower(vec2 position) {
 }
 
 // Kung: Create the grass texture that will be used as part of the texture map.
-Entity createGrass(vec2 position)
-{
+Entity createMapTile(int i, vec2 position) {
 	// Create the associated entity.
-	Entity grass_entity = Entity();
+	Entity maptile_entity = Entity();
 
 	// Create the associated component.
-	Grass& grass_component = registry.grasses.emplace(grass_entity);
+	MapTile& maptile_component = registry.mapTiles.emplace(maptile_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(grass_entity);
+	Motion& motion_component = registry.motions.emplace(maptile_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(GRASS_DIMENSION_PX, GRASS_DIMENSION_PX);
+	motion_component.scale = DECORATION_SIZE_LIST[i];
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
 	registry.renderRequests.insert(
-		grass_entity,
+		maptile_entity,
 		{
-			DECORATION_LIST[1],
+			DECORATION_LIST[i],
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
 	);
 
-	return grass_entity;
+	return maptile_entity;
 }
 
-// Kung: This is for Milestone #2.
-// Create a texture tile that represents areas where you can plant seeds.
-Entity createFarmland(vec2 position)
-{
+Entity createTutorialTile(int i, vec2 position) {
 	// Create the associated entity.
-	Entity farmland_entity = Entity();
+	Entity tutorial_tile_entity = Entity();
 
 	// Create the associated component.
-	Farmland& grass_component = registry.farmlands.emplace(farmland_entity);
+	TutorialTile& tutorial_tile_component = registry.tutorialTiles.emplace(tutorial_tile_entity);
+
+	// Create the associated maptile component.
+	MapTile& maptile_component = registry.mapTiles.emplace(tutorial_tile_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(farmland_entity);
+	Motion& motion_component = registry.motions.emplace(tutorial_tile_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(FARMLAND_DIMENSION_PX, FARMLAND_DIMENSION_PX);
+	motion_component.scale = DECORATION_SIZE_LIST[i];
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
 	registry.renderRequests.insert(
-		farmland_entity,
+		tutorial_tile_entity,
 		{
-			TEXTURE_ASSET_ID::FARMLAND,
+			DECORATION_LIST[i],
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
 	);
 
-	return farmland_entity;
+	return tutorial_tile_entity;
+
+}
+
+Entity createDecoration(int i, vec2 position) {
+	// Create the associated entity.
+	Entity decoration_entity = Entity();
+
+	// Create the associated maptile component.
+	MapTile& maptile_component = registry.mapTiles.emplace(decoration_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(decoration_entity);
+	motion_component.position = position;
+	motion_component.scale = DECORATION_SIZE_LIST[i];
+	motion_component.velocity = vec2(0, 0);
+	// Render the object.
+	registry.renderRequests.insert(
+		decoration_entity,
+		{
+			DECORATION_LIST[i],
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return decoration_entity;
 }
 
 // Kung: Create the tiles that border the window and represent areas in which the player cannot walk on.
@@ -233,13 +258,9 @@ Entity createScorchedEarth(vec2 position)
 // This includes grass and scorched earth, and eventually farmland as well.
 void removeSurfaces()
 {
-	// remove all grasses
-	for (Entity& grass_entity : registry.grasses.entities) {
-		registry.remove_all_components_of(grass_entity);
-	}
-	// remove all farmlands
-	for (Entity& farmland_entity : registry.farmlands.entities) {
-		registry.remove_all_components_of(farmland_entity);
+	// remove all mapTiles
+	for (Entity& maptile_entity : registry.mapTiles.entities) {
+		registry.remove_all_components_of(maptile_entity);
 	}
 	// remove all scorched earth
 	for (Entity& scorched_earth_entity : registry.scorchedEarths.entities) {
@@ -276,40 +297,15 @@ Entity createTutorialSign(vec2 position, TEXTURE_ASSET_ID asset_id) {
 	return tutorial_entity;
 }
 
-// Entity createTutorialTile() {
-	
-// }
-
-
-Entity createDecoration(int i, vec2 position) {
-	// Create the associated entity.
-	Entity decoration_entity = Entity();
-
-	// Create the associated component.
-	Grass& grass_component = registry.grasses.emplace(decoration_entity);
-
-	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(decoration_entity);
-	motion_component.position = position;
-	motion_component.scale = DECORATION_SIZE_LIST[i];
-	motion_component.velocity = vec2(0, 0);
-	// Render the object.
-	registry.renderRequests.insert(
-		decoration_entity,
-		{
-			DECORATION_LIST[i],
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
-
-	return decoration_entity;
-}
-
-void parseMap() {
+void parseMap(bool tutorial) {
 	json jsonFile;
-	std::ifstream file("data/map/myMap.json");
-	file>>jsonFile;
+	if (tutorial) {
+		std::ifstream file("data/map/tutorialMap.json");
+		file>>jsonFile;
+	} else  {
+		std::ifstream file("data/map/myMap.json");
+		file>>jsonFile;
+	}
 
 	int numCol = jsonFile["width"];
 	int numRow = jsonFile["height"];
@@ -320,7 +316,11 @@ void parseMap() {
 	for (int i=0; i<numRow; i++) { //iterating row-by-row
 		for (int j=0; j<numCol; j++) {
 			if (map_layer[i*numCol+j] == 1) {
-				createGrass({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+				if (tutorial) {
+					createTutorialTile(1, {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+				} else {
+					createMapTile(1, {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+				}
 			}
 		}
 	}
@@ -328,8 +328,13 @@ void parseMap() {
 	// add decorations
 	for (int i=0; i<numRow; i++) { //iterating row-by-row
 		for (int j=0; j<numCol; j++) {	
-			if (decoration_layer[i*numCol+j] != 0) 
-				createDecoration(decoration_layer[i*numCol+j], {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+			if (decoration_layer[i*numCol+j] != 0) {
+				if (tutorial) {
+					createTutorialTile(decoration_layer[i*numCol+j], {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+				} else {
+					createMapTile(decoration_layer[i*numCol+j], {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+				}
+			}
 		}
 	}
 }

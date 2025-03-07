@@ -13,10 +13,12 @@ Entity createTower(RenderSystem* renderer, vec2 position);
 void removeTower(vec2 position);
 
 // texture elements
-Entity createGrass(vec2 position);
-Entity createFarmland(vec2 position);
+Entity createMapTile(vec2 position);
 Entity createScorchedEarth(vec2 position);
 void removeSurfaces();
+
+// texture elements (new)
+void parseMap(bool tutorial);
 
 // tutorial components
 Entity createTutorialSign(vec2 position, TEXTURE_ASSET_ID asset_id);
@@ -36,4 +38,4 @@ Entity createSeed(vec2 pos);
 Entity createCamera(RenderSystem* renderer, vec2 position);
 
 Entity createGameOver();
-void parseMap();
+
