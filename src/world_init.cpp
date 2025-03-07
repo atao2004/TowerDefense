@@ -308,7 +308,7 @@ Entity createDecoration(int i, vec2 position) {
 
 void parseMap() {
 	json jsonFile;
-	std::ifstream file("../data/map/myMap.json");
+	std::ifstream file("data/map/myMap.json");
 	file>>jsonFile;
 
 	int numCol = jsonFile["width"];
