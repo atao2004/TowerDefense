@@ -408,7 +408,9 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 			// albeit iterating through all Sprites in sequence. A good point to optimize
 			if (game_screen == GAME_SCREEN_ID::TUTORIAL) {
 				if (registry.mapTiles.has(entity)) {
-					if (registry.tutorialTiles.has(entity)) drawTexturedMesh(entity, projection_2D);
+					if (registry.tutorialTiles.has(entity)) {
+						drawTexturedMesh(entity, projection_2D);
+					}
 				} else drawTexturedMesh(entity, projection_2D);
 			} else if (!registry.tutorialSigns.has(entity) && !registry.tutorialTiles.has(entity)) {
 				drawTexturedMesh(entity, projection_2D);

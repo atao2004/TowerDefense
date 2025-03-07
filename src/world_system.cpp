@@ -317,9 +317,9 @@ void WorldSystem::restart_game()
 	}
 
 	// create the tutorial assets
-	createTutorialSign(vec2(-250, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_MOVE);
-	createTutorialSign(vec2(500, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_ATTACK);
-	createTutorialSign(vec2(1250, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_PLANT);
+	createTutorialSign(vec2(500, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_MOVE);
+	createTutorialSign(vec2(1000, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_ATTACK);
+	createTutorialSign(vec2(1500, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_PLANT);
 	createTutorialSign(vec2(2000, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_RESTART);
 
 	// reset player and spawn player in the middle of the screen

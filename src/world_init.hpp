@@ -13,7 +13,8 @@ Entity createTower(RenderSystem* renderer, vec2 position);
 void removeTower(vec2 position);
 
 // texture elements
-Entity createMapTile(vec2 position);
+Entity createMapTile(int i, vec2 position);
+Entity createTutorialTile(int i, vec2 position);
 Entity createScorchedEarth(vec2 position);
 void removeSurfaces();
 
