@@ -205,6 +205,33 @@ void removeTower(vec2 position) {
 	}
 }
 
+Entity createChicken(RenderSystem* renderer)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::CHICKEN);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { CHICKEN_SPEED, 0 };
+	motion.position = vec2( 0, WINDOW_HEIGHT_PX / 2 );
+	motion.scale = mesh.original_size * CHICKEN_SIZE;
+	motion.scale.x *= -1;
+	motion.scale.y *= -1;
+
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::CHICKEN,
+			GEOMETRY_BUFFER_ID::CHICKEN
+		}
+	);
+
+	return entity;
+}
+
 // Kung: Create the grass texture that will be used as part of the texture map.
 Entity createGrass(vec2 position)
 {

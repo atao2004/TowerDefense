@@ -176,6 +176,10 @@ const float ZOMBIE_HEIGHT = 90;
 const float SLASH_WIDTH = 60;
 const float SLASH_HEIGHT = 60;
 
+// meshes
+const float CHICKEN_SIZE = 600;
+const int CHICKEN_SPEED = 100;
+
 // cooldown
 const int COOLDOWN_ENEMY_ATTACK = 1000;
 const int COOLDOWN_PLAYER_ATTACK = 400;

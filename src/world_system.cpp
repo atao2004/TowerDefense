@@ -760,6 +760,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	{
 		registry.list_all_components();
 	}
+
+	// Giant Chicken
+	if (action == GLFW_PRESS && key == GLFW_KEY_C)
+	{
+		createChicken(renderer);
+	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)

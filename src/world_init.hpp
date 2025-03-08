@@ -12,6 +12,9 @@ Entity createZombie(RenderSystem* renderer, vec2 position);
 Entity createTower(RenderSystem* renderer, vec2 position);
 void removeTower(vec2 position);
 
+// chicken
+Entity createChicken(RenderSystem* renderer);
+
 // texture elements
 Entity createGrass(vec2 position);
 Entity createFarmland(vec2 position);
