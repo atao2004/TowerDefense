@@ -224,8 +224,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		glEnableVertexAttribArray(in_texcoord_loc);
 		glVertexAttribPointer(
 			in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex),
-			(void *)sizeof(
-				vec3)); // note the stride to skip the preceeding vertex position
+			(void *)sizeof(vec3)); // note the stride to skip the preceeding vertex position
 
 		// handle hit effect
 		bool player_is_hit = registry.hitEffects.has(entity);
@@ -412,7 +411,9 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	for (Entity entity : registry.renderRequests.entities)
 	{
 		// filter to entities that have a motion component
-		if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE)
+		if (registry.motions.has(entity) 
+		&& registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE
+	    && !registry.players.has(entity))
 		{
 			// Note, its not very efficient to access elements indirectly via the entity
 			// albeit iterating through all Sprites in sequence. A good point to optimize
@@ -421,7 +422,9 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 					if (registry.tutorialTiles.has(entity)) {
 						drawTexturedMesh(entity, projection_2D);
 					}
-				} else drawTexturedMesh(entity, projection_2D);
+				} else { 
+					drawTexturedMesh(entity, projection_2D);
+				}
 			} else if (!registry.tutorialSigns.has(entity) && !registry.tutorialTiles.has(entity)) {
 				drawTexturedMesh(entity, projection_2D);
 			}
@@ -433,6 +436,10 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 			drawGridLine(entity, projection_2D);
 		}
 	}
+
+	//individually draw player, will render on top of all the motion sprites
+	if (!WorldSystem::game_is_over)
+		drawTexturedMesh(registry.players.entities[0], projection_2D);
 
 	// draw framebuffer to screen
 	// adding "UI" effect when applied

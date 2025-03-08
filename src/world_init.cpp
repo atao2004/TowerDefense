@@ -105,7 +105,7 @@ Entity createTower(RenderSystem* renderer, vec2 position) {
 
 	// Motion component for position and rotation
 	Motion &motion = registry.motions.emplace(entity);
-	motion.position = position;
+	motion.position = {position.x + TOWER_BB_WIDTH/2, position.y + TOWER_BB_HEIGHT/2};
 	motion.angle = 0.f;
 	motion.velocity = {0, 0};								// Towers don't move
 	motion.scale = vec2({TOWER_BB_WIDTH, TOWER_BB_HEIGHT}); // Using constants from common.hpp
@@ -121,7 +121,7 @@ Entity createTower(RenderSystem* renderer, vec2 position) {
 	// Add render request for tower
 	registry.renderRequests.insert(
 		entity,
-		{TEXTURE_ASSET_ID::TOWER,
+		{TEXTURE_ASSET_ID::PLANT_2_IDLE_F,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
@@ -546,6 +546,9 @@ Entity createToolbar()
 
 Entity createGameOver()
 {
+	registry.animations.clear();
+	registry.deathAnimations.clear();
+	registry.renderRequests.clear();
 	Entity entity = Entity();
 
 	Motion &motion = registry.motions.emplace(entity);
@@ -615,11 +618,6 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 
 	registry.statuses.emplace(entity);
 
-	// create detection box
-	//  createDetectionLine(entity, vec2{position.x+30, position.y-30}, vec2{attack.range, 2});                       //upper -----
-	//  createDetectionLine(entity, vec2{position.x+attack.range, position.y}, vec2{2, PLAYER_BB_HEIGHT});           //          |
-	//  createDetectionLine(entity, vec2{position.x+30, position.y-30+PLAYER_BB_HEIGHT}, vec2{attack.range, 2});     //lower -----
-
 	registry.renderRequests.insert(
 		entity,
 		{TEXTURE_ASSET_ID::PLAYER_IDLE,
@@ -627,20 +625,6 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 		 GEOMETRY_BUFFER_ID::SPRITE},
 		false);
 
-	// grey box
-	//  vec3& cv = registry.colors.emplace(entity);
-	//  cv.r = 0.5;
-	//  cv.g = 0.5;
-	//  cv.b = 0.5;
-
-	// registry.renderRequests.insert(
-	// 	entity,
-	// 	{
-	// 		TEXTURE_ASSET_ID::TEXTURE_COUNT,
-	// 		EFFECT_ASSET_ID::COLOURED,
-	// 		GEOMETRY_BUFFER_ID::SPRITE
-	// 	}
-	// );
 	return entity;
 }
 

@@ -194,8 +194,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	if (registry.zombies.size() == 0 && current_bgm != night_bgm)
 	{
 		current_bgm = night_bgm;
-		std::thread music_thread([this]()
-								 {
+		std::thread music_thread([this]() {
 			// Mix_FadeOutMusic(1000);
 			Mix_HaltMusic();
 			Mix_FadeInMusic(night_bgm, -1, 1000); });
@@ -204,8 +203,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	else if (registry.zombies.size() > 0 && current_bgm != combat_bgm)
 	{
 		current_bgm = combat_bgm;
-		std::thread music_thread([this]()
-								 {
+		std::thread music_thread([this]() {
 			// Mix_FadeOutMusic(1000);
 			Mix_HaltMusic();
 			Mix_FadeInMusic(combat_bgm, -1, 1000); });
@@ -458,6 +456,8 @@ void WorldSystem::player_attack()
 						} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
 						else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 						{
+							// StateSystem::update_state(STATE::LEVEL_UP);
+							//come back later!
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 							level++;
 							std::cout << "==== LEVEL " << level << " ====" << std::endl;
@@ -683,10 +683,6 @@ void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_m
 
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
-	// Player movement
-	Entity player = registry.players.entities[0];
-	Motion &motion = registry.motions.get(player);
-
 	// exit game w/ ESC
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE)
 	{
@@ -707,6 +703,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		restart_game();
 		return;
 	}
+	
+	//when player is in the level up menu, disable some game inputs
+	if (StateSystem::get_state() == STATE::LEVEL_UP ||
+		game_is_over) return;
+
+	// Player movement
+	Entity player = registry.players.entities[0];
+	Motion &motion = registry.motions.get(player);
 
 	// Manual wave generation with 'g'
 	if (action == GLFW_PRESS && key == GLFW_KEY_G)
@@ -875,6 +879,9 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	mouse_pos_x = mouse_position.x;
 	mouse_pos_y = mouse_position.y;
 
+	if (StateSystem::get_state() == STATE::LEVEL_UP ||
+		game_is_over) return;
+
 	// change player facing direction
 	Entity player = registry.players.entities[0];
 	Motion &motion = registry.motions.get(player);
@@ -883,24 +890,12 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	if (mouse_pos_x < WINDOW_WIDTH_PX / 2 && motion.scale.x > 0)
 	{
 		motion.scale.x = -motion.scale.x;
-		// change the positions of detection lines
-		//  int id = registry.gridLines.getEntityId(player);
-		//  for (int i=0; i<3; i++) {
-		//  	GridLine& line = registry.gridLines.getByIndex(id-i);
-		//  	line.start_pos.x -= GRID_CELL_WIDTH_PX;
-		//  }
 	}
 
 	// face right
 	if (mouse_pos_x > WINDOW_WIDTH_PX / 2 && motion.scale.x < 0)
 	{
 		motion.scale.x = -motion.scale.x;
-		// change the positions of detection lines
-		//  int id = registry.gridLines.getEntityId(player);
-		//  for (int i=0; i<3; i++) {
-		//  	GridLine& line = registry.gridLines.getByIndex(id-i);
-		//  	line.start_pos.x += GRID_CELL_WIDTH_PX;
-		//  }
 	}
 }
 
@@ -909,8 +904,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 	if (!WorldSystem::game_is_over)
 	{
 		// on button press
-		if (action == GLFW_PRESS)
-		{
+		if (action == GLFW_PRESS) {
 
 			int tile_x = (int)(mouse_pos_x / GRID_CELL_WIDTH_PX);
 			int tile_y = (int)(mouse_pos_y / GRID_CELL_HEIGHT_PX);
@@ -919,8 +913,8 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
 		}
 
-		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
-		{
+		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {
+			if (StateSystem::get_state() == STATE::LEVEL_UP) return;
 			player_attack();
 		}
 	}

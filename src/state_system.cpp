@@ -28,3 +28,9 @@ void StateSystem::update_state(STATE state_new)
         }
     }
 }
+
+STATE StateSystem::get_state() {
+    Entity player = registry.players.entities[0];
+    State& state = registry.states.get(player);
+    return state.state;
+}

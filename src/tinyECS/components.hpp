@@ -126,7 +126,8 @@ enum class STATE
 {
 	IDLE = 0,
 	MOVE = 1,
-	ATTACK = 2
+	ATTACK = 2,
+	LEVEL_UP = 3,
 };
 
 struct State

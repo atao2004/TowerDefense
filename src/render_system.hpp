@@ -97,6 +97,7 @@ class RenderSystem
 		textures_path("enemies/SkeletonArcher-Attack8.png"),
 		textures_path("enemies/SkeletonArcher-Attack9.png"),
 		textures_path("enemies/Arrow.png"),
+		textures_path("enemies/Arrow.png"),
 		textures_path("enemies/Orc-Walk1.png"),
 		textures_path("enemies/Orc-Walk2.png"),
 		textures_path("enemies/Orc-Walk3.png"),
@@ -104,7 +105,18 @@ class RenderSystem
 		textures_path("enemies/Orc-Walk5.png"),
 		textures_path("enemies/Orc-Walk6.png"),
 		textures_path("enemies/Orc-Walk7.png"),
-		textures_path("enemies/Orc-Walk8.png")};
+		textures_path("enemies/Orc-Walk8.png"),
+		textures_path("towers/plant2/idle/Plant2_idle_f.png"),
+		textures_path("towers/plant2/idle/Plant2_idle_b.png"),
+		textures_path("towers/plant2/idle/Plant2_idle_s.png"),
+		textures_path("towers/plant2/attack/Plant2_attack_f1.png"),
+		textures_path("towers/plant2/attack/Plant2_attack_f2.png"),
+		textures_path("towers/plant2/attack/Plant2_attack_b1.png"),
+		textures_path("towers/plant2/attack/Plant2_attack_b2.png"),
+		textures_path("towers/plant2/attack/Plant2_attack_s1.png"),
+		textures_path("towers/plant2/attack/Plant2_attack_s2.png")
+	};
+
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.

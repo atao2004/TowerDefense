@@ -63,6 +63,11 @@ int main()
 
 	// variable timestep loop
 	auto t = Clock::now();
+
+	float fps_sum = 0;
+	int record_times = 0;
+	int max_fps = 0;
+	int min_fps = 50000; //impossible number technically, lazy implementation sorry!
 	while (!world_system.is_over()) {
 
 		GAME_SCREEN_ID game_screen = world_system.get_game_screen();
@@ -77,16 +82,37 @@ int main()
 		t = now;
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
-		
-		world_system.step(elapsed_ms);
-		if (!WorldSystem::game_is_over) {
-			ai_system.step(elapsed_ms);
-			physics_system.step(elapsed_ms);
-			status_system.step(elapsed_ms);
-			world_system.handle_collisions();
-			tower_system.step(elapsed_ms);
-			movement_system.step(elapsed_ms, game_screen);
-			animation_system.step(elapsed_ms);
+
+		//when level up, we want the screen to be frozen
+		if (StateSystem::get_state() != STATE::LEVEL_UP) {
+			world_system.step(elapsed_ms);
+			if (!WorldSystem::game_is_over) {
+				//M2: FPS
+				float current_fps = (1/(elapsed_ms/1000));
+				std::cout<<"FPS: "<<current_fps<<std::endl;
+				if (record_times > 2) {     //ignore the first 2, outliers wow.. maximum 5000 and minimum 10-ish fps, crazy
+					max_fps = max_fps < current_fps ? current_fps: max_fps;
+					min_fps = min_fps > current_fps ? current_fps: min_fps;
+					fps_sum += (1/(elapsed_ms/1000));
+				}
+				record_times++;
+
+				ai_system.step(elapsed_ms);
+				physics_system.step(elapsed_ms);
+				status_system.step(elapsed_ms);
+				world_system.handle_collisions();
+				tower_system.step(elapsed_ms);
+				movement_system.step(elapsed_ms, game_screen);
+				animation_system.step(elapsed_ms);
+			} else {
+				//M2: FPS. make sure we only print once, lazy implementation
+				if (record_times != 0) {
+					std::cout<<"maximum FPS: "<<max_fps<<std::endl;
+					std::cout<<"minimum FPS: "<<min_fps<<std::endl;
+					std::cout<<"average FPS: "<<(fps_sum/record_times-2)<<std::endl;
+					max_fps = 50000; min_fps = 0; fps_sum = 0; record_times = 0; record_times = 0;
+				}
+			}
 		}
 		
 		renderer_system.draw(game_screen);
