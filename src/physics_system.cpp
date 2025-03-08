@@ -27,6 +27,105 @@ bool PhysicsSystem::collides(const Motion &motion1, const Motion &motion2)
 	return false;
 }
 
+// Check if exactly one of the entities has a mesh
+bool only_one_mesh(Entity a, Entity b, Mesh*& mesh_1, Motion*& motion_1, Motion*& motion_2)
+{
+	if (registry.meshPtrs.has(a) && !registry.meshPtrs.has(b)) {
+		mesh_1 = registry.meshPtrs.get(a);
+		motion_1 = &registry.motions.get(a);
+		motion_2 = &registry.motions.get(b);
+		return true;
+	}
+	if (!registry.meshPtrs.has(a) && registry.meshPtrs.has(b)) {
+		mesh_1 = registry.meshPtrs.get(b);
+		motion_1 = &registry.motions.get(b);
+		motion_2 = &registry.motions.get(a);
+		return true;
+	}
+	return false;
+}
+
+// Compute the cross product
+float cross_product(vec2 a, vec2 b, vec2 c)
+{
+	return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+
+// Compute the orientation (true clockwise, false counterclockwise)
+bool orientation(vec2 a, vec2 b, vec2 c)
+{
+	float val = (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
+	return val > 0;
+}
+
+// Perform a line-line collision test
+bool collides_line_line(vec2 p1, vec2 p2, vec2 q1, vec2 q2)
+{
+	bool orientation_1 = orientation(p1, p2, q1);
+	bool orientation_2 = orientation(p1, p2, q2);
+	bool orientation_3 = orientation(q1, q2, p1);
+	bool orientation_4 = orientation(q1, q2, p2);
+
+	if (orientation_1 != orientation_2 && orientation_3 != orientation_4) return true;
+
+	return false;
+}
+
+// Perform a triangle-AABB collision test
+bool collides_triangle_box(std::vector<vec2>& triangle, vec2& box_min, vec2& box_max)
+{
+	// check if the triangle is inside the box
+	if (box_min.x <= triangle[0].x && triangle[0].x <= box_max.x &&
+		box_min.y <= triangle[0].y && triangle[0].y <= box_max.y) {
+		return true;
+	}
+
+	// check if the box is inside the triangle
+	float cross_1 = cross_product(triangle[0], triangle[1], box_min);
+	float cross_2 = cross_product(triangle[1], triangle[2], box_min);
+	float cross_3 = cross_product(triangle[2], triangle[0], box_min);
+	if ((cross_1 > 0 && cross_2 > 0 && cross_3 > 0) ||
+		(cross_1 < 0 && cross_2 < 0 && cross_3 < 0)) {
+		return true;
+	}
+
+	// check if the lines intersect
+	for (int i = 0; i < triangle.size(); i++) {
+		if ((collides_line_line(triangle[i], triangle[(i + 1) % triangle.size()], vec2(box_min.x, box_max.y), vec2(box_max.x, box_max.y))) ||
+			(collides_line_line(triangle[i], triangle[(i + 1) % triangle.size()], vec2(box_min.x, box_min.y), vec2(box_max.x, box_min.y))) ||
+			(collides_line_line(triangle[i], triangle[(i + 1) % triangle.size()], vec2(box_min.x, box_min.y), vec2(box_min.x, box_max.y))) ||
+			(collides_line_line(triangle[i], triangle[(i + 1) % triangle.size()], vec2(box_max.x, box_min.y), vec2(box_max.x, box_max.y)))) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+// Perform a mesh-circle collision test (ignore other collisions)
+bool collides_mesh(Entity a, Entity b)
+{
+	Mesh* mesh_1;
+	Motion* motion_1;
+	Motion* motion_2;
+	if (only_one_mesh(a, b, mesh_1, motion_1, motion_2)) {
+		vec2 box_min = vec2(motion_2->position.x - motion_2->scale.x / 2, motion_2->position.y - motion_2->scale.y / 2);
+		vec2 box_max = vec2(motion_2->position.x + motion_2->scale.x / 2, motion_2->position.y + motion_2->scale.y / 2);
+		for (int i = 0; i < mesh_1->vertex_indices.size(); i += 3) {
+			std::vector<vec2> triangle;
+			triangle.push_back(motion_1->position + motion_1->scale * vec2(mesh_1->vertices[mesh_1->vertex_indices[i]].position));
+			triangle.push_back(motion_1->position + motion_1->scale * vec2(mesh_1->vertices[mesh_1->vertex_indices[i + 1]].position));
+			triangle.push_back(motion_1->position + motion_1->scale * vec2(mesh_1->vertices[mesh_1->vertex_indices[i + 2]].position));
+			if (collides_triangle_box(triangle, box_min, box_max)) return true;
+		}
+		return false;
+	}
+	else {
+		return true;
+	}
+}
+
 void PhysicsSystem::step(float elapsed_ms)
 {
 	if (!registry.screenStates.get(registry.screenStates.entities[0]).game_over)
@@ -85,7 +184,7 @@ void PhysicsSystem::handle_projectile_collisions()
 		{
 			Motion &zombie_motion = registry.motions.get(zombie);
 
-			if (collides(proj_motion, zombie_motion))
+			if (collides(proj_motion, zombie_motion) && collides_mesh(projectile, zombie))
 			{
 				// Get or create status component
 				StatusComponent *status_comp;
