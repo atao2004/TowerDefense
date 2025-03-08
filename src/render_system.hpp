@@ -41,19 +41,9 @@ class RenderSystem
 		textures_path("player/walk2.png"),
 		textures_path("player/action1_weapon.png"),
 		textures_path("player/action2_weapon.png"),
+		textures_path("map/grass.png"),
+		textures_path("map/dirt.png"),
 		textures_path("map/cracked_dirt.png"),
-		textures_path("tutorials/move.png"),
-		textures_path("tutorials/move_w.png"),
-		textures_path("tutorials/move_a.png"),
-		textures_path("tutorials/move_s.png"),
-		textures_path("tutorials/move_d.png"),
-		textures_path("tutorials/attack.png"),
-		textures_path("tutorials/attack_animation.png"),
-		textures_path("tutorials/plant.png"),
-		textures_path("tutorials/plant_animation.png"),
-		textures_path("tutorials/restart.png"),
-		textures_path("tutorials/restart_animation.png"),
-		textures_path("tutorials/arrow.png"),
 		textures_path("ui/toolbar.png"),
 		textures_path("ui/pause.png"),
 		textures_path("attacks/Slash3_color1_frame1.png"),
@@ -96,7 +86,15 @@ class RenderSystem
 		textures_path("enemies/SkeletonArcher-Attack7.png"),
 		textures_path("enemies/SkeletonArcher-Attack8.png"),
 		textures_path("enemies/SkeletonArcher-Attack9.png"),
-		textures_path("enemies/Arrow.png")};
+		textures_path("enemies/Arrow.png"),
+		textures_path("enemies/Orc-Walk1.png"),
+		textures_path("enemies/Orc-Walk2.png"),
+		textures_path("enemies/Orc-Walk3.png"),
+		textures_path("enemies/Orc-Walk4.png"),
+		textures_path("enemies/Orc-Walk5.png"),
+		textures_path("enemies/Orc-Walk6.png"),
+		textures_path("enemies/Orc-Walk7.png"),
+		textures_path("enemies/Orc-Walk8.png")};
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
@@ -137,7 +135,7 @@ public:
 	// Destroy resources associated to one or all entities created by the system
 	~RenderSystem();
 
-	// Draw all entities depending on game screen (adapted from Assignment #2)
+	// Draw all entities
 	void draw(GAME_SCREEN_ID game_screen);
 
 	mat3 createProjectionMatrix();
