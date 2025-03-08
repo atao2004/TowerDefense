@@ -9,7 +9,8 @@
 
 // System responsible for setting up OpenGL and for rendering all the
 // visual entities in the game
-class RenderSystem {
+class RenderSystem
+{
 	/**
 	 * The following arrays store the assets the game will use. They are loaded
 	 * at initialization and are assumed to not be modified by the render loop.
@@ -18,7 +19,7 @@ class RenderSystem {
 	 * it is easier to debug and faster to execute for the computer.
 	 */
 	std::array<GLuint, texture_count> texture_gl_handles;
-	std::array<ivec2, texture_count>  texture_dimensions;
+	std::array<ivec2, texture_count> texture_dimensions;
 
 	// Make sure these paths remain in sync with the associated enumerators.
 	// Associated id with .obj path
@@ -62,7 +63,30 @@ class RenderSystem {
 		textures_path("map/grass_decoration_1.png"),
 		textures_path("map/tree_1.png"),
 		textures_path("map/farmland_1.png"),
-	};
+		textures_path("enemies/SkeletonArcher-Idle1.png"),
+		textures_path("enemies/SkeletonArcher-Idle2.png"),
+		textures_path("enemies/SkeletonArcher-Idle3.png"),
+		textures_path("enemies/SkeletonArcher-Idle4.png"),
+		textures_path("enemies/SkeletonArcher-Idle5.png"),
+		textures_path("enemies/SkeletonArcher-Idle6.png"),
+		textures_path("enemies/SkeletonArcher-Walk1.png"),
+		textures_path("enemies/SkeletonArcher-Walk2.png"),
+		textures_path("enemies/SkeletonArcher-Walk3.png"),
+		textures_path("enemies/SkeletonArcher-Walk4.png"),
+		textures_path("enemies/SkeletonArcher-Walk5.png"),
+		textures_path("enemies/SkeletonArcher-Walk6.png"),
+		textures_path("enemies/SkeletonArcher-Walk7.png"),
+		textures_path("enemies/SkeletonArcher-Walk8.png"),
+		textures_path("enemies/SkeletonArcher-Attack1.png"),
+		textures_path("enemies/SkeletonArcher-Attack2.png"),
+		textures_path("enemies/SkeletonArcher-Attack3.png"),
+		textures_path("enemies/SkeletonArcher-Attack4.png"),
+		textures_path("enemies/SkeletonArcher-Attack5.png"),
+		textures_path("enemies/SkeletonArcher-Attack6.png"),
+		textures_path("enemies/SkeletonArcher-Attack7.png"),
+		textures_path("enemies/SkeletonArcher-Attack8.png"),
+		textures_path("enemies/SkeletonArcher-Attack9.png"),
+		textures_path("enemies/Arrow.png")};
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
@@ -73,8 +97,7 @@ class RenderSystem {
 		shader_path("ui"),
 		shader_path("vignette"),
 		shader_path("zombie"),
-		shader_path("player")
-	};
+		shader_path("player")};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -82,7 +105,7 @@ class RenderSystem {
 
 public:
 	// Initialize the window
-	bool init(GLFWwindow* window);
+	bool init(GLFWwindow *window);
 
 	template <class T>
 	void bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices);
@@ -93,7 +116,7 @@ public:
 
 	void initializeGlMeshes();
 
-	Mesh& getMesh(GEOMETRY_BUFFER_ID id) { return meshes[(int)id]; };
+	Mesh &getMesh(GEOMETRY_BUFFER_ID id) { return meshes[(int)id]; };
 
 	void initializeGlGeometryBuffers();
 
@@ -113,12 +136,12 @@ public:
 
 private:
 	// Internal drawing functions for each entity type
-	void drawGridLine(Entity entity, const mat3& projection);
-	void drawTexturedMesh(Entity entity, const mat3& projection);
+	void drawGridLine(Entity entity, const mat3 &projection);
+	void drawTexturedMesh(Entity entity, const mat3 &projection);
 	void drawToScreen();
 
 	// Window handle
-	GLFWwindow* window;
+	GLFWwindow *window;
 
 	// Screen texture handles
 	GLuint frame_buffer;
@@ -129,4 +152,4 @@ private:
 };
 
 bool loadEffectFromFile(
-	const std::string& vs_path, const std::string& fs_path, GLuint& out_program);
+	const std::string &vs_path, const std::string &fs_path, GLuint &out_program);

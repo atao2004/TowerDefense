@@ -571,8 +571,8 @@ Entity createSkeleton(RenderSystem *renderer, vec2 position)
     // Add skeleton specific component with improved properties
     Skeleton &skeleton = registry.skeletons.emplace(entity);
     skeleton.attack_range = 400.0f;      // Longer range than zombies
-    skeleton.stop_distance = 200.0f;     // Stops moving at this distance
-    skeleton.attack_cooldown_ms = 2000.f;// Attack cooldown
+    skeleton.stop_distance = 300.0f;     // Stops moving at this distance
+    skeleton.attack_cooldown_ms = SKELETON_ATTACK_DURATION;// Attack cooldown
 
 	Zombie &zombie = registry.zombies.emplace(entity);
 	zombie.health = SKELETON_HEALTH;
@@ -590,17 +590,29 @@ Entity createSkeleton(RenderSystem *renderer, vec2 position)
     Motion &motion = registry.motions.emplace(entity);
     motion.position = position;
     motion.velocity = {0, 0};
-    motion.scale = {SKELETON_WIDTH, SKELETON_HEIGHT};
+    motion.scale = {100.f, 100.f};
+
+	VisualScale &vscale = registry.visualScales.emplace(entity);
+    vscale.scale = {2.5f, 2.5f}; // Scale visuals 2.5x
 
     // Add render request - temporarily use zombie texture
     registry.renderRequests.insert(
         entity,
-        {TEXTURE_ASSET_ID::ZOMBIE_WALK_1, // Replace with SKELETON texture
+        {TEXTURE_ASSET_ID::SKELETON_IDLE1, // Replace with SKELETON texture
          EFFECT_ASSET_ID::ZOMBIE, // Consider using a unique shader for skeletons
          GEOMETRY_BUFFER_ID::SPRITE});
 
     // Add animation using zombie textures until skeleton textures are added
-    //AnimationSystem::update_animation(entity, SKELETON_FRAME_DELAY, ZOMBIE_ANIMATION, 2, true, true);
+        // Add idle animation
+		AnimationSystem::update_animation(
+			entity,
+			800,                       // Duration in ms (slower for idle)
+			SKELETON_IDLE_ANIMATION,   // Idle animation texture array
+			6,      // Number of frames (6)
+			true,                      // Loop animation
+			false,                     // Not locked (can be replaced)
+			false                      // Don't destroy when done
+		);
 
     return entity;
 }
@@ -623,12 +635,16 @@ Entity createArrow(vec2 position, vec2 direction, Entity source)
     motion.velocity = arrow.direction * arrow.speed;
     // Set proper angle for the arrow based on direction
     motion.angle = atan2(direction.y, direction.x) * 180.f / M_PI;
-    motion.scale = {40.f, 10.f}; // Arrow size
+    motion.scale = {10.f, 10.f}; // Arrow size
+
+	VisualScale &vscale = registry.visualScales.emplace(entity);
+    vscale.scale = {10.f, 10.f}; // Scale visuals 2.5x
+
     
     // Add render request - use projectile texture or a specific arrow texture
     registry.renderRequests.insert(
         entity,
-        {TEXTURE_ASSET_ID::PROJECTILE, // Replace with ARROW texture if available
+        {TEXTURE_ASSET_ID::ARROW,
          EFFECT_ASSET_ID::TEXTURED,
          GEOMETRY_BUFFER_ID::SPRITE});
     

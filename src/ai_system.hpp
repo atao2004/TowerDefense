@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "render_system.hpp"
 #include "tinyECS/registry.hpp"
+#include "animation_system.hpp"
 
 #define SDL_MAIN_HANDLED
 #include <SDL.h>

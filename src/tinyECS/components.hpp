@@ -61,6 +61,10 @@ struct Motion
 	}
 };
 
+struct VisualScale {
+    vec2 scale = {1.0f, 1.0f}; // Default is no scaling
+};
+
 struct Texture
 {
 };
@@ -84,6 +88,14 @@ struct Skeleton {
     Entity target = {};              // Current target
     bool is_attacking = false;       // Is currently attacking
 	float health = SKELETON_HEALTH;  // Health of the skeleton
+
+	enum class State {
+        IDLE,
+        WALK,
+        ATTACK
+    };
+    
+    State current_state = State::IDLE;
 };
 
 struct Arrow {
