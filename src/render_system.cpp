@@ -422,7 +422,9 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 					if (registry.tutorialTiles.has(entity)) {
 						drawTexturedMesh(entity, projection_2D);
 					}
-				} else drawTexturedMesh(entity, projection_2D);
+				} else { 
+					drawTexturedMesh(entity, projection_2D);
+				}
 			} else if (!registry.tutorialSigns.has(entity) && !registry.tutorialTiles.has(entity)) {
 				drawTexturedMesh(entity, projection_2D);
 			}

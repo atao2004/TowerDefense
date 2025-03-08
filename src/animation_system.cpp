@@ -30,14 +30,6 @@ void AnimationSystem::step(float elapsed_ms)
                 if (!animation.loop)
                 {
                     handle_animation_end(entity);
-                    if (animation.destroy)
-                    {
-                        registry.remove_all_components_of(entity);
-                    }
-                    else
-                    {
-                        registry.animations.remove(entity);
-                    }
                     break;
                 }
                 animation.pose = 0;
