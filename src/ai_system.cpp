@@ -40,6 +40,7 @@ void AISystem::update_enemy_behaviors(float elapsed_ms)
             // For now, just handle basic movement
             update_enemy_movement(entity, elapsed_ms);
             handle_enemy_attack(entity, elapsed_ms);
+            update_skeletons(elapsed_ms);
         }
     }
 }
@@ -162,4 +163,162 @@ bool AISystem::start_and_load_sounds()
     }
 
     return true;
+}
+
+void AISystem::update_skeletons(float elapsed_ms)
+{
+    for (auto entity : registry.skeletons.entities)
+    {
+        if (!registry.motions.has(entity))
+        {
+            continue;
+        }
+
+        Skeleton &skeleton = registry.skeletons.get(entity);
+        Motion &skeleton_motion = registry.motions.get(entity);
+
+        // Previous state for detecting state changes
+        Skeleton::State prev_state = skeleton.current_state;
+
+        // Update cooldown timer
+        if (skeleton.cooldown_timer_ms > 0)
+        {
+            skeleton.cooldown_timer_ms -= elapsed_ms;
+        }
+
+        // Reset attack state when cooldown is complete
+        if (skeleton.cooldown_timer_ms <= 0 && skeleton.is_attacking)
+        {
+            skeleton.is_attacking = false;
+        }
+
+        // Target search and evaluation - same as before
+        Entity nearest_tower = Entity();
+        float closest_tower_dist = std::numeric_limits<float>::max();
+
+        if (!registry.towers.entities.empty())
+        {
+            for (auto tower : registry.towers.entities)
+            {
+                if (!registry.motions.has(tower))
+                    continue;
+
+                vec2 tower_pos = registry.motions.get(tower).position;
+                float dist = calculate_distance_to_target(skeleton_motion.position, tower_pos);
+
+                if (dist < closest_tower_dist)
+                {
+                    closest_tower_dist = dist;
+                    nearest_tower = tower;
+                }
+            }
+
+            skeleton.target = nearest_tower;
+        }
+        else if (!registry.players.entities.empty())
+        {
+            skeleton.target = registry.players.entities[0];
+        }
+        else
+        {
+            // No valid targets, idle behavior
+            skeleton_motion.velocity = {0, 0};
+            skeleton.current_state = Skeleton::State::IDLE;
+            continue;
+        }
+
+        // Ensure target still has motion component
+        if (!registry.motions.has(skeleton.target))
+        {
+            skeleton.target = {};
+            continue;
+        }
+
+        Motion &target_motion = registry.motions.get(skeleton.target);
+
+        // Calculate distance and direction to target
+        vec2 direction = target_motion.position - skeleton_motion.position;
+        float dist = length(direction);
+
+        // Determine behavior and state based on distance
+        if (dist > skeleton.attack_range)
+        {
+            // Target out of range, move towards it
+            skeleton_motion.velocity = normalize(direction) * SKELETON_SPEED;
+            skeleton.current_state = Skeleton::State::WALK;
+
+            // Update facing direction
+            if (direction.x != 0)
+            {
+                skeleton_motion.scale.x = (direction.x > 0) ? abs(skeleton_motion.scale.x) : -abs(skeleton_motion.scale.x);
+            }
+        }
+        else if (dist < skeleton.stop_distance)
+        {
+            // Stop and attack
+            skeleton_motion.velocity = {0, 0};
+            skeleton.current_state = Skeleton::State::ATTACK;
+
+            // If cooldown complete and not currently attacking, fire arrow
+            if (skeleton.cooldown_timer_ms <= 0 && !skeleton.is_attacking)
+            {
+                skeleton.is_attacking = true;
+                skeleton.cooldown_timer_ms = skeleton.attack_cooldown_ms;
+
+                // Attack animation is managed below, in the animation section
+                // The actual arrow firing will happen at the end of the animation
+                // in handle_animation_end
+            }
+        }
+
+        // Handle animation changes when state changes
+        if (prev_state != skeleton.current_state ||
+            (skeleton.current_state == Skeleton::State::ATTACK && skeleton.is_attacking && !registry.animations.has(entity)))
+        {
+            switch (skeleton.current_state)
+            {
+            case Skeleton::State::IDLE:
+                // Apply idle animation
+                AnimationSystem::update_animation(
+                    entity,
+                    SKELETON_IDLE_DURATION,
+                    SKELETON_IDLE_ANIMATION,
+                    SKELETON_IDLE_FRAMES,
+                    true,  // loop
+                    false, // not locked
+                    false  // don't destroy
+                );
+                break;
+
+            case Skeleton::State::WALK:
+                // Apply walk animation
+                AnimationSystem::update_animation(
+                    entity,
+                    SKELETON_WALK_DURATION,
+                    SKELETON_WALK_ANIMATION,
+                    SKELETON_WALK_FRAMES,
+                    true,  // loop
+                    false, // not locked
+                    false  // don't destroy
+                );
+                break;
+
+            case Skeleton::State::ATTACK:
+                if (skeleton.is_attacking)
+                {
+                    // Apply attack animation when entering attack state and starting to attack
+                    AnimationSystem::update_animation(
+                        entity,
+                        SKELETON_ATTACK_DURATION,
+                        SKELETON_ATTACK_ANIMATION,
+                        SKELETON_ATTACK_FRAMES,
+                        false, // don't loop
+                        false,  // lock animation
+                        false  // don't destroy
+                    );
+                }
+                break;
+            }
+        }
+    }
 }

@@ -60,32 +60,110 @@ bool RenderSystem::init(GLFWwindow* window_arg)
 	return true;
 }
 
+// void RenderSystem::initializeGlTextures()
+// {
+//     glGenTextures((GLsizei)texture_gl_handles.size(), texture_gl_handles.data());
+
+//     for(uint i = 0; i < texture_paths.size(); i++)
+//     {
+// 		const std::string& path = texture_paths[i];
+// 		ivec2& dimensions = texture_dimensions[i];
+
+// 		stbi_uc* data;
+// 		data = stbi_load(path.c_str(), &dimensions.x, &dimensions.y, NULL, 4);
+
+// 		if (data == NULL)
+// 		{
+// 			const std::string message = "Could not load the file " + path + ".";
+// 			fprintf(stderr, "%s", message.c_str());
+// 			assert(false);
+// 		}
+// 		glBindTexture(GL_TEXTURE_2D, texture_gl_handles[i]);
+// 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dimensions.x, dimensions.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+// 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+// 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+// 		gl_has_errors();
+// 		stbi_image_free(data);
+//     }
+// 	gl_has_errors();
+// }
+
 void RenderSystem::initializeGlTextures()
 {
     glGenTextures((GLsizei)texture_gl_handles.size(), texture_gl_handles.data());
 
     for(uint i = 0; i < texture_paths.size(); i++)
     {
-		const std::string& path = texture_paths[i];
-		ivec2& dimensions = texture_dimensions[i];
+        const std::string& path = texture_paths[i];
+        ivec2& dimensions = texture_dimensions[i];
 
-		stbi_uc* data;
-		data = stbi_load(path.c_str(), &dimensions.x, &dimensions.y, NULL, 4);
+        // Check if this is a skeleton texture that needs scaling
+        bool is_skeleton_texture = false;
+        if (i >= (uint)TEXTURE_ASSET_ID::SKELETON_IDLE1 && 
+            i <= (uint)TEXTURE_ASSET_ID::SKELETON_IDLE6) {
+            is_skeleton_texture = true;
+        }
 
-		if (data == NULL)
-		{
-			const std::string message = "Could not load the file " + path + ".";
-			fprintf(stderr, "%s", message.c_str());
-			assert(false);
-		}
-		glBindTexture(GL_TEXTURE_2D, texture_gl_handles[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dimensions.x, dimensions.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		gl_has_errors();
-		stbi_image_free(data);
+        stbi_uc* data;
+        data = stbi_load(path.c_str(), &dimensions.x, &dimensions.y, NULL, 4);
+
+        if (data == NULL)
+        {
+            const std::string message = "Could not load the file " + path + ".";
+            fprintf(stderr, "%s", message.c_str());
+            assert(false);
+        }
+
+        // If this is a skeleton texture, scale it up 5x
+        if (is_skeleton_texture) {
+            // Calculate new dimensions
+            int original_width = dimensions.x;
+            int original_height = dimensions.y;
+            int new_width = original_width * 5;
+            int new_height = original_height * 5;
+            
+            // Allocate memory for scaled texture
+            stbi_uc* scaled_data = new stbi_uc[new_width * new_height * 4];
+            
+            // Simple nearest-neighbor scaling
+            for (int y = 0; y < new_height; y++) {
+                for (int x = 0; x < new_width; x++) {
+                    int src_x = x / 5;
+                    int src_y = y / 5;
+                    
+                    // Copy pixel data (RGBA = 4 channels)
+                    for (int c = 0; c < 4; c++) {
+                        scaled_data[(y * new_width + x) * 4 + c] = 
+                            data[(src_y * original_width + src_x) * 4 + c];
+                    }
+                }
+            }
+            
+            // Upload scaled texture to GPU
+            glBindTexture(GL_TEXTURE_2D, texture_gl_handles[i]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, new_width, new_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaled_data);
+            
+            // Update dimensions
+            dimensions.x = new_width;
+            dimensions.y = new_height;
+            
+            // Free memory
+            delete[] scaled_data;
+            stbi_image_free(data);
+        }
+        else {
+            // Regular texture processing
+            glBindTexture(GL_TEXTURE_2D, texture_gl_handles[i]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dimensions.x, dimensions.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            stbi_image_free(data);
+        }
+
+        // Set texture parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        gl_has_errors();
     }
-	gl_has_errors();
+    gl_has_errors();
 }
 
 void RenderSystem::initializeGlEffects()

@@ -20,20 +20,28 @@ void SpawnManager::initialize_spawn_points()
 
     // Create 8 spawn points, 2 on each edge
     // Top edge
-    spawn_points.push_back({{WINDOW_WIDTH_PX * 0.25f, OFFSET}, true});
-    spawn_points.push_back({{WINDOW_WIDTH_PX * 0.75f, OFFSET}, true});
+    for (int i = 1; i <= 4; i++) {
+        float x_pos = (WINDOW_WIDTH_PX * i) / 5.0f; 
+        spawn_points.push_back({{x_pos, OFFSET}, true});
+    }
 
     // Right edge
-    spawn_points.push_back({{WINDOW_WIDTH_PX - OFFSET, WINDOW_HEIGHT_PX * 0.25f}, true});
-    spawn_points.push_back({{WINDOW_WIDTH_PX - OFFSET, WINDOW_HEIGHT_PX * 0.75f}, true});
+    for (int i = 1; i <= 4; i++) {
+        float y_pos = (WINDOW_HEIGHT_PX * i) / 5.0f; 
+        spawn_points.push_back({{WINDOW_WIDTH_PX - OFFSET, y_pos}, true});
+    }
 
     // Bottom edge
-    spawn_points.push_back({{WINDOW_WIDTH_PX * 0.25f, WINDOW_HEIGHT_PX - OFFSET}, true});
-    spawn_points.push_back({{WINDOW_WIDTH_PX * 0.75f, WINDOW_HEIGHT_PX - OFFSET}, true});
+    for (int i = 1; i <= 4; i++) {
+        float x_pos = (WINDOW_WIDTH_PX * i) / 5.0f;
+        spawn_points.push_back({{x_pos, WINDOW_HEIGHT_PX - OFFSET}, true});
+    }
 
     // Left edge
-    spawn_points.push_back({{OFFSET, WINDOW_HEIGHT_PX * 0.25f}, true});
-    spawn_points.push_back({{OFFSET, WINDOW_HEIGHT_PX * 0.75f}, true});
+    for (int i = 1; i <= 4; i++) {
+        float y_pos = (WINDOW_HEIGHT_PX * i) / 5.0f;
+        spawn_points.push_back({{OFFSET, y_pos}, true});
+    }
 }
 
 void SpawnManager::step(float elapsed_ms, RenderSystem *renderer)
@@ -68,7 +76,14 @@ void SpawnManager::generate_wave(RenderSystem *renderer)
         // Get a random spawn point index
         int random_point = (int)(uniform_dist(rng) * spawn_points.size());
         vec2 spawn_pos = spawn_points[random_point].position;
-        createZombieSpawn(renderer, spawn_pos);
+        if (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) < 0.7f)
+        {
+            createZombie(renderer, spawn_pos);
+        }
+        else
+        {
+            createSkeleton(renderer, spawn_pos);
+        }
     }
 
     if (IS_WAVE_MODE_LINEAR)

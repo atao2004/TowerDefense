@@ -61,6 +61,10 @@ struct Motion
 	}
 };
 
+struct VisualScale {
+    vec2 scale = {1.0f, 1.0f}; // Default is no scaling
+};
+
 struct Texture
 {
 };
@@ -75,13 +79,42 @@ struct Zombie
 	float health;
 };
 
+// Skeleton enemy component
+struct Skeleton {
+    float attack_range = 400.f;      // Attack range
+    float stop_distance = 200.f;     // Distance to stop moving
+    float attack_cooldown_ms = 10000.f; // Attack cooldown time
+    float cooldown_timer_ms = 0.f;   // Current cooldown timer
+    Entity target = {};              // Current target
+    bool is_attacking = false;       // Is currently attacking
+	float health = SKELETON_HEALTH;  // Health of the skeleton
+
+	enum class State {
+        IDLE,
+        WALK,
+        ATTACK
+    };
+    
+    State current_state = State::IDLE;
+};
+
+struct Arrow {
+    Entity source = {};           // Source entity that fired the arrow
+    float damage = 15.f;          // Damage value
+    float lifetime_ms = 2000.f;   // Lifetime in milliseconds
+    float speed = 250.f;          // Flight speed
+    vec2 direction = {0.f, 0.f};  // Flight direction
+};
+
 struct ZombieSpawn {
 };
 
 struct Projectile {
-    Entity source;      // The tower that fired this projectile
-    float damage;       // Damage taken from tower
+    Entity source = {};      // The tower that fired this projectile
+    float damage = 10.f;       // Damage taken from tower
     float speed = 200.f; // Projectile speed
+	float lifetime_ms = 2000.f; // How long the projectile lasts
+	vec2 direction = {0.f, 0.f};     // Direction of the projectile
 };
 
 // For Milestone #2.
