@@ -287,8 +287,8 @@ const float CAMERA_VIEW_HEIGHT = WINDOW_HEIGHT_PX;
 // textures
 const float PLAYER_WIDTH = 60;
 const float PLAYER_HEIGHT = 90;
-const float ZOMBIE_WIDTH = 60;
-const float ZOMBIE_HEIGHT = 90;
+const float ZOMBIE_WIDTH = 100;
+const float ZOMBIE_HEIGHT = 100;
 const float SLASH_WIDTH = 60;
 const float SLASH_HEIGHT = 60;
 

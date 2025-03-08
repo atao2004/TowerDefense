@@ -72,6 +72,9 @@ Entity createZombie(RenderSystem *renderer, vec2 position)
 	motion.position = position;
 	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
 
+	VisualScale &vscale = registry.visualScales.emplace(entity);
+    vscale.scale = {2.5f, 2.5f}; // Scale visuals 2.5x
+
 	registry.renderRequests.insert(
 		entity,
 		{
