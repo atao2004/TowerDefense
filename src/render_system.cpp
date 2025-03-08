@@ -436,7 +436,8 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	}
 
 	//individually draw player, will render on top of all the motion sprites
-	drawTexturedMesh(registry.players.entities[0], projection_2D);
+	if (!WorldSystem::game_is_over)
+		drawTexturedMesh(registry.players.entities[0], projection_2D);
 
 	// draw framebuffer to screen
 	// adding "UI" effect when applied

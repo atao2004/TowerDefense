@@ -683,10 +683,6 @@ void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_m
 
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
-	// Player movement
-	Entity player = registry.players.entities[0];
-	Motion &motion = registry.motions.get(player);
-
 	// exit game w/ ESC
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE)
 	{
@@ -709,7 +705,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 	
 	//when player is in the level up menu, disable some game inputs
-	if (StateSystem::get_state() == STATE::LEVEL_UP) return;
+	if (StateSystem::get_state() == STATE::LEVEL_UP ||
+		game_is_over) return;
+
+	// Player movement
+	Entity player = registry.players.entities[0];
+	Motion &motion = registry.motions.get(player);
 
 	// Manual wave generation with 'g'
 	if (action == GLFW_PRESS && key == GLFW_KEY_G)
@@ -878,11 +879,12 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	mouse_pos_x = mouse_position.x;
 	mouse_pos_y = mouse_position.y;
 
+	if (StateSystem::get_state() == STATE::LEVEL_UP ||
+		game_is_over) return;
+
 	// change player facing direction
 	Entity player = registry.players.entities[0];
 	Motion &motion = registry.motions.get(player);
-
-	if (StateSystem::get_state() == STATE::LEVEL_UP) return;
 
 	// face left
 	if (mouse_pos_x < WINDOW_WIDTH_PX / 2 && motion.scale.x > 0)

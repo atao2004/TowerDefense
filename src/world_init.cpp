@@ -543,6 +543,9 @@ Entity createToolbar()
 
 Entity createGameOver()
 {
+	registry.animations.clear();
+	registry.deathAnimations.clear();
+	registry.renderRequests.clear();
 	Entity entity = Entity();
 
 	Motion &motion = registry.motions.emplace(entity);
