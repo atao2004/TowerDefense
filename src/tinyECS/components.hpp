@@ -82,6 +82,7 @@ struct Projectile {
     Entity source;      // The tower that fired this projectile
     float damage;       // Damage taken from tower
     float speed = 200.f; // Projectile speed
+	bool invincible = false; // Projectile is not destroyed upon collision
 };
 
 // For Milestone #2.
