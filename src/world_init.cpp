@@ -76,7 +76,7 @@ Entity createZombie(RenderSystem *renderer, vec2 position)
 		entity,
 		{
 			TEXTURE_ASSET_ID::ZOMBIE_SPAWN_1,
-			EFFECT_ASSET_ID::TEXTURED,
+			EFFECT_ASSET_ID::ZOMBIE,
 			GEOMETRY_BUFFER_ID::SPRITE
 		},
 		false
