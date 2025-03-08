@@ -473,10 +473,10 @@ Entity createTutorialArrow(vec2 position) {
 void parseMap(bool tutorial) {
 	json jsonFile;
 	if (tutorial) {
-		std::ifstream file("data/map/tutorialMap.json");
+		std::ifstream file(PROJECT_SOURCE_DIR + std::string("data/map/tutorialMap.json"));
 		file>>jsonFile;
 	} else  {
-		std::ifstream file("data/map/myMap.json");
+		std::ifstream file(PROJECT_SOURCE_DIR + std::string("data/map/myMap.json"));
 		file>>jsonFile;
 	}
 
