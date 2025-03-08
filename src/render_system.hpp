@@ -97,7 +97,6 @@ class RenderSystem
 		textures_path("enemies/SkeletonArcher-Attack8.png"),
 		textures_path("enemies/SkeletonArcher-Attack9.png"),
 		textures_path("enemies/Arrow.png"),
-		textures_path("enemies/Arrow.png"),
 		textures_path("enemies/Orc-Walk1.png"),
 		textures_path("enemies/Orc-Walk2.png"),
 		textures_path("enemies/Orc-Walk3.png"),
