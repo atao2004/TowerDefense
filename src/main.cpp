@@ -80,6 +80,7 @@ int main()
 
 		//when level up, we want the screen to be frozen
 		if (StateSystem::get_state() != STATE::LEVEL_UP) {
+			std::cout<<"FPS: "<<(1/(elapsed_ms/1000))<<std::endl;
 			world_system.step(elapsed_ms);
 			if (!WorldSystem::game_is_over) {
 
