@@ -99,8 +99,13 @@ class RenderSystem
 		textures_path("enemies/Arrow.png"),
 		textures_path("towers/plant2/idle/Plant2_idle_f.png"),
 		textures_path("towers/plant2/idle/Plant2_idle_b.png"),
-		textures_path("towers/plant2/idle/Plant2_idle_l.png"),
-		textures_path("towers/plant2/idle/Plant2_idle_r.png"),
+		textures_path("towers/plant2/idle/Plant2_idle_s.png"),
+		textures_path("towers/plant2/attack/Plant2_attack_f1.png"),
+		textures_path("towers/plant2/attack/Plant2_attack_f2.png"),
+		textures_path("towers/plant2/attack/Plant2_attack_b1.png"),
+		textures_path("towers/plant2/attack/Plant2_attack_b2.png"),
+		textures_path("towers/plant2/attack/Plant2_attack_s1.png"),
+		textures_path("towers/plant2/attack/Plant2_attack_s2.png"),
 	};
 
 
