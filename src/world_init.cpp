@@ -151,7 +151,7 @@ Entity createMapTile(Entity maptile_entity, vec2 position) {
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(maptile_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(GRASS_DIMENSION_PX, GRASS_DIMENSION_PX);
+	motion_component.scale = vec2(GRID_CELL_WIDTH_PX, GRID_CELL_HEIGHT_PX);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.

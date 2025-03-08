@@ -728,6 +728,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	{
 		tutorial_mode = !tutorial_mode;
 		spawn_manager.set_test_mode(tutorial_mode);
+
+		// Remove seeds
+		for (Entity seed_entity : registry.seeds.entities) {
+			registry.remove_all_components_of(seed_entity);
+		}
+
 		if (game_screen != GAME_SCREEN_ID::TUTORIAL) {
 			game_screen = GAME_SCREEN_ID::TUTORIAL;
 		} else {
@@ -745,21 +751,24 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (action == GLFW_PRESS && key == GLFW_KEY_H)
 	{
 		// You can only plant where there is farmland.
-		if (motion.position.x < (WINDOW_WIDTH_PX / 2 + FARMLAND_DIMENSION_PX / 2)
-			&& motion.position.x > (WINDOW_WIDTH_PX / 2 - FARMLAND_DIMENSION_PX / 2)
-			&& motion.position.y < (WINDOW_HEIGHT_PX / 2 + FARMLAND_DIMENSION_PX / 2)
-			&& motion.position.y > (WINDOW_HEIGHT_PX / 2 - FARMLAND_DIMENSION_PX / 2)) {
-				// Remove any seeds that have already been planted to begin with.
-				for (Entity entity : registry.seeds.entities) {
-					if (registry.motions.has(entity)) {
-						if (registry.motions.get(entity).position == vec2((cell_x + 0.5) * GRID_CELL_WIDTH_PX, (cell_y + 0.5) * GRID_CELL_HEIGHT_PX)) {
-							registry.motions.remove(entity);
-							registry.seeds.remove(entity);
+		for (Entity maptile_entity : registry.mapTiles.entities) {
+			if (registry.motions.has(maptile_entity) && registry.renderRequests.has(maptile_entity)) {
+				if (registry.renderRequests.get(maptile_entity).used_texture == DECORATION_LIST[6]) {
+					if (registry.motions.get(maptile_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX)) {
+						// Remove any seeds that have already been planted to begin with.
+						for (Entity entity : registry.seeds.entities) {
+							if (registry.motions.has(entity)) {
+								if (registry.motions.get(entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX)) {
+									registry.motions.remove(entity);
+									registry.seeds.remove(entity);
+								}
+							}
 						}
+						createSeed(vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX));
 					}
 				}
-				createSeed(vec2((cell_x + 0.5) * GRID_CELL_WIDTH_PX, (cell_y + 0.5) * GRID_CELL_HEIGHT_PX));
 			}
+		}
 	}
 
 	// Haonan: Shoot towers with the 'F' button (for Milestone #2)
