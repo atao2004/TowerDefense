@@ -96,7 +96,13 @@ class RenderSystem
 		textures_path("enemies/SkeletonArcher-Attack7.png"),
 		textures_path("enemies/SkeletonArcher-Attack8.png"),
 		textures_path("enemies/SkeletonArcher-Attack9.png"),
-		textures_path("enemies/Arrow.png")};
+		textures_path("enemies/Arrow.png"),
+		textures_path("towers/plant2/idle/Plant2_idle_f.png"),
+		textures_path("towers/plant2/idle/Plant2_idle_b.png"),
+		textures_path("towers/plant2/idle/Plant2_idle_l.png"),
+		textures_path("towers/plant2/idle/Plant2_idle_r.png"),
+	};
+
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.

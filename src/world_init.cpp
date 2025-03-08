@@ -118,7 +118,7 @@ Entity createTower(RenderSystem* renderer, vec2 position) {
 	// Add render request for tower
 	registry.renderRequests.insert(
 		entity,
-		{TEXTURE_ASSET_ID::TOWER,
+		{TEXTURE_ASSET_ID::PLANT_2_IDLE_F,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
