@@ -177,8 +177,9 @@ const float SLASH_WIDTH = 60;
 const float SLASH_HEIGHT = 60;
 
 // meshes
-const float CHICKEN_SIZE = 600;
+const float CHICKEN_SIZE = 1000;
 const int CHICKEN_SPEED = 100;
+const int CHICKEN_DAMAGE = 100;
 
 // cooldown
 const int COOLDOWN_ENEMY_ATTACK = 1000;

@@ -209,6 +209,9 @@ Entity createChicken(RenderSystem* renderer)
 {
 	auto entity = Entity();
 
+	Projectile& projectile = registry.projectiles.emplace(entity);
+	projectile.damage = CHICKEN_DAMAGE;
+
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::CHICKEN);
 	registry.meshPtrs.emplace(entity, &mesh);
 
