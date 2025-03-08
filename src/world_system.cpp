@@ -266,29 +266,15 @@ void WorldSystem::restart_game()
 	int grid_line_width = GRID_LINE_WIDTH_PX;
 
 	// Kung: Create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
-	// removeSurfaces();
+	removeSurfaces();
 	//commented out Kung's code
-	// for (int x = (GRASS_DIMENSION_PX / 2); x < WINDOW_WIDTH_PX + (GRASS_DIMENSION_PX / 2); x += GRASS_DIMENSION_PX)
-	// {
-	// 	for (int y = (GRASS_DIMENSION_PX / 2); y < WINDOW_HEIGHT_PX + (GRASS_DIMENSION_PX / 2); y += GRASS_DIMENSION_PX)
-	// 	{
-	// 		createGrass(vec2(x, y));
-	// 	}
-	// }
-	// for (int x = -SCORCHED_EARTH_BOUNDARY - SCORCHED_EARTH_DIMENSION_PX * 4; x < WINDOW_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 5; x += SCORCHED_EARTH_DIMENSION_PX)
-	// {
-	// 	for (int y = -SCORCHED_EARTH_BOUNDARY - SCORCHED_EARTH_DIMENSION_PX * 2; y < WINDOW_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 5; y += SCORCHED_EARTH_DIMENSION_PX)
-	// 	{
-	// 		if (x < SCORCHED_EARTH_BOUNDARY || y < SCORCHED_EARTH_BOUNDARY)
-	// 		{
-	// 			createScorchedEarth(vec2(x, y));
-	// 		}
-	// 		else if (x > WINDOW_WIDTH_PX + SCORCHED_EARTH_BOUNDARY || y > WINDOW_HEIGHT_PX + SCORCHED_EARTH_BOUNDARY)
-	// 		{
-	// 			createScorchedEarth(vec2(x - SCORCHED_EARTH_BOUNDARY * 3, y - SCORCHED_EARTH_BOUNDARY * 1.5));
-	// 		}
-	// 	}
-	// }
+	for (int x = -SCORCHED_EARTH_DIMENSION_PX * 4; x < MAP_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 4; x += SCORCHED_EARTH_DIMENSION_PX)
+	{
+		for (int y = -SCORCHED_EARTH_DIMENSION_PX * 2; y < MAP_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 2; y += SCORCHED_EARTH_DIMENSION_PX)
+		{
+			createScorchedEarth(vec2(x, y));
+		}
+	}
 	// Kung: This is for Milestone #2. This creates the farmland.
 	parseMap(true);
 	parseMap(false);
@@ -317,10 +303,15 @@ void WorldSystem::restart_game()
 	}
 
 	// create the tutorial assets
-	createTutorialSign(vec2(500, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_MOVE);
-	createTutorialSign(vec2(1000, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_ATTACK);
-	createTutorialSign(vec2(1500, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_PLANT);
-	createTutorialSign(vec2(2000, WINDOW_HEIGHT_PX * -0.25), TEXTURE_ASSET_ID::TUTORIAL_RESTART);
+	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.2, WINDOW_HEIGHT_PX * -0.25));
+	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX * -0.25));
+	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, WINDOW_HEIGHT_PX * -0.25));
+	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.8, WINDOW_HEIGHT_PX * -0.25));
+
+	// create the arrows for the tutorial
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 4, TUTORIAL_HEIGHT_PX / 2));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 2, TUTORIAL_HEIGHT_PX / 2));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75, TUTORIAL_HEIGHT_PX / 2));
 
 	// reset player and spawn player in the middle of the screen
 	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
@@ -619,6 +610,77 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	}
 }
 
+// Version of player_movement that works for the tutorial mode.
+void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_motion) {
+	// Move left
+	if (player_motion.position.x >= PLAYER_LEFT_BOUNDARY)
+	{
+		if (action == GLFW_PRESS && key == GLFW_KEY_A)
+		{
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_LEFT_SPEED;
+			}
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
+		{
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+			}
+		}
+	}
+
+	// Move right
+	if (player_motion.position.x <= PLAYER_RIGHT_BOUNDARY_TUTORIAL)
+	{
+		if (action == GLFW_PRESS && key == GLFW_KEY_D)
+		{
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+			}
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
+		{
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+			}
+		}
+	}
+
+	// Move down
+	if (player_motion.position.y <= PLAYER_DOWN_BOUNDARY_TUTORIAL)
+	{
+		if (action == GLFW_PRESS && key == GLFW_KEY_S)
+		{
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_DOWN_SPEED;
+			}
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
+		{
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+			}
+		}
+	}
+
+	// Move up
+	if (player_motion.position.y >= PLAYER_UP_BOUNDARY)
+	{
+		if (action == GLFW_PRESS && key == GLFW_KEY_W)
+		{
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_UP_SPEED;
+			}
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
+		{
+			for (Entity mwc_entity : registry.moveWithCameras.entities) {
+				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y -= PLAYER_MOVE_UP_SPEED;
+			}
+		}
+	}
+}
+
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
 	// Player movement
@@ -738,7 +800,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	// Kung: Helper function for player movement (see above for description)
-	player_movement(key, action, motion);
+	if(game_screen == GAME_SCREEN_ID::TUTORIAL) {
+		player_movement_tutorial(key, action, motion);
+	} else {
+		player_movement(key, action, motion);
+	}
+	
 
 	// Update state if player is moving
 	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)

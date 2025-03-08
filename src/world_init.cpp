@@ -144,28 +144,21 @@ void removeTower(vec2 position) {
 }
 
 // Kung: Create the grass texture that will be used as part of the texture map.
-Entity createMapTile(int i, vec2 position) {
-	// Create the associated entity.
-	Entity maptile_entity = Entity();
-
+Entity createMapTile(Entity maptile_entity, vec2 position) {
 	// Create the associated component.
 	MapTile& maptile_component = registry.mapTiles.emplace(maptile_entity);
 
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(maptile_entity);
 	motion_component.position = position;
-	if (i == 1) {
-		motion_component.scale = vec2(GRASS_DIMENSION_PX, GRASS_DIMENSION_PX);
-	} else {
-		motion_component.scale = DECORATION_SIZE_LIST[i];
-	}
+	motion_component.scale = vec2(GRASS_DIMENSION_PX, GRASS_DIMENSION_PX);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
 	registry.renderRequests.insert(
 		maptile_entity,
 		{
-			DECORATION_LIST[i],
+			DECORATION_LIST[1],
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
@@ -174,25 +167,29 @@ Entity createMapTile(int i, vec2 position) {
 	return maptile_entity;
 }
 
-Entity createTutorialTile(int i, vec2 position) {
+// Helper function to make it easier to create tutorial tiles.
+Entity createMapTile(vec2 position) {
 	// Create the associated entity.
-	Entity tutorial_tile_entity = Entity();
+	Entity maptile_entity = Entity();
 
+	// Continue in the main function.
+	return createMapTile(maptile_entity, position);
+}
+
+// Create decorations to overlay on the map.
+Entity createMapTileDecoration(Entity decoration_entity, int i, vec2 position) {
 	// Create the associated component.
-	TutorialTile& tutorial_tile_component = registry.tutorialTiles.emplace(tutorial_tile_entity);
-
-	// Create the associated maptile component.
-	MapTile& maptile_component = registry.mapTiles.emplace(tutorial_tile_entity);
+	MapTile& maptile_component = registry.mapTiles.emplace(decoration_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(tutorial_tile_entity);
+	Motion& motion_component = registry.motions.emplace(decoration_entity);
 	motion_component.position = position;
 	motion_component.scale = DECORATION_SIZE_LIST[i];
 	motion_component.velocity = vec2(0, 0);
-
+	
 	// Render the object.
 	registry.renderRequests.insert(
-		tutorial_tile_entity,
+		decoration_entity,
 		{
 			DECORATION_LIST[i],
 			EFFECT_ASSET_ID::TEXTURED,
@@ -200,8 +197,42 @@ Entity createTutorialTile(int i, vec2 position) {
 		}
 	);
 
-	return tutorial_tile_entity;
+	return decoration_entity;
+}
 
+// Helper function to make it easier to create tutorial tiles.
+Entity createMapTileDecoration(int i, vec2 position) {
+	// Create the associated entity.
+	Entity decoration_entity = Entity();
+
+	// Continue in the main function.
+	return createMapTileDecoration(decoration_entity, i, position);
+}
+
+Entity createTutorialTile(vec2 position) {
+	// Create the associated entity.
+	Entity tutorial_tile_entity = Entity();
+
+	// Create the associated component.
+	TutorialTile& tutorial_tile_component = registry.tutorialTiles.emplace(tutorial_tile_entity);
+
+	// Create the associated maptile component.
+	createMapTile(tutorial_tile_entity, position);
+
+	return tutorial_tile_entity;
+}
+
+Entity createTutorialTileDecoration(int i, vec2 position) {
+	// Create the associated entity.
+	Entity tutorial_tile_entity = Entity();
+
+	// Create the associated component.
+	TutorialTile& tutorial_tile_component = registry.tutorialTiles.emplace(tutorial_tile_entity);
+
+	// Create the associated maptile component.
+	createMapTileDecoration(tutorial_tile_entity, i, position);
+
+	return tutorial_tile_entity;
 }
 
 // Kung: Create the tiles that border the window and represent areas in which the player cannot walk on.
@@ -250,7 +281,7 @@ void removeSurfaces()
 }
 
 // Create a sign that will only appear once it appears in a tutorial.
-Entity createTutorialSign(vec2 position, TEXTURE_ASSET_ID asset_id) {
+Entity createTutorialMove(vec2 position) {
 	// Create the associated entity.
 	Entity tutorial_entity = Entity();
 
@@ -267,13 +298,179 @@ Entity createTutorialSign(vec2 position, TEXTURE_ASSET_ID asset_id) {
 	registry.renderRequests.insert(
 		tutorial_entity,
 		{
-			asset_id,
+			TEXTURE_ASSET_ID::TUTORIAL_MOVE,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
 	);
 
+	// Create the animation
+	static TEXTURE_ASSET_ID asset_id_array[8] = {
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE,
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE_W,
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE,
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE_A,
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE,
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE_S,
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE,
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE_D,
+	};
+
+	Animation& animation_component = registry.animations.emplace(tutorial_entity);
+	animation_component.timer_ms = 1000;
+	animation_component.pose_count = 8;
+	animation_component.loop = true;
+	animation_component.lock = true;
+	animation_component.textures = asset_id_array;
+
 	return tutorial_entity;
+}
+
+// Create a sign that will only appear once it appears in a tutorial.
+Entity createTutorialAttack(vec2 position) {
+	// Create the associated entity.
+	Entity tutorial_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(tutorial_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(450, 360);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		tutorial_entity,
+		{
+			TEXTURE_ASSET_ID::TUTORIAL_ATTACK,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	// Create the animation
+	static TEXTURE_ASSET_ID asset_id_array[2] = {
+		TEXTURE_ASSET_ID::TUTORIAL_ATTACK,
+		TEXTURE_ASSET_ID::TUTORIAL_ATTACK_ANIMATED
+	};
+
+	Animation& animation_component = registry.animations.emplace(tutorial_entity);
+	animation_component.timer_ms = 1000;
+	animation_component.pose_count = 2;
+	animation_component.loop = true;
+	animation_component.lock = true;
+	animation_component.textures = asset_id_array;
+
+	return tutorial_entity;
+}
+
+// Create a sign that will only appear once it appears in a tutorial.
+Entity createTutorialPlant(vec2 position) {
+	// Create the associated entity.
+	Entity tutorial_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(tutorial_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(450, 360);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		tutorial_entity,
+		{
+			TEXTURE_ASSET_ID::TUTORIAL_PLANT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	// Create the animation
+	static TEXTURE_ASSET_ID asset_id_array[2] = {
+		TEXTURE_ASSET_ID::TUTORIAL_PLANT,
+		TEXTURE_ASSET_ID::TUTORIAL_PLANT_ANIMATED
+	};
+
+	Animation& animation_component = registry.animations.emplace(tutorial_entity);
+	animation_component.timer_ms = 1000;
+	animation_component.pose_count = 2;
+	animation_component.loop = true;
+	animation_component.lock = true;
+	animation_component.textures = asset_id_array;
+
+	return tutorial_entity;
+}
+
+// Create a sign that will only appear once it appears in a tutorial.
+Entity createTutorialRestart(vec2 position) {
+	// Create the associated entity.
+	Entity tutorial_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(tutorial_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(450, 360);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		tutorial_entity,
+		{
+			TEXTURE_ASSET_ID::TUTORIAL_RESTART,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	// Create the animation
+	static TEXTURE_ASSET_ID asset_id_array[2] = {
+		TEXTURE_ASSET_ID::TUTORIAL_RESTART,
+		TEXTURE_ASSET_ID::TUTORIAL_RESTART_ANIMATED
+	};
+
+	Animation& animation_component = registry.animations.emplace(tutorial_entity);
+	animation_component.timer_ms = 1000;
+	animation_component.pose_count = 2;
+	animation_component.loop = true;
+	animation_component.lock = true;
+	animation_component.textures = asset_id_array;
+
+	return tutorial_entity;
+}
+
+// Create an arrow to go along with the tutorial map.
+Entity createTutorialArrow(vec2 position) {
+	// Create the associated entity.
+	Entity arrow_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(arrow_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(arrow_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(80, 150);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		arrow_entity,
+		{
+			TEXTURE_ASSET_ID::TUTORIAL_ARROW,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return arrow_entity;
 }
 
 void parseMap(bool tutorial) {
@@ -296,9 +493,9 @@ void parseMap(bool tutorial) {
 		for (int j=0; j<numCol; j++) {
 			if (map_layer[i*numCol+j] == 1) {
 				if (tutorial) {
-					createTutorialTile(1, {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+					createTutorialTile({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
 				} else {
-					createMapTile(1, {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+					createMapTile({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
 				}
 			}
 		}
@@ -309,9 +506,9 @@ void parseMap(bool tutorial) {
 		for (int j=0; j<numCol; j++) {	
 			if (decoration_layer[i*numCol+j] != 0) {
 				if (tutorial) {
-					createTutorialTile(decoration_layer[i*numCol+j], {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+					createTutorialTileDecoration(decoration_layer[i*numCol+j], {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
 				} else {
-					createMapTile(decoration_layer[i*numCol+j], {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+					createMapTileDecoration(decoration_layer[i*numCol+j], {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
 				}
 			}
 		}

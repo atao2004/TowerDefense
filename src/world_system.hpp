@@ -63,6 +63,7 @@ private:
 
 	// Kung: player movement helper function
 	void player_movement(int key, int action, Motion& player_motion);
+	void player_movement_tutorial(int key, int action, Motion& player_motion);
 
 	// input callback functions
 	void on_key(int key, int, int action, int mod);
