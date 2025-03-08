@@ -317,7 +317,7 @@ Entity createTutorialMove(vec2 position) {
 	};
 
 	Animation& animation_component = registry.animations.emplace(tutorial_entity);
-	animation_component.timer_ms = 1000;
+	animation_component.transition_ms = 1000;
 	animation_component.pose_count = 8;
 	animation_component.loop = true;
 	animation_component.lock = true;
@@ -357,7 +357,7 @@ Entity createTutorialAttack(vec2 position) {
 	};
 
 	Animation& animation_component = registry.animations.emplace(tutorial_entity);
-	animation_component.timer_ms = 1000;
+	animation_component.transition_ms = 1000;
 	animation_component.pose_count = 2;
 	animation_component.loop = true;
 	animation_component.lock = true;
@@ -397,7 +397,7 @@ Entity createTutorialPlant(vec2 position) {
 	};
 
 	Animation& animation_component = registry.animations.emplace(tutorial_entity);
-	animation_component.timer_ms = 1000;
+	animation_component.transition_ms = 1000;
 	animation_component.pose_count = 2;
 	animation_component.loop = true;
 	animation_component.lock = true;
@@ -437,7 +437,7 @@ Entity createTutorialRestart(vec2 position) {
 	};
 
 	Animation& animation_component = registry.animations.emplace(tutorial_entity);
-	animation_component.timer_ms = 1000;
+	animation_component.transition_ms = 1000;
 	animation_component.pose_count = 2;
 	animation_component.loop = true;
 	animation_component.lock = true;
@@ -476,10 +476,10 @@ Entity createTutorialArrow(vec2 position) {
 void parseMap(bool tutorial) {
 	json jsonFile;
 	if (tutorial) {
-		std::ifstream file("data/map/tutorialMap.json");
+		std::ifstream file(PROJECT_SOURCE_DIR + std::string("data/map/tutorialMap.json"));
 		file>>jsonFile;
 	} else  {
-		std::ifstream file("data/map/myMap.json");
+		std::ifstream file(PROJECT_SOURCE_DIR + std::string("data/map/myMap.json"));
 		file>>jsonFile;
 	}
 
