@@ -77,16 +77,20 @@ int main()
 		t = now;
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
-		
-		world_system.step(elapsed_ms);
-		if (!WorldSystem::game_is_over) {
-			ai_system.step(elapsed_ms);
-			physics_system.step(elapsed_ms);
-			status_system.step(elapsed_ms);
-			world_system.handle_collisions();
-			tower_system.step(elapsed_ms);
-			movement_system.step(elapsed_ms, game_screen);
-			animation_system.step(elapsed_ms);
+
+		//when level up, we want the screen to be frozen
+		if (StateSystem::get_state() != STATE::LEVEL_UP) {
+			world_system.step(elapsed_ms);
+			if (!WorldSystem::game_is_over) {
+
+				ai_system.step(elapsed_ms);
+				physics_system.step(elapsed_ms);
+				status_system.step(elapsed_ms);
+				world_system.handle_collisions();
+				tower_system.step(elapsed_ms);
+				movement_system.step(elapsed_ms, game_screen);
+				animation_system.step(elapsed_ms);
+			}
 		}
 		
 		renderer_system.draw(game_screen);
