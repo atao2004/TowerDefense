@@ -102,9 +102,16 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	// Transformation code, see Rendering and Transformation in the template
 	// specification for more info Incrementally updates transformation matrix,
 	// thus ORDER IS IMPORTANT
+
+	// Get visual scale if available, otherwise use {1,1}
+	vec2 visualScale = {1.0f, 1.0f};
+	if (registry.visualScales.has(entity))
+	{
+		visualScale = registry.visualScales.get(entity).scale;
+	}
 	Transform transform;
 	transform.translate(motion.position);
-	transform.scale(motion.scale);
+	transform.scale(motion.scale * visualScale);
 	transform.rotate(radians(motion.angle));
 
 	assert(registry.renderRequests.has(entity));
@@ -190,7 +197,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		GLint hit_loc = glGetUniformLocation(program, "zombie_is_hit");
 		glUniform1i(hit_loc, zombie_is_hit);
 		gl_has_errors();
-		
+
 		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
 		gl_has_errors();
@@ -201,7 +208,8 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
-	} else if (render_request.used_effect == EFFECT_ASSET_ID::PLAYER)
+	}
+	else if (render_request.used_effect == EFFECT_ASSET_ID::PLAYER)
 	{
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
@@ -224,7 +232,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		GLint hit_loc = glGetUniformLocation(program, "player_is_hit");
 		glUniform1i(hit_loc, player_is_hit);
 		gl_has_errors();
-		
+
 		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
 		gl_has_errors();
@@ -314,30 +322,33 @@ void RenderSystem::drawToScreen()
 		index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]); // Note, GL_ELEMENT_ARRAY_BUFFER associates
 																	 // indices to the bound GL_ARRAY_BUFFER
 	gl_has_errors();
-	
-	ScreenState &screen = registry.screenStates.get(screen_state_entity);
-	if (!WorldSystem::game_is_over) {
-	// add the "UI" effect
-	const GLuint ui_program = effects[(GLuint)EFFECT_ASSET_ID::UI];
-	glUseProgram(ui_program);
-	// set clock
-	GLuint hp_uloc = glGetUniformLocation(ui_program, "hp_percentage");
-	GLuint exp_uloc = glGetUniformLocation(ui_program, "exp_percentage");
-	GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
-	
-	glUniform1f(game_continues_uloc, screen.game_over);
-	glUniform1f(hp_uloc, screen.hp_percentage);
-	glUniform1f(exp_uloc, screen.exp_percentage);
-	gl_has_errors();
 
-	// Set the vertex position and vertex texture coordinates (both stored in the
-	// same VBO)
-	GLint in_position_loc = glGetAttribLocation(ui_program, "in_position");
-	glEnableVertexAttribArray(in_position_loc);
-	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
-	gl_has_errors();
-	} else {
-	// add the "gameover" effect
+	ScreenState &screen = registry.screenStates.get(screen_state_entity);
+	if (!WorldSystem::game_is_over)
+	{
+		// add the "UI" effect
+		const GLuint ui_program = effects[(GLuint)EFFECT_ASSET_ID::UI];
+		glUseProgram(ui_program);
+		// set clock
+		GLuint hp_uloc = glGetUniformLocation(ui_program, "hp_percentage");
+		GLuint exp_uloc = glGetUniformLocation(ui_program, "exp_percentage");
+		GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
+
+		glUniform1f(game_continues_uloc, screen.game_over);
+		glUniform1f(hp_uloc, screen.hp_percentage);
+		glUniform1f(exp_uloc, screen.exp_percentage);
+		gl_has_errors();
+
+		// Set the vertex position and vertex texture coordinates (both stored in the
+		// same VBO)
+		GLint in_position_loc = glGetAttribLocation(ui_program, "in_position");
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
+		gl_has_errors();
+	}
+	else
+	{
+		// add the "gameover" effect
 		const GLuint vignette_program = effects[(GLuint)EFFECT_ASSET_ID::VIGNETTE];
 		glUseProgram(vignette_program);
 		GLuint time_uloc1 = glGetUniformLocation(vignette_program, "time");
@@ -352,7 +363,6 @@ void RenderSystem::drawToScreen()
 		glVertexAttribPointer(in_position_loc1, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
 		gl_has_errors();
 	}
-
 
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
@@ -454,7 +464,7 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 
 // mat3 RenderSystem::createProjectionMatrix() {
 //     auto& screen = registry.screenStates.get(screen_state_entity);
-    
+
 //     float left = 0.f + screen.shake_offset.x;
 //     float top = 0.f + screen.shake_offset.y;
 //     float right = (float)WINDOW_WIDTH_PX + screen.shake_offset.x;
@@ -468,20 +478,21 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 //     return {{sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f}};
 // }
 
-mat3 RenderSystem::createProjectionMatrix() {
-	auto& screen = registry.screenStates.get(screen_state_entity);
-	auto& camera = registry.cameras.get(registry.cameras.entities[0]);
-    
-    // Center camera on player, accounting for window size
-    float left = camera.position.x - camera.camera_width/2 + screen.shake_offset.x;
-    float top = camera.position.y - camera.camera_height/2 + screen.shake_offset.y;
-    float right = camera.position.x + camera.camera_width/2 + screen.shake_offset.x;
-    float bottom = camera.position.y + camera.camera_height/2 + screen.shake_offset.y;
+mat3 RenderSystem::createProjectionMatrix()
+{
+	auto &screen = registry.screenStates.get(screen_state_entity);
+	auto &camera = registry.cameras.get(registry.cameras.entities[0]);
 
-    float sx = 2.f / (right - left);
-    float sy = 2.f / (top - bottom);
-    float tx = -(right + left) / (right - left);
-    float ty = -(top + bottom) / (top - bottom);
+	// Center camera on player, accounting for window size
+	float left = camera.position.x - camera.camera_width / 2 + screen.shake_offset.x;
+	float top = camera.position.y - camera.camera_height / 2 + screen.shake_offset.y;
+	float right = camera.position.x + camera.camera_width / 2 + screen.shake_offset.x;
+	float bottom = camera.position.y + camera.camera_height / 2 + screen.shake_offset.y;
 
-    return {{sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f}};
+	float sx = 2.f / (right - left);
+	float sy = 2.f / (top - bottom);
+	float tx = -(right + left) / (right - left);
+	float ty = -(top + bottom) / (top - bottom);
+
+	return {{sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f}};
 }
