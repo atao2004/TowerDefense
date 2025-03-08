@@ -700,6 +700,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
+		// if (game_screen == GAME_SCREEN_ID::TUTORIAL) {
+		// } else {
+		// }
+
 		restart_game();
 		return;
 	}
