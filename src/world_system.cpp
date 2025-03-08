@@ -456,10 +456,11 @@ void WorldSystem::player_attack()
 						} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
 						else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 						{
-							StateSystem::update_state(STATE::LEVEL_UP);
-							// registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
-							// level++;
-							// std::cout << "==== LEVEL " << level << " ====" << std::endl;
+							// StateSystem::update_state(STATE::LEVEL_UP);
+							//come back later!
+							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+							level++;
+							std::cout << "==== LEVEL " << level << " ====" << std::endl;
 						}
 					}
 				}
