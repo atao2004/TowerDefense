@@ -68,15 +68,17 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms)
 
     // Optional: Add some drag to prevent infinite acceleration
     motion.velocity *= 0.9f; // Dampening factor
-
-    // Update facing direction based on total velocity
-    if (motion.velocity.x < 0 && motion.scale.x > 0)
+    if (!registry.hitEffects.has(entity))
     {
-        motion.scale.x *= -1;
-    }
-    else if (motion.velocity.x > 0 && motion.scale.x < 0)
-    {
-        motion.scale.x *= -1;
+        // Update facing direction based on total velocity
+        if (motion.velocity.x < 0 && motion.scale.x > 0)
+        {
+            motion.scale.x *= -1;
+        }
+        else if (motion.velocity.x > 0 && motion.scale.x < 0)
+        {
+            motion.scale.x *= -1;
+        }
     }
 }
 
@@ -313,7 +315,7 @@ void AISystem::update_skeletons(float elapsed_ms)
                         SKELETON_ATTACK_ANIMATION,
                         SKELETON_ATTACK_FRAMES,
                         false, // don't loop
-                        false,  // lock animation
+                        false, // lock animation
                         false  // don't destroy
                     );
                 }
