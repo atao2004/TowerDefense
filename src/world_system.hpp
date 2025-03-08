@@ -36,6 +36,11 @@ public:
 	// releases all associated resources
 	~WorldSystem();
 
+	// Returns the game_screen (inspired by Assignment #2)
+	GAME_SCREEN_ID get_game_screen() {
+		return game_screen;
+	}
+
 	// steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
 
@@ -58,6 +63,7 @@ private:
 
 	// Kung: player movement helper function
 	void player_movement(int key, int action, Motion& player_motion);
+	void player_movement_tutorial(int key, int action, Motion& player_motion);
 
 	// input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -75,6 +81,9 @@ private:
 
 	// Current experience level of the player
 	unsigned int level;
+
+	// game_screen (inspired by Assignment #2)
+	GAME_SCREEN_ID game_screen;
 
 	// Game state
 	RenderSystem *renderer;
@@ -96,7 +105,7 @@ private:
 	SpawnManager spawn_manager;
 
 	bool test_mode = false;
-
+	bool tutorial_mode = false;
 	
     // Sound effects
 	float movement_sound_timer = 0.f;

@@ -40,9 +40,19 @@ class RenderSystem {
 		textures_path("player/walk2.png"),
 		textures_path("player/action1_weapon.png"),
 		textures_path("player/action2_weapon.png"),
-		textures_path("map/grass.png"),
-		textures_path("map/dirt.png"),
 		textures_path("map/cracked_dirt.png"),
+		textures_path("tutorials/move.png"),
+		textures_path("tutorials/move_w.png"),
+		textures_path("tutorials/move_a.png"),
+		textures_path("tutorials/move_s.png"),
+		textures_path("tutorials/move_d.png"),
+		textures_path("tutorials/attack.png"),
+		textures_path("tutorials/attack_animation.png"),
+		textures_path("tutorials/plant.png"),
+		textures_path("tutorials/plant_animation.png"),
+		textures_path("tutorials/restart.png"),
+		textures_path("tutorials/restart_animation.png"),
+		textures_path("tutorials/arrow.png"),
 		textures_path("ui/toolbar.png"),
 		textures_path("ui/pause.png"),
 		textures_path("attacks/Slash3_color1_frame1.png"),
@@ -55,8 +65,13 @@ class RenderSystem {
 		textures_path("attacks/Slash3_color1_frame8.png"),
 		textures_path("attacks/Slash3_color1_frame9.png"),
 		textures_path("towers/gold_bubble.png"),
-		textures_path("gameover/gameover.png")
-		
+		textures_path("gameover/gameover.png"),
+		textures_path("map/grass_background.png"),
+		textures_path("map/flower_1.png"),
+		textures_path("map/stone_1.png"),
+		textures_path("map/grass_decoration_1.png"),
+		textures_path("map/tree_1.png"),
+		textures_path("map/farmland_1.png"),
 	};
 
 	std::array<GLuint, effect_count> effects;
@@ -99,8 +114,8 @@ public:
 	// Destroy resources associated to one or all entities created by the system
 	~RenderSystem();
 
-	// Draw all entities
-	void draw();
+	// Draw all entities depending on game screen (adapted from Assignment #2)
+	void draw(GAME_SCREEN_ID game_screen);
 
 	mat3 createProjectionMatrix();
 

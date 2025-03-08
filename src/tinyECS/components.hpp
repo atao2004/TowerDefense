@@ -130,12 +130,15 @@ struct Collision
 	Collision(Entity &other) { this->other = other; };
 };
 
-struct Grass
+struct MapTile
 {
 };
 
-// This is for Milestone #2.
-struct Farmland {
+struct TutorialTile {
+
+};
+
+struct TutorialSign {
 
 };
 

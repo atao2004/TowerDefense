@@ -13,10 +13,24 @@ Entity createTower(RenderSystem* renderer, vec2 position);
 void removeTower(vec2 position);
 
 // texture elements
-Entity createGrass(vec2 position);
-Entity createFarmland(vec2 position);
+Entity createMapTile(Entity maptile_entity, vec2 position);
+Entity createMapTile(vec2 position);
+Entity createMapTileDecoration(Entity decoration_entity, int i, vec2 position);
+Entity createMapTileDecoration(int i, vec2 position);
+Entity createTutorialTile(vec2 position);
+Entity createTutorialTileDecoration(int i, vec2 position);
 Entity createScorchedEarth(vec2 position);
 void removeSurfaces();
+
+// texture elements (new)
+void parseMap(bool tutorial);
+
+// tutorial components
+Entity createTutorialMove(vec2 position);
+Entity createTutorialAttack(vec2 position);
+Entity createTutorialPlant(vec2 position);
+Entity createTutorialRestart(vec2 position);
+Entity createTutorialArrow(vec2 position);
 
 // ui elements
 Entity createPause();
@@ -33,3 +47,4 @@ Entity createSeed(vec2 pos);
 Entity createCamera(RenderSystem* renderer, vec2 position);
 
 Entity createGameOver();
+

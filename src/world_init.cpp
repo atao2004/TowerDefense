@@ -2,6 +2,8 @@
 #include "tinyECS/registry.hpp"
 #include <iostream>
 #include "animation_system.hpp"
+#include "../ext/json.hpp"
+using json = nlohmann::json;
 
 Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	Entity entity = Entity();
@@ -24,33 +26,7 @@ Entity createGridLine(vec2 start_pos, vec2 end_pos) {
 	return entity;
 }
 
-// Entity createDetectionLine(Entity entity, vec2 start_pos, vec2 end_pos) {
-// 	GridLine& gl = registry.gridLines.emplace_with_duplicates(entity);
-// 	gl.start_pos = start_pos;
-// 	gl.end_pos = end_pos;
-
-// 	registry.renderRequests.insert(
-// 		entity,
-// 		{
-// 			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-// 			EFFECT_ASSET_ID::EGG,
-// 			GEOMETRY_BUFFER_ID::DEBUG_LINE
-// 		},
-// 		false
-// 	);
-// 	//only need to create 1 color so all the lines can use the same color
-// 	if (!registry.colors.has(entity)) {
-// 		vec3& cv = registry.colors.emplace(entity);
-// 		cv.r = 1;
-// 		cv.g = 0;
-// 		cv.b = 0;
-// 	}
-
-// 	return entity;
-// }
-
 // createZombieSpawn
-
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
 	Entity entity = Entity();
 
@@ -114,44 +90,6 @@ Entity createZombie(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-// Entity createTower(RenderSystem* renderer, vec2 position)
-// {
-// 	auto entity = Entity();
-
-// 	// new tower
-// 	auto& t = registry.towers.emplace(entity);
-// 	t.range = (float)WINDOW_WIDTH_PX / (float)GRID_CELL_WIDTH_PX;
-// 	t.timer_ms = 1000;	// arbitrary for now
-
-// 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-// 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
-// 	registry.meshPtrs.emplace(entity, &mesh);
-
-// 	// Initialize the motion
-// 	auto& motion = registry.motions.emplace(entity);
-// 	motion.angle = 180.f;	// A1-TD: CK: rotate to the left 180 degrees to fix orientation
-// 	motion.velocity = { 0.0f, 0.0f };
-// 	motion.position = position;
-
-// 	std::cout << "INFO: tower position: " << position.x << ", " << position.y << std::endl;
-
-// 	// Setting initial values, scale is negative to make it face the opposite way
-// 	motion.scale = vec2({ -TOWER_BB_WIDTH, TOWER_BB_HEIGHT });
-
-// 	// create an (empty) Tower component to be able to refer to all towers
-// 	registry.renderRequests.insert(
-// 		entity,
-// 		{
-// 			TEXTURE_ASSET_ID::TOWER,
-// 			EFFECT_ASSET_ID::TEXTURED,
-// 			GEOMETRY_BUFFER_ID::SPRITE
-// 		}
-// 	);
-
-// 	return entity;
-// }
-
-
 Entity createTower(RenderSystem* renderer, vec2 position) {
     Entity entity = Entity();
 
@@ -206,60 +144,95 @@ void removeTower(vec2 position) {
 }
 
 // Kung: Create the grass texture that will be used as part of the texture map.
-Entity createGrass(vec2 position)
-{
-	// Create the associated entity.
-	Entity grass_entity = Entity();
-
+Entity createMapTile(Entity maptile_entity, vec2 position) {
 	// Create the associated component.
-	Grass& grass_component = registry.grasses.emplace(grass_entity);
+	MapTile& maptile_component = registry.mapTiles.emplace(maptile_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(grass_entity);
+	Motion& motion_component = registry.motions.emplace(maptile_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(GRASS_DIMENSION_PX, GRASS_DIMENSION_PX);
+	motion_component.scale = vec2(GRID_CELL_WIDTH_PX, GRID_CELL_HEIGHT_PX);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
 	registry.renderRequests.insert(
-		grass_entity,
+		maptile_entity,
 		{
-			TEXTURE_ASSET_ID::GRASS,
+			DECORATION_LIST[1],
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
 	);
 
-	return grass_entity;
+	return maptile_entity;
 }
 
-// Kung: This is for Milestone #2.
-// Create a texture tile that represents areas where you can plant seeds.
-Entity createFarmland(vec2 position)
-{
+// Helper function to make it easier to create tutorial tiles.
+Entity createMapTile(vec2 position) {
 	// Create the associated entity.
-	Entity farmland_entity = Entity();
+	Entity maptile_entity = Entity();
 
+	// Continue in the main function.
+	return createMapTile(maptile_entity, position);
+}
+
+// Create decorations to overlay on the map.
+Entity createMapTileDecoration(Entity decoration_entity, int i, vec2 position) {
 	// Create the associated component.
-	Farmland& grass_component = registry.farmlands.emplace(farmland_entity);
+	MapTile& maptile_component = registry.mapTiles.emplace(decoration_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(farmland_entity);
+	Motion& motion_component = registry.motions.emplace(decoration_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(FARMLAND_DIMENSION_PX, FARMLAND_DIMENSION_PX);
+	motion_component.scale = DECORATION_SIZE_LIST[i];
 	motion_component.velocity = vec2(0, 0);
-
+	
 	// Render the object.
 	registry.renderRequests.insert(
-		farmland_entity,
+		decoration_entity,
 		{
-			TEXTURE_ASSET_ID::FARMLAND,
+			DECORATION_LIST[i],
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
 	);
 
-	return farmland_entity;
+	return decoration_entity;
+}
+
+// Helper function to make it easier to create tutorial tiles.
+Entity createMapTileDecoration(int i, vec2 position) {
+	// Create the associated entity.
+	Entity decoration_entity = Entity();
+
+	// Continue in the main function.
+	return createMapTileDecoration(decoration_entity, i, position);
+}
+
+Entity createTutorialTile(vec2 position) {
+	// Create the associated entity.
+	Entity tutorial_tile_entity = Entity();
+
+	// Create the associated component.
+	TutorialTile& tutorial_tile_component = registry.tutorialTiles.emplace(tutorial_tile_entity);
+
+	// Create the associated maptile component.
+	createMapTile(tutorial_tile_entity, position);
+
+	return tutorial_tile_entity;
+}
+
+Entity createTutorialTileDecoration(int i, vec2 position) {
+	// Create the associated entity.
+	Entity tutorial_tile_entity = Entity();
+
+	// Create the associated component.
+	TutorialTile& tutorial_tile_component = registry.tutorialTiles.emplace(tutorial_tile_entity);
+
+	// Create the associated maptile component.
+	createMapTileDecoration(tutorial_tile_entity, i, position);
+
+	return tutorial_tile_entity;
 }
 
 // Kung: Create the tiles that border the window and represent areas in which the player cannot walk on.
@@ -295,13 +268,9 @@ Entity createScorchedEarth(vec2 position)
 // This includes grass and scorched earth, and eventually farmland as well.
 void removeSurfaces()
 {
-	// remove all grasses
-	for (Entity& grass_entity : registry.grasses.entities) {
-		registry.remove_all_components_of(grass_entity);
-	}
-	// remove all farmlands
-	for (Entity& farmland_entity : registry.farmlands.entities) {
-		registry.remove_all_components_of(farmland_entity);
+	// remove all mapTiles
+	for (Entity& maptile_entity : registry.mapTiles.entities) {
+		registry.remove_all_components_of(maptile_entity);
 	}
 	// remove all scorched earth
 	for (Entity& scorched_earth_entity : registry.scorchedEarths.entities) {
@@ -309,6 +278,241 @@ void removeSurfaces()
 	}
 	// print confirmation
 	std::cout << "surfaces reset" << std::endl;
+}
+
+// Create a sign that will only appear once it appears in a tutorial.
+Entity createTutorialMove(vec2 position) {
+	// Create the associated entity.
+	Entity tutorial_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(tutorial_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(450, 360);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		tutorial_entity,
+		{
+			TEXTURE_ASSET_ID::TUTORIAL_MOVE,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	// Create the animation
+	static TEXTURE_ASSET_ID asset_id_array[8] = {
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE,
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE_W,
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE,
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE_A,
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE,
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE_S,
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE,
+		TEXTURE_ASSET_ID::TUTORIAL_MOVE_D,
+	};
+
+	Animation& animation_component = registry.animations.emplace(tutorial_entity);
+	animation_component.timer_ms = 1000;
+	animation_component.pose_count = 8;
+	animation_component.loop = true;
+	animation_component.lock = true;
+	animation_component.textures = asset_id_array;
+
+	return tutorial_entity;
+}
+
+// Create a sign that will only appear once it appears in a tutorial.
+Entity createTutorialAttack(vec2 position) {
+	// Create the associated entity.
+	Entity tutorial_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(tutorial_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(450, 360);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		tutorial_entity,
+		{
+			TEXTURE_ASSET_ID::TUTORIAL_ATTACK,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	// Create the animation
+	static TEXTURE_ASSET_ID asset_id_array[2] = {
+		TEXTURE_ASSET_ID::TUTORIAL_ATTACK,
+		TEXTURE_ASSET_ID::TUTORIAL_ATTACK_ANIMATED
+	};
+
+	Animation& animation_component = registry.animations.emplace(tutorial_entity);
+	animation_component.timer_ms = 1000;
+	animation_component.pose_count = 2;
+	animation_component.loop = true;
+	animation_component.lock = true;
+	animation_component.textures = asset_id_array;
+
+	return tutorial_entity;
+}
+
+// Create a sign that will only appear once it appears in a tutorial.
+Entity createTutorialPlant(vec2 position) {
+	// Create the associated entity.
+	Entity tutorial_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(tutorial_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(450, 360);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		tutorial_entity,
+		{
+			TEXTURE_ASSET_ID::TUTORIAL_PLANT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	// Create the animation
+	static TEXTURE_ASSET_ID asset_id_array[2] = {
+		TEXTURE_ASSET_ID::TUTORIAL_PLANT,
+		TEXTURE_ASSET_ID::TUTORIAL_PLANT_ANIMATED
+	};
+
+	Animation& animation_component = registry.animations.emplace(tutorial_entity);
+	animation_component.timer_ms = 1000;
+	animation_component.pose_count = 2;
+	animation_component.loop = true;
+	animation_component.lock = true;
+	animation_component.textures = asset_id_array;
+
+	return tutorial_entity;
+}
+
+// Create a sign that will only appear once it appears in a tutorial.
+Entity createTutorialRestart(vec2 position) {
+	// Create the associated entity.
+	Entity tutorial_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(tutorial_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(450, 360);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		tutorial_entity,
+		{
+			TEXTURE_ASSET_ID::TUTORIAL_RESTART,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	// Create the animation
+	static TEXTURE_ASSET_ID asset_id_array[2] = {
+		TEXTURE_ASSET_ID::TUTORIAL_RESTART,
+		TEXTURE_ASSET_ID::TUTORIAL_RESTART_ANIMATED
+	};
+
+	Animation& animation_component = registry.animations.emplace(tutorial_entity);
+	animation_component.timer_ms = 1000;
+	animation_component.pose_count = 2;
+	animation_component.loop = true;
+	animation_component.lock = true;
+	animation_component.textures = asset_id_array;
+
+	return tutorial_entity;
+}
+
+// Create an arrow to go along with the tutorial map.
+Entity createTutorialArrow(vec2 position) {
+	// Create the associated entity.
+	Entity arrow_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(arrow_entity);
+
+	// Create the relevant motion component.
+	Motion& motion_component = registry.motions.emplace(arrow_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(80, 150);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		arrow_entity,
+		{
+			TEXTURE_ASSET_ID::TUTORIAL_ARROW,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
+
+	return arrow_entity;
+}
+
+void parseMap(bool tutorial) {
+	json jsonFile;
+	if (tutorial) {
+		std::ifstream file("data/map/tutorialMap.json");
+		file>>jsonFile;
+	} else  {
+		std::ifstream file("data/map/myMap.json");
+		file>>jsonFile;
+	}
+
+	int numCol = jsonFile["width"];
+	int numRow = jsonFile["height"];
+	std::vector<int> map_layer = jsonFile["layers"][0]["data"];
+	std::vector<int> decoration_layer = jsonFile["layers"][1]["data"];
+
+	// create background
+	for (int i=0; i<numRow; i++) { //iterating row-by-row
+		for (int j=0; j<numCol; j++) {
+			if (map_layer[i*numCol+j] == 1) {
+				if (tutorial) {
+					createTutorialTile({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+				} else {
+					createMapTile({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+				}
+			}
+		}
+	}
+
+	// add decorations
+	for (int i=0; i<numRow; i++) { //iterating row-by-row
+		for (int j=0; j<numCol; j++) {	
+			if (decoration_layer[i*numCol+j] != 0) {
+				if (tutorial) {
+					createTutorialTileDecoration(decoration_layer[i*numCol+j], {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+				} else {
+					createMapTileDecoration(decoration_layer[i*numCol+j], {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+				}
+			}
+		}
+	}
 }
 
 // Kung: Create the toolbar that in the future will store seeds, harvests, and other associated items.
@@ -326,7 +530,7 @@ Entity createToolbar()
 
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(toolbar_entity);
-	motion_component.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX + 50);
+	motion_component.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX * 1.05);
 	motion_component.scale = vec2(960, 120);
 	motion_component.velocity = vec2(0, 0);
 
