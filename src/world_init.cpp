@@ -602,6 +602,9 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 
 	Player &player = registry.players.emplace(entity);
 	player.health = PLAYER_HEALTH;
+
+	Inventory &inventory = registry.inventorys.emplace(entity);
+	registry.inventorys.components[0].seedCount[0] = 5; // 5 starter seeds
 	
 	MoveWithCamera& mwc = registry.moveWithCameras.emplace(entity);
 	Motion& motion = registry.motions.emplace(entity);
@@ -662,13 +665,14 @@ Entity createEffect(RenderSystem *renderer, vec2 position, vec2 scale)
 }
 
 // Kung: Create the seed that will be planted whenever there is farmland.
-Entity createSeed(vec2 pos)
+Entity createSeed(vec2 pos, int type)
 {
 	// Create the associated entity.
 	Entity seed_entity = Entity();
 
 	// Create the associated component.
 	Seed &seed_component = registry.seeds.emplace(seed_entity);
+	seed_component.type = type;
 
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(seed_entity);

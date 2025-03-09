@@ -18,6 +18,11 @@ struct Death
 {
 };
 
+struct Inventory
+{
+	int seedCount[NUM_SEED_TYPES]; // count of seeds indexed by their type, could also use map for this
+};
+
 struct Status
 {
 	std::string type;  // Status type (e.g. "injured", "poisoned")
@@ -120,7 +125,7 @@ struct Projectile {
 
 // For Milestone #2.
 struct Seed {
-	int type; // Maybe make it a string?
+	int type; // Maybe make it a string? or in my opinion maybe an enum would be better
 };
 
 enum class STATE

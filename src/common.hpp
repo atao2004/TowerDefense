@@ -237,6 +237,7 @@ inline int TUTORIAL_HEIGHT_PX = GRID_CELL_HEIGHT_PX * TUTORIAL_HEIGHT_TILE_NUM;
 const int SCORCHED_EARTH_DIMENSION_PX = 256;
 
 const int PLAYER_HEALTH = 100;
+const int NUM_SEED_TYPES = 1;
 const int ZOMBIE_HEALTH = 20;
 const int ZOMBIE_DAMAGE = 5;
 const float BASE_ENEMY_SPEED = 500.0f; // Base movement speed for enemies
