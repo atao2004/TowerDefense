@@ -123,7 +123,7 @@ Entity createTower(RenderSystem* renderer, vec2 position) {
 	registry.renderRequests.insert(
 		entity,
 		{TEXTURE_ASSET_ID::PLANT_2_IDLE_F,
-		 EFFECT_ASSET_ID::TEXTURED,
+		 EFFECT_ASSET_ID::ZOMBIE,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
 	return entity;
