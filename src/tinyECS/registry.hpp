@@ -80,6 +80,7 @@ public:
 		registry_list.push_back(&visualScales);
 		registry_list.push_back(&enemies);
 		registry_list.push_back(&inventorys);
+		registry_list.push_back(&seeds);
 	}
 
 	void clear_all_components() {
