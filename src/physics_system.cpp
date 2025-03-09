@@ -209,7 +209,7 @@ void PhysicsSystem::handle_projectile_collisions()
 		Motion &proj_motion = registry.motions.get(projectile);
 		Projectile &proj = registry.projectiles.get(projectile);
 
-		// Check collision with zombies
+		// Check collision with enemies
 		for (Entity enemy : registry.enemies.entities)
 		{
 			Motion &enemy_motion = registry.motions.get(enemy);

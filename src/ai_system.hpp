@@ -23,7 +23,7 @@ public:
 
 private:
 	// Core movement and behavior functions
-	void update_zombie_behaviors(float elapsed_ms);
+	void update_enemy_behaviors(float elapsed_ms);
 	void update_zombie_movement(Entity entity, float elapsed_ms);
 	void update_skeletons(float elapsed_ms);
 	

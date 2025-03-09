@@ -19,10 +19,10 @@ AISystem::~AISystem()
 
 void AISystem::step(float elapsed_ms)
 {
-    update_zombie_behaviors(elapsed_ms);
+    update_enemy_behaviors(elapsed_ms);
 }
 
-void AISystem::update_zombie_behaviors(float elapsed_ms)
+void AISystem::update_enemy_behaviors(float elapsed_ms)
 {
     // Skip if no player exists
     if (registry.players.entities.empty())
@@ -41,9 +41,9 @@ void AISystem::update_zombie_behaviors(float elapsed_ms)
             // For now, just handle basic movement
             update_zombie_movement(entity, elapsed_ms);
             update_zombie_attack(entity, elapsed_ms);
-            update_skeletons(elapsed_ms);
         }
     }
+    update_skeletons(elapsed_ms);
 }
 
 void AISystem::update_zombie_movement(Entity entity, float elapsed_ms)
@@ -301,6 +301,8 @@ void AISystem::update_skeletons(float elapsed_ms)
         {
             // Stop and attack
             skeleton_motion.velocity = {0, 0};
+            
+            // The state should always be ATTACK when within range
             skeleton.current_state = Skeleton::State::ATTACK;
 
             // If cooldown complete and not currently attacking, fire arrow
@@ -312,6 +314,21 @@ void AISystem::update_skeletons(float elapsed_ms)
                 // Attack animation is managed below, in the animation section
                 // The actual arrow firing will happen at the end of the animation
                 // in handle_animation_end
+            }
+            // This is the fix - we need to ensure the skeleton stays in an appropriate animation
+            // even after attacking and waiting for cooldown
+            else if (!skeleton.is_attacking && !registry.animations.has(entity))
+            {
+                // If not attacking and no animation is playing, go back to idle
+                AnimationSystem::update_animation(
+                    entity,
+                    SKELETON_IDLE_DURATION,
+                    SKELETON_IDLE_ANIMATION,
+                    SKELETON_IDLE_FRAMES,
+                    true,  // loop
+                    false, // not locked
+                    false  // don't destroy
+                );
             }
         }
 
