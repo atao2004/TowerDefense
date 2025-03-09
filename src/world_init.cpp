@@ -692,7 +692,7 @@ Entity createSeed(vec2 pos, int type)
 }
 
 // Kung: Create the seed that appears within the toolbar.
-Entity createSeedInventory(vec2 pos, int type)
+Entity createSeedInventory(vec2 pos, vec2 velocity, int type)
 {
 	// Create the associated entity.
 	Entity seed_entity = Entity();
@@ -709,7 +709,7 @@ Entity createSeedInventory(vec2 pos, int type)
 	Motion& motion_component = registry.motions.emplace(seed_entity);
 	motion_component.position = pos;
 	motion_component.scale = vec2(50, 50);
-	motion_component.velocity = vec2(0, 0);
+	motion_component.velocity = velocity;
 
 	// Render the object.
 	registry.renderRequests.insert(

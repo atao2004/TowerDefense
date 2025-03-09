@@ -300,7 +300,7 @@ void WorldSystem::restart_common_tasks() {
 // More shared elements between restarting a game and a tutorial, this time involving the player and associated rendering
 void WorldSystem::restart_overlay_renders(vec2 player_pos) {
 	// reset player and spawn player in the middle of the screen
-	createPlayer(renderer, player_pos);
+	Entity player = createPlayer(renderer, player_pos);
 	
 	// reset camera position
 	createCamera(renderer, player_pos);
@@ -310,7 +310,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos) {
 	registry.toolbars.clear();
 	// createPause();
 	createToolbar(vec2(player_pos.x, player_pos.y + WINDOW_HEIGHT_PX * 0.475));
-	createSeedInventory(vec2(player_pos.x - 191, player_pos.y + WINDOW_HEIGHT_PX * 0.475), current_seed);
+	createSeedInventory(vec2(player_pos.x - 191, player_pos.y + WINDOW_HEIGHT_PX * 0.475), registry.motions.get(player).velocity, current_seed);
 
 	// Kung: Reset player movement so that the player remains still when no keys are pressed
 
@@ -524,6 +524,9 @@ void WorldSystem::player_attack()
 						{
 							// StateSystem::update_state(STATE::LEVEL_UP);
 							//come back later!
+							if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
+								createSeedInventory(vec2(player_motion.position.x - 191, player_motion.position.y + WINDOW_HEIGHT_PX * 0.475), player_motion.velocity, current_seed);
+							}
 							registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 							level++;
@@ -924,14 +927,26 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (action == GLFW_PRESS && key == GLFW_KEY_0)
 	{
 		if (registry.players.size() > 0) {
-			Entity& player_entity = registry.players.entities[0];
-			Motion& player_motion = registry.motions.get(player_entity);
-			createSkeleton(renderer, vec2(player_motion.position.x + CAMERA_VIEW_WIDTH / 2, player_motion.position.y));
+			createSkeleton(renderer, vec2(motion.position.x + CAMERA_VIEW_WIDTH / 2, motion.position.y));
 		}
 	}
 	if (action == GLFW_PRESS && key == GLFW_KEY_1)
 	{
-		if (registry.screenStates.size() != 0) registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += 0.1;
+		if (registry.screenStates.size() != 0) {
+			if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0) {
+				// StateSystem::update_state(STATE::LEVEL_UP);
+				//come back later!
+				if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
+					createSeedInventory(vec2(motion.position.x - 191, motion.position.y + WINDOW_HEIGHT_PX * 0.475), motion.velocity, current_seed);
+				}
+				registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
+				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+				level++;
+				std::cout << "==== LEVEL " << level << " ====" << std::endl;
+			} else  {
+				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += 0.1;
+			}
+		}
 	}
 }
 
