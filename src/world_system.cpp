@@ -257,9 +257,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 void WorldSystem::restart_common_tasks()
 {
 	registry.clear_all_components();
-	for(Entity i: registry.seeds.entities) {
-		registry.seeds.remove(i); 
-	}
+	// for(Entity i: registry.seeds.entities) {
+	// 	registry.seeds.remove(i); 
+	// }
 
 	current_bgm = night_bgm;
 	// smooth fade in, thread to prevent blocking
