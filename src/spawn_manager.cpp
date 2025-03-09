@@ -5,7 +5,8 @@
 SpawnManager::SpawnManager() : wave_timer_ms(0.f),
                                next_wave_ms(WAVE_INTERVAL_MS),
                                zombies_per_wave(INITIAL_ZOMBIES_PER_WAVE),
-                               current_wave(0)
+                               current_wave(0),
+                               is_game_started(false)
 {
     // Initialize RNG
     rng = std::default_random_engine(std::random_device()());
@@ -75,7 +76,7 @@ void SpawnManager::generate_wave(RenderSystem *renderer)
         // Get a random spawn point index
         int random_point = (int)(uniform_dist(rng) * spawn_points.size());
         vec2 spawn_pos = spawn_points[random_point].position;
-        if (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) < 0.0f)
+        if (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) < 0.3f)
         {
             createZombie(renderer, spawn_pos);
         }
