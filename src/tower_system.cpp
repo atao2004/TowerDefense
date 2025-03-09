@@ -15,12 +15,11 @@ void TowerSystem::step(float elapsed_ms)
 {
     for (int i = 0; i < registry.towers.entities.size(); i++)
     {
-        Entity entity = registry.towers.entities[i];
         Tower& tower = registry.towers.components[i];
         if (!tower.state)
         {
+            Entity entity = registry.towers.entities[i];
             Entity target;
-            
             if (find_nearest_enemy(entity, target))
             {
                 fire_projectile(entity, target);
