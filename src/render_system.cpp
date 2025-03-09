@@ -448,7 +448,7 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	// adding "UI" effect when applied
 	drawToScreen();
 	glm::mat4 trans = glm::mat4(1.0f);
-	renderText("hello", 1000, 1000, 1, {1,0,0}, trans);
+	// renderText("hello", 1000, 1000, 1, {1,0,0}, trans);
 
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
