@@ -23,7 +23,7 @@ Mix_Chunk *WorldSystem::game_over_sound = nullptr;
 GAME_SCREEN_ID WorldSystem::game_screen = GAME_SCREEN_ID::PLAYING;
 
 // create the world
-WorldSystem::WorldSystem() : points(0), level(1)
+WorldSystem::WorldSystem() : points(0), level(1),current_seed(0)
 {
 }
 
@@ -212,7 +212,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		}
 	}
 
-	if (registry.zombies.size() == 0 && current_bgm != night_bgm)
+	if (registry.enemies.size() == 0 && current_bgm != night_bgm)
 	{
 		current_bgm = night_bgm;
 		std::thread music_thread([this]()
@@ -222,7 +222,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			Mix_FadeInMusic(night_bgm, -1, 1000); });
 		music_thread.detach();
 	}
-	else if (registry.zombies.size() > 0 && current_bgm != combat_bgm)
+	else if (registry.enemies.size() > 0 && current_bgm != combat_bgm)
 	{
 		current_bgm = combat_bgm;
 		std::thread music_thread([this]()
@@ -442,10 +442,10 @@ void WorldSystem::restart_tutorial()
 	// }
 
 	// create the tutorial assets
-	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_HEIGHT_PX * -0.25));
-	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, TUTORIAL_HEIGHT_PX * -0.25));
-	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, TUTORIAL_HEIGHT_PX * -0.25));
-	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_HEIGHT_PX * -0.25));
+	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_HEIGHT_PX * -0.5 ));
+	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, TUTORIAL_HEIGHT_PX * -0.5));
+	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, TUTORIAL_HEIGHT_PX * -0.5));
+	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_HEIGHT_PX * -0.5));
 
 	// create the arrows for the tutorial
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 4 - 15, TUTORIAL_HEIGHT_PX * 0.4));
