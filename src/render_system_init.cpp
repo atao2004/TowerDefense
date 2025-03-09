@@ -58,7 +58,7 @@ bool RenderSystem::init(GLFWwindow* window_arg)
 	initializeGlGeometryBuffers();
 	std::string font_filename = PROJECT_SOURCE_DIR + std::string("data/fonts/Kenney_Mini_Square.ttf");
 	unsigned int font_default_size = 100;
-	fontInit(font_filename, font_default_size);
+	// fontInit(font_filename, font_default_size);
 
 	return true;
 }

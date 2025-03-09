@@ -8,8 +8,8 @@
 #include "tinyECS/tiny_ecs.hpp"
 
 // fonts
-#include <ft2build.h>
-#include FT_FREETYPE_H
+// #include <ft2build.h>
+// #include FT_FREETYPE_H
 #include <map>
 
 // System responsible for setting up OpenGL and for rendering all the
