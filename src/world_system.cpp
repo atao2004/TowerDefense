@@ -399,9 +399,6 @@ void WorldSystem::player_attack()
 		weapon_motion.velocity = less_f_ugly.velocity;
 		weapon_motion.scale = less_f_ugly.scale;
 
-		// Slash Animation
-		createEffect(renderer, weapon_motion.position, weapon_motion.scale);
-
 		for (int i = 0; i < registry.zombies.size(); i++)
 		{
 			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
