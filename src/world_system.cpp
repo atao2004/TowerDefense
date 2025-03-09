@@ -310,7 +310,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos) {
 	registry.toolbars.clear();
 	// createPause();
 	createToolbar(vec2(player_pos.x, player_pos.y + WINDOW_HEIGHT_PX * 0.475));
-	createSeedInventory(vec2(player_pos.x - 191, player_pos.y + WINDOW_HEIGHT_PX * 0.475), 0);
+	createSeedInventory(vec2(player_pos.x - 191, player_pos.y + WINDOW_HEIGHT_PX * 0.475), current_seed);
 
 	// Kung: Reset player movement so that the player remains still when no keys are pressed
 
