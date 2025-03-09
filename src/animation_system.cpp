@@ -21,6 +21,7 @@ void AnimationSystem::step(float elapsed_ms)
     for (Entity entity : registry.animations.entities)
     {
         Animation &animation = registry.animations.get(entity);
+        animation.runtime_ms += elapsed_ms;
         animation.timer_ms += elapsed_ms;
         if (animation.timer_ms >= animation.transition_ms)
         {
