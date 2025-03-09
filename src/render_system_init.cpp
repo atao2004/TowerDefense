@@ -47,15 +47,18 @@ bool RenderSystem::init(GLFWwindow* window_arg)
 
 	// We are not really using VAO's but without at least one bound we will crash in
 	// some systems.
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	// GLuint vao;
+	// glGenVertexArrays(1, &vao);
+	// glBindVertexArray(vao);
 	gl_has_errors();
 
 	initScreenTexture();
     initializeGlTextures();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
+	std::string font_filename = PROJECT_SOURCE_DIR + std::string("data/fonts/Kenney_Mini_Square.ttf");
+	unsigned int font_default_size = 40;
+	fontInit(font_filename, font_default_size);
 
 	return true;
 }

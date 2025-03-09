@@ -154,8 +154,7 @@ class RenderSystem
 		shader_path("ui"),
 		shader_path("vignette"),
 		shader_path("zombie"),
-		shader_path("player"),
-		shader_path("font")
+		shader_path("player")
 	};
 
 	// fonts

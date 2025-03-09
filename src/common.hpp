@@ -180,8 +180,7 @@ enum class EFFECT_ASSET_ID
 	VIGNETTE = UI + 1,
 	ZOMBIE = VIGNETTE + 1,
 	PLAYER = ZOMBIE + 1,
-	FONT = PLAYER + 1,
-	EFFECT_COUNT = FONT + 1
+	EFFECT_COUNT = PLAYER + 1
 };
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
