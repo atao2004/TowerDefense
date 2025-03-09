@@ -31,7 +31,7 @@ void AISystem::update_zombie_behaviors(float elapsed_ms)
     }
 
     // Update each zombie 
-    for (Entity entity : registry.zombies.entities)
+    for (Entity entity : registry.enemies.entities)
     {
         if (registry.motions.has(entity))
         {
