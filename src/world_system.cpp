@@ -226,11 +226,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	return true;
 }
 
-// Reset the world state to its initial state
-void WorldSystem::restart_game()
-{
+// Shared elements between restarting a game and a tutorial
+void WorldSystem::restart_common_tasks() {
 	registry.clear_all_components();
-	std::cout << "Restarting..." << std::endl;
 	current_bgm = night_bgm;
 	// smooth fade in, thread to prevent blocking
 	std::thread music_thread([this]()
@@ -251,8 +249,6 @@ void WorldSystem::restart_game()
 	current_speed = 1.f;
 
 	points = 0;
-	level = 1;
-	game_screen = GAME_SCREEN_ID::PLAYING;
 	registry.screenStates.get(registry.screenStates.entities[0]).game_over = false;
 	registry.screenStates.get(registry.screenStates.entities[0]).lerp_timer = 0.0;
 
@@ -275,25 +271,6 @@ void WorldSystem::restart_game()
 			createScorchedEarth(vec2(x, y));
 		}
 	}
-	// Kung: This is for Milestone #2. This creates the farmland.
-	parseMap(true);
-	parseMap(false);
-
-	// create grid lines and clear any pre-existing grid lines
-	// Kung: I cleared the grid lines so that they would now render on top of my textures
-	// vertical lines
-	// for (int col = 0; col <= WINDOW_WIDTH_PX / GRID_CELL_WIDTH_PX; col++)
-	// {
-	// 	// width of 2 to make the grid easier to see
-	// 	grid_lines.push_back(createGridLine(vec2(col * GRID_CELL_WIDTH_PX, 0), vec2(grid_line_width, 2 * WINDOW_HEIGHT_PX)));
-	// }
-
-	// // horizontal lines
-	// for (int row = 0; row <= WINDOW_HEIGHT_PX / GRID_CELL_HEIGHT_PX; row++)
-	// {
-	// 	// width of 2 to make the grid easier to see
-	// 	grid_lines.push_back(createGridLine(vec2(0, row * GRID_CELL_HEIGHT_PX), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
-	// }
 
 	// if the screenState exists, reset the health bar percentages
 	if (registry.screenStates.size() != 0)
@@ -301,29 +278,21 @@ void WorldSystem::restart_game()
 		registry.screenStates.get(registry.screenStates.entities[0]).hp_percentage = 1.0;
 		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 	}
+}
 
-	// create the tutorial assets
-	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.2, WINDOW_HEIGHT_PX * -0.25));
-	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX * -0.25));
-	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, WINDOW_HEIGHT_PX * -0.25));
-	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.8, WINDOW_HEIGHT_PX * -0.25));
-
-	// create the arrows for the tutorial
-	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 4, TUTORIAL_HEIGHT_PX / 2));
-	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 2, TUTORIAL_HEIGHT_PX / 2));
-	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75, TUTORIAL_HEIGHT_PX / 2));
-
+// More shared elements between restarting a game and a tutorial, this time involving the player and associated rendering
+void WorldSystem::restart_overlay_renders(vec2 player_pos) {
 	// reset player and spawn player in the middle of the screen
-	createPlayer(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
+	createPlayer(renderer, player_pos);
 	
 	// reset camera position
-	createCamera(renderer, vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
+	createCamera(renderer, player_pos);
 
 	// Kung: Create the pause button and toolbar, and have them overlay the player
 	// registry.pauses.clear();
 	registry.toolbars.clear();
 	// createPause();
-	createToolbar();
+	createToolbar(vec2(player_pos.x, player_pos.y + WINDOW_HEIGHT_PX * 0.55));
 
 	// Kung: Reset player movement so that the player remains still when no keys are pressed
 
@@ -358,11 +327,91 @@ void WorldSystem::restart_game()
             if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_UP_SPEED;
         }
 	}
+}
+
+// Reset the world state to its initial state
+void WorldSystem::restart_game()
+{
+	std::cout << "Restarting game..." << std::endl;
+	
+	restart_common_tasks();
+
+	// Set the level to level 1 and the game_screen to PLAYING.
+	level = 1;
+	game_screen = GAME_SCREEN_ID::PLAYING;
+
+	// Kung: This is for Milestone #2. This creates the farmland.
+	parseMap(false);
+
+	// create grid lines and clear any pre-existing grid lines
+	// Kung: I cleared the grid lines so that they would now render on top of my textures
+	// vertical lines
+	// for (int col = 0; col <= WINDOW_WIDTH_PX / GRID_CELL_WIDTH_PX; col++)
+	// {
+	// 	// width of 2 to make the grid easier to see
+	// 	grid_lines.push_back(createGridLine(vec2(col * GRID_CELL_WIDTH_PX, 0), vec2(grid_line_width, 2 * WINDOW_HEIGHT_PX)));
+	// }
+
+	// // horizontal lines
+	// for (int row = 0; row <= WINDOW_HEIGHT_PX / GRID_CELL_HEIGHT_PX; row++)
+	// {
+	// 	// width of 2 to make the grid easier to see
+	// 	grid_lines.push_back(createGridLine(vec2(0, row * GRID_CELL_HEIGHT_PX), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
+	// }
+
+	restart_overlay_renders(vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
 
 	// start the spawn manager
 	spawn_manager.start_game();
 
 	// Print the starting level (Level 1)
+	std::cout << "==== LEVEL " << level << " ====" << std::endl;
+}
+
+// Reset the world state to the tutorial mode state
+void WorldSystem::restart_tutorial()
+{
+	std::cout << "Restarting tutorial..." << std::endl;
+	
+	restart_common_tasks();
+
+	// Set the level to level 0 (non-existent) and the game_screen to TUTORIAL.
+	level = 0;
+	game_screen = GAME_SCREEN_ID::TUTORIAL;
+
+	// Kung: This is for Milestone #2. This creates the farmland.
+	parseMap(true);
+
+	// create grid lines and clear any pre-existing grid lines
+	// Kung: I cleared the grid lines so that they would now render on top of my textures
+	// vertical lines
+	// for (int col = 0; col <= WINDOW_WIDTH_PX / GRID_CELL_WIDTH_PX; col++)
+	// {
+	// 	// width of 2 to make the grid easier to see
+	// 	grid_lines.push_back(createGridLine(vec2(col * GRID_CELL_WIDTH_PX, 0), vec2(grid_line_width, 2 * WINDOW_HEIGHT_PX)));
+	// }
+
+	// // horizontal lines
+	// for (int row = 0; row <= WINDOW_HEIGHT_PX / GRID_CELL_HEIGHT_PX; row++)
+	// {
+	// 	// width of 2 to make the grid easier to see
+	// 	grid_lines.push_back(createGridLine(vec2(0, row * GRID_CELL_HEIGHT_PX), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
+	// }
+
+	// create the tutorial assets
+	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, WINDOW_HEIGHT_PX * -0.25));
+	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, WINDOW_HEIGHT_PX * -0.25));
+	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, WINDOW_HEIGHT_PX * -0.25));
+	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, WINDOW_HEIGHT_PX * -0.25));
+
+	// create the arrows for the tutorial
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 4 - 15, TUTORIAL_HEIGHT_PX * 0.4));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 2 - 15, TUTORIAL_HEIGHT_PX * 0.4));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75 - 15, TUTORIAL_HEIGHT_PX * 0.4));
+
+	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX / 8, TUTORIAL_HEIGHT_PX / 3});
+
+	// Print the starting level (Level 0)
 	std::cout << "==== LEVEL " << level << " ====" << std::endl;
 }
 
@@ -700,11 +749,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
-		// if (game_screen == GAME_SCREEN_ID::TUTORIAL) {
-		// } else {
-		// }
+		if (game_screen == GAME_SCREEN_ID::TUTORIAL) {
+			restart_tutorial();
+		} else {
+			restart_game();
+		}
 
-		restart_game();
 		return;
 	}
 
@@ -733,17 +783,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		tutorial_mode = !tutorial_mode;
 		spawn_manager.set_test_mode(tutorial_mode);
 
-		// Remove seeds
-		for (Entity seed_entity : registry.seeds.entities) {
-			registry.remove_all_components_of(seed_entity);
-		}
-
 		if (game_screen != GAME_SCREEN_ID::TUTORIAL) {
-			game_screen = GAME_SCREEN_ID::TUTORIAL;
+			restart_tutorial();
 		} else {
-			game_screen = GAME_SCREEN_ID::PLAYING;
+			restart_game();
 		}
-		std::cout << "Game " << (tutorial_mode ? "entered" : "exited") << " test mode" << std::endl;
+		std::cout << "Game " << (tutorial_mode ? "entered" : "exited") << " tutorial mode" << std::endl;
 		return;
 	}
 

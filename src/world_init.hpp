@@ -34,7 +34,7 @@ Entity createTutorialArrow(vec2 position);
 
 // ui elements
 Entity createPause();
-Entity createToolbar();
+Entity createToolbar(vec2 position);
 
 // grid lines to show tile positions
 Entity createGridLine(vec2 start_pos, vec2 end_pos);

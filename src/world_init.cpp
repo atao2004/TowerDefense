@@ -288,7 +288,7 @@ Entity createTutorialMove(vec2 position) {
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(tutorial_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(450, 360);
+	motion_component.scale = vec2(460, 350);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the sign.
@@ -334,7 +334,7 @@ Entity createTutorialAttack(vec2 position) {
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(tutorial_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(450, 360);
+	motion_component.scale = vec2(460, 350);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the sign.
@@ -374,7 +374,7 @@ Entity createTutorialPlant(vec2 position) {
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(tutorial_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(450, 360);
+	motion_component.scale = vec2(460, 350);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the sign.
@@ -414,7 +414,7 @@ Entity createTutorialRestart(vec2 position) {
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(tutorial_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(450, 360);
+	motion_component.scale = vec2(460, 350);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the sign.
@@ -514,7 +514,7 @@ void parseMap(bool tutorial) {
 
 // Kung: Create the toolbar that in the future will store seeds, harvests, and other associated items.
 // As of now, it is purely cosmetic.
-Entity createToolbar()
+Entity createToolbar(vec2 position)
 {
 	// Create the associated entity.
 	Entity toolbar_entity = Entity();
@@ -527,7 +527,7 @@ Entity createToolbar()
 
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(toolbar_entity);
-	motion_component.position = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX * 1.05);
+	motion_component.position = position;
 	motion_component.scale = vec2(960, 120);
 	motion_component.velocity = vec2(0, 0);
 
