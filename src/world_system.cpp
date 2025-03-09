@@ -22,7 +22,7 @@ bool WorldSystem::game_is_over = false;
 Mix_Chunk *WorldSystem::game_over_sound = nullptr;
 
 // create the world
-WorldSystem::WorldSystem() : points(0), level(1), game_screen(GAME_SCREEN_ID::PLAYING)
+WorldSystem::WorldSystem() : points(0), level(1), game_screen(GAME_SCREEN_ID::PLAYING), current_seed(0)
 {
 }
 
@@ -817,7 +817,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 								}
 							}
 						}
-						createSeed(vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX));
+						if(registry.inventorys.components[0].seedCount[current_seed] >0) {
+							Entity seed = createSeed(vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX), current_seed);
+							registry.inventorys.components[0].seedCount[current_seed]--; // decrease the count of seed in inventory
+						} else {
+							std::cout<<"No more inventory of seed type "<< current_seed<<std::endl;
+						}
+
+						std::cout<<"inventory count of seed type "<< current_seed << " is " << registry.inventorys.components[0].seedCount[current_seed] << std::endl;
 					}
 				}
 			}
