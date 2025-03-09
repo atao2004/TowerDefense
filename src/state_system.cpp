@@ -17,8 +17,9 @@ void StateSystem::update_state(STATE state_new)
         state.state = state_new;
 
         if (state.state == STATE::IDLE) {
-            RenderRequest& request = registry.renderRequests.get(player);
-            request.used_texture = TEXTURE_ASSET_ID::PLAYER_IDLE;
+            // RenderRequest& request = registry.renderRequests.get(player);
+            // request.used_texture = TEXTURE_ASSET_ID::PLAYER_IDLE;
+            AnimationSystem::update_animation(player, PLAYER_IDLE_DURATION, PLAYER_IDLE_ANIMATION, PLAYER_IDLE_SIZE, true, false, false);
         }
         else if (state.state == STATE::MOVE) {
             AnimationSystem::update_animation(player, PLAYER_MOVE_DURATION, PLAYER_MOVE_ANIMATION, PLAYER_MOVE_SIZE, true, false, false);
