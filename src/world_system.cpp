@@ -768,12 +768,15 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// test mode with 't'
 	if (action == GLFW_PRESS && key == GLFW_KEY_T)
 	{
-		test_mode = !test_mode;
-		spawn_manager.set_test_mode(test_mode);
-		if (game_screen != GAME_SCREEN_ID::TEST) {
-			game_screen = GAME_SCREEN_ID::TEST;
-		} else game_screen = GAME_SCREEN_ID::PLAYING;
-		std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
+		// Disable in tutorial mode
+		if (game_screen == GAME_SCREEN_ID::PLAYING || game_screen == GAME_SCREEN_ID::TEST) {
+			test_mode = !test_mode;
+			spawn_manager.set_test_mode(test_mode);
+			if (game_screen == GAME_SCREEN_ID::PLAYING) {
+				game_screen = GAME_SCREEN_ID::TEST;
+			} else game_screen = GAME_SCREEN_ID::PLAYING;
+			std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
+		}
 		return;
 	}
 
