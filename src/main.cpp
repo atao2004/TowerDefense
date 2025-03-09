@@ -83,23 +83,27 @@ int main()
 		t = now;
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
-
+		int cooldown = 2;
 		//when level up, we want the screen to be frozen
 		if (StateSystem::get_state() != STATE::LEVEL_UP) {
 			world_system.step(elapsed_ms);
 			if (!WorldSystem::game_is_over) {
-				//M2: FPS
-				float current_fps = (1/(elapsed_ms/1000));
-				// A2: separated from WorldSystem::step for screens that do not use ::step
 
-				// std::cout<<"FPS: "<<current_fps<<std::endl;
-				std::stringstream title_ss;
-				title_ss <<"Farmer Defense: The Last Days"
-				         << " | LEVEL: "<< world_system.level 
-						 <<" | SEED COUNT: "<< world_system.current_seed
-						 <<"| FPS: " << (int)current_fps;
-				
-				glfwSetWindowTitle(window, title_ss.str().c_str());
+				//M2: FPS
+				std::cout<<cooldown<<std::endl;
+				float current_fps = (1/(elapsed_ms/1000));
+				cooldown -= elapsed_ms;
+				if (cooldown <= 0) {                             //used to prevent screen flickering
+					// std::cout<<"FPS: "<<current_fps<<std::endl;
+					std::stringstream title_ss;
+					title_ss <<"Farmer Defense: The Last Days"
+							<< " | LEVEL: "<< world_system.level 
+							<<" | SEED COUNT: "<< registry.inventorys.components[0].seedCount[world_system.current_seed]
+							<<"| FPS: " << (int)current_fps;
+							
+					glfwSetWindowTitle(window, title_ss.str().c_str());
+					cooldown = 2;
+				}
 				if (record_times > 2) {     //ignore the first 2, outliers wow.. maximum 5000 and minimum 10-ish fps, crazy
 					max_fps = max_fps < current_fps ? current_fps: max_fps;
 					min_fps = min_fps > current_fps ? current_fps: min_fps;
