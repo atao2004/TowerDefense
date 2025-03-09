@@ -47,7 +47,7 @@ Entity createPlayer(RenderSystem* renderer, vec2 position);
 Entity createEffect(RenderSystem* renderer, vec2 position, vec2 scale);
 // create seed (for milestone #2)
 Entity createSeed(vec2 pos, int type);
-Entity createSeedInventory(vec2 pos);
+Entity createSeedInventory(vec2 pos, int type);
 Entity createCamera(RenderSystem* renderer, vec2 position);
 
 Entity createGameOver();

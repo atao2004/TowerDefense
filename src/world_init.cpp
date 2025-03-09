@@ -684,7 +684,7 @@ Entity createSeed(vec2 pos, int type)
 	// Render the object.
 	registry.renderRequests.insert(
 		seed_entity,
-		{TEXTURE_ASSET_ID::SEED_1,
+		{TEXTURE_ASSET_ID::SEED_0,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
@@ -692,13 +692,15 @@ Entity createSeed(vec2 pos, int type)
 }
 
 // Kung: Create the seed that appears within the toolbar.
-Entity createSeedInventory(vec2 pos)
+Entity createSeedInventory(vec2 pos, int type)
 {
 	// Create the associated entity.
 	Entity seed_entity = Entity();
 
 	// Create the associated component.
-	Seed& seed_component = registry.seeds.emplace(seed_entity);
+	Seed &seed_component = registry.seeds.emplace(seed_entity);
+	seed_component.type = type;
+	seed_component.timer = 5000;
 
 	// Create a component to simplify movement.
 	MoveWithCamera& mwc = registry.moveWithCameras.emplace(seed_entity);
@@ -713,7 +715,7 @@ Entity createSeedInventory(vec2 pos)
 	registry.renderRequests.insert(
 		seed_entity,
 		{
-			TEXTURE_ASSET_ID::SEED_1,
+			TEXTURE_ASSET_ID::SEED_0,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
