@@ -751,8 +751,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
 
-	// Kung: Plant seed with the 'H' button (for Milestone #2)
-	if (action == GLFW_PRESS && key == GLFW_KEY_H)
+	// Kung: Plant seed with the 'F' button
+	if (action == GLFW_PRESS && key == GLFW_KEY_F)
 	{
 		// You can only plant where there is farmland.
 		for (Entity maptile_entity : registry.mapTiles.entities) {
@@ -775,8 +775,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		}
 	}
 
-	// Haonan: Shoot towers with the 'F' button (for Milestone #2)
-	if (action == GLFW_PRESS && key == GLFW_KEY_F)
+	// Haonan: Shoot towers with the 'H' button
+	if (action == GLFW_PRESS && key == GLFW_KEY_H)
 	{
 		// Calculate center position of the cell
 		vec2 cell_center = {
