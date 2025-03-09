@@ -289,7 +289,7 @@ Entity createTutorialMove(vec2 position) {
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(tutorial_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(460, 350);
+	motion_component.scale = vec2(465, 345);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the sign.
@@ -335,7 +335,7 @@ Entity createTutorialAttack(vec2 position) {
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(tutorial_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(460, 350);
+	motion_component.scale = vec2(465, 345);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the sign.
@@ -375,7 +375,7 @@ Entity createTutorialPlant(vec2 position) {
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(tutorial_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(460, 350);
+	motion_component.scale = vec2(465, 345);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the sign.
@@ -415,7 +415,7 @@ Entity createTutorialRestart(vec2 position) {
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(tutorial_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(460, 350);
+	motion_component.scale = vec2(465, 345);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the sign.
@@ -529,7 +529,7 @@ Entity createToolbar(vec2 position)
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(toolbar_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(960, 120);
+	motion_component.scale = vec2(880, 110);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
