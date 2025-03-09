@@ -86,21 +86,21 @@ Entity TowerSystem::find_nearest_enemy(vec2 tower_pos, float range)
     Entity nearest = Entity();
     float min_dist = range;
 
-    for (Entity zombie : registry.zombies.entities)
+    for (Entity enemy : registry.enemies.entities)
     {
-        if (!registry.motions.has(zombie))
+        if (!registry.motions.has(enemy))
         {
             continue;
         }
 
-        Motion &zombie_motion = registry.motions.get(zombie);
-        vec2 diff = zombie_motion.position - tower_pos;
+        Motion &enemy_motion = registry.motions.get(enemy);
+        vec2 diff = enemy_motion.position - tower_pos;
         float dist = sqrt(dot(diff, diff));
 
         if (dist < min_dist)
         {
             min_dist = dist;
-            nearest = zombie;
+            nearest = enemy;
         }
     }
 

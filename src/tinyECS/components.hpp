@@ -79,6 +79,10 @@ struct Zombie
 	float health;
 };
 
+struct Enemy {
+	float health;
+};
+
 // Skeleton enemy component
 struct Skeleton {
     float attack_range = 400.f;      // Attack range

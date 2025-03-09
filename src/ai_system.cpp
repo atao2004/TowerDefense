@@ -6,6 +6,7 @@
 
 AISystem::AISystem()
 {
+
 }
 
 AISystem::~AISystem()
@@ -18,10 +19,10 @@ AISystem::~AISystem()
 
 void AISystem::step(float elapsed_ms)
 {
-    update_enemy_behaviors(elapsed_ms);
+    update_zombie_behaviors(elapsed_ms);
 }
 
-void AISystem::update_enemy_behaviors(float elapsed_ms)
+void AISystem::update_zombie_behaviors(float elapsed_ms)
 {
     // Skip if no player exists
     if (registry.players.entities.empty())
@@ -29,7 +30,7 @@ void AISystem::update_enemy_behaviors(float elapsed_ms)
         return;
     }
 
-    // Update each enemy
+    // Update each zombie 
     for (Entity entity : registry.zombies.entities)
     {
         if (registry.motions.has(entity))
@@ -38,14 +39,14 @@ void AISystem::update_enemy_behaviors(float elapsed_ms)
             // update_enemy_state(entity);
 
             // For now, just handle basic movement
-            update_enemy_movement(entity, elapsed_ms);
-            handle_enemy_attack(entity, elapsed_ms);
+            update_zombie_movement(entity, elapsed_ms);
+            update_zombie_attack(entity, elapsed_ms);
             update_skeletons(elapsed_ms);
         }
     }
 }
 
-void AISystem::update_enemy_movement(Entity entity, float elapsed_ms)
+void AISystem::update_zombie_movement(Entity entity, float elapsed_ms)
 {
     // Currently only implements chase behavior
     handle_chase_behavior(entity, elapsed_ms);
@@ -82,7 +83,7 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms)
     }
 }
 
-void AISystem::handle_enemy_attack(Entity entity, float elapsed_ms)
+void AISystem::update_zombie_attack(Entity entity, float elapsed_ms)
 {
     if (!registry.players.entities.size())
         return;
@@ -169,6 +170,40 @@ bool AISystem::start_and_load_sounds()
 
 void AISystem::update_skeletons(float elapsed_ms)
 {
+    if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::TUTORIAL)
+    {
+        // For tutorial mode, process them differently
+        for (auto entity : registry.skeletons.entities)
+        {
+            if (registry.motions.has(entity))
+            {
+                // Force velocity to zero, but still allow animations
+                Motion &skeleton_motion = registry.motions.get(entity);
+                skeleton_motion.velocity = vec2(0.0f, 0.0f);
+
+                // If skeleton is not already in attack animation and is not attacking
+                Skeleton &skeleton = registry.skeletons.get(entity);
+                if (!skeleton.is_attacking && skeleton.current_state != Skeleton::State::ATTACK)
+                {
+                    // Play idle animation
+                    if (!registry.animations.has(entity) ||
+                        registry.animations.get(entity).textures != SKELETON_IDLE_ANIMATION)
+                    {
+                        AnimationSystem::update_animation(
+                            entity,
+                            SKELETON_IDLE_DURATION,
+                            SKELETON_IDLE_ANIMATION,
+                            SKELETON_IDLE_FRAMES,
+                            true,  // loop
+                            false, // not locked
+                            false  // don't destroy
+                        );
+                    }
+                }
+            }
+        }
+        return; // Skip regular skeleton update for tutorial
+    }
     for (auto entity : registry.skeletons.entities)
     {
         if (!registry.motions.has(entity))
@@ -250,7 +285,7 @@ void AISystem::update_skeletons(float elapsed_ms)
             skeleton.current_state = Skeleton::State::WALK;
 
             // Update facing direction
-            
+
             if (direction.x != 0)
             {
                 skeleton_motion.scale.x = (direction.x > 0) ? abs(skeleton_motion.scale.x) : -abs(skeleton_motion.scale.x);

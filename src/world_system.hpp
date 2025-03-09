@@ -37,7 +37,7 @@ public:
 	~WorldSystem();
 
 	// Returns the game_screen (inspired by Assignment #2)
-	GAME_SCREEN_ID get_game_screen() {
+	static GAME_SCREEN_ID get_game_screen() {
 		return game_screen;
 	}
 
@@ -75,6 +75,8 @@ private:
 	void restart_overlay_renders(vec2 player_pos);
 	void restart_game();
 	void restart_tutorial();
+	void create_tutorial_enemies();
+	void check_tutorial_enemies();
 
 	// OpenGL window handle
 	GLFWwindow *window;
@@ -86,7 +88,7 @@ private:
 	unsigned int level;
 
 	// game_screen (inspired by Assignment #2)
-	GAME_SCREEN_ID game_screen;
+	static GAME_SCREEN_ID game_screen;
 
 	// Game state
 	RenderSystem *renderer;

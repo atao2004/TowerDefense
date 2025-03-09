@@ -48,6 +48,8 @@ public:
 	ComponentContainer<Arrow> arrows;
 	ComponentContainer<VisualScale> visualScales;
 
+	ComponentContainer<Enemy> enemies;
+
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
 		registry_list.push_back(&attacks);
@@ -75,6 +77,7 @@ public:
 		registry_list.push_back(&skeletons);
 		registry_list.push_back(&arrows);
 		registry_list.push_back(&visualScales);
+		registry_list.push_back(&enemies);
 	}
 
 	void clear_all_components() {
