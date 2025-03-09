@@ -8,6 +8,7 @@ uniform float exp_percentage;
 uniform bool game_over;
 
 in vec2 texcoord;
+uniform vec2 tex_offset;
 
 layout(location = 0) out vec4 color;
 
@@ -26,6 +27,10 @@ vec4 fade_color_lerp(vec4 in_color)
 
 void main()
 {
-    vec4 in_color = texture(screen_texture, texcoord);
+    // Shift the texture coordinates
+    vec2 shifted_coord = texcoord + tex_offset;
+
+    // Sample using the shifted coordinates
+    vec4 in_color = texture(screen_texture, tex_offset);
     color = fade_color_lerp(in_color);
 }

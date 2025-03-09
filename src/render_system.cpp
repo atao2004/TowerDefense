@@ -357,11 +357,14 @@ void RenderSystem::drawToScreen()
 		GLuint time_uloc1 = glGetUniformLocation(vignette_program, "time");
 		GLuint dead_timer_uloc1 = glGetUniformLocation(vignette_program, "darken_screen_factor");
 		GLuint game_continues_uloc1 = glGetUniformLocation(vignette_program, "game_over");
+		GLuint tex_offset_uloc = glGetUniformLocation(vignette_program, "tex_offset");
+		
 
 		GLint in_position_loc1 = glGetAttribLocation(vignette_program, "in_position");
 		// std::cout<<screen.lerp_timer/2000<<std::endl;
 		glUniform1f(time_uloc1, screen.lerp_timer);
 		glUniform1f(game_continues_uloc1, screen.game_over);
+		glUniform2f(tex_offset_uloc, registry.motions.get(registry.players.entities[0]).position.x, registry.motions.get(registry.players.entities[0]).position.y);
 		glEnableVertexAttribArray(in_position_loc1);
 		glVertexAttribPointer(in_position_loc1, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
 		gl_has_errors();

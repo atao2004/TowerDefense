@@ -18,6 +18,11 @@ struct Death
 {
 };
 
+struct Inventory
+{
+	int seedCount[NUM_SEED_TYPES]; // count of seeds indexed by their type, could also use map for this
+};
+
 struct Status
 {
 	std::string type;  // Status type (e.g. "injured", "poisoned")
@@ -120,7 +125,8 @@ struct Projectile {
 
 // For Milestone #2.
 struct Seed {
-	int type; // Maybe make it a string?
+	int type; // Maybe make it a string? or in my opinion maybe an enum would be better
+	float timer;
 };
 
 enum class STATE
@@ -138,6 +144,7 @@ struct State
 
 struct Animation
 {
+	float runtime_ms = 0;
 	float timer_ms = 0;
 	int pose = 0;
 	int transition_ms;
@@ -155,6 +162,7 @@ struct Tower
 	float damage;   // damage of the tower
 	float range;  // for vision / detection
 	int timer_ms; // how often the tower attacks
+	bool state; // false (IDLE), true (ATTACK)
 };
 
 // Stucture to store collision information

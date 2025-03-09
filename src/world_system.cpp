@@ -22,7 +22,7 @@ bool WorldSystem::game_is_over = false;
 Mix_Chunk *WorldSystem::game_over_sound = nullptr;
 
 // create the world
-WorldSystem::WorldSystem() : points(0), level(1), game_screen(GAME_SCREEN_ID::PLAYING)
+WorldSystem::WorldSystem() : points(0), level(1), game_screen(GAME_SCREEN_ID::PLAYING), current_seed(0)
 {
 }
 
@@ -176,6 +176,20 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
+	for(Entity i: registry.seeds.entities) {
+
+		if(registry.seeds.get(i).timer <= 0) {
+			vec2 pos;
+			pos.x = registry.motions.get(i).position.x;
+			pos.y = registry.motions.get(i).position.y;
+			std::cout<<"x pos "<< pos.x << " y pos "<< pos.y << std::endl;
+			registry.remove_all_components_of(i);
+			registry.seeds.remove(i);
+			createTower(renderer, {pos.x - GRID_CELL_WIDTH_PX/2, pos.y - GRID_CELL_HEIGHT_PX/2});
+		} else {
+			registry.seeds.get(i).timer -= elapsed_ms_since_last_update;
+		}
+	}
 	// Using the spawn manager to generate zombies
 	if (WorldSystem::game_is_over)
 	{
@@ -290,7 +304,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos) {
 	// registry.pauses.clear();
 	registry.toolbars.clear();
 	// createPause();
-	createToolbar(vec2(player_pos.x, player_pos.y + WINDOW_HEIGHT_PX * 0.55));
+	createToolbar(vec2(player_pos.x, player_pos.y + WINDOW_HEIGHT_PX * 0.45));
 
 	// Kung: Reset player movement so that the player remains still when no keys are pressed
 
@@ -588,7 +602,7 @@ void WorldSystem::update_screen_shake(float elapsed_ms)
 // In addition, I did general debugging, including on Ziqing's initial code.
 void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	// Move left
-	if (player_motion.position.x >= PLAYER_LEFT_BOUNDARY)
+	if (player_motion.position.x > PLAYER_LEFT_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_A)
 		{
@@ -605,7 +619,7 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	}
 
 	// Move right
-	if (player_motion.position.x <= PLAYER_RIGHT_BOUNDARY)
+	if (player_motion.position.x < PLAYER_RIGHT_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_D)
 		{
@@ -622,7 +636,7 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	}
 
 	// Move down
-	if (player_motion.position.y <= PLAYER_DOWN_BOUNDARY)
+	if (player_motion.position.y < PLAYER_DOWN_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_S)
 		{
@@ -639,7 +653,7 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	}
 
 	// Move up
-	if (player_motion.position.y >= PLAYER_UP_BOUNDARY)
+	if (player_motion.position.y > PLAYER_UP_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_W)
 		{
@@ -659,7 +673,7 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 // Version of player_movement that works for the tutorial mode.
 void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_motion) {
 	// Move left
-	if (player_motion.position.x >= PLAYER_LEFT_BOUNDARY)
+	if (player_motion.position.x > PLAYER_LEFT_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_A)
 		{
@@ -676,7 +690,7 @@ void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_m
 	}
 
 	// Move right
-	if (player_motion.position.x <= PLAYER_RIGHT_BOUNDARY_TUTORIAL)
+	if (player_motion.position.x < PLAYER_RIGHT_BOUNDARY_TUTORIAL)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_D)
 		{
@@ -693,7 +707,7 @@ void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_m
 	}
 
 	// Move down
-	if (player_motion.position.y <= PLAYER_DOWN_BOUNDARY_TUTORIAL)
+	if (player_motion.position.y < PLAYER_DOWN_BOUNDARY_TUTORIAL)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_S)
 		{
@@ -710,7 +724,7 @@ void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_m
 	}
 
 	// Move up
-	if (player_motion.position.y >= PLAYER_UP_BOUNDARY)
+	if (player_motion.position.y > PLAYER_UP_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_W)
 		{
@@ -817,7 +831,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 								}
 							}
 						}
-						createSeed(vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX));
+						if(registry.inventorys.components[0].seedCount[current_seed] >0) {
+							Entity seed = createSeed(vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX), current_seed);
+							registry.inventorys.components[0].seedCount[current_seed]--; // decrease the count of seed in inventory
+						} else {
+							std::cout<<"No more inventory of seed type "<< current_seed<<std::endl;
+						}
+
+						std::cout<<"inventory count of seed type "<< current_seed << " is " << registry.inventorys.components[0].seedCount[current_seed] << std::endl;
 					}
 				}
 			}
