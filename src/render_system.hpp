@@ -7,6 +7,11 @@
 #include "tinyECS/components.hpp"
 #include "tinyECS/tiny_ecs.hpp"
 
+// fonts
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include <map>
+
 // System responsible for setting up OpenGL and for rendering all the
 // visual entities in the game
 class RenderSystem
@@ -149,8 +154,24 @@ class RenderSystem
 		shader_path("ui"),
 		shader_path("vignette"),
 		shader_path("zombie"),
-		shader_path("player")};
+		shader_path("player"),
+		shader_path("font")
+	};
 
+	// fonts
+	struct Character {
+		unsigned int TextureID;  // ID handle of the glyph texture
+		glm::ivec2   Size;       // Size of glyph
+		glm::ivec2   Bearing;    // Offset from baseline to left/top of glyph
+		unsigned int Advance;    // Offset to advance to next glyph
+		char character;
+	};
+
+	// fonts
+	std::map<char, Character> m_ftCharacters;
+	GLuint m_font_shaderProgram;
+	GLuint m_font_VAO;
+	GLuint m_font_VBO;
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
 	std::array<Mesh, geometry_count> meshes;
@@ -185,6 +206,9 @@ public:
 	mat3 createProjectionMatrix();
 
 	Entity get_screen_state_entity() { return screen_state_entity; }
+
+	bool fontInit(const std::string& font_filename, unsigned int font_default_size);
+	void renderText(std::string text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
 
 private:
 	// Internal drawing functions for each entity type
