@@ -601,6 +601,9 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 
 	Player &player = registry.players.emplace(entity);
 	player.health = PLAYER_HEALTH;
+
+	Inventory& inventory = registry.players.emplace(inventory);
+	inventory.seedCounts[1] = 5;
 	
 	MoveWithCamera& mwc = registry.moveWithCameras.emplace(entity);
 	Motion& motion = registry.motions.emplace(entity);

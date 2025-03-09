@@ -103,7 +103,7 @@ bool collides_box_point(vec2& box_min, vec2& box_max, vec2& point)
 }
 
 // Perform a triangle-point collision test
-bool collides_triangle_point(std::vector<vec2>& triangle, vec2& point)
+bool collides_triangle_point(std::vector<vec2>& triangle, vec2 point)
 {
 	float cross_1 = cross_product(triangle[0], triangle[1], point);
 	float cross_2 = cross_product(triangle[1], triangle[2], point);
