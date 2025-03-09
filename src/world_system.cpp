@@ -951,6 +951,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			createSkeleton(renderer, vec2(player_motion.position.x + CAMERA_VIEW_WIDTH / 2, player_motion.position.y));
 		}
 	}
+	if (action == GLFW_PRESS && key == GLFW_KEY_1)
+	{
+		if (registry.screenStates.size() != 0) registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += 0.1;
+	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
