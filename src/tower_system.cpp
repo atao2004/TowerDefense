@@ -27,7 +27,10 @@ void TowerSystem::step(float elapsed_ms)
                 tower.state = true;
                 AnimationSystem::update_animation(entity, PLANT_ATTACK_DURATION, PLANT_ATTACK_ANIMATION, PLANT_ATTACK_SIZE, false, false, false);
             }
-            else {}
+            else {
+                RenderRequest& request = registry.renderRequests.get(entity);
+                request.used_texture = TEXTURE_ASSET_ID::PLANT_2_IDLE_F;
+            }
         }
     }
 }

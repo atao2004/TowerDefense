@@ -150,7 +150,6 @@ void AnimationSystem::handle_animation_end(Entity entity)
     {
         Tower& tower = registry.towers.get(entity);
         tower.state = false;
-        AnimationSystem::update_animation(entity, PLANT_IDLE_DURATION, PLANT_IDLE_ANIMATION, PLANT_IDLE_SIZE, true, false, false);
     }
 
     // If animation was set to destroy entity when done

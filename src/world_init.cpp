@@ -123,8 +123,6 @@ Entity createTower(RenderSystem* renderer, vec2 position) {
 		 EFFECT_ASSET_ID::ZOMBIE,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
-	AnimationSystem::update_animation(entity, PLANT_IDLE_DURATION, PLANT_IDLE_ANIMATION, PLANT_IDLE_SIZE, true, false, false);
-
 	return entity;
 }
 
