@@ -21,7 +21,7 @@ void StatusSystem::step(float elapsed_ms)
         // Handle different types of status effects
         for (Entity entity : registry.statuses.entities)
         {
-            handle_enemy_attack(entity, elapsed_ms);
+            update_zombie_attack(entity, elapsed_ms);
             handle_projectile_attack(entity, elapsed_ms);
         }
 
@@ -35,7 +35,7 @@ void StatusSystem::step(float elapsed_ms)
         handle_hit_effects(elapsed_ms);
 }
 
-void StatusSystem::handle_enemy_attack(Entity entity, float elapsed_ms)
+void StatusSystem::update_zombie_attack(Entity entity, float elapsed_ms)
 {
     // First check if entity has both required components
     if (!registry.statuses.has(entity) || !registry.players.has(entity))
@@ -168,14 +168,14 @@ bool StatusSystem::start_and_load_sounds()
 void StatusSystem::handle_projectile_attack(Entity entity, float elapsed_ms)
 {
     // Check if entity has necessary components
-    if (!registry.statuses.has(entity) || !registry.zombies.has(entity))
+    if (!registry.statuses.has(entity) || !registry.enemies.has(entity))
    
     {
         return;
     }
 
     auto &status_comp = registry.statuses.get(entity);
-    auto &zombie = registry.zombies.get(entity);
+    auto &enemy = registry.enemies.get(entity);
 
     // Process each status
     for (auto it = status_comp.active_statuses.begin(); it != status_comp.active_statuses.end();)
@@ -185,15 +185,15 @@ void StatusSystem::handle_projectile_attack(Entity entity, float elapsed_ms)
        
         {
             // Apply projectile damage
-            zombie.health -= it->value;
+            enemy.health -= it->value;
             std::cout << "Zombie hit by projectile for " << it->value
-                      << " damage. Health remaining: " << zombie.health << std::endl;
+                      << " damage. Health remaining: " << enemy.health << std::endl;
 
             // Remove attack status after applying damage
             it = status_comp.active_statuses.erase(it);
 
             // Only check for death after all damage is applied
-            if (zombie.health <= 0 && !registry.deathAnimations.has(entity))
+            if (enemy.health <= 0 && !registry.deathAnimations.has(entity))
             {
                 // Add death animation only if it doesn't already have one
                 registry.deathAnimations.emplace(entity);

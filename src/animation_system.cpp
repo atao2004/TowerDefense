@@ -96,56 +96,6 @@ void AnimationSystem::handle_animation_end(Entity entity)
         StateSystem::update_state(STATE::IDLE);
     }
 
-    // Handle skeleton attack completion
-    if (registry.skeletons.has(entity))
-    {
-        Skeleton &skeleton = registry.skeletons.get(entity);
-        
-
-        // Check if this was an attack animation
-        bool was_attack_anim = false;
-        if (animation.textures[0] == TEXTURE_ASSET_ID::SKELETON_ATTACK1)
-        {
-            was_attack_anim = true;
-        }
-
-        // When attack animation ends, fire the arrow
-        if (was_attack_anim && skeleton.is_attacking)
-        {
-            Motion &skeleton_motion = registry.motions.get(entity);
-
-            if (registry.motions.has(skeleton.target))
-            {
-                Motion &target_motion = registry.motions.get(skeleton.target);
-                vec2 direction = target_motion.position - skeleton_motion.position;
-
-                // Calculate arrow spawn position
-                vec2 normalized_dir = normalize(direction);
-                vec2 arrow_pos = skeleton_motion.position + normalized_dir * 30.f;
-
-                // Create arrow
-                createArrow(arrow_pos, direction, entity);
-
-                // Debug message
-                //std::cout << "Skeleton fired arrow at " << (registry.towers.has(skeleton.target) ? "tower" : "player") << std::endl;
-            }
-
-            // If still in attack state after animation, switch to idle until cooldown is done
-            if (skeleton.current_state == Skeleton::State::ATTACK)
-            {
-                // Apply idle animation until cooldown is complete
-                AnimationSystem::update_animation(
-                    entity,
-                    SKELETON_IDLE_DURATION,
-                    SKELETON_IDLE_ANIMATION,
-                    SKELETON_IDLE_FRAMES,
-                    true,  // loop
-                    false, // not locked
-                    false  // don't destroy
-                );
-            }
-        }
-    }
 
     // Handle plant attack end
     if (registry.towers.has(entity))

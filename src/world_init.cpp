@@ -56,11 +56,13 @@ Entity createZombie(RenderSystem *renderer, vec2 position)
 	auto entity = Entity();
 
 	Zombie &zombie = registry.zombies.emplace(entity);
-	zombie.health = ZOMBIE_HEALTH;
 
 	Attack &attack = registry.attacks.emplace(entity);
 	attack.range = 30.0f;
 	attack.damage = ZOMBIE_DAMAGE;
+
+	Enemy &enemy = registry.enemies.emplace(entity);
+	enemy.health = ZOMBIE_HEALTH;
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
@@ -749,8 +751,8 @@ Entity createSkeleton(RenderSystem *renderer, vec2 position)
     skeleton.stop_distance = 300.0f;     // Stops moving at this distance
     skeleton.attack_cooldown_ms = SKELETON_ATTACK_DURATION;// Attack cooldown
 
-	Zombie &zombie = registry.zombies.emplace(entity);
-	zombie.health = SKELETON_HEALTH;
+	Enemy &enemy = registry.enemies.emplace(entity);
+	enemy.health = SKELETON_HEALTH;
 
     // Add attack component separate from zombies
     Attack &attack = registry.attacks.emplace(entity);

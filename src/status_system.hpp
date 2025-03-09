@@ -21,7 +21,7 @@ public:
     void step(float elapsed_ms);
     
     // Status handlers
-    void handle_enemy_attack(Entity entity, float damage);
+    void update_zombie_attack(Entity entity, float damage);
 
     bool start_and_load_sounds();
 

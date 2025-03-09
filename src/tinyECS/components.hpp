@@ -84,6 +84,10 @@ struct Zombie
 	float health;
 };
 
+struct Enemy {
+	float health;
+};
+
 // Skeleton enemy component
 struct Skeleton {
     float attack_range = 400.f;      // Attack range
@@ -93,6 +97,9 @@ struct Skeleton {
     Entity target = {};              // Current target
     bool is_attacking = false;       // Is currently attacking
 	float health = SKELETON_HEALTH;  // Health of the skeleton
+
+	float attack_timer_ms = 0.f;   // Timer for when to fire arrow during attack
+    bool arrow_fired = false;      // Whether the arrow was fired for current attack
 
 	enum class State {
         IDLE,

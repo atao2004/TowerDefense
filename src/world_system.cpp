@@ -20,9 +20,10 @@
 
 bool WorldSystem::game_is_over = false;
 Mix_Chunk *WorldSystem::game_over_sound = nullptr;
+GAME_SCREEN_ID WorldSystem::game_screen = GAME_SCREEN_ID::PLAYING;
 
 // create the world
-WorldSystem::WorldSystem() : points(0), level(1), game_screen(GAME_SCREEN_ID::PLAYING), current_seed(0)
+WorldSystem::WorldSystem() : points(0), level(1)
 {
 }
 
@@ -170,7 +171,8 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 	std::cout << "Starting music..." << std::endl;
 
 	// Set all states to default
-	restart_game();
+	//restart_game();
+	restart_tutorial();
 }
 
 // Update our game world
@@ -213,7 +215,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	if (registry.zombies.size() == 0 && current_bgm != night_bgm)
 	{
 		current_bgm = night_bgm;
-		std::thread music_thread([this]() {
+		std::thread music_thread([this]()
+								 {
 			// Mix_FadeOutMusic(1000);
 			Mix_HaltMusic();
 			Mix_FadeInMusic(night_bgm, -1, 1000); });
@@ -222,7 +225,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	else if (registry.zombies.size() > 0 && current_bgm != combat_bgm)
 	{
 		current_bgm = combat_bgm;
-		std::thread music_thread([this]() {
+		std::thread music_thread([this]()
+								 {
 			// Mix_FadeOutMusic(1000);
 			Mix_HaltMusic();
 			Mix_FadeInMusic(combat_bgm, -1, 1000); });
@@ -234,6 +238,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		update_camera();
 		spawn_manager.step(elapsed_ms_since_last_update, renderer);
 
+		// Check and respawn tutorial enemies if needed
+		if (game_screen == GAME_SCREEN_ID::TUTORIAL)
+		{
+			check_tutorial_enemies();
+		}
+
 		update_enemy_death_animations(elapsed_ms_since_last_update);
 		update_movement_sound(elapsed_ms_since_last_update);
 		update_screen_shake(elapsed_ms_since_last_update);
@@ -244,7 +254,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 }
 
 // Shared elements between restarting a game and a tutorial
-void WorldSystem::restart_common_tasks() {
+void WorldSystem::restart_common_tasks()
+{
 	registry.clear_all_components();
 	for(Entity i: registry.seeds.entities) {
 		registry.seeds.remove(i); 
@@ -284,7 +295,7 @@ void WorldSystem::restart_common_tasks() {
 
 	// Kung: Create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
 	removeSurfaces();
-	//commented out Kung's code
+	// commented out Kung's code
 	for (int x = -SCORCHED_EARTH_DIMENSION_PX * 4; x < MAP_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 4; x += SCORCHED_EARTH_DIMENSION_PX)
 	{
 		for (int y = -SCORCHED_EARTH_DIMENSION_PX * 2; y < MAP_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 2; y += SCORCHED_EARTH_DIMENSION_PX)
@@ -302,7 +313,8 @@ void WorldSystem::restart_common_tasks() {
 }
 
 // More shared elements between restarting a game and a tutorial, this time involving the player and associated rendering
-void WorldSystem::restart_overlay_renders(vec2 player_pos) {
+void WorldSystem::restart_overlay_renders(vec2 player_pos)
+{
 	// reset player and spawn player in the middle of the screen
 	Entity player = createPlayer(renderer, player_pos);
 	
@@ -321,33 +333,41 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos) {
 	// Move left
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		for (Entity mwc_entity : registry.moveWithCameras.entities) {
-            if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_LEFT_SPEED;
-        }
+		for (Entity mwc_entity : registry.moveWithCameras.entities)
+		{
+			if (registry.motions.has(mwc_entity))
+				registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_LEFT_SPEED;
+		}
 	}
 
 	// Move right
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		for (Entity mwc_entity : registry.moveWithCameras.entities) {
-            if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_RIGHT_SPEED;
-        }
+		for (Entity mwc_entity : registry.moveWithCameras.entities)
+		{
+			if (registry.motions.has(mwc_entity))
+				registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+		}
 	}
 
 	// Move down
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		for (Entity mwc_entity : registry.moveWithCameras.entities) {
-            if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_DOWN_SPEED;
-        }
+		for (Entity mwc_entity : registry.moveWithCameras.entities)
+		{
+			if (registry.motions.has(mwc_entity))
+				registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_DOWN_SPEED;
+		}
 	}
 
 	// Move up
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		for (Entity mwc_entity : registry.moveWithCameras.entities) {
-            if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_UP_SPEED;
-        }
+		for (Entity mwc_entity : registry.moveWithCameras.entities)
+		{
+			if (registry.motions.has(mwc_entity))
+				registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_UP_SPEED;
+		}
 	}
 }
 
@@ -355,8 +375,9 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos) {
 void WorldSystem::restart_game()
 {
 	std::cout << "Restarting game..." << std::endl;
-	
+
 	restart_common_tasks();
+	
 
 	// Set the level to level 1 and the game_screen to PLAYING.
 	level = 1;
@@ -394,7 +415,7 @@ void WorldSystem::restart_game()
 void WorldSystem::restart_tutorial()
 {
 	std::cout << "Restarting tutorial..." << std::endl;
-	
+
 	restart_common_tasks();
 
 	// Set the level to level 0 (non-existent) and the game_screen to TUTORIAL.
@@ -421,21 +442,90 @@ void WorldSystem::restart_tutorial()
 	// }
 
 	// create the tutorial assets
-	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, WINDOW_HEIGHT_PX * -0.25));
-	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, WINDOW_HEIGHT_PX * -0.25));
-	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, WINDOW_HEIGHT_PX * -0.25));
-	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, WINDOW_HEIGHT_PX * -0.25));
+	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_HEIGHT_PX * -0.25));
+	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, TUTORIAL_HEIGHT_PX * -0.25));
+	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, TUTORIAL_HEIGHT_PX * -0.25));
+	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_HEIGHT_PX * -0.25));
 
 	// create the arrows for the tutorial
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 4 - 15, TUTORIAL_HEIGHT_PX * 0.4));
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 2 - 15, TUTORIAL_HEIGHT_PX * 0.4));
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75 - 15, TUTORIAL_HEIGHT_PX * 0.4));
-
-	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX / 8, TUTORIAL_HEIGHT_PX / 3});
+	create_tutorial_enemies();
+	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX *0.05 , TUTORIAL_HEIGHT_PX * 0.4});
 
 	// Print the starting level (Level 0)
 	std::cout << "==== LEVEL " << level << " ====" << std::endl;
 }
+
+// Create tutorial enemies at specific locations that respawn when killed
+void WorldSystem::create_tutorial_enemies()
+{
+	// Create a zombie under the "Attack" tutorial board
+	vec2 zombie_pos = vec2(TUTORIAL_WIDTH_PX * 0.4, TUTORIAL_HEIGHT_PX * 0.4);
+	createZombie(renderer, zombie_pos);
+
+	// Create a skeleton under the "Plant" tutorial board
+	vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.65, TUTORIAL_HEIGHT_PX * 0.4);
+	createSkeleton(renderer, skeleton_pos);
+
+	std::cout << "Tutorial enemies created" << std::endl;
+}
+
+// Check if tutorial enemies need to be respawned
+void WorldSystem::check_tutorial_enemies()
+{
+	bool zombie_exists = false;
+	bool skeleton_exists = false;
+
+	// Check if tutorial zombie exists
+	for (Entity zombie : registry.zombies.entities)
+	{
+		if (registry.motions.has(zombie))
+		{
+			Motion &motion = registry.motions.get(zombie);
+
+
+			zombie_exists = true;
+			// Keep zombie in place by setting velocity to zero
+			motion.velocity = vec2(0.0f, 0.0f);
+
+		}
+	}
+
+	// Check if tutorial skeleton exists
+	for (Entity entity : registry.skeletons.entities)
+	{
+		if (registry.motions.has(entity))
+		{
+			Motion &motion = registry.motions.get(entity);
+
+
+			skeleton_exists = true;
+			// Keep skeleton in place by setting velocity to zero
+			motion.velocity = vec2(0.0f, 0.0f);
+
+		}
+	}
+
+	// Respawn zombie if needed
+	if (!zombie_exists)
+	{
+		vec2 zombie_pos = vec2(TUTORIAL_WIDTH_PX * 0.4, TUTORIAL_HEIGHT_PX * 0.4);
+		createZombie(renderer, zombie_pos);
+		std::cout << "Tutorial zombie respawned" << std::endl;
+	}
+
+	// Respawn skeleton if needed
+	if (!skeleton_exists)
+	{
+		vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.65, TUTORIAL_HEIGHT_PX * 0.4);
+		createSkeleton(renderer, skeleton_pos);
+		std::cout << "Tutorial skeleton respawned" << std::endl;
+	}
+}
+
+
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions()
@@ -472,22 +562,22 @@ void WorldSystem::player_attack()
 		weapon_motion.velocity = less_f_ugly.velocity;
 		weapon_motion.scale = less_f_ugly.scale;
 
-		for (int i = 0; i < registry.zombies.size(); i++)
+		for (int i = 0; i < registry.enemies.size(); i++)
 		{
-			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.zombies.entities[i])) // if zombie and weapon collide, decrease zombie health
-				|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.zombies.entities[i])))
+			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.enemies.entities[i])) // if enemy and weapon collide, decrease enemy health
+				|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.enemies.entities[i])))
 			{
-				Entity zombie = registry.zombies.entities[i];
-				if (registry.zombies.has(zombie))
+				Entity enemy = registry.enemies.entities[i];
+				if (registry.enemies.has(enemy))
 				{
-					auto &zombie_comp = registry.zombies.get(zombie);
-					zombie_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
+					auto &enemy_comp = registry.enemies.get(enemy);
+					enemy_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
 					std::cout << "wow u r attacking so nice cool cool" << std::endl;
 
-					// Calculate knockback direction (from player to zombie)
-					Motion &zombie_motion = registry.motions.get(zombie);
+					// Calculate knockback direction (from player to enemy)
+					Motion &enemy_motion = registry.motions.get(enemy);
 					Motion &player_motion = registry.motions.get(player);
-					vec2 direction = zombie_motion.position - player_motion.position;
+					vec2 direction = enemy_motion.position - player_motion.position;
 					float length = sqrt(dot(direction, direction));
 					if (length > 0)
 					{
@@ -496,13 +586,13 @@ void WorldSystem::player_attack()
 
 					// Apply knockback velocity immediately
 					float knockback_force = 1000.0f;
-					zombie_motion.velocity += direction * knockback_force;
+					enemy_motion.velocity += direction * knockback_force;
 
 					// Add hit effect
-					HitEffect &hit = registry.hitEffects.emplace_with_duplicates(zombie);
+					HitEffect &hit = registry.hitEffects.emplace_with_duplicates(enemy);
 
-					// This is what you do when you kill a zombie.
-					if (zombie_comp.health <= 0)
+					// This is what you do when you kill a enemy.
+					if (enemy_comp.health <= 0)
 					{
 						// Add death animation before removing
 						Entity player = registry.players.entities[0];
@@ -510,16 +600,16 @@ void WorldSystem::player_attack()
 						vec2 slide_direction = {player_motion.scale.x > 0 ? 1.0f : -1.0f, 0.0f};
 
 						// Add death animation component
-						DeathAnimation &death_anim = registry.deathAnimations.emplace(zombie);
+						DeathAnimation &death_anim = registry.deathAnimations.emplace(enemy);
 						death_anim.slide_direction = slide_direction;
 						death_anim.alpha = 1.0f;
 						death_anim.duration_ms = 500.0f; // Animation lasts 0.5 seconds
 
-            			// Increase the counter that represents the number of zombies killed.
+						// Increase the counter that represents the number of zombies killed.
 						points++;
-						std::cout<<"Zombies killed: "<<points<<std::endl;
-            
-						// Kung: Upon killing a zombie, increase the experience of the player or reset the experience bar when it becomes full.
+						std::cout << "enemies killed: " << points << std::endl;
+
+						// Kung: Upon killing a enemy, increase the experience of the player or reset the experience bar when it becomes full.
 						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 						{
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
@@ -544,7 +634,8 @@ void WorldSystem::player_attack()
 		StateSystem::update_state(STATE::ATTACK);
 
 		// Cooldown
-		if (registry.cooldowns.has(player)) {
+		if (registry.cooldowns.has(player))
+		{
 			registry.cooldowns.remove(player);
 		}
 		Cooldown &cooldown = registry.cooldowns.emplace(player);
@@ -582,7 +673,7 @@ void WorldSystem::update_enemy_death_animations(float elapsed_ms)
 		{
 			registry.remove_all_components_of(entity);
 
-			// Kung: Upon killing a zombie, update the enemy count and print it to the console.
+			// Kung: Upon killing a enemy, update the enemy count and print it to the console.
 			std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 		}
 	}
@@ -614,20 +705,25 @@ void WorldSystem::update_screen_shake(float elapsed_ms)
 // I was responsible for this but Ziqing implemented single and multi-button movement first.
 // However, I then implemented boundary checking and the situation where opposing keys cause no movement.
 // In addition, I did general debugging, including on Ziqing's initial code.
-void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
+void WorldSystem::player_movement(int key, int action, Motion &player_motion)
+{
 	// Move left
 	if (player_motion.position.x > PLAYER_LEFT_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_A)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_LEFT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_LEFT_SPEED;
 			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.x -= PLAYER_MOVE_LEFT_SPEED;
 			}
 		}
 	}
@@ -637,14 +733,18 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_D)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_RIGHT_SPEED;
 			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
 			}
 		}
 	}
@@ -654,14 +754,18 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_S)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_DOWN_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_DOWN_SPEED;
 			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.y -= PLAYER_MOVE_DOWN_SPEED;
 			}
 		}
 	}
@@ -671,34 +775,43 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_W)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_UP_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_UP_SPEED;
 			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y -= PLAYER_MOVE_UP_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.y -= PLAYER_MOVE_UP_SPEED;
 			}
 		}
 	}
 }
 
 // Version of player_movement that works for the tutorial mode.
-void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_motion) {
+void WorldSystem::player_movement_tutorial(int key, int action, Motion &player_motion)
+{
 	// Move left
 	if (player_motion.position.x > PLAYER_LEFT_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_A)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_LEFT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_LEFT_SPEED;
 			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_A)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x -= PLAYER_MOVE_LEFT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.x -= PLAYER_MOVE_LEFT_SPEED;
 			}
 		}
 	}
@@ -708,14 +821,18 @@ void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_m
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_D)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.x += PLAYER_MOVE_RIGHT_SPEED;
 			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_D)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.x -= PLAYER_MOVE_RIGHT_SPEED;
 			}
 		}
 	}
@@ -725,14 +842,18 @@ void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_m
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_S)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_DOWN_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_DOWN_SPEED;
 			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_S)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y -= PLAYER_MOVE_DOWN_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.y -= PLAYER_MOVE_DOWN_SPEED;
 			}
 		}
 	}
@@ -742,14 +863,18 @@ void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_m
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_W)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_UP_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_UP_SPEED;
 			}
 		}
 		else if (action == GLFW_RELEASE && key == GLFW_KEY_W)
 		{
-			for (Entity mwc_entity : registry.moveWithCameras.entities) {
-				if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity.y -= PLAYER_MOVE_UP_SPEED;
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+					registry.motions.get(mwc_entity).velocity.y -= PLAYER_MOVE_UP_SPEED;
 			}
 		}
 	}
@@ -770,18 +895,22 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
-		if (game_screen == GAME_SCREEN_ID::TUTORIAL) {
-			restart_tutorial();
-		} else {
+		// if (game_screen == GAME_SCREEN_ID::TUTORIAL)
+		// {
+		// 	restart_tutorial();
+		// }
+		// else
+		// {
 			restart_game();
-		}
+		// }
 
 		return;
 	}
-	
-	//when player is in the level up menu, disable some game inputs
+
+	// when player is in the level up menu, disable some game inputs
 	if (StateSystem::get_state() == STATE::LEVEL_UP ||
-		game_is_over) return;
+		game_is_over)
+		return;
 
 	// Player movement
 	Entity player = registry.players.entities[0];
@@ -794,30 +923,37 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
-	// test mode with 't'
-	if (action == GLFW_PRESS && key == GLFW_KEY_T)
+	// test mode with '/'
+	if (action == GLFW_PRESS && key == GLFW_KEY_SLASH)
 	{
 		// Disable in tutorial mode
-		if (game_screen == GAME_SCREEN_ID::PLAYING || game_screen == GAME_SCREEN_ID::TEST) {
+		if (game_screen == GAME_SCREEN_ID::PLAYING || game_screen == GAME_SCREEN_ID::TEST)
+		{
 			test_mode = !test_mode;
 			spawn_manager.set_test_mode(test_mode);
-			if (game_screen == GAME_SCREEN_ID::PLAYING) {
+			if (game_screen == GAME_SCREEN_ID::PLAYING)
+			{
 				game_screen = GAME_SCREEN_ID::TEST;
-			} else game_screen = GAME_SCREEN_ID::PLAYING;
+			}
+			else
+				game_screen = GAME_SCREEN_ID::PLAYING;
 			std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
 		}
 		return;
 	}
 
-	// tutorial mode with '/'
-	if (action == GLFW_PRESS && key == GLFW_KEY_SLASH)
+	// tutorial mode with 't'
+	if (action == GLFW_PRESS && key == GLFW_KEY_T)
 	{
 		tutorial_mode = !tutorial_mode;
 		spawn_manager.set_test_mode(tutorial_mode);
 
-		if (game_screen != GAME_SCREEN_ID::TUTORIAL) {
+		if (game_screen != GAME_SCREEN_ID::TUTORIAL)
+		{
 			restart_tutorial();
-		} else {
+		}
+		else
+		{
 			restart_game();
 		}
 		std::cout << "Game " << (tutorial_mode ? "entered" : "exited") << " tutorial mode" << std::endl;
@@ -832,10 +968,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (action == GLFW_PRESS && key == GLFW_KEY_F)
 	{
 		// You can only plant where there is farmland.
-		for (Entity maptile_entity : registry.mapTiles.entities) {
-			if (registry.motions.has(maptile_entity) && registry.renderRequests.has(maptile_entity)) {
-				if (registry.renderRequests.get(maptile_entity).used_texture == DECORATION_LIST[6]) {
-					if (registry.motions.get(maptile_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX)) {
+		for (Entity maptile_entity : registry.mapTiles.entities)
+		{
+			if (registry.motions.has(maptile_entity) && registry.renderRequests.has(maptile_entity))
+			{
+				if (registry.renderRequests.get(maptile_entity).used_texture == DECORATION_LIST[6])
+				{
+					if (registry.motions.get(maptile_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX))
+					{
 						// Remove any seeds that have already been planted to begin with.
 						int hasSeed = 0;
 						for (Entity motion_entity : registry.motions.entities) {
@@ -873,9 +1013,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	// Kung: Helper function for player movement (see above for description)
-	if(game_screen == GAME_SCREEN_ID::TUTORIAL) {
+	if (game_screen == GAME_SCREEN_ID::TUTORIAL)
+	{
 		player_movement_tutorial(key, action, motion);
-	} else {
+	}
+	else
+	{
 		player_movement(key, action, motion);
 	}
 	
@@ -921,7 +1064,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	// Chicken
-	if (action == GLFW_PRESS && key == GLFW_KEY_C) createChicken(renderer);
+	if (action == GLFW_PRESS && key == GLFW_KEY_C)
+		createChicken(renderer);
 
 	// Debug
 	if (action == GLFW_PRESS && key == GLFW_KEY_L)
@@ -961,7 +1105,8 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	mouse_pos_y = mouse_position.y;
 
 	if (StateSystem::get_state() == STATE::LEVEL_UP ||
-		game_is_over) return;
+		game_is_over)
+		return;
 
 	// change player facing direction
 	Entity player = registry.players.entities[0];
@@ -985,7 +1130,8 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 	if (!WorldSystem::game_is_over)
 	{
 		// on button press
-		if (action == GLFW_PRESS) {
+		if (action == GLFW_PRESS)
+		{
 
 			int tile_x = (int)(mouse_pos_x / GRID_CELL_WIDTH_PX);
 			int tile_y = (int)(mouse_pos_y / GRID_CELL_HEIGHT_PX);
@@ -994,8 +1140,10 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
 		}
 
-		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {
-			if (StateSystem::get_state() == STATE::LEVEL_UP) return;
+		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
+		{
+			if (StateSystem::get_state() == STATE::LEVEL_UP)
+				return;
 			player_attack();
 		}
 	}

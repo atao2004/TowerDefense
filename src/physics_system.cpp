@@ -209,22 +209,22 @@ void PhysicsSystem::handle_projectile_collisions()
 		Motion &proj_motion = registry.motions.get(projectile);
 		Projectile &proj = registry.projectiles.get(projectile);
 
-		// Check collision with zombies
-		for (Entity zombie : registry.zombies.entities)
+		// Check collision with enemies
+		for (Entity enemy : registry.enemies.entities)
 		{
-			Motion &zombie_motion = registry.motions.get(zombie);
+			Motion &enemy_motion = registry.motions.get(enemy);
 
-			if (collides(proj_motion, zombie_motion) && collides_mesh(projectile, zombie))
+			if (collides(proj_motion, enemy_motion) && collides_mesh(projectile, enemy))
 			{
 				// Get or create status component
 				StatusComponent *status_comp;
-				if (registry.statuses.has(zombie))
+				if (registry.statuses.has(enemy))
 				{
-					status_comp = &registry.statuses.get(zombie);
+					status_comp = &registry.statuses.get(enemy);
 				}
 				else
 				{
-					status_comp = &registry.statuses.emplace(zombie);
+					status_comp = &registry.statuses.emplace(enemy);
 				}
 
 				// Add attack status
@@ -235,7 +235,7 @@ void PhysicsSystem::handle_projectile_collisions()
 				status_comp->active_statuses.push_back(attack_status);
 
 				// Add hit effect
-				registry.hitEffects.emplace_with_duplicates(zombie);
+				registry.hitEffects.emplace_with_duplicates(enemy);
 
 				// Remove projectile
 				if (!proj.invincible) {
