@@ -69,6 +69,92 @@ bool PhysicsSystem::collides(const Motion &motion1, const Motion &motion2)
 	return false;
 }
 
+// Check if exactly one of the entities has a mesh
+bool only_one_mesh(Entity a, Entity b, Mesh*& mesh_1, Motion*& motion_1, Motion*& motion_2)
+{
+	if (registry.meshPtrs.has(a) && !registry.meshPtrs.has(b)) {
+		mesh_1 = registry.meshPtrs.get(a);
+		motion_1 = &registry.motions.get(a);
+		motion_2 = &registry.motions.get(b);
+		return true;
+	}
+	if (!registry.meshPtrs.has(a) && registry.meshPtrs.has(b)) {
+		mesh_1 = registry.meshPtrs.get(b);
+		motion_1 = &registry.motions.get(b);
+		motion_2 = &registry.motions.get(a);
+		return true;
+	}
+	return false;
+}
+
+// Compute the cross product
+float cross_product(vec2 a, vec2 b, vec2 c)
+{
+	return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+
+// Perform a box-point collision test
+bool collides_box_point(vec2& box_min, vec2& box_max, vec2& point)
+{
+	return (
+		box_min.x <= point.x && point.x <= box_max.x &&
+		box_min.y <= point.y && point.y <= box_max.y
+		);
+}
+
+// Perform a triangle-point collision test
+bool collides_triangle_point(std::vector<vec2>& triangle, vec2& point)
+{
+	float cross_1 = cross_product(triangle[0], triangle[1], point);
+	float cross_2 = cross_product(triangle[1], triangle[2], point);
+	float cross_3 = cross_product(triangle[2], triangle[0], point);
+	return (
+		(cross_1 > 0 && cross_2 > 0 && cross_3 > 0) ||
+		(cross_1 < 0 && cross_2 < 0 && cross_3 < 0)
+		);
+}
+
+// Perform a triangle-AABB collision test
+bool collides_triangle_box(std::vector<vec2>& triangle, vec2& box_min, vec2& box_max)
+{
+	// check if the triangle is inside the box
+	for (int i = 0; i < triangle.size(); i++) {
+		if (collides_box_point(box_min, box_max, triangle[i])) return true;
+	}
+
+	// check if the box is inside the triangle
+	if (collides_triangle_point(triangle, vec2(box_min.x, box_min.y))) return true;
+	if (collides_triangle_point(triangle, vec2(box_min.x, box_max.y))) return true;
+	if (collides_triangle_point(triangle, vec2(box_max.x, box_min.y))) return true;
+	if (collides_triangle_point(triangle, vec2(box_max.x, box_max.y))) return true;
+
+	return false;
+}
+
+
+// Perform a mesh-circle collision test (ignore other collisions)
+bool collides_mesh(Entity a, Entity b)
+{
+	Mesh* mesh_1;
+	Motion* motion_1;
+	Motion* motion_2;
+	if (only_one_mesh(a, b, mesh_1, motion_1, motion_2)) {
+		vec2 box_min = vec2(motion_2->position.x - motion_2->scale.x / 2, motion_2->position.y - motion_2->scale.y / 2);
+		vec2 box_max = vec2(motion_2->position.x + motion_2->scale.x / 2, motion_2->position.y + motion_2->scale.y / 2);
+		for (int i = 0; i < mesh_1->vertex_indices.size(); i += 3) {
+			std::vector<vec2> triangle;
+			triangle.push_back(motion_1->position + motion_1->scale * vec2(mesh_1->vertices[mesh_1->vertex_indices[i]].position));
+			triangle.push_back(motion_1->position + motion_1->scale * vec2(mesh_1->vertices[mesh_1->vertex_indices[i + 1]].position));
+			triangle.push_back(motion_1->position + motion_1->scale * vec2(mesh_1->vertices[mesh_1->vertex_indices[i + 2]].position));
+			if (collides_triangle_box(triangle, box_min, box_max)) return true;
+		}
+		return false;
+	}
+	else {
+		return true;
+	}
+}
+
 void PhysicsSystem::step(float elapsed_ms)
 {
 	if (!registry.screenStates.get(registry.screenStates.entities[0]).game_over)
@@ -128,7 +214,7 @@ void PhysicsSystem::handle_projectile_collisions()
 		{
 			Motion &zombie_motion = registry.motions.get(zombie);
 
-			if (collides(proj_motion, zombie_motion))
+			if (collides(proj_motion, zombie_motion) && collides_mesh(projectile, zombie))
 			{
 				// Get or create status component
 				StatusComponent *status_comp;
@@ -152,7 +238,9 @@ void PhysicsSystem::handle_projectile_collisions()
 				registry.hitEffects.emplace_with_duplicates(zombie);
 
 				// Remove projectile
-				registry.remove_all_components_of(projectile);
+				if (!proj.invincible) {
+					registry.remove_all_components_of(projectile);
+				}
 				break;
 			}
 		}

@@ -115,6 +115,7 @@ struct Projectile {
     float speed = 200.f; // Projectile speed
 	float lifetime_ms = 2000.f; // How long the projectile lasts
 	vec2 direction = {0.f, 0.f};     // Direction of the projectile
+	bool invincible = false; // Projectile is not destroyed upon collision
 };
 
 // For Milestone #2.
