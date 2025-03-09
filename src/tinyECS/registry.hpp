@@ -24,6 +24,7 @@ public:
 	ComponentContainer<ScorchedEarth> scorchedEarths;
 	ComponentContainer<TutorialTile> tutorialTiles;
 	ComponentContainer<TutorialSign> tutorialSigns;
+	ComponentContainer<Inventory> inventorys;
 	
 	ComponentContainer<Toolbar> toolbars;
 	ComponentContainer<Pause> pauses;
@@ -75,6 +76,7 @@ public:
 		registry_list.push_back(&skeletons);
 		registry_list.push_back(&arrows);
 		registry_list.push_back(&visualScales);
+		registry_list.push_back(&inventorys);
 	}
 
 	void clear_all_components() {

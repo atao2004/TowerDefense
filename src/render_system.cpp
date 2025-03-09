@@ -7,6 +7,9 @@
 #include "render_system.hpp"
 #include "tinyECS/registry.hpp"
 #include "world_system.hpp"
+#include <glm/gtc/type_ptr.hpp>
+#include <sstream>
+
 
 void RenderSystem::drawGridLine(Entity entity,
 								const mat3 &projection)
@@ -123,15 +126,17 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 
 	// Setting shaders
 	glUseProgram(program);
+	
 	gl_has_errors();
 
 	assert(render_request.used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT);
 	const GLuint vbo = vertex_buffers[(GLuint)render_request.used_geometry];
 	const GLuint ibo = index_buffers[(GLuint)render_request.used_geometry];
 
-	// Setting vertex and index buffers
+	// // Setting vertex and index buffers
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	
 	gl_has_errors();
 
 	// texture-mapped entities - use data location as in the vertex buffer
@@ -248,7 +253,6 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_color_loc = glGetAttribLocation(program, "in_color");
 		gl_has_errors();
-
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
 							  sizeof(ColoredVertex), (void *)0);
@@ -353,11 +357,14 @@ void RenderSystem::drawToScreen()
 		GLuint time_uloc1 = glGetUniformLocation(vignette_program, "time");
 		GLuint dead_timer_uloc1 = glGetUniformLocation(vignette_program, "darken_screen_factor");
 		GLuint game_continues_uloc1 = glGetUniformLocation(vignette_program, "game_over");
+		GLuint tex_offset_uloc = glGetUniformLocation(vignette_program, "tex_offset");
+		
 
 		GLint in_position_loc1 = glGetAttribLocation(vignette_program, "in_position");
 		// std::cout<<screen.lerp_timer/2000<<std::endl;
 		glUniform1f(time_uloc1, screen.lerp_timer);
 		glUniform1f(game_continues_uloc1, screen.game_over);
+		glUniform2f(tex_offset_uloc, registry.motions.get(registry.players.entities[0]).position.x, registry.motions.get(registry.players.entities[0]).position.y);
 		glEnableVertexAttribArray(in_position_loc1);
 		glVertexAttribPointer(in_position_loc1, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
 		gl_has_errors();
@@ -383,11 +390,10 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	// Getting size of window
 	int w, h;
 	glfwGetFramebufferSize(window, &w, &h); // Note, this will be 2x the resolution given to glfwCreateWindow on retina displays
-
+	gl_has_errors();
 	// First render to the custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 	gl_has_errors();
-
 	// clear backbuffer
 	glViewport(0, 0, w, h);
 	glDepthRange(0.00001, 10);
@@ -444,6 +450,8 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	// draw framebuffer to screen
 	// adding "UI" effect when applied
 	drawToScreen();
+	glm::mat4 trans = glm::mat4(1.0f);
+	// renderText("hello", 1000, 1000, 1, {1,0,0}, trans);
 
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
@@ -502,4 +510,228 @@ mat3 RenderSystem::createProjectionMatrix()
 	float ty = -(top + bottom) / (top - bottom);
 
 	return {{sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f}};
+}
+
+bool is_shader_error(unsigned int shader, std::string shader_name) {
+
+	GLint fs_compile_result;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &fs_compile_result);
+	if (fs_compile_result != GL_TRUE) {
+		std::cerr << "ERROR: shader compiler error for shader: " << shader_name << std::endl;
+
+		char errBuff[1024];
+		int bufLen = 0;
+		glGetShaderInfoLog(shader, 1024, &bufLen, errBuff);
+		std::cout << "Shader error info: " << errBuff << std::endl;
+		assert(bufLen == 0);
+		return true;
+	}
+	else {
+		std::cout << "No error with shader: " << shader_name << std::endl;
+		return false;
+	}
+}
+
+std::string readShaderFile(const std::string& filename)
+{
+	std::cout << "Loading shader filename: " << filename << std::endl;
+
+	std::ifstream ifs(filename);
+
+	if (!ifs.good())
+	{
+		std::cerr << "ERROR: invalid filename loading shader from file: " << filename << std::endl;
+		return "";
+	}
+
+	std::ostringstream oss;
+	oss << ifs.rdbuf();
+	std::cout << oss.str() << std::endl;
+	return oss.str();
+}
+
+bool RenderSystem::fontInit(const std::string& font_filename, unsigned int font_default_size) {
+
+	// read in our shader files
+	std::string vertexShaderSource = readShaderFile(PROJECT_SOURCE_DIR + std::string("shaders/font.vs.glsl"));
+	std::string fragmentShaderSource = readShaderFile(PROJECT_SOURCE_DIR + std::string("shaders/font.fs.glsl"));
+	const char* vertexShaderSource_c = vertexShaderSource.c_str();
+	const char* fragmentShaderSource_c = fragmentShaderSource.c_str();
+
+	// enable blending or you will just get solid boxes instead of text
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// font buffer setup
+	glGenVertexArrays(1, &m_font_VAO);
+	glGenBuffers(1, &m_font_VBO);
+
+	// font vertex shader
+	unsigned int font_vertexShader;
+	font_vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(font_vertexShader, 1, &vertexShaderSource_c, NULL);
+	glCompileShader(font_vertexShader);
+
+	// font fragement shader
+	unsigned int font_fragmentShader;
+	font_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(font_fragmentShader, 1, &fragmentShaderSource_c, NULL);
+	glCompileShader(font_fragmentShader);
+
+	// font shader program
+	m_font_shaderProgram = glCreateProgram();
+	glAttachShader(m_font_shaderProgram, font_vertexShader);
+	glAttachShader(m_font_shaderProgram, font_fragmentShader);
+	glLinkProgram(m_font_shaderProgram);
+
+	// apply orthographic projection matrix for font, i.e., screen space
+	glUseProgram(m_font_shaderProgram);
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(WINDOW_WIDTH_PX), 0.0f, static_cast<float>(WINDOW_HEIGHT_PX));
+	GLint project_location = glGetUniformLocation(m_font_shaderProgram, "projection");
+	assert(project_location > -1);
+	glUniformMatrix4fv(project_location, 1, GL_FALSE, glm::value_ptr(projection));
+
+	// clean up shaders
+	glDeleteShader(font_vertexShader);
+	glDeleteShader(font_fragmentShader);
+
+	// init FreeType fonts
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+	{
+		std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		return false;
+	}
+
+	FT_Face face;
+	if (FT_New_Face(ft, font_filename.c_str(), 0, &face))
+	{
+		std::cerr << "ERROR::FREETYPE: Failed to load font: " << font_filename << std::endl;
+		return false;
+	}
+
+	// extract a default size
+	FT_Set_Pixel_Sizes(face, 0, font_default_size);
+
+	// disable byte-alignment restriction in OpenGL
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	// load each of the chars - note only first 128 ASCII chars
+	for (unsigned char c = (unsigned char)0; c < (unsigned char)128; c++)
+	{
+		// load character glyph 
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			std::cerr << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			continue;
+		}
+
+		// generate texture
+		unsigned int texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		// std::cout << "texture: " << c << " = " << texture << std::endl;
+
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			face->glyph->bitmap.buffer
+		);
+
+		// set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// now store character for later use
+		Character character = {
+			texture,
+			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			static_cast<unsigned int>(face->glyph->advance.x),
+			(char)c
+		};
+		m_ftCharacters.insert(std::pair<char, Character>(c, character));
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// clean up
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
+
+	// bind buffers
+	glBindVertexArray(m_font_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_font_VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+
+	// // release buffers
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	return true;
+}
+
+void RenderSystem::renderText(std::string text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans)
+{
+	// activate corresponding render state
+	glUseProgram(m_font_shaderProgram);
+
+	GLint textColor_location = glGetUniformLocation(m_font_shaderProgram, "textColor");
+	assert(textColor_location > -1);
+	// std::cout << "textColor_location: " << textColor_location << std::endl;
+	glUniform3f(textColor_location, color.x, color.y, color.z);
+
+	auto transformLoc = glGetUniformLocation(m_font_shaderProgram, "transform");
+	// std::cout << "transformLoc: " << transformLoc << std::endl;
+	assert(transformLoc > -1);
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+	glBindVertexArray(m_font_VAO);
+
+	// iterate through each character
+	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++)
+	{
+		Character ch = m_ftCharacters[*c];
+
+		float xpos = x + ch.Bearing.x * scale;
+		float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+		float w = ch.Size.x * scale;
+		float h = ch.Size.y * scale;
+
+		float vertices[6][4] = {
+			{ xpos,     ypos + h,   0.0f, 0.0f },
+			{ xpos,     ypos,       0.0f, 1.0f },
+			{ xpos + w, ypos,       1.0f, 1.0f },
+
+			{ xpos,     ypos + h,   0.0f, 0.0f },
+			{ xpos + w, ypos,       1.0f, 1.0f },
+			{ xpos + w, ypos + h,   1.0f, 0.0f }
+		};
+
+		// render glyph texture over quad
+		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+		// std::cout << "binding texture: " << ch.character << " = " << ch.TextureID << std::endl;
+
+		// update content of VBO memory
+		glBindBuffer(GL_ARRAY_BUFFER, m_font_VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		// render quad
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		// advance to next glyph (note that advance is number of 1/64 pixels)
+		x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
 }

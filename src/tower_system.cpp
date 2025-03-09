@@ -1,5 +1,7 @@
 #include "common.hpp"
 #include "tower_system.hpp"
+#include "animation_system.hpp"
+#include <iostream>
 
 TowerSystem::TowerSystem()
 {
@@ -11,32 +13,20 @@ TowerSystem::~TowerSystem()
 
 void TowerSystem::step(float elapsed_ms)
 {
-    handle_tower_attacks(elapsed_ms);
-}
-
-void TowerSystem::handle_tower_attacks(float elapsed_ms)
-{
-    for (Entity entity : registry.towers.entities)
+    for (int i = 0; i < registry.towers.entities.size(); i++)
     {
-        if (!registry.towers.has(entity) || !registry.motions.has(entity))
+        Tower& tower = registry.towers.components[i];
+        if (!tower.state)
         {
-            continue;
-        }
-
-        Tower &tower = registry.towers.get(entity);
-        Motion &tower_motion = registry.motions.get(entity);
-
-        tower.timer_ms -= elapsed_ms;
-
-        if (tower.timer_ms <= 0)
-        {
-            Entity target = find_nearest_enemy(tower_motion.position, tower.range);
-
-            if (target != Entity())
+            Entity entity = registry.towers.entities[i];
+            Entity target;
+            if (find_nearest_enemy(entity, target))
             {
                 fire_projectile(entity, target);
-                tower.timer_ms = 1000;
+                tower.state = true;
+                AnimationSystem::update_animation(entity, PLANT_ATTACK_DURATION, PLANT_ATTACK_ANIMATION, PLANT_ATTACK_SIZE, false, false, false);
             }
+            else {}
         }
     }
 }
@@ -81,28 +71,34 @@ void TowerSystem::fire_projectile(Entity tower, Entity target)
          GEOMETRY_BUFFER_ID::SPRITE});
 }
 
-Entity TowerSystem::find_nearest_enemy(vec2 tower_pos, float range)
+bool TowerSystem::find_nearest_enemy(Entity entity, Entity& target)
 {
-    Entity nearest = Entity();
-    float min_dist = range;
-
-    for (Entity zombie : registry.zombies.entities)
+    if (registry.towers.has(entity) && registry.motions.has(entity))
     {
-        if (!registry.motions.has(zombie))
-        {
-            continue;
-        }
+        Tower& tower = registry.towers.get(entity);
+        Motion& motion = registry.motions.get(entity);
 
-        Motion &zombie_motion = registry.motions.get(zombie);
-        vec2 diff = zombie_motion.position - tower_pos;
-        float dist = sqrt(dot(diff, diff));
+        float min_dist = tower.range;
 
-        if (dist < min_dist)
+        for (Entity zombie : registry.zombies.entities)
         {
-            min_dist = dist;
-            nearest = zombie;
+            if (!registry.motions.has(zombie))
+            {
+                continue;
+            }
+
+            Motion& zombie_motion = registry.motions.get(zombie);
+            vec2 diff = zombie_motion.position - motion.position;
+            float dist = sqrt(dot(diff, diff));
+
+            if (dist < min_dist)
+            {
+                min_dist = dist;
+                target = zombie;
+                return true;
+            }
         }
     }
-
-    return nearest;
+    
+    return false;
 }

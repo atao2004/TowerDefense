@@ -22,7 +22,7 @@ bool WorldSystem::game_is_over = false;
 Mix_Chunk *WorldSystem::game_over_sound = nullptr;
 
 // create the world
-WorldSystem::WorldSystem() : points(0), level(1), game_screen(GAME_SCREEN_ID::PLAYING)
+WorldSystem::WorldSystem() : points(0), level(1), game_screen(GAME_SCREEN_ID::PLAYING), current_seed(0)
 {
 }
 
@@ -176,6 +176,23 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
+	for(Entity i: registry.seeds.entities) {
+
+		if(registry.seeds.get(i).timer <= 0) {
+			vec2 pos;
+			pos.x = registry.motions.get(i).position.x;
+			pos.y = registry.motions.get(i).position.y;
+			std::cout<<"x pos "<< pos.x << " y pos "<< pos.y << std::endl;
+			registry.remove_all_components_of(i);
+			registry.seeds.remove(i);
+			createTower(renderer, {pos.x - GRID_CELL_WIDTH_PX/2, pos.y - GRID_CELL_HEIGHT_PX/2});
+		} else {
+			registry.seeds.get(i).timer -= elapsed_ms_since_last_update;
+		}
+	}
+	if(StateSystem::get_state() == STATE::LEVEL_UP) {
+		registry.inventorys.components[0].seedCount[current_seed]++;
+	}
 	// Using the spawn manager to generate zombies
 	if (WorldSystem::game_is_over)
 	{
@@ -818,7 +835,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 								}
 							}
 						}
-						createSeed(vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX));
+						if(registry.inventorys.components[0].seedCount[current_seed] >0) {
+							Entity seed = createSeed(vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX), current_seed);
+							registry.inventorys.components[0].seedCount[current_seed]--; // decrease the count of seed in inventory
+						} else {
+							std::cout<<"No more inventory of seed type "<< current_seed<<std::endl;
+						}
+
+						std::cout<<"inventory count of seed type "<< current_seed << " is " << registry.inventorys.components[0].seedCount[current_seed] << std::endl;
 					}
 				}
 			}

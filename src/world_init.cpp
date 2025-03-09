@@ -99,6 +99,7 @@ Entity createTower(RenderSystem* renderer, vec2 position) {
 	tower.damage = 10.f;
 	tower.range = 2000.f;  // Detection range in pixels
 	tower.timer_ms = 2000; // Attack every 2 second
+	tower.state = false;
 
 	// Motion component for position and rotation
 	Motion &motion = registry.motions.emplace(entity);
@@ -601,6 +602,9 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 
 	Player &player = registry.players.emplace(entity);
 	player.health = PLAYER_HEALTH;
+
+	Inventory &inventory = registry.inventorys.emplace(entity);
+	registry.inventorys.components[0].seedCount[0] = 5; // 5 starter seeds
 	
 	MoveWithCamera& mwc = registry.moveWithCameras.emplace(entity);
 	Motion& motion = registry.motions.emplace(entity);
@@ -624,6 +628,8 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 		 EFFECT_ASSET_ID::PLAYER,
 		 GEOMETRY_BUFFER_ID::SPRITE},
 		false);
+
+	AnimationSystem::update_animation(entity, PLAYER_IDLE_DURATION, PLAYER_IDLE_ANIMATION, PLAYER_IDLE_SIZE, true, false, false);
 
 	return entity;
 }
@@ -659,13 +665,15 @@ Entity createEffect(RenderSystem *renderer, vec2 position, vec2 scale)
 }
 
 // Kung: Create the seed that will be planted whenever there is farmland.
-Entity createSeed(vec2 pos)
+Entity createSeed(vec2 pos, int type)
 {
 	// Create the associated entity.
 	Entity seed_entity = Entity();
 
 	// Create the associated component.
 	Seed &seed_component = registry.seeds.emplace(seed_entity);
+	seed_component.type = type;
+	seed_component.timer = 5000;
 
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(seed_entity);
