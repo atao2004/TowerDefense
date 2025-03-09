@@ -253,10 +253,6 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_color_loc = glGetAttribLocation(program, "in_color");
 		gl_has_errors();
-
-		std::cout<<"huwh"<<std::endl;
-		gl_has_errors();
-		std::cout<<"huh"<<std::endl;
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
 							  sizeof(ColoredVertex), (void *)0);
@@ -452,12 +448,11 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	// adding "UI" effect when applied
 	drawToScreen();
 	glm::mat4 trans = glm::mat4(1.0f);
-	renderText("hello", 0, 0, 1, {0,0,0}, trans);
+	renderText("hello", 1000, 1000, 1, {1,0,0}, trans);
 
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
 	gl_has_errors();
-	std::cout<<"3"<<std::endl;
 }
 
 // mat3 RenderSystem::createProjectionMatrix()
@@ -591,7 +586,6 @@ bool RenderSystem::fontInit(const std::string& font_filename, unsigned int font_
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(WINDOW_WIDTH_PX), 0.0f, static_cast<float>(WINDOW_HEIGHT_PX));
 	GLint project_location = glGetUniformLocation(m_font_shaderProgram, "projection");
 	assert(project_location > -1);
-	std::cout << "project_location: " << project_location << std::endl;
 	glUniformMatrix4fv(project_location, 1, GL_FALSE, glm::value_ptr(projection));
 
 	// clean up shaders
