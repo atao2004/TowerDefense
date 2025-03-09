@@ -69,6 +69,7 @@ int main()
 	int record_times = 0;
 	int max_fps = 0;
 	int min_fps = 50000; //impossible number technically, lazy implementation sorry!
+	int cooldown = 1000;
 	while (!world_system.is_over()) {
 
 		GAME_SCREEN_ID game_screen = world_system.get_game_screen();
@@ -83,7 +84,6 @@ int main()
 		t = now;
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
-		int cooldown = 2;
 		//when level up, we want the screen to be frozen
 		if (StateSystem::get_state() != STATE::LEVEL_UP) {
 			world_system.step(elapsed_ms);
@@ -102,7 +102,7 @@ int main()
 							<<"| FPS: " << (int)current_fps;
 							
 					glfwSetWindowTitle(window, title_ss.str().c_str());
-					cooldown = 2;
+					cooldown = 1000;
 				}
 				if (record_times > 2) {     //ignore the first 2, outliers wow.. maximum 5000 and minimum 10-ish fps, crazy
 					max_fps = max_fps < current_fps ? current_fps: max_fps;
