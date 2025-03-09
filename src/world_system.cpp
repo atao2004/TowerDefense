@@ -521,7 +521,7 @@ void WorldSystem::player_attack()
 						{
 							// StateSystem::update_state(STATE::LEVEL_UP);
 							//come back later!
-							registry.inventorys.components[0].seedCount[current_seed]++;
+							registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 							level++;
 							std::cout << "==== LEVEL " << level << " ====" << std::endl;
