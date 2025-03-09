@@ -72,6 +72,10 @@ Entity createZombie(RenderSystem *renderer, vec2 position)
 	motion.position = position;
 	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
 
+
+	VisualScale &vscale = registry.visualScales.emplace(entity);
+    vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x
+
 	registry.renderRequests.insert(
 		entity,
 		{
@@ -119,7 +123,7 @@ Entity createTower(RenderSystem* renderer, vec2 position) {
 	registry.renderRequests.insert(
 		entity,
 		{TEXTURE_ASSET_ID::PLANT_2_IDLE_F,
-		 EFFECT_ASSET_ID::TEXTURED,
+		 EFFECT_ASSET_ID::ZOMBIE,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
 	return entity;
@@ -610,6 +614,9 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 	motion.position = position;
 	motion.scale = vec2({PLAYER_HEIGHT, PLAYER_HEIGHT});
 
+	VisualScale &vscale = registry.visualScales.emplace(entity);
+    vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x
+
 	Attack &attack = registry.attacks.emplace(entity);
 	attack.range = 60;
 
@@ -617,7 +624,7 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 
 	registry.renderRequests.insert(
 		entity,
-		{TEXTURE_ASSET_ID::PLAYER_IDLE,
+		{TEXTURE_ASSET_ID::PLAYER_IDLE1,
 		 EFFECT_ASSET_ID::PLAYER,
 		 GEOMETRY_BUFFER_ID::SPRITE},
 		false);
@@ -749,10 +756,10 @@ Entity createSkeleton(RenderSystem *renderer, vec2 position)
     Motion &motion = registry.motions.emplace(entity);
     motion.position = position;
     motion.velocity = {0, 0};
-    motion.scale = {100.f, 100.f};
+    motion.scale = {50.f, 50.f};
 
 	VisualScale &vscale = registry.visualScales.emplace(entity);
-    vscale.scale = {2.5f, 2.5f}; // Scale visuals 2.5x
+    vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x
 
     // Add render request - temporarily use zombie texture
     registry.renderRequests.insert(

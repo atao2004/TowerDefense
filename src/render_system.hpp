@@ -97,6 +97,37 @@ class RenderSystem
 		textures_path("enemies/SkeletonArcher-Attack8.png"),
 		textures_path("enemies/SkeletonArcher-Attack9.png"),
 		textures_path("enemies/Arrow.png"),
+		textures_path("enemies/Orc-Walk1.png"),
+		textures_path("enemies/Orc-Walk2.png"),
+		textures_path("enemies/Orc-Walk3.png"),
+		textures_path("enemies/Orc-Walk4.png"),
+		textures_path("enemies/Orc-Walk5.png"),
+		textures_path("enemies/Orc-Walk6.png"),
+		textures_path("enemies/Orc-Walk7.png"),
+		textures_path("enemies/Orc-Walk8.png"),
+
+		textures_path("player/playerIdle(100)/Player-Idle1.png"),
+		textures_path("player/playerIdle(100)/Player-Idle2.png"),
+		textures_path("player/playerIdle(100)/Player-Idle3.png"),
+		textures_path("player/playerIdle(100)/Player-Idle4.png"),
+		textures_path("player/playerIdle(100)/Player-Idle5.png"),
+		textures_path("player/playerIdle(100)/Player-Idle6.png"),
+		
+		textures_path("player/playerWalk(100)/Player-Walk1.png"),
+		textures_path("player/playerWalk(100)/Player-Walk2.png"),
+		textures_path("player/playerWalk(100)/Player-Walk3.png"),
+		textures_path("player/playerWalk(100)/Player-Walk4.png"),
+		textures_path("player/playerWalk(100)/Player-Walk5.png"),
+		textures_path("player/playerWalk(100)/Player-Walk6.png"),
+		textures_path("player/playerWalk(100)/Player-Walk7.png"),
+		textures_path("player/playerWalk(100)/Player-Walk8.png"),
+
+		textures_path("player/playerAttack(100)/Player-Attack1.png"),
+		textures_path("player/playerAttack(100)/Player-Attack2.png"),
+		textures_path("player/playerAttack(100)/Player-Attack3.png"),
+		textures_path("player/playerAttack(100)/Player-Attack4.png"),
+		textures_path("player/playerAttack(100)/Player-Attack5.png"),
+		textures_path("player/playerAttack(100)/Player-Attack6.png"),
 		textures_path("towers/plant2/idle/Plant2_idle_f.png"),
 		textures_path("towers/plant2/idle/Plant2_idle_b.png"),
 		textures_path("towers/plant2/idle/Plant2_idle_s.png"),
@@ -105,7 +136,7 @@ class RenderSystem
 		textures_path("towers/plant2/attack/Plant2_attack_b1.png"),
 		textures_path("towers/plant2/attack/Plant2_attack_b2.png"),
 		textures_path("towers/plant2/attack/Plant2_attack_s1.png"),
-		textures_path("towers/plant2/attack/Plant2_attack_s2.png"),
+		textures_path("towers/plant2/attack/Plant2_attack_s2.png")
 	};
 
 
@@ -148,7 +179,7 @@ public:
 	// Destroy resources associated to one or all entities created by the system
 	~RenderSystem();
 
-	// Draw all entities depending on game screen (adapted from Assignment #2)
+	// Draw all entities
 	void draw(GAME_SCREEN_ID game_screen);
 
 	mat3 createProjectionMatrix();
