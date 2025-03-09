@@ -190,6 +190,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			registry.seeds.get(i).timer -= elapsed_ms_since_last_update;
 		}
 	}
+	if(StateSystem::get_state() == STATE::LEVEL_UP) {
+		registry.inventorys.components[0].seedCount[current_seed]++;
+	}
 	// Using the spawn manager to generate zombies
 	if (WorldSystem::game_is_over)
 	{
