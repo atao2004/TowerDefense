@@ -94,7 +94,10 @@ int main()
 
 				// std::cout<<"FPS: "<<current_fps<<std::endl;
 				std::stringstream title_ss;
-				title_ss <<"Farmer Defense: The Last Days | "<< "FPS: " << (int)current_fps;
+				title_ss <<"Farmer Defense: The Last Days"
+				         << " | LEVEL: "<< world_system.level 
+						 <<" | SEED COUNT: "<< world_system.current_seed
+						 <<"| FPS: " << (int)current_fps;
 				
 				glfwSetWindowTitle(window, title_ss.str().c_str());
 				if (record_times > 2) {     //ignore the first 2, outliers wow.. maximum 5000 and minimum 10-ish fps, crazy
