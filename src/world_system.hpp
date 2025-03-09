@@ -70,8 +70,11 @@ private:
 	void on_mouse_move(vec2 pos);
 	void on_mouse_button_pressed(int button, int action, int mods);
 
-	// restart level
+	// restart the level or the tutorial
+	void restart_common_tasks();
+	void restart_overlay_renders(vec2 player_pos);
 	void restart_game();
+	void restart_tutorial();
 
 	// OpenGL window handle
 	GLFWwindow *window;
