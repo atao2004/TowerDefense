@@ -529,7 +529,7 @@ Entity createToolbar(vec2 position)
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(toolbar_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(880, 110);
+	motion_component.scale = vec2(440, 55);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
@@ -684,7 +684,7 @@ Entity createSeed(vec2 pos, int type)
 	// Render the object.
 	registry.renderRequests.insert(
 		seed_entity,
-		{TEXTURE_ASSET_ID::SEED_1,
+		{TEXTURE_ASSET_ID::SEED_0,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
@@ -692,25 +692,30 @@ Entity createSeed(vec2 pos, int type)
 }
 
 // Kung: Create the seed that appears within the toolbar.
-Entity createSeedInventory(int level)
+Entity createSeedInventory(vec2 pos, vec2 velocity, int type)
 {
 	// Create the associated entity.
 	Entity seed_entity = Entity();
 
 	// Create the associated component.
-	Seed& seed_component = registry.seeds.emplace(seed_entity);
+	Seed &seed_component = registry.seeds.emplace(seed_entity);
+	seed_component.type = type;
+	seed_component.timer = 5000;
+
+	// Create a component to simplify movement.
+	MoveWithCamera& mwc = registry.moveWithCameras.emplace(seed_entity);
 
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(seed_entity);
-	motion_component.position = vec2(0, 0);
+	motion_component.position = pos;
 	motion_component.scale = vec2(50, 50);
-	motion_component.velocity = vec2(0, 0);
+	motion_component.velocity = velocity;
 
 	// Render the object.
 	registry.renderRequests.insert(
 		seed_entity,
 		{
-			TEXTURE_ASSET_ID::SEED_1,
+			TEXTURE_ASSET_ID::SEED_0,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}

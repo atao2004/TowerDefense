@@ -178,16 +178,18 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
 	for(Entity i: registry.seeds.entities) {
 
-		if(registry.seeds.get(i).timer <= 0) {
-			vec2 pos;
-			pos.x = registry.motions.get(i).position.x;
-			pos.y = registry.motions.get(i).position.y;
-			std::cout<<"x pos "<< pos.x << " y pos "<< pos.y << std::endl;
-			registry.remove_all_components_of(i);
-			registry.seeds.remove(i);
-			createTower(renderer, {pos.x - GRID_CELL_WIDTH_PX/2, pos.y - GRID_CELL_HEIGHT_PX/2});
-		} else {
-			registry.seeds.get(i).timer -= elapsed_ms_since_last_update;
+		if (!registry.moveWithCameras.has(i)) {
+			if(registry.seeds.get(i).timer <= 0) {
+				vec2 pos;
+				pos.x = registry.motions.get(i).position.x;
+				pos.y = registry.motions.get(i).position.y;
+				std::cout<<"x pos "<< pos.x << " y pos "<< pos.y << std::endl;
+				registry.remove_all_components_of(i);
+				registry.seeds.remove(i);
+				createTower(renderer, {pos.x - GRID_CELL_WIDTH_PX/2, pos.y - GRID_CELL_HEIGHT_PX/2});
+			} else {
+				registry.seeds.get(i).timer -= elapsed_ms_since_last_update;
+			}
 		}
 	}
 	if(StateSystem::get_state() == STATE::LEVEL_UP) {
@@ -298,7 +300,7 @@ void WorldSystem::restart_common_tasks() {
 // More shared elements between restarting a game and a tutorial, this time involving the player and associated rendering
 void WorldSystem::restart_overlay_renders(vec2 player_pos) {
 	// reset player and spawn player in the middle of the screen
-	createPlayer(renderer, player_pos);
+	Entity player = createPlayer(renderer, player_pos);
 	
 	// reset camera position
 	createCamera(renderer, player_pos);
@@ -307,7 +309,8 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos) {
 	// registry.pauses.clear();
 	registry.toolbars.clear();
 	// createPause();
-	createToolbar(vec2(player_pos.x, player_pos.y + WINDOW_HEIGHT_PX * 0.45));
+	createToolbar(vec2(player_pos.x, player_pos.y + WINDOW_HEIGHT_PX * 0.475));
+	createSeedInventory(vec2(player_pos.x - 191, player_pos.y + WINDOW_HEIGHT_PX * 0.475), registry.motions.get(player).velocity, current_seed);
 
 	// Kung: Reset player movement so that the player remains still when no keys are pressed
 
@@ -521,6 +524,9 @@ void WorldSystem::player_attack()
 						{
 							// StateSystem::update_state(STATE::LEVEL_UP);
 							//come back later!
+							if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
+								createSeedInventory(vec2(player_motion.position.x - 191, player_motion.position.y + WINDOW_HEIGHT_PX * 0.475), player_motion.velocity, current_seed);
+							}
 							registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 							level++;
@@ -827,63 +833,38 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				if (registry.renderRequests.get(maptile_entity).used_texture == DECORATION_LIST[6]) {
 					if (registry.motions.get(maptile_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX)) {
 						// Remove any seeds that have already been planted to begin with.
-						for (Entity entity : registry.seeds.entities) {
-							if (registry.motions.has(entity)) {
-								if (registry.motions.get(entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX)) {
-									registry.motions.remove(entity);
-									registry.seeds.remove(entity);
+						int hasSeed = 0;
+						for (Entity motion_entity : registry.motions.entities) {
+							if (registry.seeds.has(motion_entity) || registry.towers.has(motion_entity)) {
+								if (registry.motions.get(motion_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX)) {
+									hasSeed = 1;
+									std::cout<<"A seed was already planted here."<<std::endl;
 								}
 							}
 						}
-						if(registry.inventorys.components[0].seedCount[current_seed] >0) {
-							Entity seed = createSeed(vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX), current_seed);
-							registry.inventorys.components[0].seedCount[current_seed]--; // decrease the count of seed in inventory
-						} else {
-							std::cout<<"No more inventory of seed type "<< current_seed<<std::endl;
+						if (!hasSeed) {
+							if(registry.inventorys.components[0].seedCount[current_seed] > 0) {
+								Entity seed = createSeed(vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX), current_seed);
+								registry.inventorys.components[0].seedCount[current_seed]--; // decrease the count of seed in inventory
+								if(registry.inventorys.components[0].seedCount[current_seed] == 0) {
+									// Remove the seed from the toolbar.
+									for (Entity seed_entity : registry.seeds.entities) {
+										if (registry.moveWithCameras.has(seed_entity)) {
+											if (registry.seeds.get(seed_entity).type == current_seed) {
+												registry.remove_all_components_of(seed_entity);
+											}
+										}
+									}
+								}
+							} else {
+								std::cout<<"No more inventory of seed type "<<std::endl;
+							}
 						}
 
 						std::cout<<"inventory count of seed type "<< current_seed << " is " << registry.inventorys.components[0].seedCount[current_seed] << std::endl;
 					}
 				}
 			}
-		}
-	}
-
-	// Haonan: Shoot towers with the 'H' button
-	if (action == GLFW_PRESS && key == GLFW_KEY_H)
-	{
-		// Calculate center position of the cell
-		vec2 cell_center = {
-			(cell_x * GRID_CELL_WIDTH_PX) + (GRID_CELL_WIDTH_PX / 2.0f),
-			(cell_y * GRID_CELL_HEIGHT_PX) + (GRID_CELL_HEIGHT_PX / 2.0f)};
-
-		// Create tower at cell center
-		// Check if cell is already occupied by a tower
-		bool cell_occupied = false;
-		for (Entity tower : registry.towers.entities)
-		{
-			if (!registry.motions.has(tower))
-			{
-				continue;
-			}
-
-			Motion &tower_motion = registry.motions.get(tower);
-			int tower_cell_x = static_cast<int>(tower_motion.position.x) / GRID_CELL_WIDTH_PX;
-			int tower_cell_y = static_cast<int>(tower_motion.position.y) / GRID_CELL_HEIGHT_PX;
-
-			if (tower_cell_x == cell_x && tower_cell_y == cell_y)
-			{
-				cell_occupied = true;
-				std::cout << "Cell already occupied by a tower!" << std::endl;
-				break;
-			}
-		}
-
-
-		// Only create tower if cell is empty
-		if (!cell_occupied)
-		{
-			createTower(renderer, cell_center);
 		}
 	}
 
@@ -894,7 +875,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		player_movement(key, action, motion);
 	}
 	
-
 	// Update state if player is moving
 	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
 	{
@@ -947,14 +927,26 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (action == GLFW_PRESS && key == GLFW_KEY_0)
 	{
 		if (registry.players.size() > 0) {
-			Entity& player_entity = registry.players.entities[0];
-			Motion& player_motion = registry.motions.get(player_entity);
-			createSkeleton(renderer, vec2(player_motion.position.x + CAMERA_VIEW_WIDTH / 2, player_motion.position.y));
+			createSkeleton(renderer, vec2(motion.position.x + CAMERA_VIEW_WIDTH / 2, motion.position.y));
 		}
 	}
 	if (action == GLFW_PRESS && key == GLFW_KEY_1)
 	{
-		if (registry.screenStates.size() != 0) registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += 0.1;
+		if (registry.screenStates.size() != 0) {
+			if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0) {
+				// StateSystem::update_state(STATE::LEVEL_UP);
+				//come back later!
+				if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
+					createSeedInventory(vec2(motion.position.x - 191, motion.position.y + WINDOW_HEIGHT_PX * 0.475), motion.velocity, current_seed);
+				}
+				registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
+				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+				level++;
+				std::cout << "==== LEVEL " << level << " ====" << std::endl;
+			} else  {
+				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += 0.1;
+			}
+		}
 	}
 }
 
