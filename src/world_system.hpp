@@ -52,6 +52,9 @@ public:
 
 	static void game_over();
 	static bool game_is_over;
+	unsigned int current_seed; // current type of seed the player has selected
+	// Current experience level of the player
+	unsigned int level;
 
 private:
 	float mouse_pos_x = 0.0f;
@@ -81,11 +84,6 @@ private:
 
 	// Number of players stopped by the towers, displayed in the window title
 	unsigned int points;
-
-	unsigned int current_seed; // current type of seed the player has selected
-
-	// Current experience level of the player
-	unsigned int level;
 
 	// game_screen (inspired by Assignment #2)
 	GAME_SCREEN_ID game_screen;

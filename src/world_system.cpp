@@ -524,6 +524,7 @@ void WorldSystem::player_attack()
 						{
 							// StateSystem::update_state(STATE::LEVEL_UP);
 							//come back later!
+							registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 							level++;
 							std::cout << "==== LEVEL " << level << " ====" << std::endl;
@@ -919,6 +920,18 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (action == GLFW_PRESS && key == GLFW_KEY_L)
 	{
 		registry.list_all_components();
+	}
+	if (action == GLFW_PRESS && key == GLFW_KEY_0)
+	{
+		if (registry.players.size() > 0) {
+			Entity& player_entity = registry.players.entities[0];
+			Motion& player_motion = registry.motions.get(player_entity);
+			createSkeleton(renderer, vec2(player_motion.position.x + CAMERA_VIEW_WIDTH / 2, player_motion.position.y));
+		}
+	}
+	if (action == GLFW_PRESS && key == GLFW_KEY_1)
+	{
+		if (registry.screenStates.size() != 0) registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += 0.1;
 	}
 }
 
