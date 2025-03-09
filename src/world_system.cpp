@@ -176,6 +176,20 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
+	for(Entity i: registry.seeds.entities) {
+
+		if(registry.seeds.get(i).timer <= 0) {
+			vec2 pos;
+			pos.x = registry.motions.get(i).position.x;
+			pos.y = registry.motions.get(i).position.y;
+			std::cout<<"x pos "<< pos.x << " y pos "<< pos.y << std::endl;
+			registry.remove_all_components_of(i);
+			registry.seeds.remove(i);
+			createTower(renderer, {pos.x - GRID_CELL_WIDTH_PX/2, pos.y - GRID_CELL_HEIGHT_PX/2});
+		} else {
+			registry.seeds.get(i).timer -= elapsed_ms_since_last_update;
+		}
+	}
 	// Using the spawn manager to generate zombies
 	if (WorldSystem::game_is_over)
 	{

@@ -126,6 +126,7 @@ struct Projectile {
 // For Milestone #2.
 struct Seed {
 	int type; // Maybe make it a string? or in my opinion maybe an enum would be better
+	float timer;
 };
 
 enum class STATE

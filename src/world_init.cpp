@@ -673,6 +673,7 @@ Entity createSeed(vec2 pos, int type)
 	// Create the associated component.
 	Seed &seed_component = registry.seeds.emplace(seed_entity);
 	seed_component.type = type;
+	seed_component.timer = 5000;
 
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(seed_entity);
