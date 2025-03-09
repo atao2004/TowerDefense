@@ -118,4 +118,6 @@ private:
 	void update_movement_sound(float elapsed_ms);
 
 	void update_camera();
+
+	bool chicken_summoned = false;
 };

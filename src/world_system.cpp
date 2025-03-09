@@ -247,6 +247,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		update_enemy_death_animations(elapsed_ms_since_last_update);
 		update_movement_sound(elapsed_ms_since_last_update);
 		update_screen_shake(elapsed_ms_since_last_update);
+
+		// Summon the chicken when in low health
+		ScreenState &screen = registry.screenStates.components[0];
+		if (screen.hp_percentage < 0.25f && !chicken_summoned) {
+			createChicken(renderer);
+			chicken_summoned = true;
+		}
+
 		return true;
 	}
 
