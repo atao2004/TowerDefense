@@ -138,6 +138,7 @@ struct State
 
 struct Animation
 {
+	float runtime_ms = 0;
 	float timer_ms = 0;
 	int pose = 0;
 	int transition_ms;

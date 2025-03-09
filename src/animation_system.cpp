@@ -21,6 +21,7 @@ void AnimationSystem::step(float elapsed_ms)
     for (Entity entity : registry.animations.entities)
     {
         Animation &animation = registry.animations.get(entity);
+        animation.runtime_ms += elapsed_ms;
         animation.timer_ms += elapsed_ms;
         if (animation.timer_ms >= animation.transition_ms)
         {
@@ -45,11 +46,12 @@ void AnimationSystem::step(float elapsed_ms)
  * Replace the animation component of the entity.
  *
  * @param entity The entity.
- * @param frame_delay The transition time between each texture.
+ * @param duration The total duration of the animation.
  * @param textures The array of textures.
  * @param textures_size The size of textures.
  * @param loop True if the animation should loop.
  * @param lock True if the animation should not be replaced.
+ * @param destroy True if the entity should be destroyed at the end of the animation.
  */
 void AnimationSystem::update_animation(Entity entity, int duration, const TEXTURE_ASSET_ID *textures, int textures_size, bool loop, bool lock, bool destroy)
 {
