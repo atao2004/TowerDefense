@@ -824,7 +824,7 @@ Entity createChicken(RenderSystem* renderer)
 
 	Projectile& projectile = registry.projectiles.emplace(entity);
 	projectile.damage = CHICKEN_DAMAGE;
-	//projectile.invincible = true;
+	projectile.invincible = true;
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::CHICKEN);
 	registry.meshPtrs.emplace(entity, &mesh);

@@ -152,7 +152,9 @@ void PhysicsSystem::handle_projectile_collisions()
 				registry.hitEffects.emplace_with_duplicates(zombie);
 
 				// Remove projectile
-				registry.remove_all_components_of(projectile);
+				if (!proj.invincible) {
+					registry.remove_all_components_of(projectile);
+				}
 				break;
 			}
 		}
