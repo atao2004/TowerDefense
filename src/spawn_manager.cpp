@@ -16,7 +16,7 @@ SpawnManager::SpawnManager() : wave_timer_ms(0.f),
 
 void SpawnManager::initialize_spawn_points()
 {
-    const float OFFSET = 50.f; // Offset from edges for visibility
+    const float OFFSET = -150.f; // Offset from edges for visibility
 
     // Create 8 spawn points, 2 on each edge
     // Top edge
@@ -75,7 +75,7 @@ void SpawnManager::generate_wave(RenderSystem *renderer)
         // Get a random spawn point index
         int random_point = (int)(uniform_dist(rng) * spawn_points.size());
         vec2 spawn_pos = spawn_points[random_point].position;
-        if (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) < 0.7f)
+        if (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) < 0.0f)
         {
             createZombie(renderer, spawn_pos);
         }
