@@ -99,6 +99,7 @@ Entity createTower(RenderSystem* renderer, vec2 position) {
 	tower.damage = 10.f;
 	tower.range = 2000.f;  // Detection range in pixels
 	tower.timer_ms = 2000; // Attack every 2 second
+	tower.state = false;
 
 	// Motion component for position and rotation
 	Motion &motion = registry.motions.emplace(entity);
@@ -121,6 +122,8 @@ Entity createTower(RenderSystem* renderer, vec2 position) {
 		{TEXTURE_ASSET_ID::PLANT_2_IDLE_F,
 		 EFFECT_ASSET_ID::ZOMBIE,
 		 GEOMETRY_BUFFER_ID::SPRITE});
+
+	AnimationSystem::update_animation(entity, PLANT_IDLE_DURATION, PLANT_IDLE_ANIMATION, PLANT_IDLE_SIZE, true, false, false);
 
 	return entity;
 }

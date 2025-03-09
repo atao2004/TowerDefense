@@ -155,6 +155,7 @@ struct Tower
 	float damage;   // damage of the tower
 	float range;  // for vision / detection
 	int timer_ms; // how often the tower attacks
+	bool state; // false (IDLE), true (ATTACK)
 };
 
 // Stucture to store collision information
