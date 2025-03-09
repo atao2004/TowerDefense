@@ -243,6 +243,11 @@ const int ZOMBIE_DAMAGE = 5;
 const float BASE_ENEMY_SPEED = 500.0f; // Base movement speed for enemies
 const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
+// Chicken
+const float CHICKEN_SIZE = 1500;
+const int CHICKEN_SPEED = 200;
+const int CHICKEN_DAMAGE = 100;
+
 // Skeleton properties
 const float SKELETON_WIDTH = 200.f;
 const float SKELETON_HEIGHT = 200.f;
