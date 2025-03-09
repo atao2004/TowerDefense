@@ -171,7 +171,8 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 	std::cout << "Starting music..." << std::endl;
 
 	// Set all states to default
-	restart_game();
+	//restart_game();
+	restart_tutorial();
 }
 
 // Update our game world
@@ -352,6 +353,7 @@ void WorldSystem::restart_game()
 	std::cout << "Restarting game..." << std::endl;
 
 	restart_common_tasks();
+	
 
 	// Set the level to level 1 and the game_screen to PLAYING.
 	level = 1;
@@ -416,17 +418,17 @@ void WorldSystem::restart_tutorial()
 	// }
 
 	// create the tutorial assets
-	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, WINDOW_HEIGHT_PX * -0.25));
-	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, WINDOW_HEIGHT_PX * -0.25));
-	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, WINDOW_HEIGHT_PX * -0.25));
-	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, WINDOW_HEIGHT_PX * -0.25));
+	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_HEIGHT_PX * -0.25));
+	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, TUTORIAL_HEIGHT_PX * -0.25));
+	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, TUTORIAL_HEIGHT_PX * -0.25));
+	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_HEIGHT_PX * -0.25));
 
 	// create the arrows for the tutorial
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 4 - 15, TUTORIAL_HEIGHT_PX * 0.4));
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 2 - 15, TUTORIAL_HEIGHT_PX * 0.4));
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75 - 15, TUTORIAL_HEIGHT_PX * 0.4));
 	create_tutorial_enemies();
-	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX / 8, TUTORIAL_HEIGHT_PX / 3});
+	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX *0.05 , TUTORIAL_HEIGHT_PX * 0.4});
 
 	// Print the starting level (Level 0)
 	std::cout << "==== LEVEL " << level << " ====" << std::endl;
@@ -463,7 +465,7 @@ void WorldSystem::check_tutorial_enemies()
 			zombie_exists = true;
 			// Keep zombie in place by setting velocity to zero
 			motion.velocity = vec2(0.0f, 0.0f);
-			break;
+
 		}
 	}
 
@@ -478,7 +480,7 @@ void WorldSystem::check_tutorial_enemies()
 			skeleton_exists = true;
 			// Keep skeleton in place by setting velocity to zero
 			motion.velocity = vec2(0.0f, 0.0f);
-			break;
+
 		}
 	}
 
@@ -498,6 +500,8 @@ void WorldSystem::check_tutorial_enemies()
 		std::cout << "Tutorial skeleton respawned" << std::endl;
 	}
 }
+
+
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions()
@@ -534,7 +538,7 @@ void WorldSystem::player_attack()
 		weapon_motion.velocity = less_f_ugly.velocity;
 		weapon_motion.scale = less_f_ugly.scale;
 
-		for (int i = 0; i < registry.zombies.size(); i++)
+		for (int i = 0; i < registry.enemies.size(); i++)
 		{
 			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.enemies.entities[i])) // if enemy and weapon collide, decrease enemy health
 				|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.enemies.entities[i])))
@@ -863,14 +867,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
-		if (game_screen == GAME_SCREEN_ID::TUTORIAL)
-		{
-			restart_tutorial();
-		}
-		else
-		{
+		// if (game_screen == GAME_SCREEN_ID::TUTORIAL)
+		// {
+		// 	restart_tutorial();
+		// }
+		// else
+		// {
 			restart_game();
-		}
+		// }
 
 		return;
 	}
@@ -891,8 +895,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
-	// test mode with 't'
-	if (action == GLFW_PRESS && key == GLFW_KEY_T)
+	// test mode with '/'
+	if (action == GLFW_PRESS && key == GLFW_KEY_SLASH)
 	{
 		// Disable in tutorial mode
 		if (game_screen == GAME_SCREEN_ID::PLAYING || game_screen == GAME_SCREEN_ID::TEST)
@@ -910,8 +914,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
-	// tutorial mode with '/'
-	if (action == GLFW_PRESS && key == GLFW_KEY_SLASH)
+	// tutorial mode with 't'
+	if (action == GLFW_PRESS && key == GLFW_KEY_T)
 	{
 		tutorial_mode = !tutorial_mode;
 		spawn_manager.set_test_mode(tutorial_mode);

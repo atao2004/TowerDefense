@@ -181,6 +181,11 @@ void AISystem::update_skeletons(float elapsed_ms)
                 Motion &skeleton_motion = registry.motions.get(entity);
                 skeleton_motion.velocity = vec2(0.0f, 0.0f);
 
+                if (skeleton_motion.scale.x > 0)
+                {
+                    skeleton_motion.scale.x *= -1;  // Flip to face left
+                }
+
                 // If skeleton is not already in attack animation and is not attacking
                 Skeleton &skeleton = registry.skeletons.get(entity);
                 if (!skeleton.is_attacking && skeleton.current_state != Skeleton::State::ATTACK)
@@ -204,6 +209,7 @@ void AISystem::update_skeletons(float elapsed_ms)
         }
         return; // Skip regular skeleton update for tutorial
     }
+
     for (auto entity : registry.skeletons.entities)
     {
         if (!registry.motions.has(entity))
@@ -351,7 +357,7 @@ void AISystem::update_skeletons(float elapsed_ms)
                         SKELETON_ATTACK_ANIMATION,
                         SKELETON_ATTACK_FRAMES,
                         false, // don't loop
-                        false, // lock animation
+                        false, // don't lock animation
                         false  // don't destroy
                     );
                 }

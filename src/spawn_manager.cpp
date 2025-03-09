@@ -49,7 +49,6 @@ void SpawnManager::step(float elapsed_ms, RenderSystem *renderer)
 
     if (!is_game_started)
     {
-        std::cout << "Game not started yet, skipping wave generation" << std::endl;
         return;
     }
 

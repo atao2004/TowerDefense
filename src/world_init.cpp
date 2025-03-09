@@ -738,7 +738,6 @@ Entity createSkeleton(RenderSystem *renderer, vec2 position)
     skeleton.stop_distance = 300.0f;     // Stops moving at this distance
     skeleton.attack_cooldown_ms = SKELETON_ATTACK_DURATION;// Attack cooldown
 
-
 	Enemy &enemy = registry.enemies.emplace(entity);
 	enemy.health = SKELETON_HEALTH;
 
