@@ -145,6 +145,13 @@ void AnimationSystem::handle_animation_end(Entity entity)
         }
     }
 
+    // Handle plant attack end
+    if (registry.towers.has(entity))
+    {
+        Tower& tower = registry.towers.get(entity);
+        tower.state = false;
+    }
+
     // If animation was set to destroy entity when done
     if (animation.destroy)
     {

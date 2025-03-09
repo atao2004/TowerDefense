@@ -99,6 +99,7 @@ Entity createTower(RenderSystem* renderer, vec2 position) {
 	tower.damage = 10.f;
 	tower.range = 2000.f;  // Detection range in pixels
 	tower.timer_ms = 2000; // Attack every 2 second
+	tower.state = false;
 
 	// Motion component for position and rotation
 	Motion &motion = registry.motions.emplace(entity);
