@@ -829,6 +829,12 @@ Entity createChicken(RenderSystem* renderer)
 	motion.scale.x *= -1;
 	motion.scale.y *= -1;
 
+	if (registry.players.size() > 0) {
+		Entity& player_entity = registry.players.entities[0];
+		Motion& player_motion = registry.motions.get(player_entity);
+		motion.position.y = player_motion.position.y;
+	}
+
 	registry.renderRequests.insert(
 		entity,
 		{
