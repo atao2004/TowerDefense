@@ -62,10 +62,6 @@ Entity createZombie(RenderSystem *renderer, vec2 position)
 	attack.range = 30.0f;
 	attack.damage = ZOMBIE_DAMAGE;
 
-	// store a reference to the potentially re-used mesh object
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
-	registry.meshPtrs.emplace(entity, &mesh);
-
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
@@ -747,10 +743,6 @@ Entity createSkeleton(RenderSystem *renderer, vec2 position)
     Attack &attack = registry.attacks.emplace(entity);
     attack.range = skeleton.attack_range; // Match the attack range
 	attack.damage = SKELETON_ARROW_DAMAGE;       // Set the damage value
-
-    // Store a reference to the potentially re-used mesh object
-    Mesh &mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
-    registry.meshPtrs.emplace(entity, &mesh);
 
     // Add motion component
     Motion &motion = registry.motions.emplace(entity);
