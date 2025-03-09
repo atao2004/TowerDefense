@@ -943,6 +943,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	{
 		registry.list_all_components();
 	}
+	if (action == GLFW_PRESS && key == GLFW_KEY_0)
+	{
+		if (registry.players.size() > 0) {
+			Entity& player_entity = registry.players.entities[0];
+			Motion& player_motion = registry.motions.get(player_entity);
+			createSkeleton(renderer, vec2(player_motion.position.x + CAMERA_VIEW_WIDTH / 2, player_motion.position.y));
+		}
+	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
