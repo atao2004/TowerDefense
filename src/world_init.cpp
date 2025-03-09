@@ -626,6 +626,8 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 		 GEOMETRY_BUFFER_ID::SPRITE},
 		false);
 
+	AnimationSystem::update_animation(entity, PLAYER_IDLE_DURATION, PLAYER_IDLE_ANIMATION, PLAYER_IDLE_SIZE, true, false, false);
+
 	return entity;
 }
 
