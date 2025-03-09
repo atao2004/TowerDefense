@@ -13,7 +13,6 @@ public:
 
 private:
     // Helper functions
-    void handle_tower_attacks(float elapsed_ms);
-    bool find_nearest_enemy(vec2 tower_pos, float range, Entity& target);
+    bool find_nearest_enemy(Entity tower, Entity& target);
     void fire_projectile(Entity tower, Entity target);
 };
