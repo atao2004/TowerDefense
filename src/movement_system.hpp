@@ -12,4 +12,5 @@ class MovementSystem
 
     private:
     void checkBoundaries(float elapsed_ms, GAME_SCREEN_ID game_screen);
+    void checkVelocities(float elapsed_ms);
 };

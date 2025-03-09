@@ -588,7 +588,7 @@ void WorldSystem::update_screen_shake(float elapsed_ms)
 // In addition, I did general debugging, including on Ziqing's initial code.
 void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	// Move left
-	if (player_motion.position.x >= PLAYER_LEFT_BOUNDARY)
+	if (player_motion.position.x > PLAYER_LEFT_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_A)
 		{
@@ -605,7 +605,7 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	}
 
 	// Move right
-	if (player_motion.position.x <= PLAYER_RIGHT_BOUNDARY)
+	if (player_motion.position.x < PLAYER_RIGHT_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_D)
 		{
@@ -622,7 +622,7 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	}
 
 	// Move down
-	if (player_motion.position.y <= PLAYER_DOWN_BOUNDARY)
+	if (player_motion.position.y < PLAYER_DOWN_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_S)
 		{
@@ -639,7 +639,7 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 	}
 
 	// Move up
-	if (player_motion.position.y >= PLAYER_UP_BOUNDARY)
+	if (player_motion.position.y > PLAYER_UP_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_W)
 		{
@@ -659,7 +659,7 @@ void WorldSystem::player_movement(int key, int action, Motion& player_motion) {
 // Version of player_movement that works for the tutorial mode.
 void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_motion) {
 	// Move left
-	if (player_motion.position.x >= PLAYER_LEFT_BOUNDARY)
+	if (player_motion.position.x > PLAYER_LEFT_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_A)
 		{
@@ -676,7 +676,7 @@ void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_m
 	}
 
 	// Move right
-	if (player_motion.position.x <= PLAYER_RIGHT_BOUNDARY_TUTORIAL)
+	if (player_motion.position.x < PLAYER_RIGHT_BOUNDARY_TUTORIAL)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_D)
 		{
@@ -693,7 +693,7 @@ void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_m
 	}
 
 	// Move down
-	if (player_motion.position.y <= PLAYER_DOWN_BOUNDARY_TUTORIAL)
+	if (player_motion.position.y < PLAYER_DOWN_BOUNDARY_TUTORIAL)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_S)
 		{
@@ -710,7 +710,7 @@ void WorldSystem::player_movement_tutorial(int key, int action, Motion& player_m
 	}
 
 	// Move up
-	if (player_motion.position.y >= PLAYER_UP_BOUNDARY)
+	if (player_motion.position.y > PLAYER_UP_BOUNDARY)
 	{
 		if (action == GLFW_PRESS && key == GLFW_KEY_W)
 		{
