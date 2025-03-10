@@ -247,7 +247,7 @@ const int PLAYER_HEALTH = 100;
 const int NUM_SEED_TYPES = 1;
 const int ZOMBIE_HEALTH = 20;
 const int ZOMBIE_DAMAGE = 5;
-const float BASE_ENEMY_SPEED = 500.0f; // Base movement speed for enemies
+const float BASE_ENEMY_SPEED = 900.0f; // Base movement speed for enemies
 const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
 // Chicken
@@ -258,7 +258,7 @@ const int CHICKEN_DAMAGE = 100;
 // Skeleton properties
 const float SKELETON_WIDTH = 200.f;
 const float SKELETON_HEIGHT = 200.f;
-const float SKELETON_HEALTH = 75.f;
+const float SKELETON_HEALTH = 20.f;
 const float SKELETON_SPEED = 75.f;
 const float SKELETON_FRAME_DELAY = 500.f;
 const float SKELETON_ARROW_DAMAGE = 15.f;
@@ -320,9 +320,9 @@ const int SKELETON_ATTACK_DURATION = 1800;
 const int PROJECTILE_DAMAGE = 10;
 
 // control player movement
-const int PLAYER_MOVE_UP_SPEED = -150;
+const int PLAYER_MOVE_UP_SPEED = -200;
 const int PLAYER_MOVE_DOWN_SPEED = -PLAYER_MOVE_UP_SPEED;
-const int PLAYER_MOVE_LEFT_SPEED = -150;
+const int PLAYER_MOVE_LEFT_SPEED = -200;
 const int PLAYER_MOVE_RIGHT_SPEED = -PLAYER_MOVE_LEFT_SPEED;
 
 // These are hard coded to the dimensions of the entity's texture

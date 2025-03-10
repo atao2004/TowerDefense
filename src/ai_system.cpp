@@ -39,7 +39,7 @@ void AISystem::update_enemy_behaviors(float elapsed_ms)
 
             // For now, just handle basic movement
             update_zombie_movement(entity, elapsed_ms);
-            update_zombie_attack(entity, elapsed_ms);
+            update_enemy_melee_attack(entity, elapsed_ms);
         }
     }
     update_skeletons(elapsed_ms);
@@ -87,7 +87,7 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms)
     }
 }
 
-void AISystem::update_zombie_attack(Entity entity, float elapsed_ms)
+void AISystem::update_enemy_melee_attack(Entity entity, float elapsed_ms)
 {
     if (!registry.players.entities.size())
         return;
@@ -97,7 +97,7 @@ void AISystem::update_zombie_attack(Entity entity, float elapsed_ms)
     Motion &enemy_motion = registry.motions.get(entity);
     Motion &player_motion = registry.motions.get(player);
 
-    attack.range = 60.0f; // Set attack range
+    attack.range = 40.0f; // Set attack range
 
     // Calculate distance to player
     float distance = calculate_distance_to_target(enemy_motion.position, player_motion.position);

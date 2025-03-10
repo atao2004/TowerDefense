@@ -110,7 +110,7 @@ private:
 	SpawnManager spawn_manager;
 
 	bool test_mode = false;
-	bool tutorial_mode = false;
+	bool tutorial_mode = true;
 	
     // Sound effects
 	float movement_sound_timer = 0.f;
