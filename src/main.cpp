@@ -90,7 +90,6 @@ int main()
 			if (!WorldSystem::game_is_over) {
 
 				//M2: FPS
-				std::cout<<cooldown<<std::endl;
 				float current_fps = (1/(elapsed_ms/1000));
 				cooldown -= elapsed_ms;
 				if (cooldown <= 0) {                             //used to prevent screen flickering
