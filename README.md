@@ -82,3 +82,53 @@
 **Creative [23] User Interface: Audio feedback**
 - There are two background tracks depending on whether the player is in combat (there is at least 1 zombie).
 - There are sound effects for player move, player attack, enemy attack, player death, and game over.
+
+
+
+
+## M2 Features:
+
+### Required Elements
+
+**Improved Game AI and Gameplay**
+* Skeleton
+   * The skeleton is a new enemy with two states (walk, attack). In the walk state, the enemy moves toward the player and plants. When they are in range, the enemy will transition to the attack state and fire an arrow. Regular zombies are unable to harm plants.
+* Plant
+   * Press "f" to plant a seed in farmland. After a certain amount of time, seeds will mature into plants with two states (idle, attack). In the idle state, if there is an enemy on the map, the seed will transition to the attack state and fire a projectile. The player can obtain new seeds from levelling up
+
+**Sprite Animation**
+* Player (Idle, Move, Attack)
+* Zombie (Move)
+* Skeleton (Idle, Walk, Attack)
+* Plant (Attack)
+* Tutorial Signs
+
+**New Assets**
+* Map (Grass, Farmland, Rocks, Flowers, Trees)
+* Refer to Sprite Animation assets.
+
+**Mesh-based Collision Detection & Resolution**
+* Press "C" to summon a giant chicken. The chicken will kill any enemies in its path using mesh-based collisions.
+* The chicken will also be summoned when player's health is less that 1/4
+
+**Gameplay Tutorial**
+* Press "T" to swap between the playing and tutorial map. 
+* The tutorial map has 4 instruction boards and 2 tutorial enemies to help player get started with the game.
+
+**FPS Counter**
+* The FPS is printed on the game window.
+
+**Non-Repetitive Gameplay**
+* The number of enemies in each wave gradually increases, making survival more challenging over time. To counter this, players can level up by defeating enemies. Each level-up rewards players with seeds, which can be used to grow plants for defense.
+
+**Inventory(Incomplete)**
+* Inventory on the bottom of screen can show the number of seeds owned by the player
+
+### Creative Elements
+
+**[21] User Interface: Camera controls**
+* The camera follows the player.
+
+**[24] Quality & User Experience (UX): Basic integrated assets**
+* Refer to Sprite Animation and New Assets
+* The game map and tutorial map was redesigned using a tileset.
