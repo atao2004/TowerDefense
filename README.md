@@ -33,9 +33,11 @@
 ## Controls:
 
 - **WASD** – Move the player  
-- **Left Click** – Attack  
+- **Left Click** – Attack
+- **F** - Plant seed
 - **G** – Spawn enemy  
-- **R** – Restart game  
+- **R** – Restart game
+- **T** - Enter/Exit tutorial  
 - **ESC** – Close game 
 
 ## M1 Features:
