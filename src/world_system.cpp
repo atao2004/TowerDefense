@@ -333,8 +333,8 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	// registry.pauses.clear();
 	registry.toolbars.clear();
 	// createPause();
-	createToolbar(vec2(player_pos.x, player_pos.y + WINDOW_HEIGHT_PX * 0.475));
-	createSeedInventory(vec2(player_pos.x - 191, player_pos.y + WINDOW_HEIGHT_PX * 0.475), registry.motions.get(player).velocity, current_seed);
+	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
+	createSeedInventory(vec2(player_pos.x - 191, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
 
 	// Kung: Reset player movement so that the player remains still when no keys are pressed
 
@@ -410,7 +410,7 @@ void WorldSystem::restart_game()
 	// 	grid_lines.push_back(createGridLine(vec2(0, row * GRID_CELL_HEIGHT_PX), vec2(2 * WINDOW_WIDTH_PX, grid_line_width)));
 	// }
 
-	restart_overlay_renders(vec2{WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2});
+	restart_overlay_renders(vec2{CAMERA_VIEW_WIDTH / 2, CAMERA_VIEW_HEIGHT / 2});
 
 	// start the spawn manager
 	spawn_manager.start_game();
@@ -627,7 +627,7 @@ void WorldSystem::player_attack()
 							// StateSystem::update_state(STATE::LEVEL_UP);
 							//come back later!
 							if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
-								createSeedInventory(vec2(player_motion.position.x - 191, player_motion.position.y + WINDOW_HEIGHT_PX * 0.475), player_motion.velocity, current_seed);
+								createSeedInventory(vec2(player_motion.position.x - 191, player_motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), player_motion.velocity, current_seed);
 							}
 							registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
@@ -1093,7 +1093,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				// StateSystem::update_state(STATE::LEVEL_UP);
 				//come back later!
 				if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
-					createSeedInventory(vec2(motion.position.x - 191, motion.position.y + WINDOW_HEIGHT_PX * 0.475), motion.velocity, current_seed);
+					createSeedInventory(vec2(motion.position.x - 191, motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed);
 				}
 				registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
