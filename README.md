@@ -121,6 +121,9 @@
 **Non-Repetitive Gameplay**
 * The number of enemies in each wave gradually increases, making survival more challenging over time. To counter this, players can level up by defeating enemies. Each level-up rewards players with seeds, which can be used to grow plants for defense.
 
+**Inventory(Incomplete)**
+* Inventory on the bottom of screen can show the number of seeds owned by the player
+
 ### Creative Elements
 
 **[21] User Interface: Camera controls**
