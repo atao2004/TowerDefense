@@ -915,6 +915,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
+	// Debug
+	if (action == GLFW_PRESS && key == GLFW_KEY_L)
+	{
+		registry.list_all_components();
+	}
+
 	// when player is in the level up menu, disable some game inputs
 	if (StateSystem::get_state() == STATE::LEVEL_UP ||
 		game_is_over)
@@ -1076,10 +1082,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		createChicken(renderer);
 
 	// Debug
-	if (action == GLFW_PRESS && key == GLFW_KEY_L)
-	{
-		registry.list_all_components();
-	}
 	if (action == GLFW_PRESS && key == GLFW_KEY_0)
 	{
 		if (registry.players.size() > 0) {
