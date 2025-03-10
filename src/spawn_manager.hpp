@@ -36,7 +36,7 @@ private:
     std::uniform_real_distribution<float> uniform_dist;
     
     // Constants
-    static constexpr float WAVE_INTERVAL_MS = 5000.0f;
+    static constexpr float WAVE_INTERVAL_MS = 10000.0f;
     static constexpr int INITIAL_ZOMBIES_PER_WAVE = 1;
     static constexpr float WAVE_SCALING_FACTOR = 1.0f;
     static constexpr bool IS_WAVE_MODE_LINEAR = true;
