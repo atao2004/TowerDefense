@@ -258,9 +258,9 @@ void PhysicsSystem::handle_projectile_collisions()
 
 		// Check if projectile is out of window bounds
 		if (motion.position.x < 0 ||
-			motion.position.x > WINDOW_WIDTH_PX ||
+			motion.position.x > MAP_WIDTH_PX ||
 			motion.position.y < 0 ||
-			motion.position.y > WINDOW_HEIGHT_PX)
+			motion.position.y > MAP_HEIGHT_PX)
 		{
 			// Remove projectile if it's out of bounds
 			registry.remove_all_components_of(projectile);
@@ -376,9 +376,9 @@ void PhysicsSystem::handle_arrows(float elapsed_ms)
 
 		// Check if arrow is out of window bounds
 		if (motion.position.x < 0 ||
-			motion.position.x > WINDOW_WIDTH_PX ||
+			motion.position.x > MAP_WIDTH_PX ||
 			motion.position.y < 0 ||
-			motion.position.y > WINDOW_HEIGHT_PX)
+			motion.position.y > MAP_HEIGHT_PX)
 		{
 			// Remove arrow if it's out of bounds
 			registry.remove_all_components_of(entity);

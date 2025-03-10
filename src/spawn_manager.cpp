@@ -22,25 +22,25 @@ void SpawnManager::initialize_spawn_points()
     // Create 8 spawn points, 2 on each edge
     // Top edge
     for (int i = 1; i <= 4; i++) {
-        float x_pos = (WINDOW_WIDTH_PX * i) / 5.0f; 
+        float x_pos = (MAP_WIDTH_PX * i) / 5.0f; 
         spawn_points.push_back({{x_pos, OFFSET}, true});
     }
 
     // Right edge
     for (int i = 1; i <= 4; i++) {
-        float y_pos = (WINDOW_HEIGHT_PX * i) / 5.0f; 
-        spawn_points.push_back({{WINDOW_WIDTH_PX - OFFSET, y_pos}, true});
+        float y_pos = (MAP_HEIGHT_PX * i) / 5.0f; 
+        spawn_points.push_back({{MAP_WIDTH_PX - OFFSET, y_pos}, true});
     }
 
     // Bottom edge
     for (int i = 1; i <= 4; i++) {
-        float x_pos = (WINDOW_WIDTH_PX * i) / 5.0f;
-        spawn_points.push_back({{x_pos, WINDOW_HEIGHT_PX - OFFSET}, true});
+        float x_pos = (MAP_WIDTH_PX * i) / 5.0f;
+        spawn_points.push_back({{x_pos, MAP_HEIGHT_PX - OFFSET}, true});
     }
 
     // Left edge
     for (int i = 1; i <= 4; i++) {
-        float y_pos = (WINDOW_HEIGHT_PX * i) / 5.0f;
+        float y_pos = (MAP_HEIGHT_PX * i) / 5.0f;
         spawn_points.push_back({{OFFSET, y_pos}, true});
     }
 }
