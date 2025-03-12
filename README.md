@@ -32,8 +32,10 @@
 ## Controls:
 
 - **WASD** – Move the player  
-- **Left Click** – Attack  
-- **G** – Spawn enemy  
+- **Left Click** – Attack
+- **F** - Plant seed
+- **G** – Spawn enemy
+- **T** - Enter/Exit tutorial
 - **R** – Restart game  
 - **ESC** – Close game 
 
