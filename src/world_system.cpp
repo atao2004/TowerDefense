@@ -12,11 +12,11 @@
 #include "spawn_manager.hpp"
 #include "state_system.hpp"
 
-// FreeType
-// #include <ft2build.h>
-// #include FT_FREETYPE_H
+//FreeType
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
-// FT_Library library;
+FT_Library library;
 
 bool WorldSystem::game_is_over = false;
 Mix_Chunk *WorldSystem::game_over_sound = nullptr;
