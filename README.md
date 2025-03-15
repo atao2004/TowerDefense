@@ -11,6 +11,7 @@
 **Video**
 
 - https://youtu.be/HwS0V2wAJzY
+- https://youtu.be/OYWhfxRYuS4
 
 **Description**
 
@@ -34,9 +35,9 @@
 - **WASD** – Move the player  
 - **Left Click** – Attack
 - **F** - Plant seed
-- **G** – Spawn enemy
-- **T** - Enter/Exit tutorial
-- **R** – Restart game  
+- **G** – Spawn enemy  
+- **R** – Restart game
+- **T** - Enter/Exit tutorial  
 - **ESC** – Close game 
 
 ## M1 Features:
