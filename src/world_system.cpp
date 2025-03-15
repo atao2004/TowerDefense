@@ -269,6 +269,8 @@ void WorldSystem::restart_common_tasks()
 	// 	registry.seeds.remove(i); 
 	// }
 
+	chicken_summoned = false;
+
 	current_bgm = night_bgm;
 	// smooth fade in, thread to prevent blocking
 	std::thread music_thread([this]()
