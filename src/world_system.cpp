@@ -285,6 +285,8 @@ void WorldSystem::restart_common_tasks()
 	enemies_to_spawn_today = calculate_enemies_for_day(current_day);
 	day_in_progress = true;
 
+	chicken_summoned = false;
+
 	current_bgm = night_bgm;
 	// smooth fade in, thread to prevent blocking
 	std::thread music_thread([this]()
