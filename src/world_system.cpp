@@ -21,9 +21,10 @@
 bool WorldSystem::game_is_over = false;
 Mix_Chunk *WorldSystem::game_over_sound = nullptr;
 GAME_SCREEN_ID WorldSystem::game_screen = GAME_SCREEN_ID::PLAYING;
+int WorldSystem::current_day = 1;
 
 // create the world
-WorldSystem::WorldSystem() : points(0), level(1),current_seed(0)
+WorldSystem::WorldSystem() : points(0), level(1), current_seed(0)
 {
 }
 
@@ -171,30 +172,36 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 	std::cout << "Starting music..." << std::endl;
 
 	// Set all states to default
-	//restart_game();
+	// restart_game();
 	restart_tutorial();
 }
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
-	for(Entity i: registry.seeds.entities) {
+	for (Entity i : registry.seeds.entities)
+	{
 
-		if (!registry.moveWithCameras.has(i)) {
-			if(registry.seeds.get(i).timer <= 0) {
+		if (!registry.moveWithCameras.has(i))
+		{
+			if (registry.seeds.get(i).timer <= 0)
+			{
 				vec2 pos;
 				pos.x = registry.motions.get(i).position.x;
 				pos.y = registry.motions.get(i).position.y;
-				std::cout<<"x pos "<< pos.x << " y pos "<< pos.y << std::endl;
+				std::cout << "x pos " << pos.x << " y pos " << pos.y << std::endl;
 				registry.remove_all_components_of(i);
 				registry.seeds.remove(i);
-				createTower(renderer, {pos.x - GRID_CELL_WIDTH_PX/2, pos.y - GRID_CELL_HEIGHT_PX/2});
-			} else {
+				createTower(renderer, {pos.x - GRID_CELL_WIDTH_PX / 2, pos.y - GRID_CELL_HEIGHT_PX / 2});
+			}
+			else
+			{
 				registry.seeds.get(i).timer -= elapsed_ms_since_last_update;
 			}
 		}
 	}
-	if(StateSystem::get_state() == STATE::LEVEL_UP) {
+	if (StateSystem::get_state() == STATE::LEVEL_UP)
+	{
 		registry.inventorys.components[0].seedCount[current_seed]++;
 	}
 	// Using the spawn manager to generate zombies
@@ -236,8 +243,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	if (!WorldSystem::game_is_over)
 	{
 		update_camera();
-		spawn_manager.step(elapsed_ms_since_last_update, renderer);
-
+		// spawn_manager.step(elapsed_ms_since_last_update, renderer);
+		updateDayInProgress(elapsed_ms_since_last_update);
 		// Check and respawn tutorial enemies if needed
 		if (game_screen == GAME_SCREEN_ID::TUTORIAL)
 		{
@@ -250,7 +257,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 
 		// Summon the chicken when in low health
 		ScreenState &screen = registry.screenStates.components[0];
-		if (screen.hp_percentage < 0.25f && !chicken_summoned) {
+		if (screen.hp_percentage < 0.25f && !chicken_summoned)
+		{
 			createChicken(renderer);
 			chicken_summoned = true;
 		}
@@ -266,8 +274,16 @@ void WorldSystem::restart_common_tasks()
 {
 	registry.clear_all_components();
 	// for(Entity i: registry.seeds.entities) {
-	// 	registry.seeds.remove(i); 
+	// 	registry.seeds.remove(i);
 	// }
+
+	// Reset day counter and related variables
+	current_day = 1;
+	rest_timer_ms = 0.f;
+	enemy_spawn_timer_ms = 0.f;
+	enemies_spawned_today = 0;
+	enemies_to_spawn_today = calculate_enemies_for_day(current_day);
+	day_in_progress = true;
 
 	current_bgm = night_bgm;
 	// smooth fade in, thread to prevent blocking
@@ -325,7 +341,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 {
 	// reset player and spawn player in the middle of the screen
 	Entity player = createPlayer(renderer, player_pos);
-	
+
 	// reset camera position
 	createCamera(renderer, player_pos);
 
@@ -385,7 +401,6 @@ void WorldSystem::restart_game()
 	std::cout << "Restarting game..." << std::endl;
 
 	restart_common_tasks();
-	
 
 	// Set the level to level 1 and the game_screen to PLAYING.
 	level = 1;
@@ -450,7 +465,7 @@ void WorldSystem::restart_tutorial()
 	// }
 
 	// create the tutorial assets
-	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_HEIGHT_PX * -0.5 ));
+	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_HEIGHT_PX * -0.5));
 	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, TUTORIAL_HEIGHT_PX * -0.5));
 	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, TUTORIAL_HEIGHT_PX * -0.5));
 	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_HEIGHT_PX * -0.5));
@@ -460,7 +475,7 @@ void WorldSystem::restart_tutorial()
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 2 - 15, TUTORIAL_HEIGHT_PX * 0.4));
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75 - 15, TUTORIAL_HEIGHT_PX * 0.4));
 	create_tutorial_enemies();
-	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX *0.05 , TUTORIAL_HEIGHT_PX * 0.4});
+	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX * 0.05, TUTORIAL_HEIGHT_PX * 0.4});
 
 	// Print the starting level (Level 0)
 	std::cout << "==== LEVEL " << level << " ====" << std::endl;
@@ -493,11 +508,9 @@ void WorldSystem::check_tutorial_enemies()
 		{
 			Motion &motion = registry.motions.get(zombie);
 
-
 			zombie_exists = true;
 			// Keep zombie in place by setting velocity to zero
 			motion.velocity = vec2(0.0f, 0.0f);
-
 		}
 	}
 
@@ -508,32 +521,12 @@ void WorldSystem::check_tutorial_enemies()
 		{
 			Motion &motion = registry.motions.get(entity);
 
-
 			skeleton_exists = true;
 			// Keep skeleton in place by setting velocity to zero
 			motion.velocity = vec2(0.0f, 0.0f);
-
 		}
 	}
-
-	// Respawn zombie if needed
-	if (!zombie_exists)
-	{
-		vec2 zombie_pos = vec2(TUTORIAL_WIDTH_PX * 0.4, TUTORIAL_HEIGHT_PX * 0.4);
-		createZombie(renderer, zombie_pos);
-		std::cout << "Tutorial zombie respawned" << std::endl;
-	}
-
-	// Respawn skeleton if needed
-	if (!skeleton_exists)
-	{
-		vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.65, TUTORIAL_HEIGHT_PX * 0.4);
-		createSkeleton(renderer, skeleton_pos);
-		std::cout << "Tutorial skeleton respawned" << std::endl;
-	}
 }
-
-
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions()
@@ -625,8 +618,9 @@ void WorldSystem::player_attack()
 						else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 						{
 							// StateSystem::update_state(STATE::LEVEL_UP);
-							//come back later!
-							if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
+							// come back later!
+							if (registry.inventorys.components[0].seedCount[current_seed] == 0)
+							{
 								createSeedInventory(vec2(player_motion.position.x - 191, player_motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), player_motion.velocity, current_seed);
 							}
 							registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
@@ -909,7 +903,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		// }
 		// else
 		// {
-			restart_game();
+		restart_game();
 		// }
 
 		return;
@@ -992,34 +986,45 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 					{
 						// Remove any seeds that have already been planted to begin with.
 						int hasSeed = 0;
-						for (Entity motion_entity : registry.motions.entities) {
-							if (registry.seeds.has(motion_entity) || registry.towers.has(motion_entity)) {
-								if (registry.motions.get(motion_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX)) {
+						for (Entity motion_entity : registry.motions.entities)
+						{
+							if (registry.seeds.has(motion_entity) || registry.towers.has(motion_entity))
+							{
+								if (registry.motions.get(motion_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX))
+								{
 									hasSeed = 1;
-									std::cout<<"A seed was already planted here."<<std::endl;
+									std::cout << "A seed was already planted here." << std::endl;
 								}
 							}
 						}
-						if (!hasSeed) {
-							if(registry.inventorys.components[0].seedCount[current_seed] > 0) {
+						if (!hasSeed)
+						{
+							if (registry.inventorys.components[0].seedCount[current_seed] > 0)
+							{
 								Entity seed = createSeed(vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX), current_seed);
 								registry.inventorys.components[0].seedCount[current_seed]--; // decrease the count of seed in inventory
-								if(registry.inventorys.components[0].seedCount[current_seed] == 0) {
+								if (registry.inventorys.components[0].seedCount[current_seed] == 0)
+								{
 									// Remove the seed from the toolbar.
-									for (Entity seed_entity : registry.seeds.entities) {
-										if (registry.moveWithCameras.has(seed_entity)) {
-											if (registry.seeds.get(seed_entity).type == current_seed) {
+									for (Entity seed_entity : registry.seeds.entities)
+									{
+										if (registry.moveWithCameras.has(seed_entity))
+										{
+											if (registry.seeds.get(seed_entity).type == current_seed)
+											{
 												registry.remove_all_components_of(seed_entity);
 											}
 										}
 									}
 								}
-							} else {
-								std::cout<<"No more inventory of seed type "<<std::endl;
+							}
+							else
+							{
+								std::cout << "No more inventory of seed type " << std::endl;
 							}
 						}
 
-						std::cout<<"inventory count of seed type "<< current_seed << " is " << registry.inventorys.components[0].seedCount[current_seed] << std::endl;
+						std::cout << "inventory count of seed type " << current_seed << " is " << registry.inventorys.components[0].seedCount[current_seed] << std::endl;
 					}
 				}
 			}
@@ -1035,7 +1040,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	{
 		player_movement(key, action, motion);
 	}
-	
+
 	// Update state if player is moving
 	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
 	{
@@ -1084,24 +1089,30 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// Debug
 	if (action == GLFW_PRESS && key == GLFW_KEY_0)
 	{
-		if (registry.players.size() > 0) {
+		if (registry.players.size() > 0)
+		{
 			createSkeleton(renderer, vec2(motion.position.x + CAMERA_VIEW_WIDTH / 2, motion.position.y));
 		}
 	}
 	if (action == GLFW_PRESS && key == GLFW_KEY_1)
 	{
-		if (registry.screenStates.size() != 0) {
-			if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0) {
+		if (registry.screenStates.size() != 0)
+		{
+			if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
+			{
 				// StateSystem::update_state(STATE::LEVEL_UP);
-				//come back later!
-				if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
+				// come back later!
+				if (registry.inventorys.components[0].seedCount[current_seed] == 0)
+				{
 					createSeedInventory(vec2(motion.position.x - 191, motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed);
 				}
 				registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 				level++;
 				std::cout << "==== LEVEL " << level << " ====" << std::endl;
-			} else  {
+			}
+			else
+			{
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += 0.1;
 			}
 		}
@@ -1205,5 +1216,92 @@ void WorldSystem::update_camera()
 
 		// move camera to player position
 		cam.position = player_motion.position;
+	}
+}
+
+void WorldSystem::advance_to_next_day()
+{
+	current_day++;
+	std::cout << "===== ADVANCING TO DAY " << current_day << " =====" << std::endl;
+
+	// Calculate number of enemies for the new day with a reasonable progression curve
+	enemies_to_spawn_today = calculate_enemies_for_day(current_day);
+
+	// Reset day stats
+	enemies_spawned_today = 0;
+	day_in_progress = true;
+	enemy_spawn_timer_ms = 0.f;
+
+	// Reset chicken summon flag for the new day
+	chicken_summoned = false;
+
+	// Show day number as text overlay
+	// Could create a temporary text entity here to display day number
+	std::cout << "Day " << current_day << " will have " << enemies_to_spawn_today << " enemies" << std::endl;
+}
+
+// Helper function to calculate number of enemies per day
+int WorldSystem::calculate_enemies_for_day(int day)
+{
+	// Base enemies for day 1
+	const int BASE_ENEMIES = 5;
+
+	// Progressive difficulty scaling:
+	// - Days 1-3: Linear increase (+2 enemies per day)
+	// - Days 4-7: Slightly faster increase (+3 enemies per day)
+	// - Days 8+: Challenging increase (+4 enemies per day)
+
+	if (day <= 1)
+		return BASE_ENEMIES;
+	else if (day <= 3)
+		return BASE_ENEMIES + (day - 1) * 2;
+	else if (day <= 7)
+		return BASE_ENEMIES + 4 + (day - 3) * 3;
+	else
+		return BASE_ENEMIES + 16 + (day - 7) * 4;
+}
+
+void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)
+{
+	if (day_in_progress)
+	{
+		// We're still spawning enemies for current day
+		if (enemies_spawned_today < enemies_to_spawn_today)
+		{
+			// Time to spawn next enemy?
+			enemy_spawn_timer_ms += elapsed_ms_since_last_update;
+			if (enemy_spawn_timer_ms >= 1000.f)
+			{ // 1 enemy per second
+				// Spawn a single enemy
+				spawn_manager.spawn_enemy(renderer);
+				enemies_spawned_today++;
+				enemy_spawn_timer_ms = 0.f;
+			}
+		}
+		else
+		{
+			// All enemies for this day have been spawned
+			day_in_progress = false;
+		}
+	}
+	else if (registry.enemies.size() == 0)
+	{
+		// All enemies are defeated, time for rest period
+		rest_timer_ms += elapsed_ms_since_last_update;
+
+		// Display rest time remaining
+		if (rest_timer_ms < 10000.f)
+		{ // 10 second rest
+			// Optional: Display countdown text
+			float remaining = (10000.f - rest_timer_ms) / 1000.f;
+			std::cout << "Next day in: " << (int)remaining << " seconds\r" << std::flush;
+		}
+		else
+		{
+			std::cout << std::endl; // Clear the countdown line
+			// Rest period is over, advance to next day
+			rest_timer_ms = 0.f;
+			advance_to_next_day();
+		}
 	}
 }

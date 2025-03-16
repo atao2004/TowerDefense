@@ -139,6 +139,8 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	
 	gl_has_errors();
 
+
+
 	// texture-mapped entities - use data location as in the vertex buffer
 	if (render_request.used_effect == EFFECT_ASSET_ID::TEXTURED)
 	{
