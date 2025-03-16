@@ -250,7 +250,7 @@ Entity createScorchedEarth(vec2 position)
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(scorched_earth_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(SCORCHED_EARTH_DIMENSION_PX, SCORCHED_EARTH_DIMENSION_PX);
+	motion_component.scale = vec2(GRID_CELL_WIDTH_PX, GRID_CELL_HEIGHT_PX);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.

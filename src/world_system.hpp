@@ -74,7 +74,7 @@ private:
 	void on_mouse_button_pressed(int button, int action, int mods);
 
 	// restart the level or the tutorial
-	void restart_common_tasks();
+	void restart_common_tasks(vec2 map_dimensions);
 	void restart_overlay_renders(vec2 player_pos);
 	void restart_game();
 	void restart_tutorial();

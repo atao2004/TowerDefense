@@ -262,7 +262,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 }
 
 // Shared elements between restarting a game and a tutorial
-void WorldSystem::restart_common_tasks()
+void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 {
 	registry.clear_all_components();
 	// for(Entity i: registry.seeds.entities) {
@@ -304,11 +304,15 @@ void WorldSystem::restart_common_tasks()
 	// Kung: Create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
 	removeSurfaces();
 	// commented out Kung's code
-	for (int x = -SCORCHED_EARTH_DIMENSION_PX * 4; x < MAP_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 4; x += SCORCHED_EARTH_DIMENSION_PX)
+	for (int x = -SCORCHED_EARTH_WIDTH * GRID_CELL_WIDTH_PX; x < map_dimensions.x + SCORCHED_EARTH_WIDTH * GRID_CELL_WIDTH_PX; x += GRID_CELL_WIDTH_PX)
 	{
-		for (int y = -SCORCHED_EARTH_DIMENSION_PX * 2; y < MAP_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 2; y += SCORCHED_EARTH_DIMENSION_PX)
+		for (int y = -SCORCHED_EARTH_HEIGHT * GRID_CELL_HEIGHT_PX; y < map_dimensions.y + SCORCHED_EARTH_HEIGHT * GRID_CELL_HEIGHT_PX; y += GRID_CELL_HEIGHT_PX)
 		{
-			createScorchedEarth(vec2(x, y));
+			if (x < 0 || y < 0) {
+				createScorchedEarth(vec2(x, y));
+			} else if (x >= map_dimensions.x || y >= map_dimensions.y) {
+				createScorchedEarth(vec2(x, y));
+			}
 		}
 	}
 
@@ -384,7 +388,7 @@ void WorldSystem::restart_game()
 {
 	std::cout << "Restarting game..." << std::endl;
 
-	restart_common_tasks();
+	restart_common_tasks(vec2(MAP_WIDTH_PX, MAP_HEIGHT_PX));
 	
 
 	// Set the level to level 1 and the game_screen to PLAYING.
@@ -424,7 +428,7 @@ void WorldSystem::restart_tutorial()
 {
 	std::cout << "Restarting tutorial..." << std::endl;
 
-	restart_common_tasks();
+	restart_common_tasks(vec2(TUTORIAL_WIDTH_PX, TUTORIAL_HEIGHT_PX));
 
 	// Set the level to level 0 (non-existent) and the game_screen to TUTORIAL.
 	level = 0;
@@ -972,8 +976,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
 
-	// Kung: Plant seed with the 'F' button
-	if (action == GLFW_PRESS && key == GLFW_KEY_F)
+	// Kung: Plant seed with the right click button
+	if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_RIGHT)
 	{
 		// You can only plant where there is farmland.
 		for (Entity maptile_entity : registry.mapTiles.entities)

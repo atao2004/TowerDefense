@@ -148,7 +148,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES}
 # FreeType - Windows-specific (x64 only)
 find_package(Freetype REQUIRED)
 
-
 if(TARGET Freetype AND NOT TARGET Freetype::Freetype)
     # add_library(Freetype::Freetype ALIAS freetype) # target freetype is defined by freetype-targets.cmake
     # might need to add freetype to global scope if cmake errors here
