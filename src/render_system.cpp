@@ -314,9 +314,8 @@ void RenderSystem::drawToScreen()
 	gl_has_errors();
 	// Enabling alpha channel for textures
 	glDisable(GL_BLEND);
-	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
-
 
 	// Draw the screen texture on the quad geometry
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE]);
@@ -342,18 +341,12 @@ void RenderSystem::drawToScreen()
 		glUniform1f(exp_uloc, screen.exp_percentage);
 		gl_has_errors();
 
-		glm::mat4 trans = glm::mat4(1.0f);
-		renderText("hello", 100, 100, 1, { 1, 1, 0 }, trans);
-
 		// Set the vertex position and vertex texture coordinates (both stored in the
 		// same VBO)
 		GLint in_position_loc = glGetAttribLocation(ui_program, "in_position");
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)0);
 		gl_has_errors();
-
-
-
 	}
 	else
 	{
@@ -380,16 +373,13 @@ void RenderSystem::drawToScreen()
 	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
 	gl_has_errors();
 
-
 	// Draw
 	glDrawElements(
 		GL_TRIANGLES, 3, GL_UNSIGNED_SHORT,
 		nullptr); // one triangle = 3 vertices; nullptr indicates that there is
 				  // no offset from the bound index buffer
 
-
 	gl_has_errors();
-
 }
 
 // Render our game world
@@ -422,49 +412,47 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 
 	mat3 projection_2D = createProjectionMatrix();
 
-	// draw all entities with a render request to the frame buffer
-	//for (Entity entity : registry.renderRequests.entities)
-	//{
-	//	// filter to entities that have a motion component
-	//	if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE && !registry.players.has(entity))
-	//	{
-	//		// Note, its not very efficient to access elements indirectly via the entity
-	//		// albeit iterating through all Sprites in sequence. A good point to optimize
-	//		if (game_screen == GAME_SCREEN_ID::TUTORIAL)
-	//		{
-	//			if (registry.mapTiles.has(entity))
-	//			{
-	//				if (registry.tutorialTiles.has(entity))
-	//				{
-	//					drawTexturedMesh(entity, projection_2D);
-	//				}
-	//			}
-	//			else
-	//			{
-	//				drawTexturedMesh(entity, projection_2D);
-	//			}
-	//		}
-	//		else if (!registry.tutorialSigns.has(entity) && !registry.tutorialTiles.has(entity))
-	//		{
-	//			drawTexturedMesh(entity, projection_2D);
-	//		}
-	//	}
-	//	// draw grid lines separately, as they do not have motion but need to be rendered
-	//	else if (registry.gridLines.has(entity))
-	//	{
-	//		drawGridLine(entity, projection_2D);
-	//	}
-	//}
+	// // draw all entities with a render request to the frame buffer
+	// for (Entity entity : registry.renderRequests.entities)
+	// {
+	// 	// filter to entities that have a motion component
+	// 	if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE && !registry.players.has(entity))
+	// 	{
+	// 		// Note, its not very efficient to access elements indirectly via the entity
+	// 		// albeit iterating through all Sprites in sequence. A good point to optimize
+	// 		if (game_screen == GAME_SCREEN_ID::TUTORIAL)
+	// 		{
+	// 			if (registry.mapTiles.has(entity))
+	// 			{
+	// 				if (registry.tutorialTiles.has(entity))
+	// 				{
+	// 					drawTexturedMesh(entity, projection_2D);
+	// 				}
+	// 			}
+	// 			else
+	// 			{
+	// 				drawTexturedMesh(entity, projection_2D);
+	// 			}
+	// 		}
+	// 		else if (!registry.tutorialSigns.has(entity) && !registry.tutorialTiles.has(entity))
+	// 		{
+	// 			drawTexturedMesh(entity, projection_2D);
+	// 		}
+	// 	}
+	// 	// draw grid lines separately, as they do not have motion but need to be rendered
+	// 	else if (registry.gridLines.has(entity))
+	// 	{
+	// 		drawGridLine(entity, projection_2D);
+	// 	}
+	// }
+	// // individually draw player, will render on top of all the motion sprites
+	// if (!WorldSystem::game_is_over)
+	// 	drawTexturedMesh(registry.players.entities[0], projection_2D);
 
-	//// individually draw player, will render on top of all the motion sprites
-	//if (!WorldSystem::game_is_over)
-	//	drawTexturedMesh(registry.players.entities[0], projection_2D);
-
-	//glm::mat4 trans = glm::mat4(1.0f);
-	//renderText("hello", 100, 100, 1, { 1, 1, 0 }, trans);
-	// 
-	// draw framebuffer to screen
-	// adding "UI" effect when applied
+	glm::mat4 trans = glm::mat4(1.0f);
+	renderText("hello", 100, 100, 1, {1, 1, 0}, trans);
+	//  draw framebuffer to screen
+	//  adding "UI" effect when applied
 	drawToScreen();
 
 	// flicker-free display with a double buffer
@@ -697,9 +685,8 @@ bool RenderSystem::fontInit(const std::string &font_filename, unsigned int font_
 
 void RenderSystem::renderText(std::string text, float x, float y, float scale, const glm::vec3 &color, const glm::mat4 &trans)
 {
-    
-    // Activate shader
-    glUseProgram(m_font_shaderProgram);
+	// Activate shader
+	glUseProgram(m_font_shaderProgram);
 
 	GLint textColor_location = glGetUniformLocation(m_font_shaderProgram, "textColor");
 	assert(textColor_location > -1);
@@ -749,38 +736,6 @@ void RenderSystem::renderText(std::string text, float x, float y, float scale, c
 		// advance to next glyph (note that advance is number of 1/64 pixels)
 		x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
 	}
+	glBindVertexArray(vao);
 	glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-void RenderSystem::drawUI()
-{
-    // Reset the framebuffer to the screen
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
-    // THIS IS CRUCIAL - Reset viewport to match window size
-    int w, h;
-    glfwGetFramebufferSize(window, &w, &h);
-    glViewport(0, 0, w, h);
-    
-    // Set proper OpenGL state
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-    // Debug print
-    std::cout << "Drawing UI text at resolution: " << w << "x" << h << std::endl;
-    std::cout << "Character count in font: " << m_ftCharacters.size() << std::endl;
-    
-    // Use identity matrix for transformation
-    glm::mat4 trans = glm::mat4(1.0f);
-    
-    // Try multiple positions and sizes to ensure visibility
-    // Center of screen - large red text
-    renderText("CENTER TEXT", w/2 - 150, h/2, 2.0f, {1.0f, 0.0f, 0.0f}, trans);
-    
-    // Bottom left - green text
-    renderText("Bottom Left", 50, 50, 1.0f, {0.0f, 1.0f, 0.0f}, trans);
-    
-    // Top right - blue text
-    renderText("Top Right", w-200, h-50, 1.0f, {0.0f, 0.0f, 1.0f}, trans);
 }
