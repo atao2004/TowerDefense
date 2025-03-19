@@ -412,45 +412,47 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 
 	mat3 projection_2D = createProjectionMatrix();
 
-	// // draw all entities with a render request to the frame buffer
-	// for (Entity entity : registry.renderRequests.entities)
-	// {
-	// 	// filter to entities that have a motion component
-	// 	if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE && !registry.players.has(entity))
-	// 	{
-	// 		// Note, its not very efficient to access elements indirectly via the entity
-	// 		// albeit iterating through all Sprites in sequence. A good point to optimize
-	// 		if (game_screen == GAME_SCREEN_ID::TUTORIAL)
-	// 		{
-	// 			if (registry.mapTiles.has(entity))
-	// 			{
-	// 				if (registry.tutorialTiles.has(entity))
-	// 				{
-	// 					drawTexturedMesh(entity, projection_2D);
-	// 				}
-	// 			}
-	// 			else
-	// 			{
-	// 				drawTexturedMesh(entity, projection_2D);
-	// 			}
-	// 		}
-	// 		else if (!registry.tutorialSigns.has(entity) && !registry.tutorialTiles.has(entity))
-	// 		{
-	// 			drawTexturedMesh(entity, projection_2D);
-	// 		}
-	// 	}
-	// 	// draw grid lines separately, as they do not have motion but need to be rendered
-	// 	else if (registry.gridLines.has(entity))
-	// 	{
-	// 		drawGridLine(entity, projection_2D);
-	// 	}
-	// }
-	// // individually draw player, will render on top of all the motion sprites
-	// if (!WorldSystem::game_is_over)
-	// 	drawTexturedMesh(registry.players.entities[0], projection_2D);
+	// draw all entities with a render request to the frame buffer
+	for (Entity entity : registry.renderRequests.entities)
+	{
+		// filter to entities that have a motion component
+		if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE && !registry.players.has(entity))
+		{
+			// Note, its not very efficient to access elements indirectly via the entity
+			// albeit iterating through all Sprites in sequence. A good point to optimize
+			if (game_screen == GAME_SCREEN_ID::TUTORIAL)
+			{
+				if (registry.mapTiles.has(entity))
+				{
+					if (registry.tutorialTiles.has(entity))
+					{
+						drawTexturedMesh(entity, projection_2D);
+					}
+				}
+				else
+				{
+					drawTexturedMesh(entity, projection_2D);
+				}
+			}
+			else if (!registry.tutorialSigns.has(entity) && !registry.tutorialTiles.has(entity))
+			{
+				drawTexturedMesh(entity, projection_2D);
+			}
+		}
+		// draw grid lines separately, as they do not have motion but need to be rendered
+		else if (registry.gridLines.has(entity))
+		{
+			drawGridLine(entity, projection_2D);
+		}
+	}
+	// individually draw player, will render on top of all the motion sprites
+	if (!WorldSystem::game_is_over)
+		drawTexturedMesh(registry.players.entities[0], projection_2D);
 
 	glm::mat4 trans = glm::mat4(1.0f);
 	renderText("hello", 100, 100, 1, {1, 1, 0}, trans);
+
+
 	//  draw framebuffer to screen
 	//  adding "UI" effect when applied
 	drawToScreen();
@@ -737,5 +739,5 @@ void RenderSystem::renderText(std::string text, float x, float y, float scale, c
 		x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
 	}
 	glBindVertexArray(vao);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 }

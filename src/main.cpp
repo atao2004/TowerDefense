@@ -127,7 +127,7 @@ int main()
 				}
 			}
 		}
-		
+
 		renderer_system.draw(game_screen);
 	}
 
