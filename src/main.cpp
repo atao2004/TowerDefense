@@ -127,6 +127,9 @@ int main()
 				}
 			}
 		}
+		
+		glm::mat4 trans = glm::mat4(1.0f);
+		renderer_system.renderText("hello", 100, 100, 1, {1, 1, 0}, trans);
 
 		renderer_system.draw(game_screen);
 	}
