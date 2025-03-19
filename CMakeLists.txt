@@ -153,8 +153,8 @@ if(TARGET Freetype AND NOT TARGET Freetype::Freetype)
      add_library(Freetype::Freetype ALIAS freetype) # target freetype is defined by freetype-targets.cmake
      # might need to add freetype to global scope if cmake errors here
      # alternativly if the above does not work for you you can use
-     add_library(Freetype::Freetype INTERFACE IMPORTED)
-     target_link_libraries(Freetype::Freetype INTERFACE freetype)
+    #  add_library(Freetype::Freetype INTERFACE IMPORTED)
+    #  target_link_libraries(Freetype::Freetype INTERFACE freetype)
 endif()
 
 if(NOT TARGET Freetype::Freetype)
