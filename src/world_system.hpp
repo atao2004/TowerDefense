@@ -37,7 +37,8 @@ public:
 	~WorldSystem();
 
 	// Returns the game_screen (inspired by Assignment #2)
-	static GAME_SCREEN_ID get_game_screen() {
+	static GAME_SCREEN_ID get_game_screen()
+	{
 		return game_screen;
 	}
 
@@ -56,6 +57,8 @@ public:
 	// Current experience level of the player
 	unsigned int level;
 
+	static int current_day;
+	
 private:
 	float mouse_pos_x = 0.0f;
 	float mouse_pos_y = 0.0f;
@@ -65,8 +68,8 @@ private:
 	void update_screen_shake(float elapsed_ms);
 
 	// Kung: player movement helper function
-	void player_movement(int key, int action, Motion& player_motion);
-	void player_movement_tutorial(int key, int action, Motion& player_motion);
+	void player_movement(int key, int action, Motion &player_motion);
+	void player_movement_tutorial(int key, int action, Motion &player_motion);
 
 	// input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -98,7 +101,7 @@ private:
 	std::vector<Entity> grid_lines;
 
 	// music references
-	Mix_Music *current_bgm; //handle switching soundtrack
+	Mix_Music *current_bgm; // handle switching soundtrack
 	Mix_Music *night_bgm;
 	Mix_Music *day_bgm;
 	Mix_Music *combat_bgm;
@@ -111,13 +114,23 @@ private:
 
 	bool test_mode = false;
 	bool tutorial_mode = true;
-	
-    // Sound effects
+
+	// Sound effects
 	float movement_sound_timer = 0.f;
-    bool is_movement_sound_playing = false;
+	bool is_movement_sound_playing = false;
 	void update_movement_sound(float elapsed_ms);
 
 	void update_camera();
 
 	bool chicken_summoned = false;
+
+	float rest_timer_ms = 0.f;		  // Timer for rest period between days
+	float enemy_spawn_timer_ms = 0.f; // Timer for spawning enemies
+	bool day_in_progress = false;	  // Whether the current day's enemies are still spawning
+	int enemies_spawned_today = 0;	  // Track how many enemies spawned in current day
+	int enemies_to_spawn_today = 0;	  // Total enemies to spawn today
+
+	void advance_to_next_day();
+	int calculate_enemies_for_day(int day);
+	void updateDayInProgress(float elapsed_ms_since_last_update);
 };

@@ -17,6 +17,8 @@ public:
     bool is_test_mode() const { return test_mode; }
     int current_wave;
 
+    void spawn_enemy(RenderSystem* renderer);
+
 private:
     struct SpawnPoint {
         vec2 position;

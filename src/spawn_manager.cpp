@@ -47,21 +47,22 @@ void SpawnManager::initialize_spawn_points()
 
 void SpawnManager::step(float elapsed_ms, RenderSystem *renderer)
 {
-
-    if (!is_game_started)
-    {
+    // If game isn't started or in test mode, don't do anything
+    if (!is_game_started || test_mode) {
         return;
     }
-
-    if (!test_mode)
+    
+    // Update the timer for spawning
+    wave_timer_ms += elapsed_ms;
+    
+    // Time to spawn an enemy?
+    if (wave_timer_ms >= next_wave_ms)
     {
-        wave_timer_ms += elapsed_ms;
-        if (wave_timer_ms >= next_wave_ms)
-        {
-            generate_wave(renderer);
-            wave_timer_ms = 0.f;
-            next_wave_ms = WAVE_INTERVAL_MS;
-        }
+        // Spawn a single enemy
+        spawn_enemy(renderer);
+        
+        // Reset timer
+        wave_timer_ms = 0.f;
     }
 }
 
@@ -117,4 +118,20 @@ void SpawnManager::set_test_mode(bool enabled)
 {
     test_mode = enabled;
     std::cout << "Test mode " << (enabled ? "enabled" : "disabled") << std::endl;
+}
+
+void SpawnManager::spawn_enemy(RenderSystem* renderer)
+{
+    // Get a random spawn point
+    int random_point = (int)(uniform_dist(rng) * spawn_points.size());
+    vec2 spawn_pos = spawn_points[random_point].position;
+    
+    // Fixed 30% chance for skeleton
+    const float SKELETON_CHANCE = 0.3f;
+    
+    if (uniform_dist(rng) < SKELETON_CHANCE) {
+        createSkeleton(renderer, spawn_pos);
+    } else {
+        createZombie(renderer, spawn_pos);
+    }
 }
