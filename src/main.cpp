@@ -16,6 +16,7 @@
 #include "animation_system.hpp"
 #include "tower_system.hpp"
 #include "movement_system.hpp"
+#include "frame_manager.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -31,6 +32,7 @@ int main()
 	AnimationSystem animation_system;
 	TowerSystem tower_system;
 	MovementSystem movement_system;
+	FrameManager frame_manager;
 
 	// initialize window
 	GLFWwindow* window = world_system.create_window();
@@ -70,6 +72,16 @@ int main()
 	int max_fps = 0;
 	int min_fps = 50000; //impossible number technically, lazy implementation sorry!
 	int cooldown = 1000;
+
+	// frame intervals
+	int world_interval = 1;
+	int ai_interval = 1;
+	int physics_interval = 1;
+	int status_interval = 1;
+	int tower_interval = 1;
+	int movement_interval = 1;
+	int animation_interval = 1;
+
 	while (!world_system.is_over()) {
 
 		GAME_SCREEN_ID game_screen = world_system.get_game_screen();
@@ -83,10 +95,12 @@ int main()
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
 
+		frame_manager.tick();
+
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
 		//when level up, we want the screen to be frozen
 		if (StateSystem::get_state() != STATE::LEVEL_UP) {
-			world_system.step(elapsed_ms);
+			if (frame_manager.can_update(world_interval)) world_system.step(elapsed_ms);
 			if (!WorldSystem::game_is_over) {
 
 				//M2: FPS
@@ -110,12 +124,12 @@ int main()
 				}
 				record_times++;
 
-				ai_system.step(elapsed_ms);
-				physics_system.step(elapsed_ms);
-				status_system.step(elapsed_ms);
-				tower_system.step(elapsed_ms);
-				movement_system.step(elapsed_ms, game_screen);
-				animation_system.step(elapsed_ms);
+				if (frame_manager.can_update(ai_interval)) ai_system.step(elapsed_ms);
+				if (frame_manager.can_update(physics_interval)) physics_system.step(elapsed_ms);
+				if (frame_manager.can_update(status_interval)) status_system.step(elapsed_ms);
+				if (frame_manager.can_update(tower_interval)) tower_system.step(elapsed_ms);
+				if (frame_manager.can_update(movement_interval)) movement_system.step(elapsed_ms, game_screen);
+				if (frame_manager.can_update(animation_interval)) animation_system.step(elapsed_ms);
 			} else {
 				//M2: FPS. make sure we only print once, lazy implementation
 				if (record_times != 0) {
