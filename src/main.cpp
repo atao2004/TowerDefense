@@ -77,9 +77,9 @@ int main()
 	FrameManager fm_ai = FrameManager(1);
 	FrameManager fm_physics = FrameManager(1);
 	FrameManager fm_status = FrameManager(1);
-	FrameManager fm_tower = FrameManager(1);
-	FrameManager fm_movement = FrameManager(1);
-	FrameManager fm_animation = FrameManager(1);
+	FrameManager fm_tower = FrameManager(5);
+	FrameManager fm_movement = FrameManager(2);
+	FrameManager fm_animation = FrameManager(2);
 
 	while (!world_system.is_over()) {
 
