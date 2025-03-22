@@ -192,7 +192,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				vec2 pos;
 				pos.x = registry.motions.get(i).position.x;
 				pos.y = registry.motions.get(i).position.y;
-				std::cout << "x pos " << pos.x << " y pos " << pos.y << std::endl;
+				// std::cout << "x pos " << pos.x << " y pos " << pos.y << std::endl;
 				registry.remove_all_components_of(i);
 				registry.seeds.remove(i);
 				createTower(renderer, {pos.x - GRID_CELL_WIDTH_PX / 2, pos.y - GRID_CELL_HEIGHT_PX / 2});
@@ -497,7 +497,7 @@ void WorldSystem::create_tutorial_enemies()
 	vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.65, TUTORIAL_HEIGHT_PX * 0.4);
 	createSkeleton(renderer, skeleton_pos);
 
-	std::cout << "Tutorial enemies created" << std::endl;
+	// std::cout << "Tutorial enemies created" << std::endl;
 }
 
 // Check if tutorial enemies need to be respawned
@@ -578,7 +578,7 @@ void WorldSystem::player_attack()
 				{
 					auto &enemy_comp = registry.enemies.get(enemy);
 					enemy_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
-					std::cout << "wow u r attacking so nice cool cool" << std::endl;
+					// std::cout << "wow u r attacking so nice cool cool" << std::endl;
 
 					// Calculate knockback direction (from player to enemy)
 					Motion &enemy_motion = registry.motions.get(enemy);
@@ -613,7 +613,7 @@ void WorldSystem::player_attack()
 
 						// Increase the counter that represents the number of zombies killed.
 						points++;
-						std::cout << "enemies killed: " << points << std::endl;
+						// std::cout << "enemies killed: " << points << std::endl;
 
 						// Kung: Upon killing a enemy, increase the experience of the player or reset the experience bar when it becomes full.
 						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
@@ -681,7 +681,7 @@ void WorldSystem::update_enemy_death_animations(float elapsed_ms)
 			registry.remove_all_components_of(entity);
 
 			// Kung: Upon killing a enemy, update the enemy count and print it to the console.
-			std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
+			// std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 		}
 	}
 }
@@ -1012,7 +1012,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 								if (registry.motions.get(motion_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX))
 								{
 									hasSeed = 1;
-									std::cout << "A seed was already planted here." << std::endl;
+									// std::cout << "A seed was already planted here." << std::endl;
 								}
 							}
 						}
@@ -1335,7 +1335,10 @@ void WorldSystem::loadGame() {
 	current_day = jsonFile["current_day"];
 	current_seed = jsonFile["current_seed"];
 	level = jsonFile["level"];
-	std::cout<<"loaded"<<std::endl;
+
+
+
+	std::cout<<"Game loaded successfully."<<std::endl;
 }
 
 void WorldSystem::saveGame() {

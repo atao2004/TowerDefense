@@ -87,7 +87,7 @@ Entity createZombie(RenderSystem *renderer, vec2 position)
 	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_DURATION, ZOMBIE_MOVE_ANIMATION, ZOMBIE_MOVE_SIZE, true, false, false);
 
 	// Kung: Update the enemy count and print it to the console.
-    std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
+    // std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 
 	return entity;
 }

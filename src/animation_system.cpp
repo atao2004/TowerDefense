@@ -81,7 +81,7 @@ void AnimationSystem::handle_animation_end(Entity entity)
 {
     Animation &animation = registry.animations.get(entity);
 
-    std::cout << "Animation ended for entity " << entity << std::endl;
+    // std::cout << "Animation ended for entity " << entity << std::endl;
 
     // Handle zombie spawn
     if (registry.zombieSpawns.has(entity))

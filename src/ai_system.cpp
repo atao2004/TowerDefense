@@ -263,7 +263,7 @@ void AISystem::update_skeletons(float elapsed_ms)
                         // Mark that we've fired the arrow for this attack cycle
                         skeleton.arrow_fired = true;
 
-                        std::cout << "Arrow created from AI system timer" << std::endl;
+                        // std::cout << "Arrow created from AI system timer" << std::endl;
                     }
                 }
             }

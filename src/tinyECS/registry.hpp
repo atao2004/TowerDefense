@@ -54,13 +54,13 @@ public:
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
+		registry_list.push_back(&screenStates);
 		registry_list.push_back(&attacks);
 		registry_list.push_back(&motions);
 		registry_list.push_back(&collisions);
 		registry_list.push_back(&meshPtrs);
 		registry_list.push_back(&dimensions);
 		registry_list.push_back(&renderRequests);
-		registry_list.push_back(&screenStates);
 		registry_list.push_back(&colors);
 		registry_list.push_back(&towers);
 		registry_list.push_back(&gridLines);

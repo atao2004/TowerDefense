@@ -49,7 +49,6 @@ public:
 	json toJSON() {
 		
 		json jsonData;
-		std::cout<<"saving...."<<std::endl;
 		for (size_t i = 0; i < components.size(); ++i) {
 			if constexpr (std::is_pointer<Component>::value) {
 				json temp = components[i]->toJSON();
