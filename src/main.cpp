@@ -32,7 +32,6 @@ int main()
 	AnimationSystem animation_system;
 	TowerSystem tower_system;
 	MovementSystem movement_system;
-	FrameManager frame_manager;
 
 	// initialize window
 	GLFWwindow* window = world_system.create_window();
@@ -74,13 +73,13 @@ int main()
 	int cooldown = 1000;
 
 	// frame intervals
-	int world_interval = 1;
-	int ai_interval = 1;
-	int physics_interval = 1;
-	int status_interval = 1;
-	int tower_interval = 1;
-	int movement_interval = 1;
-	int animation_interval = 1;
+	FrameManager fm_world = FrameManager(1);
+	FrameManager fm_ai = FrameManager(1);
+	FrameManager fm_physics = FrameManager(1);
+	FrameManager fm_status = FrameManager(1);
+	FrameManager fm_tower = FrameManager(1);
+	FrameManager fm_movement = FrameManager(1);
+	FrameManager fm_animation = FrameManager(1);
 
 	while (!world_system.is_over()) {
 
@@ -95,12 +94,12 @@ int main()
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
 
-		frame_manager.tick();
+		FrameManager::tick(elapsed_ms);
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
 		//when level up, we want the screen to be frozen
 		if (StateSystem::get_state() != STATE::LEVEL_UP) {
-			if (frame_manager.can_update(world_interval)) world_system.step(elapsed_ms);
+			if (fm_world.can_update()) world_system.step(fm_world.get_time());
 			if (!WorldSystem::game_is_over) {
 
 				//M2: FPS
@@ -124,12 +123,12 @@ int main()
 				}
 				record_times++;
 
-				if (frame_manager.can_update(ai_interval)) ai_system.step(elapsed_ms);
-				if (frame_manager.can_update(physics_interval)) physics_system.step(elapsed_ms);
-				if (frame_manager.can_update(status_interval)) status_system.step(elapsed_ms);
-				if (frame_manager.can_update(tower_interval)) tower_system.step(elapsed_ms);
-				if (frame_manager.can_update(movement_interval)) movement_system.step(elapsed_ms, game_screen);
-				if (frame_manager.can_update(animation_interval)) animation_system.step(elapsed_ms);
+				if (fm_ai.can_update()) ai_system.step(fm_ai.get_time());
+				if (fm_physics.can_update()) physics_system.step(fm_physics.get_time());
+				if (fm_status.can_update()) status_system.step(fm_status.get_time());
+				if (fm_tower.can_update()) tower_system.step(fm_tower.get_time());
+				if (fm_movement.can_update()) movement_system.step(fm_movement.get_time(), game_screen);
+				if (fm_animation.can_update()) animation_system.step(fm_animation.get_time());
 			} else {
 				//M2: FPS. make sure we only print once, lazy implementation
 				if (record_times != 0) {
