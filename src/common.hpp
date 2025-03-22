@@ -19,6 +19,9 @@
 #include <glm/vec3.hpp>			   // vec3
 #include <glm/mat3x3.hpp>		   // mat3
 using namespace glm;
+#include "../ext/json.hpp"
+using json = nlohmann::json;
+
 
 #include "tinyECS/tiny_ecs.hpp"
 
@@ -217,6 +220,13 @@ struct RenderRequest
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
 	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
 	GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
+	json toJSON() const {
+        return json{
+            {"used_texture", static_cast<int>(used_texture)},  // Convert enum to integer
+            {"used_effect", static_cast<int>(used_effect)},      // Convert enum to integer
+            {"used_geometry", static_cast<int>(used_geometry)}   // Convert enum to integer
+        };
+    }
 };
 
 //

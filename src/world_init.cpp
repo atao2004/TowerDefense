@@ -5,24 +5,24 @@
 #include "../ext/json.hpp"
 using json = nlohmann::json;
 
-Entity createGridLine(vec2 start_pos, vec2 end_pos)
-{
-	Entity entity = Entity();
-	GridLine &gl = registry.gridLines.emplace(entity);
-	gl.start_pos = start_pos;
-	gl.end_pos = end_pos;
+// Entity createGridLine(vec2 start_pos, vec2 end_pos)
+// {
+// 	Entity entity = Entity();
+// 	GridLine &gl = registry.gridLines.emplace(entity);
+// 	gl.start_pos = start_pos;
+// 	gl.end_pos = end_pos;
 
-	registry.renderRequests.insert(
-		entity,
-		{TEXTURE_ASSET_ID::TEXTURE_COUNT,
-		 EFFECT_ASSET_ID::EGG,
-		 GEOMETRY_BUFFER_ID::DEBUG_LINE});
+// 	registry.renderRequests.insert(
+// 		entity,
+// 		{TEXTURE_ASSET_ID::TEXTURE_COUNT,
+// 		 EFFECT_ASSET_ID::EGG,
+// 		 GEOMETRY_BUFFER_ID::DEBUG_LINE});
 
-	vec3 &cv = registry.colors.emplace(entity);
-	cv = GRID_COLOR;
+// 	vec3 &cv = registry.colors.emplace(entity);
+// 	cv = GRID_COLOR;
 
-	return entity;
-}
+// 	return entity;
+// }
 
 // createZombieSpawn
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {

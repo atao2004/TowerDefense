@@ -6,10 +6,11 @@
 
 class ECSRegistry
 {
-	// callbacks to remove a particular or all entities in the system
-	std::vector<ContainerInterface*> registry_list;
+	
 
 public:
+// callbacks to remove a particular or all entities in the system
+	std::vector<ContainerInterface*> registry_list;
 	ComponentContainer<Attack> attacks;
 	ComponentContainer<Motion> motions;
 	ComponentContainer<Collision> collisions;

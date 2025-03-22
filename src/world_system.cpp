@@ -7,10 +7,13 @@
 #include <sstream>
 #include <iostream>
 #include <thread>
+#include <string>
 
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
 #include "state_system.hpp"
+#include "../ext/json.hpp"
+using json = nlohmann::json;
 
 // FreeType
 // #include <ft2build.h>
@@ -911,6 +914,20 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
+	//load
+	if (action == GLFW_RELEASE && key == GLFW_KEY_MINUS)
+	{
+		loadGame();
+		return;
+	}
+
+	//save 
+	if (action == GLFW_RELEASE && key == GLFW_KEY_EQUAL)
+	{
+		saveGame();
+		return;
+	}
+
 	// Debug
 	if (action == GLFW_PRESS && key == GLFW_KEY_L)
 	{
@@ -1306,4 +1323,40 @@ void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)
 			advance_to_next_day();
 		}
 	}
+}
+
+void WorldSystem::loadGame() {
+	json jsonFile;
+	std::ifstream file(PROJECT_SOURCE_DIR + std::string("data/reload/game_0.json"));
+	file>>jsonFile;
+
+	game_is_over = jsonFile["game_is_over"];
+	game_screen = jsonFile["game_screen"];
+	current_day = jsonFile["current_day"];
+	current_seed = jsonFile["current_seed"];
+	level = jsonFile["level"];
+	std::cout<<"loaded"<<std::endl;
+}
+
+void WorldSystem::saveGame() {
+	json jsonFile;
+	jsonFile["game_is_over"] = game_is_over;
+	jsonFile["game_screen"] = game_screen;
+	jsonFile["current_day"] = current_day;
+	jsonFile["current_seed"] = current_seed;
+	jsonFile["level"] = level;
+	
+	for (int i=0; i<registry.registry_list.size(); i++) {
+		jsonFile[std::to_string(i)] = registry.registry_list[i]->toJSON();
+	}
+	
+
+	std::ofstream outFile(PROJECT_SOURCE_DIR + std::string("data/reload/game_0.json"));
+    if (outFile.is_open()) {
+        outFile << jsonFile.dump(4);
+        outFile.close();
+        std::cout << "JSON written to file successfully.\n";
+    } else {
+        std::cerr << "Error opening file for writing.\n";
+    }
 }
