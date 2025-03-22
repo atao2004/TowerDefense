@@ -1325,18 +1325,29 @@ void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)
 	}
 }
 
+
+
 void WorldSystem::loadGame() {
+	registry.clear_all_components();
+
 	json jsonFile;
 	std::ifstream file(PROJECT_SOURCE_DIR + std::string("data/reload/game_0.json"));
 	file>>jsonFile;
-
 	game_is_over = jsonFile["game_is_over"];
 	game_screen = jsonFile["game_screen"];
 	current_day = jsonFile["current_day"];
 	current_seed = jsonFile["current_seed"];
 	level = jsonFile["level"];
 
-
+	json h = jsonFile["0"][0];
+	std::cout<<h.dump()<<std::endl;
+	for (int i=1; i<registry.registry_list.size(); i++) {
+		json arr = jsonFile[std::to_string(i)];
+		for (int i=0; i<arr.size(); i++) {
+			json e = arr[i];
+			std::cout<<arr[i]<<std::endl;
+		}
+	}
 
 	std::cout<<"Game loaded successfully."<<std::endl;
 }

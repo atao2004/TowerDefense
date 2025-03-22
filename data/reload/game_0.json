@@ -22,51 +22,9 @@
             "damage": 10.0,
             "entity": 1913,
             "range": 60
-        },
-        {
-            "damage": 5.0,
-            "entity": 1917,
-            "range": 40
-        },
-        {
-            "damage": 5.0,
-            "entity": 1918,
-            "range": 40
-        },
-        {
-            "damage": 5.0,
-            "entity": 1919,
-            "range": 40
-        },
-        {
-            "damage": 5.0,
-            "entity": 1920,
-            "range": 40
-        },
-        {
-            "damage": 15.0,
-            "entity": 1921,
-            "range": 40
         }
     ],
-    "10": [
-        {
-            "entity": 1917,
-            "health": 0.0
-        },
-        {
-            "entity": 1918,
-            "health": 0.0
-        },
-        {
-            "entity": 1919,
-            "health": 0.0
-        },
-        {
-            "entity": 1920,
-            "health": 0.0
-        }
-    ],
+    "10": null,
     "11": null,
     "12": [
         {
@@ -83,25 +41,10 @@
     "14": [
         {
             "entity": 1913,
-            "state": 1
+            "state": 0
         }
     ],
     "15": [
-        {
-            "entity": 1919
-        },
-        {
-            "entity": 1917
-        },
-        {
-            "entity": 1918
-        },
-        {
-            "entity": 1920
-        },
-        {
-            "entity": 1921
-        },
         {
             "entity": 1913
         }
@@ -24003,128 +23946,48 @@
             "angle": 0.0,
             "entity": 1913,
             "position": [
-                1647.1708984375,
-                1160.0872802734375
+                768.0,
+                432.0
             ],
             "scale": [
                 50.0,
                 50.0
             ],
             "velocity": [
-                200.0,
-                200.0
+                0.0,
+                0.0
             ]
         },
         {
             "angle": 0.0,
             "entity": 1915,
             "position": [
-                1647.1708984375,
-                1548.8870849609375
+                768.0,
+                820.7999877929688
             ],
             "scale": [
                 440.0,
                 55.0
             ],
             "velocity": [
-                200.0,
-                200.0
+                0.0,
+                0.0
             ]
         },
         {
             "angle": 0.0,
             "entity": 1916,
             "position": [
-                1456.1717529296875,
-                1548.8870849609375
+                577.0,
+                820.7999877929688
             ],
             "scale": [
                 50.0,
                 50.0
             ],
             "velocity": [
-                200.0,
-                200.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1917,
-            "position": [
-                1539.1822509765625,
-                956.3275756835938
-            ],
-            "scale": [
-                50.0,
-                50.0
-            ],
-            "velocity": [
-                55.19776916503906,
-                144.7900848388672
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1918,
-            "position": [
-                1381.6419677734375,
-                889.990478515625
-            ],
-            "scale": [
-                50.0,
-                50.0
-            ],
-            "velocity": [
-                109.38211822509766,
-                112.4675521850586
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1919,
-            "position": [
-                1431.8377685546875,
-                1112.486083984375
-            ],
-            "scale": [
-                50.0,
-                50.0
-            ],
-            "velocity": [
-                153.3689422607422,
-                3.13002872467041
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1920,
-            "position": [
-                1194.353271484375,
-                587.5655517578125
-            ],
-            "scale": [
-                50.0,
-                50.0
-            ],
-            "velocity": [
-                95.96752166748047,
-                124.15121459960938
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1921,
-            "position": [
-                159.7189178466797,
-                1060.85888671875
-            ],
-            "scale": [
-                50.0,
-                50.0
-            ],
-            "velocity": [
-                74.8467025756836,
-                4.792755126953125
+                0.0,
+                0.0
             ]
         }
     ],
@@ -24136,26 +23999,12 @@
             "entity": 1914,
             "lerp_factor": 0.10000000149011612,
             "position": [
-                1642.9180908203125,
-                1155.83447265625
+                768.0,
+                432.0
             ]
         }
     ],
-    "22": [
-        {
-            "arrow_fired": false,
-            "attack_cooldown_ms": 1800.0,
-            "attack_range": 400.0,
-            "attack_timer_ms": 0.0,
-            "cooldown_timer_ms": 0.0,
-            "current_state": 1,
-            "entity": 1921,
-            "health": 20.0,
-            "is_attacking": false,
-            "stop_distance": 300.0,
-            "target": 1913
-        }
-    ],
+    "22": null,
     "23": null,
     "24": [
         {
@@ -24164,65 +24013,9 @@
                 5.0,
                 5.0
             ]
-        },
-        {
-            "entity": 1917,
-            "scale": [
-                5.0,
-                5.0
-            ]
-        },
-        {
-            "entity": 1918,
-            "scale": [
-                5.0,
-                5.0
-            ]
-        },
-        {
-            "entity": 1919,
-            "scale": [
-                5.0,
-                5.0
-            ]
-        },
-        {
-            "entity": 1920,
-            "scale": [
-                5.0,
-                5.0
-            ]
-        },
-        {
-            "entity": 1921,
-            "scale": [
-                5.0,
-                5.0
-            ]
         }
     ],
-    "25": [
-        {
-            "entity": 1917,
-            "health": 20.0
-        },
-        {
-            "entity": 1918,
-            "health": 20.0
-        },
-        {
-            "entity": 1919,
-            "health": 20.0
-        },
-        {
-            "entity": 1920,
-            "health": 20.0
-        },
-        {
-            "entity": 1921,
-            "health": 20.0
-        }
-    ],
+    "25": null,
     "26": [
         {
             "entity": 1913,
@@ -33204,7 +32997,7 @@
             "entity": 1913,
             "used_effect": 6,
             "used_geometry": 1,
-            "used_texture": 90
+            "used_texture": 85
         },
         {
             "entity": 1915,
@@ -33217,36 +33010,6 @@
             "used_effect": 2,
             "used_geometry": 1,
             "used_texture": 1
-        },
-        {
-            "entity": 1917,
-            "used_effect": 5,
-            "used_geometry": 1,
-            "used_texture": 78
-        },
-        {
-            "entity": 1918,
-            "used_effect": 5,
-            "used_geometry": 1,
-            "used_texture": 79
-        },
-        {
-            "entity": 1919,
-            "used_effect": 5,
-            "used_geometry": 1,
-            "used_texture": 79
-        },
-        {
-            "entity": 1920,
-            "used_effect": 5,
-            "used_geometry": 1,
-            "used_texture": 79
-        },
-        {
-            "entity": 1921,
-            "used_effect": 5,
-            "used_geometry": 1,
-            "used_texture": 60
         }
     ],
     "7": null,
