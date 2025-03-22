@@ -54,34 +54,35 @@ public:
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
-		registry_list.push_back(&screenStates);
-		registry_list.push_back(&attacks);
-		registry_list.push_back(&motions);
-		registry_list.push_back(&collisions);
-		registry_list.push_back(&meshPtrs);
-		registry_list.push_back(&dimensions);
-		registry_list.push_back(&renderRequests);
-		registry_list.push_back(&colors);
-		registry_list.push_back(&towers);
-		registry_list.push_back(&gridLines);
-		registry_list.push_back(&zombies);
-		registry_list.push_back(&zombieSpawns);
-		registry_list.push_back(&players);
-		registry_list.push_back(&statuses);
-		registry_list.push_back(&states);
-		registry_list.push_back(&animations);
-		registry_list.push_back(&deaths);
-		registry_list.push_back(&cooldowns);
-		registry_list.push_back(&deathAnimations);
-		registry_list.push_back(&hitEffects);
-		registry_list.push_back(&projectiles);
-		registry_list.push_back(&cameras);
-		registry_list.push_back(&skeletons);
-		registry_list.push_back(&arrows);
-		registry_list.push_back(&visualScales);
-		registry_list.push_back(&enemies);
-		registry_list.push_back(&inventorys);
-		registry_list.push_back(&seeds);
+		registry_list.push_back(&screenStates); //0
+		registry_list.push_back(&attacks);//1
+		registry_list.push_back(&motions);//2
+		registry_list.push_back(&collisions);//3
+		registry_list.push_back(&meshPtrs);//4
+		registry_list.push_back(&dimensions);//5
+		registry_list.push_back(&renderRequests);//6
+		registry_list.push_back(&colors);//7
+		registry_list.push_back(&towers);//8
+		registry_list.push_back(&gridLines);//9
+		registry_list.push_back(&zombies);//10
+		registry_list.push_back(&zombieSpawns);//11
+		registry_list.push_back(&players);//12
+		registry_list.push_back(&statuses);//13
+		registry_list.push_back(&states);//14
+		registry_list.push_back(&animations);//15
+		registry_list.push_back(&deaths);//16
+		registry_list.push_back(&cooldowns);//17
+		registry_list.push_back(&deathAnimations);//18
+		registry_list.push_back(&hitEffects);//19
+		registry_list.push_back(&projectiles);//20
+		registry_list.push_back(&cameras);//21
+		registry_list.push_back(&skeletons);//22
+		registry_list.push_back(&arrows);//23
+		registry_list.push_back(&visualScales);//24
+		registry_list.push_back(&enemies);//25
+		registry_list.push_back(&inventorys);//26
+		registry_list.push_back(&seeds);//27
+		registry_list.push_back(&moveWithCameras);//28
 	}
 
 	void clear_all_components() {

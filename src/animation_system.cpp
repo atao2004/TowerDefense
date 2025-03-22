@@ -36,7 +36,8 @@ void AnimationSystem::step(float elapsed_ms)
                 animation.pose = 0;
             }
             RenderRequest &request = registry.renderRequests.get(entity);
-            request.used_texture = animation.textures[animation.pose];
+            if (animation.textures != NULL)
+                request.used_texture = animation.textures[animation.pose];
             animation.timer_ms = 0;
         }
     }

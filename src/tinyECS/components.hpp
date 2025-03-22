@@ -61,11 +61,11 @@ struct StatusComponent
 {
 	std::vector<Status> active_statuses;
 	json toJSON() const {
-        nlohmann::json statusesJson = nlohmann::json::array();
+        json statusesJson = json::array();
         for (const auto& status : active_statuses) {
             statusesJson.push_back(status.toJSON());
         }
-        return nlohmann::json{{"active_statuses", statusesJson}};
+        return json{{"active_statuses", statusesJson}};
     }
 };
 
@@ -286,23 +286,19 @@ struct Animation
 	bool loop = true;
 	bool lock = false;
 	bool destroy = false;
+	
 	json toJSON() const {
-		return json{};
-	}
-	// json toJSON() const {
-	// 	std::vector<int> texture_vec((int)textures, textures + pose_count);
-    //     return json {
-    //         {"runtime_ms", runtime_ms},
-    //         {"timer_ms", timer_ms},
-    //         {"pose", pose},
-    //         {"transition_ms", transition_ms},
-    //         {"pose_count", pose_count},
-    //         {"textures", texture_vec},
-    //         {"loop", loop},
-    //         {"lock", lock},
-    //         {"destroy", destroy}
-    //     };
-    // }
+		return json {
+            {"runtime_ms", runtime_ms},
+            {"timer_ms", timer_ms},
+            {"pose", pose},
+            {"transition_ms", transition_ms},
+            {"pose_count", pose_count},
+            {"loop", loop},
+            {"lock", lock},
+            {"destroy", destroy}
+        };
+    }
 };
 
 // Tower

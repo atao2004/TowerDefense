@@ -1225,6 +1225,7 @@ void WorldSystem::update_movement_sound(float elapsed_ms)
 void WorldSystem::update_camera()
 {
 	// Update camera position to follow player
+	// std::cout<<registry.players.size()<<" "<<registry.cameras.size()<<std::endl;
 	if (!registry.players.entities.empty() && !registry.cameras.entities.empty())
 	{
 		Entity player = registry.players.entities[0];
@@ -1341,12 +1342,195 @@ void WorldSystem::loadGame() {
 
 	json h = jsonFile["0"][0];
 	std::cout<<h.dump()<<std::endl;
-	for (int i=1; i<registry.registry_list.size(); i++) {
-		json arr = jsonFile[std::to_string(i)];
-		for (int i=0; i<arr.size(); i++) {
-			json e = arr[i];
-			std::cout<<arr[i]<<std::endl;
+
+	json attack_arr = jsonFile["1"];
+	for (int i=0; i<attack_arr.size(); i++) {
+		json attack_json = attack_arr[i];
+		Entity e = Entity(attack_json["entity"]);
+		Attack& attack = registry.attacks.emplace(e);
+		attack.range = attack_json["range"];
+		attack.damage = attack_json["damage"];
+	}
+	json motion_arr = jsonFile["2"];
+	for (int i=0; i<motion_arr.size(); i++) {
+		json motion = motion_arr[i];
+		Entity e = Entity(motion["entity"]);
+		Motion& m = registry.motions.emplace(e);
+		m.position = vec2(motion["position"][0], motion["position"][1]);
+		m.angle =  motion["angle"];
+		m.velocity = vec2(motion["velocity"][0], motion["velocity"][1]);
+		m.scale =  vec2(motion["scale"][0], motion["scale"][1]);
+	}
+
+	json collisions_arr = jsonFile["3"];
+	for (int i=0; i<collisions_arr.size(); i++) {
+		json collision = collisions_arr[i];
+		Entity e = Entity(collision["entity"].get<int>());
+		Entity other = Entity(collision["other"].get<int>());
+		registry.collisions.emplace(e, other);
+	}
+
+	// //didnt add meshPtrs
+
+	// json dimension_arr = jsonFile["5"];
+	// for (int i=0; i<dimension_arr.size(); i++) {
+	// 	json dimension = dimension_arr[i];
+	// 	Entity e = Entity(dimension["entity"].get<int>());
+	// 	registry.dimensions.emplace(e, dimension["width"].get<int>(), dimension["height"].get<int>());
+	// }
+
+	json renderRequests_arr = jsonFile["6"];
+	for (int i=0; i<renderRequests_arr.size(); i++) {
+		json rr_json = renderRequests_arr[i];
+		Entity e = Entity(rr_json["entity"]);
+		RenderRequest& rr = registry.renderRequests.emplace(e);
+		rr.used_texture = (TEXTURE_ASSET_ID)rr_json["used_texture"];
+		rr.used_effect = (EFFECT_ASSET_ID)rr_json["used_effect"];
+		rr.used_geometry = (GEOMETRY_BUFFER_ID)rr_json["used_geometry"];
+	}
+
+	json tower_arr = jsonFile["8"];
+	for (int i=0; i<tower_arr.size(); i++) {
+		json tower_json = tower_arr[i];
+		Entity e = Entity(tower_json["entity"]);
+		Tower& tower = registry.towers.emplace(e);
+		tower.health = tower_json["health"];
+		tower.damage = tower_json["damage"];
+		tower.range = tower_json["range"];
+		tower.timer_ms = tower_json["timer_ms"];
+		tower.state = tower_json["state"];
+	}
+
+	json zombie_arr = jsonFile["10"];
+	for (int i=0; i<zombie_arr.size(); i++) {
+		json zombie_json = zombie_arr[i];
+		Entity e = Entity(zombie_json["entity"]);
+		Zombie& zombie = registry.zombies.emplace(e);
+		zombie.health = zombie_json["health"];
+	}
+
+	json zombieSpawn_arr = jsonFile["11"];
+	for (int i=0; i<zombieSpawn_arr.size(); i++) {
+		json zombieSpawn_json = zombieSpawn_arr[i];
+		Entity e = Entity(zombieSpawn_json["entity"]);
+		ZombieSpawn& zombieSpawn = registry.zombieSpawns.emplace(e);
+	}
+
+	json player_arr = jsonFile["12"];
+	for (int i=0; i<player_arr.size(); i++) {
+		json player_json = player_arr[i];
+		Entity e = Entity(player_json["entity"]);
+		Player& player = registry.players.emplace(e);
+		player.health = player_json["health"];
+	}
+
+	json sc_arr = jsonFile["13"];
+	for (int i=0; i<sc_arr.size(); i++) {
+		json sc_json = sc_arr[i];
+		Entity e = Entity(sc_json["entity"]);
+		StatusComponent& sc = registry.statuses.emplace(e);
+		for (const auto& s : sc_json["active_statuses"]) {
+			Status status;
+			status.type = s["type"];
+			status.duration_ms = s["duration_ms"];
+			status.value = s["value"];
+			sc.active_statuses.push_back(status);
 		}
+	}
+
+	json states_arr = jsonFile["14"];
+	for (int i=0; i<states_arr.size(); i++) {
+		json state_json = states_arr[i];
+		Entity e = Entity(state_json["entity"]);
+		State& state = registry.states.emplace(e);
+		state.state = (STATE)state_json["state"];
+	}
+
+	json animation_arr = jsonFile["15"];
+	for (int i=0; i<animation_arr.size(); i++) {
+		json animation_json = animation_arr[i];
+		Entity e = Entity(animation_json["entity"]);
+		Animation& animation = registry.animations.emplace(e);
+		animation.runtime_ms = animation_json["runtime_ms"];
+		animation.timer_ms = animation_json["timer_ms"];
+		animation.pose = animation_json["pose"];
+		animation.transition_ms = animation_json["transition_ms"];
+		animation.pose_count = animation_json["pose_count"];
+		animation.loop = animation_json["loop"];
+		animation.lock = animation_json["lock"];
+		animation.destroy = animation_json["destroy"];
+		animation.textures = NULL;
+	}
+
+	json camera_arr = jsonFile["21"];
+	for (int i=0; i<camera_arr.size(); i++) {
+		json camera_json = camera_arr[i];
+		Entity e = Entity(camera_json["entity"]);
+		Camera& camera = registry.cameras.emplace(e);
+		camera.position = vec2(camera_json["position"][0], camera_json["position"][1]);
+		camera.camera_width = camera_json["camera_width"];
+		camera.camera_height = camera_json["camera_height"];
+		camera.lerp_factor = camera_json["lerp_factor"];
+	}
+
+	json skeleton_arr = jsonFile["22"];
+	for (int i=0; i<skeleton_arr.size(); i++) {
+		json skeleton_json = skeleton_arr[i];
+		Entity e = Entity(skeleton_json["entity"]);
+		Entity target = Entity(skeleton_json["target"]);
+		Skeleton& skeleton = registry.skeletons.emplace(e);
+		skeleton.attack_range = skeleton_json["attack_range"];
+		skeleton.stop_distance = skeleton_json["stop_distance"];
+		skeleton.attack_cooldown_ms = skeleton_json["attack_cooldown_ms"];
+		skeleton.cooldown_timer_ms = skeleton_json["cooldown_timer_ms"];
+		skeleton.target = target;
+		skeleton.is_attacking = skeleton_json["is_attacking"];
+		skeleton.health = skeleton_json["health"];
+		skeleton.attack_timer_ms = skeleton_json["attack_timer_ms"];
+		skeleton.arrow_fired = skeleton_json["arrow_fired"];
+		skeleton.current_state = (Skeleton::State)skeleton_json["current_state"];
+	}
+
+	//arrow
+
+	json visualScale_arr = jsonFile["24"];
+	for (int i=0; i<visualScale_arr.size(); i++) {
+		json visualScale_json = visualScale_arr[i];
+		Entity e = Entity(visualScale_json["entity"]);
+		VisualScale& vs = registry.visualScales.emplace(e);
+		vs.scale = vec2(visualScale_json["scale"][0], visualScale_json["scale"][1]);
+	}
+
+	json enemies_arr = jsonFile["25"];
+	for (int i=0; i<enemies_arr.size(); i++) {
+		json enemies_json = enemies_arr[i];
+		Entity e = Entity(enemies_json["entity"]);
+		Enemy& enemy = registry.enemies.emplace(e);
+		enemy.health = enemies_json["health"];
+	}
+
+	// json inventory_arr = jsonFile["26"];
+	// for (int i=0; i<inventory_arr.size(); i++) {
+	// 	json in_json = visualScale_arr[i];
+	// 	Entity e = Entity(in_json["entity"]);
+	// 	Inventory& in = registry.inventorys.emplace(e);
+	// 	// in.seedCount
+	// }
+
+	json seed_arr = jsonFile["27"];
+	for (int i=0; i<seed_arr.size(); i++) {
+		json seed_json = seed_arr[i];
+		Entity e = Entity(seed_json["entity"]);
+		Seed& seed = registry.seeds.emplace(e);
+		seed.type = seed_json["type"];
+		seed.timer = seed_json["timer"];
+	}
+
+	json mvc_arr = jsonFile["28"];
+	for (int i=0; i<mvc_arr.size(); i++) {
+		json mvc_json = mvc_arr[i];
+		Entity e = Entity(mvc_json["entity"]);
+		registry.moveWithCameras.emplace(e);
 	}
 
 	std::cout<<"Game loaded successfully."<<std::endl;
@@ -1361,6 +1545,7 @@ void WorldSystem::saveGame() {
 	jsonFile["level"] = level;
 	
 	for (int i=0; i<registry.registry_list.size(); i++) {
+		if (i==11) std::cout<<"hello"<<std::endl;
 		jsonFile[std::to_string(i)] = registry.registry_list[i]->toJSON();
 	}
 	
