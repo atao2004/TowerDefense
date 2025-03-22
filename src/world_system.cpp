@@ -530,11 +530,6 @@ void WorldSystem::check_tutorial_enemies()
 	}
 }
 
-// Compute collisions between entities
-void WorldSystem::handle_collisions()
-{
-}
-
 // Should the game be over ?
 bool WorldSystem::is_over() const
 {
