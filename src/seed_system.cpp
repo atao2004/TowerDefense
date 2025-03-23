@@ -21,7 +21,6 @@ void SeedSystem::step(float elapsed_ms)
 				vec2 pos;
 				pos.x = registry.motions.get(i).position.x;
 				pos.y = registry.motions.get(i).position.y;
-				std::cout << "x pos " << pos.x << " y pos " << pos.y << std::endl;
 				registry.remove_all_components_of(i);
 				registry.seeds.remove(i);
 				createTower(renderer, { pos.x - GRID_CELL_WIDTH_PX / 2, pos.y - GRID_CELL_HEIGHT_PX / 2 });
