@@ -564,27 +564,6 @@ void WorldSystem::increase_exp() {
 	}
 }
 
-// Helper function to make it easier to increase experience
-void WorldSystem::increase_exp_plant() {
-	Entity player_entity = registry.players.entities[0];
-	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
-	{
-		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(player_entity).damage / PLAYER_HEALTH;
-	} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
-	else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
-	{
-		// StateSystem::update_state(STATE::LEVEL_UP);
-		//come back later!
-		if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
-			createSeedInventory(vec2(registry.motions.get(player_entity).position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed);
-		}
-		registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
-		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
-		level++;
-		std::cout << "==== LEVEL " << level << " ====" << std::endl;
-	}
-}
-
 // Helper function to handle what happens when the player does a mouse click
 void WorldSystem::player_attack()
 {
