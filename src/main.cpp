@@ -114,7 +114,6 @@ int main()
 				ai_system.step(elapsed_ms);
 				physics_system.step(elapsed_ms);
 				status_system.step(elapsed_ms);
-				world_system.handle_collisions();
 				tower_system.step(elapsed_ms);
 				movement_system.step(elapsed_ms, game_screen);
 				animation_system.step(elapsed_ms);

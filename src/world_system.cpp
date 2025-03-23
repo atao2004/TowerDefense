@@ -338,7 +338,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	registry.toolbars.clear();
 	// createPause();
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
-	createSeedInventory(vec2(player_pos.x - 191 + 55 * current_seed, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
+	createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
 
 	// Kung: Reset player movement so that the player remains still when no keys are pressed
 
@@ -562,7 +562,7 @@ void WorldSystem::increase_exp() {
 		// StateSystem::update_state(STATE::LEVEL_UP);
 		//come back later!
 		if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
-			createSeedInventory(vec2(registry.motions.get(player_entity).position.x - 191 + 55 * current_seed, registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed);
+			createSeedInventory(vec2(registry.motions.get(player_entity).position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed);
 		}
 		registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
@@ -583,7 +583,7 @@ void WorldSystem::increase_exp_plant() {
 		// StateSystem::update_state(STATE::LEVEL_UP);
 		//come back later!
 		if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
-			createSeedInventory(vec2(registry.motions.get(player_entity).position.x - 191 + 55 * current_seed, registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed);
+			createSeedInventory(vec2(registry.motions.get(player_entity).position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed);
 		}
 		registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
@@ -1124,7 +1124,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				// StateSystem::update_state(STATE::LEVEL_UP);
 				//come back later!
 				if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
-					createSeedInventory(vec2(motion.position.x - 191 + 55 * current_seed, motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed);
+					createSeedInventory(vec2(motion.position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed);
 				}
 				registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;

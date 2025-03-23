@@ -531,7 +531,7 @@ Entity createToolbar(vec2 position)
 	// Create the relevant motion component.
 	Motion& motion_component = registry.motions.emplace(toolbar_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(440, 55);
+	motion_component.scale = vec2(TOOLBAR_WIDTH, TOOLBAR_HEIGHT);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
@@ -717,7 +717,7 @@ Entity createSeedInventory(vec2 pos, vec2 velocity, int type)
 	registry.renderRequests.insert(
 		seed_entity,
 		{
-			TEXTURE_ASSET_ID::SEED_0,
+			(TEXTURE_ASSET_ID) ((int) TEXTURE_ASSET_ID::SEED_0 + type),
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
