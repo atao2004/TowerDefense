@@ -545,7 +545,7 @@ bool is_shader_error(unsigned int shader, std::string shader_name)
 
 std::string readShaderFile(const std::string &filename)
 {
-	std::cout << "Loading shader filename: " << filename << std::endl;
+	// std::cout << "Loading shader filename: " << filename << std::endl;
 
 	std::ifstream ifs(filename);
 
@@ -557,7 +557,7 @@ std::string readShaderFile(const std::string &filename)
 
 	std::ostringstream oss;
 	oss << ifs.rdbuf();
-	std::cout << oss.str() << std::endl;
+	// std::cout << oss.str() << std::endl;
 	return oss.str();
 }
 
