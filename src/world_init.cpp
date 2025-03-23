@@ -59,10 +59,10 @@ Entity createZombie(RenderSystem *renderer, vec2 position)
 
 	Attack &attack = registry.attacks.emplace(entity);
 	attack.range = 30.0f;
-	attack.damage = ZOMBIE_DAMAGE;
+	attack.damage = ORC_DAMAGE;
 
 	Enemy &enemy = registry.enemies.emplace(entity);
-	enemy.health = ZOMBIE_HEALTH;
+	enemy.health = ORC_HEALTH;
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
