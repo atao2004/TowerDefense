@@ -566,16 +566,18 @@ struct Particle
 // Add a ParticleGenerator component
 struct ParticleGenerator
 {
-    std::string type;              // Type of effect (blood, fire, etc.)
-    unsigned int amount;           // Maximum number of particles
-    float spawnInterval;           // Time between spawning particles
-    float timer;                   // Current timer
-    std::vector<Entity> particles; // List of particle entities
-    bool isActive;                 // Whether generator is active
+    std::string type;                      // Type of effect (blood, fire, etc.)
+    unsigned int amount;                   // Maximum number of particles
+    float spawnInterval;                   // Time between spawning particles
+    float timer;                           // Current timer
+    std::vector<Entity> particles;         // List of particle entities
+    bool isActive;                         // Whether generator is active
+    float duration_ms;                     // How long this generator remains active (-1 for infinite)
+    Entity follow_entity = NULL; // Entity to follow (if any)
 
     ParticleGenerator()
         : type("default"), amount(100), spawnInterval(0.1f), timer(0.0f),
-          particles(), isActive(true) {}
+          particles(), isActive(true), duration_ms(-1.0f) {}
     json toJSON() const
     {
         return json{};

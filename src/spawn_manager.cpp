@@ -1,5 +1,6 @@
 #include "spawn_manager.hpp"
 #include "world_init.hpp"
+#include "world_system.hpp"
 #include <iostream>
 
 SpawnManager::SpawnManager() : wave_timer_ms(0.f),
@@ -48,7 +49,7 @@ void SpawnManager::initialize_spawn_points()
 void SpawnManager::step(float elapsed_ms, RenderSystem *renderer)
 {
     // If game isn't started or in test mode, don't do anything
-    if (!is_game_started || test_mode) {
+    if (!is_game_started || test_mode || WorldSystem::get_game_screen() == GAME_SCREEN_ID::TUTORIAL) {
         return;
     }
     
