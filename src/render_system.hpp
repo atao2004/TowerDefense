@@ -12,14 +12,6 @@
 #include FT_FREETYPE_H
 #include <map>
 
-#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
-#define NK_INCLUDE_FONT_BAKING
-#define NK_INCLUDE_VERTEX_LAYOUT
-#define NK_INCLUDE_DEFAULT_FONT
-#define NK_INCLUDE_DEFAULT_ALLOCATOR
-#include "../ext/nuklear.h"
-#include "../ext/nuklear_glfw_gl3.h"
-
 // System responsible for setting up OpenGL and for rendering all the
 // visual entities in the game
 class RenderSystem
@@ -194,10 +186,6 @@ class RenderSystem
 public:
 	// Initialize the window
 	bool init(GLFWwindow *window);
-	void init_helper(nk_context *ctx, GLFWwindow *window);
-	// struct nk_glfw glfw;
-	// struct nk_context *ctx;
-	// struct nk_font *font;
 
 	template <class T>
 	void bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices);

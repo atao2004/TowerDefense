@@ -9,34 +9,6 @@
 #include "render_system.hpp"
 #include "tinyECS/registry.hpp"
 
-#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
-#define NK_GLFW_GL3_IMPLEMENTATION
-#define NK_INCLUDE_FONT_BAKING
-#define NK_INCLUDE_VERTEX_LAYOUT
-#define NK_IMPLEMENTATION
-#define NK_INCLUDE_DEFAULT_FONT
-#define NK_INCLUDE_DEFAULT_ALLOCATOR
-#include "../ext/nuklear.h"
-#include "../ext/nuklear_glfw_gl3.h"
-
-// void RenderSystem::init_helper(nk_context *ctx, GLFWwindow *window) {
-//     // Create a font atlas for loading fonts
-//     struct nk_font_atlas *atlas;
-//     nk_glfw3_font_stash_begin(&glfw, &atlas);  // This starts font stash creation
-
-//     // Add the default font to the atlas with a specified pixel height (e.g., 13.0f)
-//     font = nk_font_atlas_add_default(atlas, 13.0f, NULL);  // Use default font config
-
-//     // Optionally, you can add custom fonts like this:
-//     // struct nk_font *custom_font = nk_font_atlas_add_from_file(atlas, "path_to_font.ttf", 14.0f, NULL);
-
-//     // End font stash creation
-//     nk_glfw3_font_stash_end(&glfw);
-
-//     // Assign the font to the Nuklear context's style
-//     ctx->style.font = (const struct nk_user_font*)font;
-// }
-
 // Render initialization
 bool RenderSystem::init(GLFWwindow *window_arg)
 {
