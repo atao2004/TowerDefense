@@ -51,7 +51,7 @@ Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-Entity createZombie(RenderSystem *renderer, vec2 position)
+Entity createOrc(RenderSystem *renderer, vec2 position)
 {
 	auto entity = Entity();
 
@@ -741,7 +741,7 @@ Entity createCamera(RenderSystem *renderer, vec2 position)
 	return camera;
 }
 
-Entity createSkeleton(RenderSystem *renderer, vec2 position)
+Entity createSkeletonArcher(RenderSystem *renderer, vec2 position)
 {
     // Create base entity
     Entity entity = Entity();

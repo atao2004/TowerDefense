@@ -6,7 +6,7 @@
 
 // zombies
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position);
-Entity createZombie(RenderSystem* renderer, vec2 position);
+Entity createOrc(RenderSystem* renderer, vec2 position);
 
 // towers
 Entity createTower(RenderSystem* renderer, vec2 position);
@@ -52,6 +52,6 @@ Entity createCamera(RenderSystem* renderer, vec2 position);
 
 Entity createGameOver();
 
-Entity createSkeleton(RenderSystem* renderer, vec2 position);
+Entity createSkeletonArcher(RenderSystem* renderer, vec2 position);
 Entity createArrow(vec2 position, vec2 direction, Entity source);
 

@@ -88,7 +88,7 @@ void AnimationSystem::handle_animation_end(Entity entity)
     if (registry.zombieSpawns.has(entity))
     {
         Motion &motion = registry.motions.get(entity);
-        createZombie(renderer, motion.position);
+        createOrc(renderer, motion.position);
     }
 
     // Handle player state change
