@@ -753,12 +753,12 @@ Entity createSkeleton(RenderSystem *renderer, vec2 position)
     skeleton.attack_cooldown_ms = SKELETON_ATTACK_DURATION;// Attack cooldown
 
 	Enemy &enemy = registry.enemies.emplace(entity);
-	enemy.health = SKELETON_HEALTH;
+	enemy.health = SKELETON_ARCHER_HEALTH;
 
     // Add attack component separate from zombies
     Attack &attack = registry.attacks.emplace(entity);
     attack.range = skeleton.attack_range; // Match the attack range
-	attack.damage = SKELETON_ARROW_DAMAGE;       // Set the damage value
+	attack.damage = SKELETON_ARCHER_DAMAGE;       // Set the damage value
 
     // Add motion component
     Motion &motion = registry.motions.emplace(entity);
@@ -801,7 +801,7 @@ Entity createArrow(vec2 position, vec2 direction, Entity source)
     Arrow &arrow = registry.arrows.emplace(entity);
     arrow.source = source;
     arrow.direction = normalize(direction); // Ensure direction is normalized
-    arrow.damage = SKELETON_ARROW_DAMAGE;
+    arrow.damage = SKELETON_ARCHER_DAMAGE;
     
     // Add motion component
     Motion &motion = registry.motions.emplace(entity);

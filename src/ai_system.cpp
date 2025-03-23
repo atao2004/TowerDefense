@@ -329,7 +329,7 @@ void AISystem::update_skeletons(float elapsed_ms)
         if (dist > skeleton.attack_range)
         {
             // Target out of range, move towards it
-            skeleton_motion.velocity = normalize(direction) * SKELETON_SPEED;
+            skeleton_motion.velocity = normalize(direction) * (float) SKELETON_ARCHER_SPEED;
             skeleton.current_state = Skeleton::State::WALK;
 
             // Update facing direction
