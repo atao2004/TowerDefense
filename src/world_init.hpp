@@ -4,9 +4,15 @@
 #include "tinyECS/tiny_ecs.hpp"
 #include "render_system.hpp"
 
-// zombies
+// enemies
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position);
+Entity createEnemy(RenderSystem* renderer, vec2 position);
 Entity createOrc(RenderSystem* renderer, vec2 position);
+Entity createOrcElite(RenderSystem* renderer, vec2 position);
+Entity createSkeleton(RenderSystem* renderer, vec2 position);
+Entity createWerebear(RenderSystem* renderer, vec2 position);
+Entity createWerewolf(RenderSystem* renderer, vec2 position);
+Entity createSlime(RenderSystem* renderer, vec2 position);
 
 // towers
 Entity createTower(RenderSystem* renderer, vec2 position);

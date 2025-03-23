@@ -51,19 +51,19 @@ Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-Entity createOrc(RenderSystem *renderer, vec2 position)
+Entity createEnemy(RenderSystem* renderer, vec2 position, int health, int damage, int speed, int anim_duration, const TEXTURE_ASSET_ID* anim_textures, int anim_size)
 {
 	auto entity = Entity();
 
-	Zombie &zombie = registry.zombies.emplace(entity);
+	Zombie& zombie = registry.zombies.emplace(entity);
 
-	Attack &attack = registry.attacks.emplace(entity);
+	Attack& attack = registry.attacks.emplace(entity);
 	attack.range = 30.0f;
-	attack.damage = ORC_DAMAGE;
+	attack.damage = damage;
 
-	Enemy &enemy = registry.enemies.emplace(entity);
-	enemy.health = ORC_HEALTH;
-	enemy.speed = ORC_SPEED;
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.health = health;
+	enemy.speed = speed;
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
@@ -71,26 +71,52 @@ Entity createOrc(RenderSystem *renderer, vec2 position)
 	motion.position = position;
 	motion.scale = vec2({ ENEMY_WIDTH, ENEMY_HEIGHT });
 
-
-	VisualScale &vscale = registry.visualScales.emplace(entity);
-    vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x
+	VisualScale& vscale = registry.visualScales.emplace(entity);
+	vscale.scale = { 5.f, 5.f }; // Scale visuals 3.1x
 
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::ZOMBIE_SPAWN_1,
+			anim_textures[0],
 			EFFECT_ASSET_ID::ZOMBIE,
 			GEOMETRY_BUFFER_ID::SPRITE
 		},
 		false
 	);
 
-	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_DURATION, ZOMBIE_MOVE_ANIMATION, ZOMBIE_MOVE_SIZE, true, false, false);
-
-	// Kung: Update the enemy count and print it to the console.
-    // std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
+	AnimationSystem::update_animation(entity, anim_duration, anim_textures, anim_size, true, false, false);
 
 	return entity;
+}
+
+Entity createOrc(RenderSystem *renderer, vec2 position)
+{
+	return createEnemy(renderer, position, ORC_HEALTH, ORC_DAMAGE, ORC_SPEED, ZOMBIE_MOVE_DURATION, ZOMBIE_MOVE_ANIMATION, ZOMBIE_MOVE_SIZE);
+}
+
+Entity createOrcElite(RenderSystem* renderer, vec2 position)
+{
+	return Entity();
+}
+
+Entity createSkeleton(RenderSystem* renderer, vec2 position)
+{
+	return Entity();
+}
+
+Entity createWerebear(RenderSystem* renderer, vec2 position)
+{
+	return Entity();
+}
+
+Entity createWerewolf(RenderSystem* renderer, vec2 position)
+{
+	return Entity();
+}
+
+Entity createSlime(RenderSystem* renderer, vec2 position)
+{
+	return Entity();
 }
 
 Entity createTower(RenderSystem* renderer, vec2 position) {
