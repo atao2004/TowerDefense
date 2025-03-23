@@ -418,15 +418,24 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	mat3 projection_2D = game_screen == GAME_SCREEN_ID::SPLASH ? createProjectionMatrix_splash(): createProjectionMatrix();
 
 	if (game_screen == GAME_SCREEN_ID::SPLASH) {
-		// if (nk_begin(ctx, "Demo Window", nk_rect(50, 50, 200, 150), NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
-		// 	if (nk_button_label(ctx, "Click Me")) {
-		// 		// Button clicked
-		// 		printf("Button clicked!\n");
-		// 	}
-		// }
-		// nk_end(ctx);
-		return;
-		
+		struct nk_glfw glfw;
+		struct nk_context *ctx;
+		struct nk_font *font;
+		// ctx = nk_glfw3_init(&glfw, const_cast<GLFWwindow *>(window), NK_GLFW3_INSTALL_CALLBACKS);
+		// nk_init_fixed(&ctx, calloc(1, MAX_MEMORY), MAX_MEMORY, &font);
+		struct nk_font_atlas *atlas;
+		nk_glfw3_font_stash_begin(&glfw, &atlas);
+		font = nk_font_atlas_add_default(atlas, 13.0f, NULL);
+		// struct nk_font *custom_font = nk_font_atlas_add_from_file(atlas, "path_to_font.ttf", 14.0f, NULL);
+		nk_glfw3_font_stash_end(&glfw);
+		ctx->style.font = (const struct nk_user_font*)font;
+		if (nk_begin(ctx, "Demo Window", nk_rect(50, 50, 200, 150), NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
+			if (nk_button_label(ctx, "Click Me")) {
+				// Button clicked
+				printf("Button clicked!\n");
+			}
+		}
+		nk_end(ctx);  // Ensure this is called
 	} else {
 		// draw all entities with a render request to the frame buffer
 		for (Entity entity : registry.renderRequests.entities)

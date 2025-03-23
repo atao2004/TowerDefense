@@ -19,10 +19,23 @@
 #include "../ext/nuklear.h"
 #include "../ext/nuklear_glfw_gl3.h"
 
+// void RenderSystem::init_helper(nk_context *ctx, GLFWwindow *window) {
+//     // Create a font atlas for loading fonts
+//     struct nk_font_atlas *atlas;
+//     nk_glfw3_font_stash_begin(&glfw, &atlas);  // This starts font stash creation
 
-// #define NK_INCLUDE_FIXED_TYPES
-// #include <nuklear.h>
-// #include <nuklear_glfw_gl3.h>
+//     // Add the default font to the atlas with a specified pixel height (e.g., 13.0f)
+//     font = nk_font_atlas_add_default(atlas, 13.0f, NULL);  // Use default font config
+
+//     // Optionally, you can add custom fonts like this:
+//     // struct nk_font *custom_font = nk_font_atlas_add_from_file(atlas, "path_to_font.ttf", 14.0f, NULL);
+
+//     // End font stash creation
+//     nk_glfw3_font_stash_end(&glfw);
+
+//     // Assign the font to the Nuklear context's style
+//     ctx->style.font = (const struct nk_user_font*)font;
+// }
 
 // Render initialization
 bool RenderSystem::init(GLFWwindow *window_arg)
@@ -72,16 +85,8 @@ bool RenderSystem::init(GLFWwindow *window_arg)
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
 
-	struct nk_glfw glfw;
-	ctx = nk_glfw3_init(&glfw, const_cast<GLFWwindow *>(window), NK_GLFW3_INSTALL_CALLBACKS);
-	// Load default font
-	struct nk_font_atlas* atlas;
-	nk_glfw3_font_stash_begin(&glfw,&atlas);
-	nk_font* font = nk_font_atlas_add_default(atlas, 13.0f, NULL);
-	nk_glfw3_font_stash_end(&glfw);
-
-	// Assign the font to the context's style
-	ctx->style.font = (const struct nk_user_font*)font;
+	// ctx = nk_glfw3_init(&glfw, const_cast<GLFWwindow *>(window), NK_GLFW3_INSTALL_CALLBACKS);
+	// init_helper(ctx, this->window);
 
 	std::string font_filename = PROJECT_SOURCE_DIR + std::string("data/fonts/Kenney_Mini_Square.ttf");
 	unsigned int font_default_size = 100;
