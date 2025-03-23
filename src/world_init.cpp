@@ -34,7 +34,7 @@ Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
-	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
+	motion.scale = vec2({ ENEMY_WIDTH, ENEMY_HEIGHT });
 
 	registry.renderRequests.insert(
 		entity,
@@ -69,7 +69,7 @@ Entity createZombie(RenderSystem *renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
-	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
+	motion.scale = vec2({ ENEMY_WIDTH, ENEMY_HEIGHT });
 
 
 	VisualScale &vscale = registry.visualScales.emplace(entity);
@@ -764,7 +764,7 @@ Entity createSkeleton(RenderSystem *renderer, vec2 position)
     Motion &motion = registry.motions.emplace(entity);
     motion.position = position;
     motion.velocity = {0, 0};
-    motion.scale = {50.f, 50.f};
+    motion.scale = {ENEMY_WIDTH, ENEMY_HEIGHT};
 
 	VisualScale &vscale = registry.visualScales.emplace(entity);
     vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x
