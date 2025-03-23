@@ -9,9 +9,25 @@
 #include "render_system.hpp"
 #include "tinyECS/registry.hpp"
 
+#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
+#define NK_GLFW_GL3_IMPLEMENTATION
+#define NK_INCLUDE_FONT_BAKING
+#define NK_INCLUDE_VERTEX_LAYOUT
+#define NK_IMPLEMENTATION
+#define NK_INCLUDE_DEFAULT_FONT
+#define NK_INCLUDE_DEFAULT_ALLOCATOR
+#include "../ext/nuklear.h"
+#include "../ext/nuklear_glfw_gl3.h"
+
+
+// #define NK_INCLUDE_FIXED_TYPES
+// #include <nuklear.h>
+// #include <nuklear_glfw_gl3.h>
+
 // Render initialization
 bool RenderSystem::init(GLFWwindow *window_arg)
 {
+	// struct nk_font_atlas atlas;  
 	this->window = window_arg;
 
 	glfwMakeContextCurrent(window);
@@ -55,6 +71,18 @@ bool RenderSystem::init(GLFWwindow *window_arg)
 	initializeGlTextures();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
+
+	struct nk_glfw glfw;
+	ctx = nk_glfw3_init(&glfw, const_cast<GLFWwindow *>(window), NK_GLFW3_INSTALL_CALLBACKS);
+	// Load default font
+	struct nk_font_atlas* atlas;
+	nk_glfw3_font_stash_begin(&glfw,&atlas);
+	nk_font* font = nk_font_atlas_add_default(atlas, 13.0f, NULL);
+	nk_glfw3_font_stash_end(&glfw);
+
+	// Assign the font to the context's style
+	ctx->style.font = (const struct nk_user_font*)font;
+
 	std::string font_filename = PROJECT_SOURCE_DIR + std::string("data/fonts/Kenney_Mini_Square.ttf");
 	unsigned int font_default_size = 100;
 	std::cout << "Loading font from: " << font_filename << std::endl;

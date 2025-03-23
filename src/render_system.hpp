@@ -186,6 +186,7 @@ class RenderSystem
 public:
 	// Initialize the window
 	bool init(GLFWwindow *window);
+	struct nk_context *ctx;
 
 	template <class T>
 	void bindVBOandIBO(GEOMETRY_BUFFER_ID gid, std::vector<T> vertices, std::vector<uint16_t> indices);

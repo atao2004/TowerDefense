@@ -216,6 +216,7 @@ nk_end(&ctx);
 ## API
 
 */
+#pragma message("nuklear.h included successfully")
 #ifndef NK_SINGLE_FILE
   #define NK_SINGLE_FILE
 #endif

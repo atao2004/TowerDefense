@@ -10,6 +10,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <sstream>
 
+#define NK_INCLUDE_FONT_BAKING
+#include "../ext/nuklear.h"
+#include "../ext/nuklear_glfw_gl3.h" 
+
 void RenderSystem::drawGridLine(Entity entity,
 								const mat3 &projection)
 {
@@ -414,6 +418,14 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	mat3 projection_2D = game_screen == GAME_SCREEN_ID::SPLASH ? createProjectionMatrix_splash(): createProjectionMatrix();
 
 	if (game_screen == GAME_SCREEN_ID::SPLASH) {
+		// if (nk_begin(ctx, "Demo Window", nk_rect(50, 50, 200, 150), NK_WINDOW_BORDER | NK_WINDOW_TITLE)) {
+		// 	if (nk_button_label(ctx, "Click Me")) {
+		// 		// Button clicked
+		// 		printf("Button clicked!\n");
+		// 	}
+		// }
+		// nk_end(ctx);
+		return;
 		
 	} else {
 		// draw all entities with a render request to the frame buffer
