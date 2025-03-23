@@ -491,9 +491,9 @@ void parseMap(bool tutorial) {
 	// Kung: Create the scorched earth texture for the background and reset the pre-existing surfaces
 	removeSurfaces();
 	vec2 MAP_DIMENSION_PX = tutorial ? vec2(TUTORIAL_WIDTH_PX, TUTORIAL_HEIGHT_PX) : vec2(MAP_WIDTH_PX, MAP_HEIGHT_PX);
-	for (int x = -SCORCHED_EARTH_DIMENSION_PX * 4; x < MAP_DIMENSION_PX.x + SCORCHED_EARTH_DIMENSION_PX * 4; x += SCORCHED_EARTH_DIMENSION_PX)
+	for (int x = -SCORCHED_EARTH_DIMENSION_PX; x < MAP_DIMENSION_PX.x + SCORCHED_EARTH_DIMENSION_PX; x += SCORCHED_EARTH_DIMENSION_PX)
 	{
-		for (int y = -SCORCHED_EARTH_DIMENSION_PX * 2; y < MAP_DIMENSION_PX.y + SCORCHED_EARTH_DIMENSION_PX * 2; y += SCORCHED_EARTH_DIMENSION_PX)
+		for (int y = -SCORCHED_EARTH_DIMENSION_PX; y < MAP_DIMENSION_PX.y + SCORCHED_EARTH_DIMENSION_PX; y += SCORCHED_EARTH_DIMENSION_PX)
 		{
 			if (x < 0 || x >= MAP_DIMENSION_PX.x || y < 0 || y >= MAP_DIMENSION_PX.y)
 				createScorchedEarth(vec2(x, y));
