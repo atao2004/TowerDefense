@@ -338,7 +338,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	registry.toolbars.clear();
 	// createPause();
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
-	createSeedInventory(vec2(player_pos.x - 191, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
+	createSeedInventory(vec2(player_pos.x - 191 + 55 * current_seed, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
 
 	// Kung: Reset player movement so that the player remains still when no keys are pressed
 
@@ -550,6 +550,48 @@ bool WorldSystem::is_over() const
 	return bool(glfwWindowShouldClose(window));
 }
 
+// Helper function to make it easier to increase experience
+void WorldSystem::increase_exp() {
+	Entity player_entity = registry.players.entities[0];
+	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
+	{
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(player_entity).damage / PLAYER_HEALTH;
+	} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
+	else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
+	{
+		// StateSystem::update_state(STATE::LEVEL_UP);
+		//come back later!
+		if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
+			createSeedInventory(vec2(registry.motions.get(player_entity).position.x - 191 + 55 * current_seed, registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed);
+		}
+		registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+		level++;
+		std::cout << "==== LEVEL " << level << " ====" << std::endl;
+	}
+}
+
+// Helper function to make it easier to increase experience
+void WorldSystem::increase_exp_plant() {
+	Entity player_entity = registry.players.entities[0];
+	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
+	{
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(player_entity).damage / PLAYER_HEALTH;
+	} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
+	else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
+	{
+		// StateSystem::update_state(STATE::LEVEL_UP);
+		//come back later!
+		if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
+			createSeedInventory(vec2(registry.motions.get(player_entity).position.x - 191 + 55 * current_seed, registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed);
+		}
+		registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+		level++;
+		std::cout << "==== LEVEL " << level << " ====" << std::endl;
+	}
+}
+
 // Helper function to handle what happens when the player does a mouse click
 void WorldSystem::player_attack()
 {
@@ -622,22 +664,7 @@ void WorldSystem::player_attack()
 						std::cout << "enemies killed: " << points << std::endl;
 
 						// Kung: Upon killing a enemy, increase the experience of the player or reset the experience bar when it becomes full.
-						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
-						{
-							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
-						} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
-						else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
-						{
-							// StateSystem::update_state(STATE::LEVEL_UP);
-							//come back later!
-							if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
-								createSeedInventory(vec2(player_motion.position.x - 191, player_motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), player_motion.velocity, current_seed);
-							}
-							registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
-							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
-							level++;
-							std::cout << "==== LEVEL " << level << " ====" << std::endl;
-						}
+						increase_exp();
 					}
 				}
 			}
@@ -1097,7 +1124,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				// StateSystem::update_state(STATE::LEVEL_UP);
 				//come back later!
 				if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
-					createSeedInventory(vec2(motion.position.x - 191, motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed);
+					createSeedInventory(vec2(motion.position.x - 191 + 55 * current_seed, motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed);
 				}
 				registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;

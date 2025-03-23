@@ -56,6 +56,10 @@ public:
 	// Current experience level of the player
 	unsigned int level;
 
+	// increases player experience
+	void increase_exp();
+	void increase_exp_plant();
+
 private:
 	float mouse_pos_x = 0.0f;
 	float mouse_pos_y = 0.0f;
