@@ -147,13 +147,15 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES}
 
 # FreeType - Windows-specific (x64 only)
 find_package(Freetype REQUIRED)
+find_package(Freetype REQUIRED)
+
 
 if(TARGET Freetype AND NOT TARGET Freetype::Freetype)
-    # add_library(Freetype::Freetype ALIAS freetype) # target freetype is defined by freetype-targets.cmake
-    # might need to add freetype to global scope if cmake errors here
-    # alternativly if the above does not work for you you can use
-    add_library(Freetype::Freetype INTERFACE IMPORTED)
-    target_link_libraries(Freetype::Freetype INTERFACE freetype)
+     add_library(Freetype::Freetype ALIAS freetype) # target freetype is defined by freetype-targets.cmake
+     # might need to add freetype to global scope if cmake errors here
+     # alternativly if the above does not work for you you can use
+    #  add_library(Freetype::Freetype INTERFACE IMPORTED)
+    #  target_link_libraries(Freetype::Freetype INTERFACE freetype)
 endif()
 
 if(NOT TARGET Freetype::Freetype)
@@ -163,9 +165,11 @@ if(NOT TARGET Freetype::Freetype)
 endif()
  
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
 # needed to add this for Linux
 if(IS_OS_LINUX)
     target_link_libraries(${PROJECT_NAME} PUBLIC glfw ${CMAKE_DL_LIBS})
 endif()
 
+target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm ${FREETYPE_LIBRARY})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm ${FREETYPE_LIBRARY})

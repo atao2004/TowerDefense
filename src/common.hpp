@@ -19,6 +19,9 @@
 #include <glm/vec3.hpp>			   // vec3
 #include <glm/mat3x3.hpp>		   // mat3
 using namespace glm;
+#include "../ext/json.hpp"
+using json = nlohmann::json;
+
 
 #include "tinyECS/tiny_ecs.hpp"
 
@@ -217,6 +220,13 @@ struct RenderRequest
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
 	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
 	GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
+	json toJSON() const {
+        return json{
+            {"used_texture", static_cast<int>(used_texture)},  // Convert enum to integer
+            {"used_effect", static_cast<int>(used_effect)},      // Convert enum to integer
+            {"used_geometry", static_cast<int>(used_geometry)}   // Convert enum to integer
+        };
+    }
 };
 
 //
@@ -248,7 +258,7 @@ const int PLAYER_HEALTH = 100;
 const int NUM_SEED_TYPES = 1;
 const int ZOMBIE_HEALTH = 20;
 const int ZOMBIE_DAMAGE = 5;
-const float BASE_ENEMY_SPEED = 500.0f; // Base movement speed for enemies
+const float BASE_ENEMY_SPEED = 900.0f; // Base movement speed for enemies
 const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
 // Chicken
@@ -259,7 +269,7 @@ const int CHICKEN_DAMAGE = 100;
 // Skeleton properties
 const float SKELETON_WIDTH = 200.f;
 const float SKELETON_HEIGHT = 200.f;
-const float SKELETON_HEALTH = 75.f;
+const float SKELETON_HEALTH = 20.f;
 const float SKELETON_SPEED = 75.f;
 const float SKELETON_FRAME_DELAY = 500.f;
 const float SKELETON_ARROW_DAMAGE = 15.f;
@@ -321,9 +331,9 @@ const int SKELETON_ATTACK_DURATION = 1800;
 const int PROJECTILE_DAMAGE = 10;
 
 // control player movement
-const int PLAYER_MOVE_UP_SPEED = -150;
+const int PLAYER_MOVE_UP_SPEED = -200;
 const int PLAYER_MOVE_DOWN_SPEED = -PLAYER_MOVE_UP_SPEED;
-const int PLAYER_MOVE_LEFT_SPEED = -150;
+const int PLAYER_MOVE_LEFT_SPEED = -200;
 const int PLAYER_MOVE_RIGHT_SPEED = -PLAYER_MOVE_LEFT_SPEED;
 
 // These are hard coded to the dimensions of the entity's texture
@@ -357,7 +367,7 @@ const float SLASH_HEIGHT = 60;
 
 // cooldown
 const int COOLDOWN_ENEMY_ATTACK = 1000;
-const int COOLDOWN_PLAYER_ATTACK = 400;
+const int COOLDOWN_PLAYER_ATTACK = 500;
 const int COOLDOWN_ZOMBIE_SPAWN = 3000;
 
 // player movement boundaries
@@ -463,7 +473,7 @@ const vec2 DECORATION_SIZE_LIST[] = {
 // animation (time)
 const int PLAYER_IDLE_DURATION = 1000;
 const int PLAYER_MOVE_DURATION = 1000;
-const int PLAYER_ATTACK_DURATION = 400;
+const int PLAYER_ATTACK_DURATION = COOLDOWN_PLAYER_ATTACK - 100;
 const int ZOMBIE_MOVE_DURATION = 1000;
 const int ZOMBIE_SPAWN_DURATION = 3000;
 const int SLASH_DURATION = PLAYER_ATTACK_DURATION;

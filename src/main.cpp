@@ -16,6 +16,7 @@
 #include "animation_system.hpp"
 #include "tower_system.hpp"
 #include "movement_system.hpp"
+#include "frame_manager.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -70,6 +71,16 @@ int main()
 	int max_fps = 0;
 	int min_fps = 50000; //impossible number technically, lazy implementation sorry!
 	int cooldown = 1000;
+
+	// frame intervals
+	FrameManager fm_world = FrameManager(1);
+	FrameManager fm_ai = FrameManager(1);
+	FrameManager fm_physics = FrameManager(1);
+	FrameManager fm_status = FrameManager(1);
+	FrameManager fm_tower = FrameManager(5);
+	FrameManager fm_movement = FrameManager(2);
+	FrameManager fm_animation = FrameManager(2);
+
 	while (!world_system.is_over()) {
 
 		GAME_SCREEN_ID game_screen = world_system.get_game_screen();
@@ -83,14 +94,15 @@ int main()
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
 
+		FrameManager::tick(elapsed_ms);
+
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
 		//when level up, we want the screen to be frozen
 		if (StateSystem::get_state() != STATE::LEVEL_UP) {
-			world_system.step(elapsed_ms);
+			if (fm_world.can_update()) world_system.step(fm_world.get_time());
 			if (!WorldSystem::game_is_over) {
 
 				//M2: FPS
-				std::cout<<cooldown<<std::endl;
 				float current_fps = (1/(elapsed_ms/1000));
 				cooldown -= elapsed_ms;
 				if (cooldown <= 0) {                             //used to prevent screen flickering
@@ -111,12 +123,12 @@ int main()
 				}
 				record_times++;
 
-				ai_system.step(elapsed_ms);
-				physics_system.step(elapsed_ms);
-				status_system.step(elapsed_ms);
-				tower_system.step(elapsed_ms);
-				movement_system.step(elapsed_ms, game_screen);
-				animation_system.step(elapsed_ms);
+				if (fm_ai.can_update()) ai_system.step(fm_ai.get_time());
+				if (fm_physics.can_update()) physics_system.step(fm_physics.get_time());
+				if (fm_status.can_update()) status_system.step(fm_status.get_time());
+				if (fm_tower.can_update()) tower_system.step(fm_tower.get_time());
+				if (fm_movement.can_update()) movement_system.step(fm_movement.get_time(), game_screen);
+				if (fm_animation.can_update()) animation_system.step(fm_animation.get_time());
 			} else {
 				//M2: FPS. make sure we only print once, lazy implementation
 				if (record_times != 0) {
@@ -128,7 +140,11 @@ int main()
 			}
 		}
 		
+		glm::mat4 trans = glm::mat4(1.0f);
+		renderer_system.renderText("hello", 100, 100, 1, {1, 1, 0}, trans);
+
 		renderer_system.draw(game_screen);
+		
 	}
 
 	return EXIT_SUCCESS;

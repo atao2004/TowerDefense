@@ -52,8 +52,8 @@ void StatusSystem::update_zombie_attack(Entity entity, float elapsed_ms)
         if (status.type == "attack")
         {
             player.health -= status.value;
-            std::cout << "Entity " << (int)entity << " took " << status.value
-                      << " attack damage. Health: " << player.health << std::endl;
+            // std::cout << "Entity " << (int)entity << " took " << status.value
+            //           << " attack damage. Health: " << player.health << std::endl;
 
             // If the creature is an entity, update the hp_percentage.
             if (registry.players.has(entity))
@@ -186,8 +186,8 @@ void StatusSystem::handle_projectile_attack(Entity entity, float elapsed_ms)
         {
             // Apply projectile damage
             enemy.health -= it->value;
-            std::cout << "Zombie hit by projectile for " << it->value
-                      << " damage. Health remaining: " << enemy.health << std::endl;
+            // std::cout << "Zombie hit by projectile for " << it->value
+            //           << " damage. Health remaining: " << enemy.health << std::endl;
 
             // Remove attack status after applying damage
             it = status_comp.active_statuses.erase(it);

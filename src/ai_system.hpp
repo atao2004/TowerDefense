@@ -34,7 +34,7 @@ private:
 
 	// Behavior-specific functions
 	void handle_chase_behavior(Entity entity, float elapsed_ms);
-	void update_zombie_attack(Entity entity, float elapsed_ms);
+	void update_enemy_melee_attack(Entity entity, float elapsed_ms);
 
 	// State management (for future use)
 	void update_enemy_state(Entity entity);
