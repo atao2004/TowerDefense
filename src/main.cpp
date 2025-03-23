@@ -88,7 +88,6 @@ int main()
 	while (!world_system.is_over()) {
 
 		GAME_SCREEN_ID game_screen = world_system.get_game_screen();
-		std::cout<<(int)game_screen<<std::endl;
 		// processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
 
@@ -104,7 +103,7 @@ int main()
 		//when level up, we want the screen to be frozen
 		if (StateSystem::get_state() != STATE::LEVEL_UP) {
 			world_system.step(elapsed_ms);
-			if (!WorldSystem::game_is_over) {
+			if (!WorldSystem::game_is_over && registry.screenStates.components[0].game_screen != GAME_SCREEN_ID::SPLASH) {
 
 				//M2: FPS
 				float current_fps = (1/(elapsed_ms/1000));
