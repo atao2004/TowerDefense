@@ -317,19 +317,6 @@ void WorldSystem::restart_common_tasks()
 	// debugging for memory/component leaks
 	registry.list_all_components();
 
-	int grid_line_width = GRID_LINE_WIDTH_PX;
-
-	// Kung: Create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
-	removeSurfaces();
-	// commented out Kung's code
-	for (int x = -SCORCHED_EARTH_DIMENSION_PX * 4; x < MAP_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 4; x += SCORCHED_EARTH_DIMENSION_PX)
-	{
-		for (int y = -SCORCHED_EARTH_DIMENSION_PX * 2; y < MAP_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 2; y += SCORCHED_EARTH_DIMENSION_PX)
-		{
-			//createScorchedEarth(vec2(x, y));
-		}
-	}
-
 	// if the screenState exists, reset the health bar percentages
 	if (registry.screenStates.size() != 0)
 	{
