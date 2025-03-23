@@ -63,6 +63,7 @@ Entity createZombie(RenderSystem *renderer, vec2 position)
 
 	Enemy &enemy = registry.enemies.emplace(entity);
 	enemy.health = ORC_HEALTH;
+	enemy.speed = ORC_SPEED;
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;

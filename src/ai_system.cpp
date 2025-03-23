@@ -65,7 +65,8 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms)
     vec2 direction = calculate_direction_to_target(motion.position, player_pos);
 
     // If entity has hit effect, reduce chase speed
-    float current_speed = BASE_ENEMY_SPEED;
+    Enemy& enemy = registry.enemies.get(entity);
+    float current_speed = enemy.speed * 100;
 
     // Add to velocity instead of overwriting
     float step_seconds = elapsed_ms / 1000.f;
