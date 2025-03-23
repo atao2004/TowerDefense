@@ -14,11 +14,15 @@ public:
         m_id = id_count++; // assign and increment
     }
 
+    Entity(int id) {
+        m_id = id;
+    }
+
     ~Entity()
     {
     }
 
     operator unsigned int() { return m_id; } // enables automatic casting to int
 
-    unsigned int id() { return m_id; }
+    unsigned int id() const { return m_id; }
 };
