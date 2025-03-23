@@ -10,7 +10,7 @@
 
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
-#include "state_system.hpp"
+#include "player_system.hpp"
 
 // FreeType
 // #include <ft2build.h>
@@ -200,7 +200,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			}
 		}
 	}
-	if (StateSystem::get_state() == STATE::LEVEL_UP)
+	if (PlayerSystem::get_state() == STATE::LEVEL_UP)
 	{
 		registry.inventorys.components[0].seedCount[current_seed]++;
 	}
@@ -540,7 +540,7 @@ bool WorldSystem::is_over() const
 void WorldSystem::player_attack()
 {
 	Entity player = registry.players.entities[0];
-	if (!registry.cooldowns.has(player) && StateSystem::get_state() != STATE::ATTACK)
+	if (!registry.cooldowns.has(player) && PlayerSystem::get_state() != STATE::ATTACK)
 	{
 		// Play the sword attack sound
 		Mix_PlayChannel(3, sword_attack_sound, 0);
@@ -614,7 +614,7 @@ void WorldSystem::player_attack()
 						} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
 						else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 						{
-							// StateSystem::update_state(STATE::LEVEL_UP);
+							// PlayerSystem::update_state(STATE::LEVEL_UP);
 							// come back later!
 							if (registry.inventorys.components[0].seedCount[current_seed] == 0)
 							{
@@ -630,7 +630,7 @@ void WorldSystem::player_attack()
 			}
 		}
 		// Player State
-		StateSystem::update_state(STATE::ATTACK);
+		PlayerSystem::update_state(STATE::ATTACK);
 
 		// Cooldown
 		if (registry.cooldowns.has(player))
@@ -913,7 +913,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	// when player is in the level up menu, disable some game inputs
-	if (StateSystem::get_state() == STATE::LEVEL_UP ||
+	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
 		game_is_over)
 		return;
 
@@ -1043,11 +1043,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	{
 		if (motion.velocity == vec2(0, 0))
 		{
-			StateSystem::update_state(STATE::IDLE);
+			PlayerSystem::update_state(STATE::IDLE);
 		}
 		else
 		{
-			StateSystem::update_state(STATE::MOVE);
+			PlayerSystem::update_state(STATE::MOVE);
 		}
 	}
 
@@ -1097,7 +1097,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		{
 			if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 			{
-				// StateSystem::update_state(STATE::LEVEL_UP);
+				// PlayerSystem::update_state(STATE::LEVEL_UP);
 				// come back later!
 				if (registry.inventorys.components[0].seedCount[current_seed] == 0)
 				{
@@ -1122,7 +1122,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	mouse_pos_x = mouse_position.x;
 	mouse_pos_y = mouse_position.y;
 
-	if (StateSystem::get_state() == STATE::LEVEL_UP ||
+	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
 		game_is_over)
 		return;
 
@@ -1160,7 +1160,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 
 		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
 		{
-			if (StateSystem::get_state() == STATE::LEVEL_UP)
+			if (PlayerSystem::get_state() == STATE::LEVEL_UP)
 				return;
 			player_attack();
 		}
