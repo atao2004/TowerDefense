@@ -91,7 +91,7 @@ Entity createEnemy(RenderSystem* renderer, vec2 position, int health, int damage
 
 Entity createOrc(RenderSystem *renderer, vec2 position)
 {
-	return createEnemy(renderer, position, ORC_HEALTH, ORC_DAMAGE, ORC_SPEED, ZOMBIE_MOVE_DURATION, ZOMBIE_MOVE_ANIMATION, ZOMBIE_MOVE_SIZE);
+	return createEnemy(renderer, position, ORC_HEALTH, ORC_DAMAGE, ORC_SPEED, ORC_ANIMATION_DURATION, ORC_ANIMATION, ORC_ANIMATION_SIZE);
 }
 
 Entity createOrcElite(RenderSystem* renderer, vec2 position)
