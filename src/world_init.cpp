@@ -493,9 +493,9 @@ void parseMap(bool tutorial) {
 		for (int j=0; j<numCol; j++) {
 			if (map_layer[i*numCol+j] == 1) {
 				if (tutorial) {
-					createTutorialTile({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+					//createTutorialTile({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
 				} else {
-					createMapTile({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+					//createMapTile({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
 				}
 			}
 		}

@@ -326,7 +326,7 @@ void WorldSystem::restart_common_tasks()
 	{
 		for (int y = -SCORCHED_EARTH_DIMENSION_PX * 2; y < MAP_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 2; y += SCORCHED_EARTH_DIMENSION_PX)
 		{
-			createScorchedEarth(vec2(x, y));
+			//createScorchedEarth(vec2(x, y));
 		}
 	}
 
