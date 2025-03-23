@@ -264,7 +264,7 @@ struct DeathAnimation
 {
 	vec2 slide_direction; // Direction to slide
 	float alpha = 1.0f;	  // Transparency (1.0 = solid, 0.0 = invisible)
-	float duration_ms;	  // How long the animation lasts
+	float duration_ms = 500.0f;	  // How long the animation lasts (Animation lasts 0.5 seconds)
 };
 
 struct HitEffect
