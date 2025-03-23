@@ -144,6 +144,7 @@ int main()
 		renderer_system.renderText("hello", 100, 100, 1, {1, 1, 0}, trans);
 
 		renderer_system.draw(game_screen);
+		
 	}
 
 	return EXIT_SUCCESS;
