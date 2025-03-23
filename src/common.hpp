@@ -343,8 +343,6 @@ const int CHICKEN_SPEED = 200;
 const int CHICKEN_DAMAGE = 100;
 
 // Skeleton properties
-const float SKELETON_WIDTH = 200.f;
-const float SKELETON_HEIGHT = 200.f;
 const float SKELETON_FRAME_DELAY = 500.f;
 
 const TEXTURE_ASSET_ID SKELETON_IDLE_ANIMATION[] = {
