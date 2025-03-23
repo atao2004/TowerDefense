@@ -364,7 +364,7 @@ const float SLASH_HEIGHT = 60;
 
 // cooldown
 const int COOLDOWN_ENEMY_ATTACK = 1000;
-const int COOLDOWN_PLAYER_ATTACK = 400;
+const int COOLDOWN_PLAYER_ATTACK = 500;
 const int COOLDOWN_ZOMBIE_SPAWN = 3000;
 
 // player movement boundaries
@@ -470,7 +470,7 @@ const vec2 DECORATION_SIZE_LIST[] = {
 // animation (time)
 const int PLAYER_IDLE_DURATION = 1000;
 const int PLAYER_MOVE_DURATION = 1000;
-const int PLAYER_ATTACK_DURATION = 400;
+const int PLAYER_ATTACK_DURATION = COOLDOWN_PLAYER_ATTACK - 100;
 const int ZOMBIE_MOVE_DURATION = 1000;
 const int ZOMBIE_SPAWN_DURATION = 3000;
 const int SLASH_DURATION = PLAYER_ATTACK_DURATION;

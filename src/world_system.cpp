@@ -535,11 +535,6 @@ void WorldSystem::check_tutorial_enemies()
 	}
 }
 
-// Compute collisions between entities
-void WorldSystem::handle_collisions()
-{
-}
-
 // Should the game be over ?
 bool WorldSystem::is_over() const
 {
@@ -550,7 +545,7 @@ bool WorldSystem::is_over() const
 void WorldSystem::player_attack()
 {
 	Entity player = registry.players.entities[0];
-	if (!registry.cooldowns.has(player))
+	if (!registry.cooldowns.has(player) && StateSystem::get_state() != STATE::ATTACK)
 	{
 		// Play the sword attack sound
 		Mix_PlayChannel(3, sword_attack_sound, 0);
