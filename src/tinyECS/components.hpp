@@ -279,3 +279,30 @@ struct Camera {
 	float camera_height = CAMERA_VIEW_HEIGHT;
     float lerp_factor = 0.1f;
 };
+
+// Update your existing Particle struct
+
+struct Particle {
+    glm::vec2 Position;
+    glm::vec2 Velocity;
+    glm::vec4 Color;
+    float Life;
+    float MaxLife;
+    
+    Particle() 
+        : Position(0.0f), Velocity(0.0f), Color(1.0f), Life(0.0f), MaxLife(0.0f) { }
+};
+
+// Add a ParticleGenerator component
+struct ParticleGenerator {
+    std::string type;         // Type of effect (blood, fire, etc.)
+    unsigned int amount;      // Maximum number of particles
+    float spawnInterval;      // Time between spawning particles
+    float timer;              // Current timer
+    std::vector<Entity> particles; // List of particle entities
+    bool isActive;            // Whether generator is active
+    
+    ParticleGenerator() 
+        : type("default"), amount(100), spawnInterval(0.1f), timer(0.0f), 
+          particles(), isActive(true) { }
+};

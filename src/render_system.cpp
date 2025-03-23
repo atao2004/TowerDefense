@@ -262,6 +262,57 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 							  sizeof(ColoredVertex), (void *)sizeof(vec3));
 		gl_has_errors();
 	}
+	else if (render_request.used_effect == EFFECT_ASSET_ID::PARTICLE)
+	{
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+		gl_has_errors();
+		assert(in_texcoord_loc >= 0);
+
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
+							  sizeof(TexturedVertex), (void *)0);
+		gl_has_errors();
+
+		glEnableVertexAttribArray(in_texcoord_loc);
+		glVertexAttribPointer(
+			in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex),
+			(void *)sizeof(vec3));
+		gl_has_errors();
+
+		// Pass color as vec4 including alpha
+		vec4 particleColor = {1.0f, 1.0f, 1.0f, 1.0f};
+		if (registry.particles.has(entity))
+		{
+			Particle &particle = registry.particles.get(entity);
+			particleColor = particle.Color;
+		}
+
+		GLint color_loc = glGetUniformLocation(program, "color");
+		glUniform4fv(color_loc, 1, &particleColor[0]);
+		gl_has_errors();
+
+		// Pass life ratio for visual effects
+		float lifeRatio = 1.0f;
+		if (registry.particles.has(entity))
+		{
+			Particle &particle = registry.particles.get(entity);
+			lifeRatio = particle.Life / particle.MaxLife;
+		}
+
+		GLint life_loc = glGetUniformLocation(program, "life_ratio");
+		glUniform1f(life_loc, lifeRatio);
+		gl_has_errors();
+
+		// Enabling and binding texture
+		glActiveTexture(GL_TEXTURE0);
+		gl_has_errors();
+
+		GLuint texture_id =
+			texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+		gl_has_errors();
+	}
 	else
 	{
 		assert(false && "Type of render request not supported");
@@ -449,17 +500,27 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	if (!WorldSystem::game_is_over)
 		drawTexturedMesh(registry.players.entities[0], projection_2D);
 
-	// glm::mat4 trans = glm::mat4(1.0f);
-	// renderText("hi", 10, 10, 1, {1, 0, 1}, trans);
+	// Special rendering for particles with additive blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE); // Additive blending for glow effect
 
+	// Draw all particle entities
+	for (Entity entity : registry.particles.entities)
+	{
+		if (registry.renderRequests.has(entity) && registry.motions.has(entity))
+		{
+			drawTexturedMesh(entity, projection_2D);
+		}
+	}
+
+	// Reset blending mode
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//  draw framebuffer to screen
 	//  adding "UI" effect when applied
 	drawToScreen();
 
-
-	//renderText("hi", 10, 10, 1, {1, 0, 1}, trans);
-
+	// renderText("hi", 10, 10, 1, {1, 0, 1}, trans);
 
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);

@@ -11,6 +11,7 @@
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
 #include "state_system.hpp"
+#include "particle_system.hpp"
 
 // FreeType
 // #include <ft2build.h>
@@ -593,6 +594,8 @@ void WorldSystem::player_attack()
 
 					// Add hit effect
 					HitEffect &hit = registry.hitEffects.emplace_with_duplicates(enemy);
+
+					ParticleSystem::createBloodEffect(enemy_motion.position);
 
 					// This is what you do when you kill a enemy.
 					if (enemy_comp.health <= 0)

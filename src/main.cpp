@@ -16,6 +16,7 @@
 #include "animation_system.hpp"
 #include "tower_system.hpp"
 #include "movement_system.hpp"
+#include "particle_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -31,6 +32,7 @@ int main()
 	AnimationSystem animation_system;
 	TowerSystem tower_system;
 	MovementSystem movement_system;
+	ParticleSystem particle_system;
 
 	// initialize window
 	GLFWwindow* window = world_system.create_window();
@@ -61,6 +63,7 @@ int main()
 	renderer_system.init(window);
 	world_system.init(&renderer_system);
 	animation_system.init(&renderer_system);
+	particle_system.init(&renderer_system);
 
 	// variable timestep loop
 	auto t = Clock::now();
@@ -117,6 +120,7 @@ int main()
 				tower_system.step(elapsed_ms);
 				movement_system.step(elapsed_ms, game_screen);
 				animation_system.step(elapsed_ms);
+				particle_system.step(elapsed_ms);
 			} else {
 				//M2: FPS. make sure we only print once, lazy implementation
 				if (record_times != 0) {

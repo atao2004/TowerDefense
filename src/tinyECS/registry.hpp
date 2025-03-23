@@ -50,6 +50,8 @@ public:
 	ComponentContainer<VisualScale> visualScales;
 
 	ComponentContainer<Enemy> enemies;
+	ComponentContainer<Particle> particles;
+	ComponentContainer<ParticleGenerator> particleGenerators;
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
@@ -81,6 +83,8 @@ public:
 		registry_list.push_back(&enemies);
 		registry_list.push_back(&inventorys);
 		registry_list.push_back(&seeds);
+		registry_list.push_back(&particles);
+		registry_list.push_back(&particleGenerators);
 	}
 
 	void clear_all_components() {

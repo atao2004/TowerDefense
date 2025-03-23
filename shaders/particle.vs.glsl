@@ -1,0 +1,18 @@
+#version 330 core
+layout (location = 0) in vec3 in_position;
+layout (location = 1) in vec2 in_texcoord;
+
+out vec2 TexCoords;
+out vec4 ParticleColor;
+
+uniform mat3 transform;
+uniform mat3 projection;
+uniform vec4 color;
+
+void main()
+{
+    vec3 pos = projection * transform * vec3(in_position.xy, 1.0);
+    gl_Position = vec4(pos.xy, 0.0, 1.0);
+    TexCoords = in_texcoord;
+    ParticleColor = color;
+}
