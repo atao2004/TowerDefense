@@ -211,6 +211,7 @@ public:
 	void draw(GAME_SCREEN_ID game_screen);
 	
 	mat3 createProjectionMatrix();
+	mat3 createProjectionMatrix_splash();
 	
 	Entity get_screen_state_entity() { return screen_state_entity; }
 	

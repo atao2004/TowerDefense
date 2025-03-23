@@ -263,6 +263,7 @@ enum class STATE
 	MOVE = 1,
 	ATTACK = 2,
 	LEVEL_UP = 3,
+    STATE_COUNT = LEVEL_UP + 1
 };
 
 struct State
@@ -399,6 +400,9 @@ struct ScreenState
 	float shake_duration_ms = 0.f;
 	float shake_intensity = 0.f;
 	vec2 shake_offset = {0.f, 0.f};
+
+    GAME_SCREEN_ID game_screen = GAME_SCREEN_ID::SPLASH;
+
 	json toJSON() const {
         return json{
             {"darken_screen_factor", darken_screen_factor},

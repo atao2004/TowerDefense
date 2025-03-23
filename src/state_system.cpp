@@ -31,6 +31,7 @@ void StateSystem::update_state(STATE state_new)
 }
 
 STATE StateSystem::get_state() {
+    if (registry.screenStates.components[0].game_screen == GAME_SCREEN_ID::SPLASH) return STATE::STATE_COUNT;
     Entity player = registry.players.entities[0];
     State& state = registry.states.get(player);
     return state.state;

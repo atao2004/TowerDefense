@@ -16,6 +16,10 @@
 #include "animation_system.hpp"
 #include "tower_system.hpp"
 #include "movement_system.hpp"
+// fonts
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include <map>
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -73,7 +77,7 @@ int main()
 	while (!world_system.is_over()) {
 
 		GAME_SCREEN_ID game_screen = world_system.get_game_screen();
-		
+		std::cout<<(int)game_screen<<std::endl;
 		// processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
 
@@ -85,7 +89,7 @@ int main()
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
 		//when level up, we want the screen to be frozen
-		if (StateSystem::get_state() != STATE::LEVEL_UP) {
+		if (world_system.get_game_screen() != GAME_SCREEN_ID::SPLASH && StateSystem::get_state() != STATE::LEVEL_UP) {
 			world_system.step(elapsed_ms);
 			if (!WorldSystem::game_is_over) {
 

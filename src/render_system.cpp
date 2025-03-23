@@ -410,80 +410,80 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 							  // sprites back to front
 	gl_has_errors();
 
-	mat3 projection_2D = createProjectionMatrix();
 
-	// draw all entities with a render request to the frame buffer
-	for (Entity entity : registry.renderRequests.entities)
-	{
-		// filter to entities that have a motion component
-		if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE && !registry.players.has(entity))
+	mat3 projection_2D = game_screen == GAME_SCREEN_ID::SPLASH ? createProjectionMatrix_splash(): createProjectionMatrix();
+
+	if (game_screen == GAME_SCREEN_ID::SPLASH) {
+		
+	} else {
+		// draw all entities with a render request to the frame buffer
+		for (Entity entity : registry.renderRequests.entities)
 		{
-			// Note, its not very efficient to access elements indirectly via the entity
-			// albeit iterating through all Sprites in sequence. A good point to optimize
-			if (game_screen == GAME_SCREEN_ID::TUTORIAL)
+			// filter to entities that have a motion component
+			if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE && !registry.players.has(entity))
 			{
-				if (registry.mapTiles.has(entity))
+				// Note, its not very efficient to access elements indirectly via the entity
+				// albeit iterating through all Sprites in sequence. A good point to optimize
+				if (game_screen == GAME_SCREEN_ID::TUTORIAL)
 				{
-					if (registry.tutorialTiles.has(entity))
+					if (registry.mapTiles.has(entity))
+					{
+						if (registry.tutorialTiles.has(entity))
+						{
+							drawTexturedMesh(entity, projection_2D);
+						}
+					}
+					else
 					{
 						drawTexturedMesh(entity, projection_2D);
 					}
 				}
-				else
+				else if (!registry.tutorialSigns.has(entity) && !registry.tutorialTiles.has(entity))
 				{
 					drawTexturedMesh(entity, projection_2D);
 				}
 			}
-			else if (!registry.tutorialSigns.has(entity) && !registry.tutorialTiles.has(entity))
+			// draw grid lines separately, as they do not have motion but need to be rendered
+			else if (registry.gridLines.has(entity))
 			{
-				drawTexturedMesh(entity, projection_2D);
+				drawGridLine(entity, projection_2D);
 			}
 		}
-		// draw grid lines separately, as they do not have motion but need to be rendered
-		else if (registry.gridLines.has(entity))
-		{
-			drawGridLine(entity, projection_2D);
-		}
+		// individually draw player, will render on top of all the motion sprites
+		if (!WorldSystem::game_is_over)
+			drawTexturedMesh(registry.players.entities[0], projection_2D);
+
+		// glm::mat4 trans = glm::mat4(1.0f);
+		// renderText("hi", 10, 10, 1, {1, 0, 1}, trans);
+
+		//  draw framebuffer to screen
+		//  adding "UI" effect when applied
+		drawToScreen();
 	}
-	// individually draw player, will render on top of all the motion sprites
-	if (!WorldSystem::game_is_over)
-		drawTexturedMesh(registry.players.entities[0], projection_2D);
-
-	// glm::mat4 trans = glm::mat4(1.0f);
-	// renderText("hi", 10, 10, 1, {1, 0, 1}, trans);
-
-
-	//  draw framebuffer to screen
-	//  adding "UI" effect when applied
-	drawToScreen();
-
-
-	//renderText("hi", 10, 10, 1, {1, 0, 1}, trans);
-
 
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
 	gl_has_errors();
 }
 
-// mat3 RenderSystem::createProjectionMatrix()
-// {
-// 	// fake projection matrix, scaled to window coordinates
-// 	float left = 0.f;
-// 	float top = 0.f;
-// 	float right = (float)WINDOW_WIDTH_PX;
-// 	float bottom = (float)WINDOW_HEIGHT_PX;
+mat3 RenderSystem::createProjectionMatrix_splash()
+{
+	// fake projection matrix, scaled to window coordinates
+	float left = 0.f;
+	float top = 0.f;
+	float right = (float)WINDOW_WIDTH_PX;
+	float bottom = (float)WINDOW_HEIGHT_PX;
 
-// 	float sx = 2.f / (right - left);
-// 	float sy = 2.f / (top - bottom);
-// 	float tx = -(right + left) / (right - left);
-// 	float ty = -(top + bottom) / (top - bottom);
+	float sx = 2.f / (right - left);
+	float sy = 2.f / (top - bottom);
+	float tx = -(right + left) / (right - left);
+	float ty = -(top + bottom) / (top - bottom);
 
-// 	return {
-// 		{sx, 0.f, 0.f},
-// 		{0.f, sy, 0.f},
-// 		{tx, ty, 1.f}};
-// }
+	return {
+		{sx, 0.f, 0.f},
+		{0.f, sy, 0.f},
+		{tx, ty, 1.f}};
+}
 
 // mat3 RenderSystem::createProjectionMatrix() {
 //     auto& screen = registry.screenStates.get(screen_state_entity);

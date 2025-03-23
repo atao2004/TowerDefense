@@ -13,17 +13,18 @@
 #include "spawn_manager.hpp"
 #include "state_system.hpp"
 #include "../ext/json.hpp"
+#include "../ext/nuklear.h"
+// #include "../ext/nuklear_glfw_gl3.h"
 using json = nlohmann::json;
 
 // FreeType
-// #include <ft2build.h>
-// #include FT_FREETYPE_H
-
-// FT_Library library;
+#include <ft2build.h>
+#include FT_FREETYPE_H
+FT_Library library;
 
 bool WorldSystem::game_is_over = false;
 Mix_Chunk *WorldSystem::game_over_sound = nullptr;
-GAME_SCREEN_ID WorldSystem::game_screen = GAME_SCREEN_ID::PLAYING;
+GAME_SCREEN_ID WorldSystem::game_screen = GAME_SCREEN_ID::SPLASH;
 int WorldSystem::current_day = 1;
 
 // create the world
@@ -172,11 +173,12 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 	this->renderer = renderer_arg;
 
 	// start playing background music indefinitely
-	std::cout << "Starting music..." << std::endl;
+	// std::cout << "Starting music..." << std::endl;
 
 	// Set all states to default
 	// restart_game();
-	restart_tutorial();
+	// restart_tutorial();
+	init_splash_screen();
 }
 
 // Update our game world
@@ -934,10 +936,15 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		registry.list_all_components();
 	}
 
+	if (game_screen == GAME_SCREEN_ID::SPLASH) {
+		//implement
+		return;
+	}
+
 	// when player is in the level up menu, disable some game inputs
 	if (StateSystem::get_state() == STATE::LEVEL_UP ||
 		game_is_over)
-		return;
+		return;	
 
 	// Player movement
 	Entity player = registry.players.entities[0];
@@ -1144,6 +1151,11 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	mouse_pos_x = mouse_position.x;
 	mouse_pos_y = mouse_position.y;
 
+	if (game_screen == GAME_SCREEN_ID::SPLASH) {
+		//implement
+		return;
+	}
+
 	if (StateSystem::get_state() == STATE::LEVEL_UP ||
 		game_is_over)
 		return;
@@ -1167,7 +1179,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 
 void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 {
-	if (!WorldSystem::game_is_over)
+	if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH)
 	{
 		// on button press
 		if (action == GLFW_PRESS)

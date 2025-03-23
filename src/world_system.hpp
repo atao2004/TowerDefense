@@ -58,6 +58,13 @@ public:
 	unsigned int level;
 
 	static int current_day;
+
+	void init_splash_screen() {
+		std::cout<<"start game"<<std::endl;
+		glm::mat4 trans = glm::mat4(1.0f);
+		// renderer->renderText("Farmer Defense", 0,0,1,{0,0,0}, trans);
+		std::cout<<"done"<<std::endl;
+	}
 	
 private:
 	float mouse_pos_x = 0.0f;
