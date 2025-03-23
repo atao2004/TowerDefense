@@ -489,17 +489,17 @@ void parseMap(bool tutorial) {
 	std::vector<int> decoration_layer = jsonFile["layers"][1]["data"];
 
 	// create background
-	for (int i=0; i<numRow; i++) { //iterating row-by-row
-		for (int j=0; j<numCol; j++) {
-			if (map_layer[i*numCol+j] == 1) {
-				if (tutorial) {
-					createTutorialTile({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
-				} else {
-					createMapTile({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
-				}
-			}
-		}
-	}
+	//for (int i=0; i<numRow; i++) { //iterating row-by-row
+	//	for (int j=0; j<numCol; j++) {
+	//		if (map_layer[i*numCol+j] == 1) {
+	//			if (tutorial) {
+	//				createTutorialTile({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+	//			} else {
+	//				createMapTile({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+	//			}
+	//		}
+	//	}
+	//}
 
 	// add decorations
 	for (int i=0; i<numRow; i++) { //iterating row-by-row
