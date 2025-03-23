@@ -303,6 +303,42 @@ const int ZOMBIE_DAMAGE = 5;
 const float BASE_ENEMY_SPEED = 900.0f; // Base movement speed for enemies
 const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
+// Health
+const int HEALTH_LOW = 20;
+const int HEALTH_MED = 40;
+const int HEALTH_HGH = 80;
+const int ORC_HEALTH = HEALTH_MED;
+const int ORC_ELITE_HEALTH = HEALTH_HGH;
+//const int SKELETON_HEALTH = HEALTH_LOW;
+const int SKELETON_ARCHER_HEALTH = HEALTH_LOW;
+const int WEREBEAR_HEALTH = HEALTH_MED;
+const int WEREWOLF_HEALTH = HEALTH_HGH;
+const int SLIME_HEALTH = HEALTH_HGH;
+
+// Damage
+const int DAMAGE_LOW = 5;
+const int DAMAGE_MED = 10;
+const int DAMAGE_HGH = 20;
+const int ORC_DAMAGE = DAMAGE_LOW;
+const int ORC_ELITE_DAMAGE = DAMAGE_LOW;
+const int SKELETON_DAMAGE = DAMAGE_LOW;
+const int SKELETON_ARCHER_DAMAGE = DAMAGE_LOW;
+const int WEREBEAR_DAMAGE = DAMAGE_MED;
+const int WEREWOLF_DAMAGE = DAMAGE_MED;
+const int SLIME_DAMAGE = DAMAGE_LOW;
+
+// Speed
+const int SPEED_LOW = 2;
+const int SPEED_MED = 4;
+const int SPEED_HGH = 8;
+const int ORC_SPEED = SPEED_MED;
+const int ORC_ELITE_SPEED = SPEED_MED;
+//const int SKELETON_SPEED = SPEED_MED;
+const int SKELETON_ARCHER_SPEED = SPEED_MED;
+const int WEREBEAR_SPEED = SPEED_HGH;
+const int WEREWOLF_SPEED = SPEED_HGH;
+const int SLIME_SPEED = SPEED_LOW;
+
 // Chicken
 const float CHICKEN_SIZE = 1500;
 const int CHICKEN_SPEED = 200;
