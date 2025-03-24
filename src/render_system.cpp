@@ -553,8 +553,7 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 		}
 		drawParticlesInstanced(projection_2D);
 		// individually draw player, will render on top of all the motion sprites
-		if (!WorldSystem::game_is_over)
-		drawTexturedMesh(registry.players.entities[0], projection_2D);
+		if (!WorldSystem::game_is_over) drawTexturedMesh(registry.players.entities[0], projection_2D);
 
 		renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
 		renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
