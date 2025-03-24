@@ -75,7 +75,7 @@ Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
-	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
+	motion.scale = vec2({ ENEMY_WIDTH, ENEMY_HEIGHT });
 
 	registry.renderRequests.insert(
 		entity,
@@ -92,45 +92,72 @@ Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-Entity createZombie(RenderSystem *renderer, vec2 position)
+Entity createEnemy(RenderSystem* renderer, vec2 position, int health, int damage, int speed, int anim_duration, const TEXTURE_ASSET_ID* anim_textures, int anim_size)
 {
 	auto entity = Entity();
 
-	Zombie &zombie = registry.zombies.emplace(entity);
+	Zombie& zombie = registry.zombies.emplace(entity);
 
-	Attack &attack = registry.attacks.emplace(entity);
+	Attack& attack = registry.attacks.emplace(entity);
 	attack.range = 30.0f;
-	attack.damage = ZOMBIE_DAMAGE;
+	attack.damage = damage;
 
-	Enemy &enemy = registry.enemies.emplace(entity);
-	enemy.health = ZOMBIE_HEALTH;
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.health = health;
+	enemy.speed = speed;
 
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
-	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
+	motion.scale = vec2({ ENEMY_WIDTH, ENEMY_HEIGHT });
 
-
-	VisualScale &vscale = registry.visualScales.emplace(entity);
-    vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x
+	VisualScale& vscale = registry.visualScales.emplace(entity);
+	vscale.scale = { 5.f, 5.f }; // Scale visuals 3.1x
 
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::ZOMBIE_SPAWN_1,
+			anim_textures[0],
 			EFFECT_ASSET_ID::ZOMBIE,
 			GEOMETRY_BUFFER_ID::SPRITE
 		},
 		false
 	);
 
-	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_DURATION, ZOMBIE_MOVE_ANIMATION, ZOMBIE_MOVE_SIZE, true, false, false);
-
-	// Kung: Update the enemy count and print it to the console.
-    // std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
+	AnimationSystem::update_animation(entity, anim_duration, anim_textures, anim_size, true, false, false);
 
 	return entity;
+}
+
+Entity createOrc(RenderSystem *renderer, vec2 position)
+{
+	return createEnemy(renderer, position, ORC_HEALTH, ORC_DAMAGE, ORC_SPEED, ORC_ANIMATION_DURATION, ORC_ANIMATION, ORC_ANIMATION_SIZE);
+}
+
+Entity createOrcElite(RenderSystem* renderer, vec2 position)
+{
+	return createEnemy(renderer, position, ORC_ELITE_HEALTH, ORC_ELITE_DAMAGE, ORC_ELITE_SPEED, ORC_ELITE_ANIMATION_DURATION, ORC_ELITE_ANIMATION, ORC_ELITE_ANIMATION_SIZE);
+}
+
+Entity createSkeleton(RenderSystem* renderer, vec2 position)
+{
+	return createEnemy(renderer, position, SKELETON_HEALTH, SKELETON_DAMAGE, SKELETON_SPEED, SKELETON_ANIMATION_DURATION, SKELETON_ANIMATION, SKELETON_ANIMATION_SIZE);
+}
+
+Entity createWerebear(RenderSystem* renderer, vec2 position)
+{
+	return createEnemy(renderer, position, WEREBEAR_HEALTH, WEREBEAR_DAMAGE, WEREBEAR_SPEED, WEREBEAR_ANIMATION_DURATION, WEREBEAR_ANIMATION, WEREBEAR_ANIMATION_SIZE);
+}
+
+Entity createWerewolf(RenderSystem* renderer, vec2 position)
+{
+	return createEnemy(renderer, position, WEREWOLF_HEALTH, WEREWOLF_DAMAGE, WEREWOLF_SPEED, WEREWOLF_ANIMATION_DURATION, WEREWOLF_ANIMATION, WEREWOLF_ANIMATION_SIZE);
+}
+
+Entity createSlime(RenderSystem* renderer, vec2 position)
+{
+	return createEnemy(renderer, position, SLIME_HEALTH, SLIME_DAMAGE, SLIME_SPEED, SLIME_ANIMATION_DURATION, SLIME_ANIMATION, SLIME_ANIMATION_SIZE);
 }
 
 Entity createTower(RenderSystem* renderer, vec2 position) {
@@ -781,7 +808,7 @@ Entity createCamera(RenderSystem *renderer, vec2 position)
 	return camera;
 }
 
-Entity createSkeleton(RenderSystem *renderer, vec2 position)
+Entity createSkeletonArcher(RenderSystem *renderer, vec2 position)
 {
     // Create base entity
     Entity entity = Entity();
@@ -793,18 +820,18 @@ Entity createSkeleton(RenderSystem *renderer, vec2 position)
     skeleton.attack_cooldown_ms = SKELETON_ATTACK_DURATION;// Attack cooldown
 
 	Enemy &enemy = registry.enemies.emplace(entity);
-	enemy.health = SKELETON_HEALTH;
+	enemy.health = SKELETON_ARCHER_HEALTH;
 
     // Add attack component separate from zombies
     Attack &attack = registry.attacks.emplace(entity);
     attack.range = skeleton.attack_range; // Match the attack range
-	attack.damage = SKELETON_ARROW_DAMAGE;       // Set the damage value
+	attack.damage = SKELETON_ARCHER_DAMAGE;       // Set the damage value
 
     // Add motion component
     Motion &motion = registry.motions.emplace(entity);
     motion.position = position;
     motion.velocity = {0, 0};
-    motion.scale = {50.f, 50.f};
+    motion.scale = {ENEMY_WIDTH, ENEMY_HEIGHT};
 
 	VisualScale &vscale = registry.visualScales.emplace(entity);
     vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x
@@ -841,7 +868,7 @@ Entity createArrow(vec2 position, vec2 direction, Entity source)
     Arrow &arrow = registry.arrows.emplace(entity);
     arrow.source = source;
     arrow.direction = normalize(direction); // Ensure direction is normalized
-    arrow.damage = SKELETON_ARROW_DAMAGE;
+    arrow.damage = SKELETON_ARCHER_DAMAGE;
     
     // Add motion component
     Motion &motion = registry.motions.emplace(entity);

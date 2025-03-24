@@ -11,7 +11,7 @@
 
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
-#include "state_system.hpp"
+#include "player_system.hpp"
 #include "../ext/json.hpp"
 using json = nlohmann::json;
 
@@ -184,28 +184,7 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
-	for (Entity i : registry.seeds.entities)
-	{
-
-		if (!registry.moveWithCameras.has(i))
-		{
-			if (registry.seeds.get(i).timer <= 0)
-			{
-				vec2 pos;
-				pos.x = registry.motions.get(i).position.x;
-				pos.y = registry.motions.get(i).position.y;
-				// std::cout << "x pos " << pos.x << " y pos " << pos.y << std::endl;
-				registry.remove_all_components_of(i);
-				registry.seeds.remove(i);
-				createTower(renderer, {pos.x - GRID_CELL_WIDTH_PX / 2, pos.y - GRID_CELL_HEIGHT_PX / 2});
-			}
-			else
-			{
-				registry.seeds.get(i).timer -= elapsed_ms_since_last_update;
-			}
-		}
-	}
-	if (StateSystem::get_state() == STATE::LEVEL_UP)
+	if (PlayerSystem::get_state() == STATE::LEVEL_UP)
 	{
 		registry.inventorys.components[0].seedCount[current_seed]++;
 	}
@@ -493,11 +472,11 @@ void WorldSystem::create_tutorial_enemies()
 {
 	// Create a zombie under the "Attack" tutorial board
 	vec2 zombie_pos = vec2(TUTORIAL_WIDTH_PX * 0.4, TUTORIAL_HEIGHT_PX * 0.4);
-	createZombie(renderer, zombie_pos);
+	createOrc(renderer, zombie_pos);
 
 	// Create a skeleton under the "Plant" tutorial board
 	vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.65, TUTORIAL_HEIGHT_PX * 0.4);
-	createSkeleton(renderer, skeleton_pos);
+	createSkeletonArcher(renderer, skeleton_pos);
 
 	// std::cout << "Tutorial enemies created" << std::endl;
 }
@@ -545,7 +524,7 @@ bool WorldSystem::is_over() const
 void WorldSystem::player_attack()
 {
 	Entity player = registry.players.entities[0];
-	if (!registry.cooldowns.has(player) && StateSystem::get_state() != STATE::ATTACK)
+	if (!registry.cooldowns.has(player) && PlayerSystem::get_state() != STATE::ATTACK)
 	{
 		// Play the sword attack sound
 		Mix_PlayChannel(3, sword_attack_sound, 0);
@@ -619,7 +598,7 @@ void WorldSystem::player_attack()
 						} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
 						else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 						{
-							// StateSystem::update_state(STATE::LEVEL_UP);
+							// PlayerSystem::update_state(STATE::LEVEL_UP);
 							// come back later!
 							if (registry.inventorys.components[0].seedCount[current_seed] == 0)
 							{
@@ -635,7 +614,7 @@ void WorldSystem::player_attack()
 			}
 		}
 		// Player State
-		StateSystem::update_state(STATE::ATTACK);
+		PlayerSystem::update_state(STATE::ATTACK);
 
 		// Cooldown
 		if (registry.cooldowns.has(player))
@@ -929,7 +908,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	// when player is in the level up menu, disable some game inputs
-	if (StateSystem::get_state() == STATE::LEVEL_UP ||
+	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
 		game_is_over)
 		return;	
 
@@ -1059,11 +1038,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	{
 		if (motion.velocity == vec2(0, 0))
 		{
-			StateSystem::update_state(STATE::IDLE);
+			PlayerSystem::update_state(STATE::IDLE);
 		}
 		else
 		{
-			StateSystem::update_state(STATE::MOVE);
+			PlayerSystem::update_state(STATE::MOVE);
 		}
 	}
 
@@ -1100,20 +1079,40 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		createChicken(renderer);
 
 	// Debug
-	if (action == GLFW_PRESS && key == GLFW_KEY_0)
+	if (action == GLFW_PRESS)
 	{
-		if (registry.players.size() > 0)
-		{
-			createSkeleton(renderer, vec2(motion.position.x + CAMERA_VIEW_WIDTH / 2, motion.position.y));
+		vec2 position = vec2(motion.position.x + CAMERA_VIEW_WIDTH / 2, motion.position.y);
+		switch (key) {
+			case GLFW_KEY_1:
+				createOrc(renderer, position);
+				break;
+			case GLFW_KEY_2:
+				createOrcElite(renderer, position);
+				break;
+			case GLFW_KEY_3:
+				createSkeleton(renderer, position);
+				break;
+			case GLFW_KEY_4:
+				createSkeletonArcher(renderer, position);
+				break;
+			case GLFW_KEY_5:
+				createWerewolf(renderer, position);
+				break;
+			case GLFW_KEY_6:
+				createWerebear(renderer, position);
+				break;
+			case GLFW_KEY_7:
+				createSlime(renderer, position);
+				break;
 		}
 	}
-	if (action == GLFW_PRESS && key == GLFW_KEY_1)
+	if (action == GLFW_PRESS && key == GLFW_KEY_9)
 	{
 		if (registry.screenStates.size() != 0)
 		{
 			if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 			{
-				// StateSystem::update_state(STATE::LEVEL_UP);
+				// PlayerSystem::update_state(STATE::LEVEL_UP);
 				// come back later!
 				if (registry.inventorys.components[0].seedCount[current_seed] == 0)
 				{
@@ -1149,7 +1148,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 		return;
 	}
 
-	if (StateSystem::get_state() == STATE::LEVEL_UP ||
+	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
 		game_is_over)
 		return;
 
@@ -1198,7 +1197,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 
 		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
 		{
-			if (StateSystem::get_state() == STATE::LEVEL_UP)
+			if (PlayerSystem::get_state() == STATE::LEVEL_UP)
 				return;
 			player_attack();
 		}

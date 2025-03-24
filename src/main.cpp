@@ -12,7 +12,7 @@
 #include "render_system.hpp"
 #include "world_system.hpp"
 #include "status_system.hpp"
-#include "state_system.hpp"
+#include "player_system.hpp"
 #include "animation_system.hpp"
 #include "tower_system.hpp"
 #include "movement_system.hpp"
@@ -20,6 +20,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <map>
+#include "seed_system.hpp"
 #include "frame_manager.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
@@ -35,6 +36,7 @@ int main()
 	StatusSystem  status_system;
 	AnimationSystem animation_system;
 	TowerSystem tower_system;
+	SeedSystem seed_system;
 	MovementSystem movement_system;
 
 	// initialize window
@@ -66,6 +68,7 @@ int main()
 	renderer_system.init(window);
 	world_system.init(&renderer_system);
 	animation_system.init(&renderer_system);
+	seed_system.init(&renderer_system);
 
 	// variable timestep loop
 	auto t = Clock::now();
@@ -84,6 +87,7 @@ int main()
 	FrameManager fm_tower = FrameManager(5);
 	FrameManager fm_movement = FrameManager(2);
 	FrameManager fm_animation = FrameManager(2);
+	FrameManager fm_seed = FrameManager(5);
 
 	while (!world_system.is_over()) {
 
@@ -101,8 +105,8 @@ int main()
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
 		//when level up, we want the screen to be frozen
-		if (StateSystem::get_state() != STATE::LEVEL_UP) {
-			world_system.step(elapsed_ms);
+		if (PlayerSystem::get_state() != STATE::LEVEL_UP) {
+			if (fm_world.can_update()) world_system.step(fm_world.get_time());
 			if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH) {
 
 				//M2: FPS
@@ -129,6 +133,7 @@ int main()
 				if (fm_ai.can_update()) ai_system.step(fm_ai.get_time());
 				if (fm_physics.can_update()) physics_system.step(fm_physics.get_time());
 				if (fm_status.can_update()) status_system.step(fm_status.get_time());
+				if (fm_seed.can_update()) seed_system.step(fm_seed.get_time());
 				if (fm_tower.can_update()) tower_system.step(fm_tower.get_time());
 				if (fm_movement.can_update()) movement_system.step(fm_movement.get_time(), game_screen);
 				if (fm_animation.can_update()) animation_system.step(fm_animation.get_time());
@@ -147,6 +152,7 @@ int main()
 		renderer_system.renderText("hello", 100, 100, 1, {1, 1, 0}, trans);
 		renderer_system.draw(game_screen);
 
+		
 	}
 
 	return EXIT_SUCCESS;

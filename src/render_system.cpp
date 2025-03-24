@@ -466,6 +466,9 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 		drawToScreen();
 	}
 
+	//renderText("test", 10, 10, 1, {1, 0, 1}, trans);
+
+
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
 	gl_has_errors();
@@ -752,5 +755,5 @@ void RenderSystem::renderText(std::string text, float x, float y, float scale, c
 		x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
 	}
 	glBindVertexArray(vao);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 }
