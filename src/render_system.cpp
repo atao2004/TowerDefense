@@ -337,7 +337,7 @@ void RenderSystem::drawToScreen()
 		GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
 
 		glUniform1f(game_continues_uloc, screen.game_over);
-		glUniform1f(hp_uloc, screen.hp_percentage);
+		glUniform1f(hp_uloc, WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH? 0:screen.hp_percentage);
 		glUniform1f(exp_uloc, screen.exp_percentage);
 		gl_has_errors();
 
