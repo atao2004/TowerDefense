@@ -324,7 +324,6 @@ const int TOOLBAR_HEIGHT = 55;
 
 const int PLAYER_HEALTH = 100;
 const int NUM_SEED_TYPES = 1;
-const float BASE_ENEMY_SPEED = 900.0f; // Base movement speed for enemies
 const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
 // Health
@@ -352,9 +351,9 @@ const int WEREWOLF_DAMAGE = DAMAGE_MED;
 const int SLIME_DAMAGE = DAMAGE_LOW;
 
 // Speed
-const int SPEED_LOW = 2;
-const int SPEED_MED = 4;
-const int SPEED_HGH = 8;
+const int SPEED_LOW = 1;
+const int SPEED_MED = 2;
+const int SPEED_HGH = 4;
 const int ORC_SPEED = SPEED_MED;
 const int ORC_ELITE_SPEED = SPEED_MED;
 const int SKELETON_SPEED = SPEED_MED;
