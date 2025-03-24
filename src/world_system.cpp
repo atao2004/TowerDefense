@@ -470,11 +470,11 @@ void WorldSystem::create_tutorial_enemies()
 {
 	// Create a zombie under the "Attack" tutorial board
 	vec2 zombie_pos = vec2(TUTORIAL_WIDTH_PX * 0.4, TUTORIAL_HEIGHT_PX * 0.4);
-	createZombie(renderer, zombie_pos);
+	createOrc(renderer, zombie_pos);
 
 	// Create a skeleton under the "Plant" tutorial board
 	vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.65, TUTORIAL_HEIGHT_PX * 0.4);
-	createSkeleton(renderer, skeleton_pos);
+	createSkeletonArcher(renderer, skeleton_pos);
 
 	// std::cout << "Tutorial enemies created" << std::endl;
 }
@@ -1080,14 +1080,34 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		createChicken(renderer);
 
 	// Debug
-	if (action == GLFW_PRESS && key == GLFW_KEY_0)
+	if (action == GLFW_PRESS)
 	{
-		if (registry.players.size() > 0)
-		{
-			createSkeleton(renderer, vec2(motion.position.x + CAMERA_VIEW_WIDTH / 2, motion.position.y));
+		vec2 position = vec2(motion.position.x + CAMERA_VIEW_WIDTH / 2, motion.position.y);
+		switch (key) {
+			case GLFW_KEY_1:
+				createOrc(renderer, position);
+				break;
+			case GLFW_KEY_2:
+				createOrcElite(renderer, position);
+				break;
+			case GLFW_KEY_3:
+				createSkeleton(renderer, position);
+				break;
+			case GLFW_KEY_4:
+				createSkeletonArcher(renderer, position);
+				break;
+			case GLFW_KEY_5:
+				createWerewolf(renderer, position);
+				break;
+			case GLFW_KEY_6:
+				createWerebear(renderer, position);
+				break;
+			case GLFW_KEY_7:
+				createSlime(renderer, position);
+				break;
 		}
 	}
-	if (action == GLFW_PRESS && key == GLFW_KEY_1)
+	if (action == GLFW_PRESS && key == GLFW_KEY_9)
 	{
 		if (registry.screenStates.size() != 0)
 		{

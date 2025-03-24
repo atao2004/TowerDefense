@@ -79,11 +79,11 @@ void SpawnManager::generate_wave(RenderSystem *renderer)
         vec2 spawn_pos = spawn_points[random_point].position;
         if (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) < 0.3f)
         {
-            createZombie(renderer, spawn_pos);
+            createOrc(renderer, spawn_pos);
         }
         else
         {
-            createSkeleton(renderer, spawn_pos);
+            createSkeletonArcher(renderer, spawn_pos);
         }
     }
 
@@ -130,8 +130,8 @@ void SpawnManager::spawn_enemy(RenderSystem* renderer)
     const float SKELETON_CHANCE = 0.3f;
     
     if (uniform_dist(rng) < SKELETON_CHANCE) {
-        createSkeleton(renderer, spawn_pos);
+        createSkeletonArcher(renderer, spawn_pos);
     } else {
-        createZombie(renderer, spawn_pos);
+        createOrc(renderer, spawn_pos);
     }
 }
