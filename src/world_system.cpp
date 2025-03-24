@@ -626,7 +626,7 @@ void WorldSystem::player_attack()
 					ParticleSystem::createBloodEffect(registry.motions.get(enemy).position, sprite_size);
 
 					// This is what you do when you kill a enemy.
-					if (enemy_comp.health <= 0)
+					if (enemy_comp.health <= 0 && !registry.deathAnimations.has(enemy)) //check here added a guard
 					{
 						// Add death animation before removing
 						Entity player = registry.players.entities[0];
@@ -1459,6 +1459,7 @@ void WorldSystem::loadGame()
 	current_seed = jsonFile["current_seed"];
 	level = jsonFile["level"];
 	Entity::overrideIDCount((int)jsonFile["id_count"]);
+	std::cout<<"curr count: "<<(int)jsonFile["id_count"]<<std::endl;
 
 	json ss_json = jsonFile["0"][0];
 	ScreenState &ss = registry.screenStates.components[0];
@@ -1602,6 +1603,7 @@ void WorldSystem::loadGame()
 		json death_json = death_arr[i];
 		Entity e = Entity(death_json["entity"]);
 		Death &death = registry.deaths.emplace(e);
+		std::cout<<e.id()<<std::endl;
 	}
 
 	json cooldown_arr = jsonFile["17"];
@@ -1626,7 +1628,7 @@ void WorldSystem::loadGame()
 	for (long unsigned int i=0; i<he_arr.size(); i++) {
 		json he_json = he_arr[i];
 		Entity e = Entity(he_json["entity"]);
-		HitEffect &he = registry.hitEffects.emplace(e);
+		HitEffect &he = registry.hitEffects.emplace_with_duplicates(e);
 		he.duration_ms = he_json["duration_ms"];
 		he.is_white = he_json["is_white"];
 	}
