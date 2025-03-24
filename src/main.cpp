@@ -137,6 +137,9 @@ int main()
 				if (fm_physics.can_update()) physics_system.step(fm_physics.get_time());
 				if (fm_status.can_update()) status_system.step(fm_status.get_time());
 				if (fm_seed.can_update()) seed_system.step(fm_seed.get_time());
+				
+				if (world_system.get_game_screen() == GAME_SCREEN_ID::CG) continue;
+
 				if (fm_tower.can_update()) tower_system.step(fm_tower.get_time());
 				if (fm_movement.can_update()) movement_system.step(fm_movement.get_time(), game_screen);
 				if (fm_animation.can_update()) animation_system.step(fm_animation.get_time());

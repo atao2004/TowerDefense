@@ -44,6 +44,7 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position) {
 		},
 		false
 	);
+	registry.cgs.emplace(entity);
 	return entity;
 }
 
@@ -63,6 +64,7 @@ Entity createScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background) {
 		},
 		false
 	);
+	registry.cgs.emplace(entity);
 	return entity;
 }
 
@@ -945,6 +947,6 @@ Entity createCharacter(RenderSystem *renderer, vec2 position, vec2 scale, TEXTUR
 		 EFFECT_ASSET_ID::PLAYER,
 		 GEOMETRY_BUFFER_ID::SPRITE},
 		false);
-
+	registry.cgs.emplace(entity);
 	return entity;
 }

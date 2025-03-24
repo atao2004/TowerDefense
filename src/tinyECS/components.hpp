@@ -606,3 +606,10 @@ struct Text {
         return json{};
     }
 };
+
+struct CG {
+    //compile purpose, not gonna save it
+    json toJSON() const {
+        return json{};
+    }
+};

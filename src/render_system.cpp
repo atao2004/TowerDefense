@@ -465,7 +465,8 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	mat3 projection_2D = (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) ? createProjectionMatrix_splash(): createProjectionMatrix();
 
 	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) {
-		for (Entity entity : registry.renderRequests.entities) {
+		// std::cout<<"why failing?"<<std::endl;	
+		for (Entity entity : registry.cgs.entities) {
 			drawTexturedMesh(entity, projection_2D);	
 		}
 		
@@ -496,6 +497,9 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 				renderText( "*Growl", WINDOW_WIDTH_PX-300, 350,0.6, {1,1,1}, trans);
 			if (cg_idx == 10)
 				renderText( "Uh oh...", 60, 350,0.6, {1,1,1}, trans);
+			
+			//second scene, plant grow?
+			// if (cg_idx == 12)
 
 		}
 	} else {

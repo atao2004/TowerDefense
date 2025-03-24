@@ -55,6 +55,7 @@ public:
 	ComponentContainer<Particle> particles;
 	ComponentContainer<ParticleGenerator> particleGenerators;
 	ComponentContainer<Text> texts;
+	ComponentContainer<CG> cgs;
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
@@ -91,6 +92,7 @@ public:
 		registry_list.push_back(&particles);//30
 		registry_list.push_back(&particleGenerators);//31
 		registry_list.push_back(&texts);
+		registry_list.push_back(&cgs);
 	}
 
 	void clear_all_components() {

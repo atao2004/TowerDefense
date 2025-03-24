@@ -168,15 +168,7 @@ bool WorldSystem::start_and_load_sounds()
 
 void WorldSystem::init(RenderSystem *renderer_arg)
 {
-
 	this->renderer = renderer_arg;
-
-	// start playing background music indefinitely
-	// std::cout << "Starting music..." << std::endl;
-
-	// Set all states to default
-	// restart_game();
-	// restart_tutorial();
 	game_screen = GAME_SCREEN_ID::SPLASH;
 	createScreen(renderer, TEXTURE_ASSET_ID::BACKGROUND);
 	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5));
@@ -387,10 +379,14 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	}
 }
 
-void WorldSystem::start_cg() {
+void WorldSystem::start_cg(RenderSystem* renderer) {
 	registry.clear_all_components();
 	game_screen = GAME_SCREEN_ID::CG;
-	createScreen(renderer, TEXTURE_ASSET_ID::NIGHT_BG);
+	int cg_idx = registry.screenStates.components[0].cg_index;
+	if (cg_idx == 0)
+		createScreen(renderer, TEXTURE_ASSET_ID::NIGHT_BG);
+	else if (cg_idx == 12)
+		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
 }
 
 // Reset the world state to its initial state
@@ -1202,7 +1198,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 				if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH/2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH/2 &&
 					mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT/2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT/2) {
 						if (b.type == BUTTON_ID::START) 
-							return start_cg();
+							return start_cg(renderer);
 						if (b.type == BUTTON_ID::LOAD)
 							return loadGame();
 						if (b.type == BUTTON_ID::TUTORIAL)

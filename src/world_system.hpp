@@ -30,7 +30,7 @@ public:
 	// call to close the window
 	void close_window();
 	
-	void start_cg();
+	static void start_cg(RenderSystem* renderer);
 
 	// starts the game
 	void init(RenderSystem *renderer);
@@ -44,7 +44,7 @@ public:
 		return game_screen;
 	}
 
-	void set_game_screen(GAME_SCREEN_ID gs)
+	static void set_game_screen(GAME_SCREEN_ID gs)
 	{
 		game_screen = gs;
 	}
