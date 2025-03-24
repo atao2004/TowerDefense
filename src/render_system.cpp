@@ -449,8 +449,7 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 	glDepthRange(0.00001, 10);
 
 	// white background
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	// glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
+	glClearColor(GRASS_COLOR.x, GRASS_COLOR.y, GRASS_COLOR.z, 1.0f);
 
 	glClearDepth(10.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
