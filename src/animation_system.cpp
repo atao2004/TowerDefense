@@ -2,7 +2,7 @@
 #include "animation_system.hpp"
 #include "world_init.hpp"
 #include <iostream>
-#include "state_system.hpp"
+#include "player_system.hpp"
 
 RenderSystem *AnimationSystem::renderer;
 
@@ -88,13 +88,13 @@ void AnimationSystem::handle_animation_end(Entity entity)
     if (registry.zombieSpawns.has(entity))
     {
         Motion &motion = registry.motions.get(entity);
-        createZombie(renderer, motion.position);
+        createOrc(renderer, motion.position);
     }
 
     // Handle player state change
     if (registry.states.has(entity))
     {
-        StateSystem::update_state(STATE::IDLE);
+        PlayerSystem::update_state(STATE::IDLE);
     }
 
 

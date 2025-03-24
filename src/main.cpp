@@ -12,11 +12,12 @@
 #include "render_system.hpp"
 #include "world_system.hpp"
 #include "status_system.hpp"
-#include "state_system.hpp"
+#include "player_system.hpp"
 #include "animation_system.hpp"
 #include "tower_system.hpp"
 #include "movement_system.hpp"
 #include "particle_system.hpp"
+#include "seed_system.hpp"
 #include "frame_manager.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
@@ -32,6 +33,7 @@ int main()
 	StatusSystem  status_system;
 	AnimationSystem animation_system;
 	TowerSystem tower_system;
+	SeedSystem seed_system;
 	MovementSystem movement_system;
 	ParticleSystem particle_system;
 
@@ -65,6 +67,7 @@ int main()
 	world_system.init(&renderer_system);
 	animation_system.init(&renderer_system);
 	particle_system.init(&renderer_system);
+	seed_system.init(&renderer_system);
 
 	// variable timestep loop
 	auto t = Clock::now();
@@ -84,6 +87,7 @@ int main()
 	FrameManager fm_movement = FrameManager(2);
 	FrameManager fm_animation = FrameManager(2);
 	FrameManager fm_particle = FrameManager(1);
+	FrameManager fm_seed = FrameManager(5);
 
 	while (!world_system.is_over()) {
 
@@ -104,7 +108,7 @@ int main()
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
 		//when level up, we want the screen to be frozen
-		if (StateSystem::get_state() != STATE::LEVEL_UP) {
+		if (PlayerSystem::get_state() != STATE::LEVEL_UP) {
 			if (fm_world.can_update()) world_system.step(fm_world.get_time());
 			if (fm_world.can_update()) world_system.step(fm_world.get_time());
 			if (!WorldSystem::game_is_over) {
@@ -133,6 +137,7 @@ int main()
 				if (fm_ai.can_update()) ai_system.step(fm_ai.get_time());
 				if (fm_physics.can_update()) physics_system.step(fm_physics.get_time());
 				if (fm_status.can_update()) status_system.step(fm_status.get_time());
+				if (fm_seed.can_update()) seed_system.step(fm_seed.get_time());
 				if (fm_tower.can_update()) tower_system.step(fm_tower.get_time());
 				if (fm_movement.can_update()) movement_system.step(fm_movement.get_time(), game_screen);
 				if (fm_animation.can_update()) animation_system.step(fm_animation.get_time());

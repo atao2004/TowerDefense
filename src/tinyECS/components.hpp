@@ -164,13 +164,14 @@ struct Zombie
     }
 };
 
-struct Enemy
-{
-    float health;
-    json toJSON() const
-    {
+struct Enemy {
+	float health;
+    float speed;
+	json toJSON() const {
         return json{
-            {"health", health}};
+            {"health", health},
+            {"speed", speed}
+        };
     }
 };
 
