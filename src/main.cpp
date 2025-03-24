@@ -16,6 +16,10 @@
 #include "animation_system.hpp"
 #include "tower_system.hpp"
 #include "movement_system.hpp"
+// fonts
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include <map>
 #include "particle_system.hpp"
 #include "seed_system.hpp"
 #include "frame_manager.hpp"
@@ -93,7 +97,6 @@ int main()
 	while (!world_system.is_over()) {
 
 		GAME_SCREEN_ID game_screen = world_system.get_game_screen();
-		
 		// processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
 
@@ -103,15 +106,13 @@ int main()
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
 
-		FrameManager::tick(elapsed_ms);
-
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
 		//when level up, we want the screen to be frozen
 		if (PlayerSystem::get_state() != STATE::LEVEL_UP) {
 			if (fm_world.can_update()) world_system.step(fm_world.get_time());
-			if (!WorldSystem::game_is_over) {
-
+			if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH && game_screen != GAME_SCREEN_ID::CG ) {
 				//M2: FPS
+				FrameManager::tick(elapsed_ms); //moved here so when doing cg the game will pause
 				float current_fps = (1/(elapsed_ms/1000));
 				cooldown -= elapsed_ms;
 				if (cooldown <= 0) {                             //used to prevent screen flickering
@@ -136,6 +137,9 @@ int main()
 				if (fm_physics.can_update()) physics_system.step(fm_physics.get_time());
 				if (fm_status.can_update()) status_system.step(fm_status.get_time());
 				if (fm_seed.can_update()) seed_system.step(fm_seed.get_time());
+				
+				if (world_system.get_game_screen() == GAME_SCREEN_ID::CG) continue;
+
 				if (fm_tower.can_update()) tower_system.step(fm_tower.get_time());
 				if (fm_movement.can_update()) movement_system.step(fm_movement.get_time(), game_screen);
 				if (fm_animation.can_update()) animation_system.step(fm_animation.get_time());
@@ -152,12 +156,12 @@ int main()
 			}
 		}
 		
+		//DO NOT DELETE, OTHERWISE TEXT WON'T RENDER
 		glm::mat4 trans = glm::mat4(1.0f);
 		renderer_system.renderText("hello", 100, 100, 1, {1, 1, 0}, trans);
-
+    
 		if (fm_render.can_update()) renderer_system.step_and_draw(game_screen, fm_render.get_time());
-		
+    
 	}
-
 	return EXIT_SUCCESS;
 }

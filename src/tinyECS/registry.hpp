@@ -51,8 +51,11 @@ public:
 	ComponentContainer<VisualScale> visualScales;
 
 	ComponentContainer<Enemy> enemies;
+	ComponentContainer<CustomButton> buttons;
 	ComponentContainer<Particle> particles;
 	ComponentContainer<ParticleGenerator> particleGenerators;
+	ComponentContainer<Text> texts;
+	ComponentContainer<CG> cgs;
 
 	ComponentContainer<Text> texts;
 
@@ -87,8 +90,11 @@ public:
 		registry_list.push_back(&inventorys);//26
 		registry_list.push_back(&seeds);//27
 		registry_list.push_back(&moveWithCameras);//28
-		registry_list.push_back(&particles);//29
-		registry_list.push_back(&particleGenerators);//30
+		registry_list.push_back(&mapTiles);//29
+		registry_list.push_back(&particles);//30
+		registry_list.push_back(&particleGenerators);//31
+		registry_list.push_back(&texts);
+		registry_list.push_back(&cgs);
 	}
 
 	void clear_all_components() {

@@ -46,6 +46,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES ENABLE_EXPORTS 0)
 # External header-only libraries in the ext/
 target_include_directories(${PROJECT_NAME} PUBLIC ext/stb_image/)
 target_include_directories(${PROJECT_NAME} PUBLIC ext/gl3w)
+target_include_directories(${PROJECT_NAME} PUBLIC ext)
 
 # Find OpenGL
 find_package(OpenGL REQUIRED)
@@ -163,7 +164,6 @@ if(NOT TARGET Freetype::Freetype)
     # or create the target correctly (see cmakes newer FindFreetype.cmake)
     message(FATAL_ERROR "Can't find FreeType (fonts)." )
 endif()
- 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
 # needed to add this for Linux
