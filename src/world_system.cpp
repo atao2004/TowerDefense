@@ -306,9 +306,9 @@ void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 	// Kung: Create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
 	removeSurfaces();
 	// commented out Kung's code
-	for (int x = -SCORCHED_EARTH_WIDTH * GRID_CELL_WIDTH_PX; x < map_dimensions.x + SCORCHED_EARTH_WIDTH * GRID_CELL_WIDTH_PX; x += GRID_CELL_WIDTH_PX)
+	for (int x = -GRID_CELL_WIDTH_PX; x < map_dimensions.x + GRID_CELL_WIDTH_PX; x += GRID_CELL_WIDTH_PX)
 	{
-		for (int y = -SCORCHED_EARTH_HEIGHT * GRID_CELL_HEIGHT_PX; y < map_dimensions.y + SCORCHED_EARTH_HEIGHT * GRID_CELL_HEIGHT_PX; y += GRID_CELL_HEIGHT_PX)
+		for (int y = -GRID_CELL_HEIGHT_PX; y < map_dimensions.y + GRID_CELL_HEIGHT_PX; y += GRID_CELL_HEIGHT_PX)
 		{
 			if (x < 0 || y < 0) {
 				createScorchedEarth(vec2(x, y));
