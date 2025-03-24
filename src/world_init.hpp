@@ -5,7 +5,7 @@
 #include "render_system.hpp"
 
 //splash screen
-Entity createSplashScreen(RenderSystem* renderer);
+Entity createScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background);
 Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position);
 
 // enemies

@@ -29,6 +29,8 @@ public:
 
 	// call to close the window
 	void close_window();
+	
+	void start_cg();
 
 	// starts the game
 	void init(RenderSystem *renderer);

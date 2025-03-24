@@ -178,7 +178,7 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 	// restart_game();
 	// restart_tutorial();
 	game_screen = GAME_SCREEN_ID::SPLASH;
-	createSplashScreen(renderer);
+	createScreen(renderer, TEXTURE_ASSET_ID::BACKGROUND);
 	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5));
 	createButton(renderer, BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5 + 200));
 	createButton(renderer, BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5 + 200*2));
@@ -385,6 +385,13 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 				registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_UP_SPEED;
 		}
 	}
+}
+
+void WorldSystem::start_cg() {
+	registry.clear_all_components();
+	game_screen = GAME_SCREEN_ID::CG;
+
+	
 }
 
 // Reset the world state to its initial state
@@ -1194,8 +1201,8 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 		for (auto& b: registry.buttons.components) {
 			if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH/2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH/2 &&
 				mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT/2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT/2) {
-					if (b.type == BUTTON_ID::START)
-						return restart_game();
+					if (b.type == BUTTON_ID::START) 
+						return start_cg();
 					if (b.type == BUTTON_ID::LOAD)
 						return loadGame();
 					if (b.type == BUTTON_ID::TUTORIAL)
@@ -1204,6 +1211,11 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 						return close_window();
 				}
 		}
+		return;
+	}
+
+	if (game_screen == GAME_SCREEN_ID::CG) {
+		
 		return;
 	}
 

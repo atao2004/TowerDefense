@@ -273,7 +273,8 @@ enum class GAME_SCREEN_ID
 	TUTORIAL = PLAYING + 1,
 	TEST = TUTORIAL + 1,
 	SPLASH = TEST + 1,
-	GAME_SCREEN_COUNT = SPLASH + 1
+	CG = SPLASH + 1,
+	GAME_SCREEN_COUNT = CG + 1
 };
 const int game_screen_count = (int)GAME_SCREEN_ID::GAME_SCREEN_COUNT;
 
