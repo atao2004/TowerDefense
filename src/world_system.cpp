@@ -1224,7 +1224,13 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX-250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
 			} else if (cg_index == 11)
 				restart_game();
+
+			//second scene yolo
 			else if (cg_index == 13) {
+				createCharacter(renderer, vec2(WINDOW_WIDTH_PX-200, WINDOW_HEIGHT_PX-250), vec2(200, 200), TEXTURE_ASSET_ID::PLANT_2_IDLE_S);
+				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX-250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
+			}
+			else if (cg_index == 20) {
 				for (int i=registry.cgs.entities.size()-1; i>=0; i--)
 					registry.remove_all_components_of(registry.cgs.entities[i]);
 				set_game_screen(GAME_SCREEN_ID::PLAYING);
@@ -1422,6 +1428,7 @@ void WorldSystem::loadGame()
 	ss.shake_duration_ms = ss_json["shake_duration_ms"];
 	ss.shake_intensity = ss_json["shake_intensity"];
 	ss.shake_offset = vec2(ss_json["shake_offset"][0], ss_json["shake_offset"][1]);
+	ss.cg_index = ss_json["cg_index"];
 
 	json attack_arr = jsonFile["1"];
 	for (long unsigned int i=0; i<attack_arr.size(); i++) {

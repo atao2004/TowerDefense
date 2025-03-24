@@ -1,6 +1,7 @@
 {
     "0": [
         {
+            "cg_index": 11,
             "darken_screen_factor": -1.0,
             "entity": 1,
             "exp_percentage": 0.0,
@@ -30,36 +31,32 @@
         },
         {
             "damage": 5.0,
-            "entity": 1588,
+            "entity": 1509,
             "range": 40
         },
         {
-            "damage": 10.0,
+            "damage": 5.0,
+            "entity": 1589,
+            "range": 40
+        },
+        {
+            "damage": 5.0,
             "entity": 1667,
             "range": 40
         },
         {
             "damage": 5.0,
-            "entity": 1745,
-            "range": 40
-        },
-        {
-            "damage": 5.0,
-            "entity": 1833,
+            "entity": 1850,
             "range": 40
         }
     ],
     "10": [
         {
-            "entity": 1588,
+            "entity": 1508,
             "health": 0.0
         },
         {
-            "entity": 1667,
-            "health": 0.0
-        },
-        {
-            "entity": 1745,
+            "entity": 1589,
             "health": 0.0
         }
     ],
@@ -88,43 +85,32 @@
             "entity": 1508,
             "lock": false,
             "loop": true,
-            "pose": 7,
+            "pose": 4,
             "pose_count": 8,
-            "runtime_ms": 5079.84765625,
-            "timer_ms": 82.68099975585938,
-            "transition_ms": 100
-        },
-        {
-            "destroy": false,
-            "entity": 1588,
-            "lock": false,
-            "loop": true,
-            "pose": 6,
-            "pose_count": 8,
-            "runtime_ms": 4077.82666015625,
-            "timer_ms": 82.68099975585938,
-            "transition_ms": 125
-        },
-        {
-            "destroy": false,
-            "entity": 1667,
-            "lock": false,
-            "loop": true,
-            "pose": 7,
-            "pose_count": 8,
-            "runtime_ms": 3076.80615234375,
+            "runtime_ms": 4738.701171875,
             "timer_ms": 0.0,
             "transition_ms": 125
         },
         {
             "destroy": false,
-            "entity": 1745,
+            "entity": 1509,
             "lock": false,
             "loop": true,
-            "pose": 7,
+            "pose": 4,
             "pose_count": 8,
-            "runtime_ms": 2081.1650390625,
-            "timer_ms": 56.694000244140625,
+            "runtime_ms": 3755.11376953125,
+            "timer_ms": 0.0,
+            "transition_ms": 100
+        },
+        {
+            "destroy": false,
+            "entity": 1589,
+            "lock": false,
+            "loop": true,
+            "pose": 5,
+            "pose_count": 8,
+            "runtime_ms": 2745.76904296875,
+            "timer_ms": 0.0,
             "transition_ms": 125
         },
         {
@@ -132,21 +118,32 @@
             "entity": 1504,
             "lock": false,
             "loop": true,
-            "pose": 0,
+            "pose": 4,
             "pose_count": 6,
-            "runtime_ms": 1232.7518310546875,
-            "timer_ms": 161.16799926757813,
+            "runtime_ms": 1798.231201171875,
+            "timer_ms": 0.0,
             "transition_ms": 166
         },
         {
             "destroy": false,
-            "entity": 1833,
+            "entity": 1667,
             "lock": false,
             "loop": true,
-            "pose": 1,
+            "pose": 0,
             "pose_count": 8,
-            "runtime_ms": 1069.7559814453125,
-            "timer_ms": 82.68099975585938,
+            "runtime_ms": 1745.80615234375,
+            "timer_ms": 76.79100036621094,
+            "transition_ms": 100
+        },
+        {
+            "destroy": false,
+            "entity": 1850,
+            "lock": false,
+            "loop": true,
+            "pose": 7,
+            "pose_count": 8,
+            "runtime_ms": 720.6998901367188,
+            "timer_ms": 0.0,
             "transition_ms": 100
         }
     ],
@@ -24047,8 +24044,8 @@
             "angle": 0.0,
             "entity": 1504,
             "position": [
-                1505.8487548828125,
-                964.4961547851563
+                1512.6456298828125,
+                953.2570190429688
             ],
             "scale": [
                 50.0,
@@ -24063,8 +24060,8 @@
             "angle": 0.0,
             "entity": 1506,
             "position": [
-                1505.8487548828125,
-                1353.296142578125
+                1512.6456298828125,
+                1342.0570068359375
             ],
             "scale": [
                 440.0,
@@ -24079,8 +24076,8 @@
             "angle": 0.0,
             "entity": 1507,
             "position": [
-                1314.8487548828125,
-                1353.296142578125
+                1321.6453857421875,
+                1342.0570068359375
             ],
             "scale": [
                 50.0,
@@ -24095,69 +24092,69 @@
             "angle": 0.0,
             "entity": 1508,
             "position": [
-                210.15988159179688,
-                482.1429748535156
+                1425.990966796875,
+                1736.328857421875
             ],
             "scale": [
                 50.0,
                 50.0
             ],
             "velocity": [
-                70.28744506835938,
-                26.166292190551758
+                5.116788864135742,
+                -46.23891830444336
             ]
         },
         {
             "angle": 0.0,
-            "entity": 1588,
+            "entity": 1509,
             "position": [
-                28.914052963256836,
-                424.7457580566406
+                665.0971069335938,
+                63.10758972167969
             ],
             "scale": [
                 50.0,
                 50.0
             ],
             "velocity": [
-                46.13306427001953,
-                16.859445571899414
+                51.71732711791992,
+                54.31682586669922
             ]
         },
         {
             "angle": 0.0,
-            "entity": 1667,
+            "entity": 1589,
             "position": [
-                678.6594848632813,
-                1742.5350341796875
-            ],
-            "scale": [
-                50.0,
-                50.0
-            ],
-            "velocity": [
-                71.5555191040039,
-                -67.30387115478516
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1745,
-            "position": [
-                2454.66845703125,
-                1068.9051513671875
+                2436.831787109375,
+                1388.1920166015625
             ],
             "scale": [
                 -50.0,
                 50.0
             ],
             "velocity": [
-                -48.82249450683594,
-                -5.3725199699401855
+                -42.09281539916992,
+                -19.809465408325195
             ]
         },
         {
             "angle": 0.0,
-            "entity": 1787,
+            "entity": 1667,
+            "position": [
+                1448.6015625,
+                -19.371814727783203
+            ],
+            "scale": [
+                50.0,
+                50.0
+            ],
+            "velocity": [
+                4.927803039550781,
+                74.83793640136719
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1673,
             "position": [
                 1500.0,
                 900.0
@@ -24173,7 +24170,7 @@
         },
         {
             "angle": 0.0,
-            "entity": 1788,
+            "entity": 1674,
             "position": [
                 1500.0,
                 900.0
@@ -24189,14 +24186,14 @@
         },
         {
             "angle": 0.0,
-            "entity": 1872,
+            "entity": 1938,
             "position": [
-                1491.766357421875,
-                875.5660400390625
+                1523.7498779296875,
+                913.1023559570313
             ],
             "scale": [
-                1.3379323482513428,
-                1.3379323482513428
+                6.831956386566162,
+                6.831956386566162
             ],
             "velocity": [
                 0.0,
@@ -24205,14 +24202,14 @@
         },
         {
             "angle": 0.0,
-            "entity": 1970,
+            "entity": 1888,
             "position": [
-                1479.30029296875,
-                914.2297973632813
+                1514.5479736328125,
+                900.1375122070313
             ],
             "scale": [
-                8.116622924804688,
-                8.116622924804688
+                5.165899276733398,
+                5.165899276733398
             ],
             "velocity": [
                 0.0,
@@ -24221,110 +24218,14 @@
         },
         {
             "angle": 0.0,
-            "entity": 1984,
+            "entity": 1958,
             "position": [
-                1487.6744384765625,
-                898.2948608398438
+                1516.9227294921875,
+                902.1773071289063
             ],
             "scale": [
-                8.681626319885254,
-                8.681626319885254
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1802,
-            "position": [
-                1532.7216796875,
-                881.2579345703125
-            ],
-            "scale": [
-                0.14214970171451569,
-                0.14214970171451569
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1942,
-            "position": [
-                1516.9814453125,
-                905.1111450195313
-            ],
-            "scale": [
-                5.014287948608398,
-                5.014287948608398
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1921,
-            "position": [
-                1487.13525390625,
-                894.371337890625
-            ],
-            "scale": [
-                4.1345720291137695,
-                4.1345720291137695
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1814,
-            "position": [
-                1513.997802734375,
-                879.5498046875
-            ],
-            "scale": [
-                0.8113322257995605,
-                0.8113322257995605
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1818,
-            "position": [
-                1509.9219970703125,
-                875.4585571289063
-            ],
-            "scale": [
-                0.6010969281196594,
-                0.6010969281196594
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1963,
-            "position": [
-                1505.2265625,
-                909.9649047851563
-            ],
-            "scale": [
-                7.562066078186035,
-                7.562066078186035
+                7.689547538757324,
+                7.689547538757324
             ],
             "velocity": [
                 0.0,
@@ -24335,12 +24236,12 @@
             "angle": 0.0,
             "entity": 1998,
             "position": [
-                1502.62109375,
-                886.4385986328125
+                1517.1741943359375,
+                886.7427978515625
             ],
             "scale": [
-                9.246207237243652,
-                9.246207237243652
+                8.409402847290039,
+                8.409402847290039
             ],
             "velocity": [
                 0.0,
@@ -24349,14 +24250,46 @@
         },
         {
             "angle": 0.0,
-            "entity": 1830,
+            "entity": 1988,
             "position": [
-                1462.970947265625,
-                865.1671752929688
+                1516.2220458984375,
+                882.9481811523438
             ],
             "scale": [
-                0.6461125016212463,
-                0.6461125016212463
+                8.299564361572266,
+                8.299564361572266
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1898,
+            "position": [
+                1497.42919921875,
+                863.5057373046875
+            ],
+            "scale": [
+                6.0837836265563965,
+                6.0837836265563965
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 2018,
+            "position": [
+                1520.0291748046875,
+                918.6890869140625
+            ],
+            "scale": [
+                9.001117706298828,
+                9.001117706298828
             ],
             "velocity": [
                 0.0,
@@ -24367,188 +24300,268 @@
             "angle": 0.0,
             "entity": 1833,
             "position": [
-                998.39453125,
-                1880.68017578125
+                1486.8553466796875,
+                859.6092529296875
+            ],
+            "scale": [
+                0.41241052746772766,
+                0.41241052746772766
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1878,
+            "position": [
+                1524.261474609375,
+                866.7355346679688
+            ],
+            "scale": [
+                3.7483646869659424,
+                3.7483646869659424
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 2028,
+            "position": [
+                1489.5733642578125,
+                909.0352783203125
+            ],
+            "scale": [
+                9.369558334350586,
+                9.369558334350586
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1868,
+            "position": [
+                1496.8037109375,
+                889.90380859375
+            ],
+            "scale": [
+                5.4432244300842285,
+                5.4432244300842285
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1948,
+            "position": [
+                1488.0048828125,
+                905.59765625
+            ],
+            "scale": [
+                5.505351543426514,
+                5.505351543426514
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1763,
+            "position": [
+                1505.446533203125,
+                896.9992065429688
+            ],
+            "scale": [
+                1.5607645511627197,
+                1.5607645511627197
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1918,
+            "position": [
+                1509.548828125,
+                886.2550048828125
+            ],
+            "scale": [
+                6.5412116050720215,
+                6.5412116050720215
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 2008,
+            "position": [
+                1492.119873046875,
+                895.7578125
+            ],
+            "scale": [
+                8.716792106628418,
+                8.716792106628418
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1784,
+            "position": [
+                1511.8668212890625,
+                878.406005859375
+            ],
+            "scale": [
+                2.1532645225524902,
+                2.1532645225524902
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1908,
+            "position": [
+                1515.1297607421875,
+                880.6765747070313
+            ],
+            "scale": [
+                3.014216423034668,
+                3.014216423034668
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1798,
+            "position": [
+                1494.4124755859375,
+                888.7085571289063
+            ],
+            "scale": [
+                2.1999399662017822,
+                2.1999399662017822
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1968,
+            "position": [
+                1487.4725341796875,
+                900.7109375
+            ],
+            "scale": [
+                5.943441867828369,
+                5.943441867828369
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1812,
+            "position": [
+                1487.0860595703125,
+                854.06201171875
+            ],
+            "scale": [
+                1.1663662195205688,
+                1.1663662195205688
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1978,
+            "position": [
+                1502.365966796875,
+                890.3117065429688
+            ],
+            "scale": [
+                8.2650785446167,
+                8.2650785446167
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1826,
+            "position": [
+                1491.5198974609375,
+                891.0479125976563
+            ],
+            "scale": [
+                0.33797743916511536,
+                0.33797743916511536
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1850,
+            "position": [
+                517.6508178710938,
+                -109.7744140625
             ],
             "scale": [
                 50.0,
                 50.0
             ],
             "velocity": [
-                36.339088439941406,
-                -65.60846710205078
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1977,
-            "position": [
-                1478.3446044921875,
-                885.2870483398438
-            ],
-            "scale": [
-                8.182323455810547,
-                8.182323455810547
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1991,
-            "position": [
-                1481.5296630859375,
-                875.135986328125
-            ],
-            "scale": [
-                8.219257354736328,
-                8.219257354736328
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1851,
-            "position": [
-                1488.719970703125,
-                896.6908569335938
-            ],
-            "scale": [
-                3.3903889656066895,
-                3.3903889656066895
-            ],
-            "velocity": [
-                0.0,
-                0.0
+                51.25177764892578,
+                54.75632095336914
             ]
         },
         {
             "angle": 0.0,
             "entity": 1858,
             "position": [
-                1480.9354248046875,
-                906.4571533203125
+                1484.1461181640625,
+                869.834716796875
             ],
             "scale": [
-                3.455235481262207,
-                3.455235481262207
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1865,
-            "position": [
-                1485.150634765625,
-                883.7067260742188
-            ],
-            "scale": [
-                2.165670394897461,
-                2.165670394897461
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1879,
-            "position": [
-                1507.1488037109375,
-                889.6163330078125
-            ],
-            "scale": [
-                0.6606858968734741,
-                0.6606858968734741
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1886,
-            "position": [
-                1497.775390625,
-                900.08154296875
-            ],
-            "scale": [
-                0.1695367842912674,
-                0.1695367842912674
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1893,
-            "position": [
-                1511.24267578125,
-                859.6452026367188
-            ],
-            "scale": [
-                4.9538092613220215,
-                4.9538092613220215
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1900,
-            "position": [
-                1493.0543212890625,
-                892.2760620117188
-            ],
-            "scale": [
-                5.218687057495117,
-                5.218687057495117
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1907,
-            "position": [
-                1480.5989990234375,
-                904.4295654296875
-            ],
-            "scale": [
-                4.435847759246826,
-                4.435847759246826
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1914,
-            "position": [
-                1478.6168212890625,
-                883.0533447265625
-            ],
-            "scale": [
-                1.542550802230835,
-                1.542550802230835
+                3.2579050064086914,
+                3.2579050064086914
             ],
             "velocity": [
                 0.0,
@@ -24559,12 +24572,12 @@
             "angle": 0.0,
             "entity": 1928,
             "position": [
-                1481.166015625,
-                896.85595703125
+                1503.49853515625,
+                905.3378295898438
             ],
             "scale": [
-                2.2069129943847656,
-                2.2069129943847656
+                5.664525032043457,
+                5.664525032043457
             ],
             "velocity": [
                 0.0,
@@ -24573,78 +24586,14 @@
         },
         {
             "angle": 0.0,
-            "entity": 1935,
+            "entity": 2038,
             "position": [
-                1519.1199951171875,
-                913.8727416992188
+                1490.258544921875,
+                897.071533203125
             ],
             "scale": [
-                6.195148944854736,
-                6.195148944854736
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1949,
-            "position": [
-                1515.40087890625,
-                911.4644165039063
-            ],
-            "scale": [
-                3.765803337097168,
-                3.765803337097168
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 1956,
-            "position": [
-                1502.6807861328125,
-                913.9322509765625
-            ],
-            "scale": [
-                7.532740116119385,
-                7.532740116119385
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 2005,
-            "position": [
-                1518.77880859375,
-                890.8018188476563
-            ],
-            "scale": [
-                9.489496231079102,
-                9.489496231079102
-            ],
-            "velocity": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "angle": 0.0,
-            "entity": 2010,
-            "position": [
-                1482.0626220703125,
-                880.893798828125
-            ],
-            "scale": [
-                9.675363540649414,
-                9.675363540649414
+                9.648120880126953,
+                9.648120880126953
             ],
             "velocity": [
                 0.0,
@@ -24660,8 +24609,8 @@
             "entity": 1505,
             "lerp_factor": 0.10000000149011612,
             "position": [
-                1505.8487548828125,
-                964.4961547851563
+                1512.6456298828125,
+                953.2570190429688
             ]
         }
     ],
@@ -24673,7 +24622,7 @@
             "attack_timer_ms": 0.0,
             "cooldown_timer_ms": 0.0,
             "current_state": 1,
-            "entity": 1508,
+            "entity": 1509,
             "health": 20.0,
             "is_attacking": false,
             "stop_distance": 300.0,
@@ -24686,7 +24635,20 @@
             "attack_timer_ms": 0.0,
             "cooldown_timer_ms": 0.0,
             "current_state": 1,
-            "entity": 1833,
+            "entity": 1667,
+            "health": 20.0,
+            "is_attacking": false,
+            "stop_distance": 300.0,
+            "target": 1504
+        },
+        {
+            "arrow_fired": false,
+            "attack_cooldown_ms": 1800.0,
+            "attack_range": 400.0,
+            "attack_timer_ms": 0.0,
+            "cooldown_timer_ms": 0.0,
+            "current_state": 1,
+            "entity": 1850,
             "health": 20.0,
             "is_attacking": false,
             "stop_distance": 300.0,
@@ -24710,7 +24672,14 @@
             ]
         },
         {
-            "entity": 1588,
+            "entity": 1509,
+            "scale": [
+                5.0,
+                5.0
+            ]
+        },
+        {
+            "entity": 1589,
             "scale": [
                 5.0,
                 5.0
@@ -24724,14 +24693,7 @@
             ]
         },
         {
-            "entity": 1745,
-            "scale": [
-                5.0,
-                5.0
-            ]
-        },
-        {
-            "entity": 1833,
+            "entity": 1850,
             "scale": [
                 5.0,
                 5.0
@@ -24741,26 +24703,26 @@
     "25": [
         {
             "entity": 1508,
-            "health": 20.0,
-            "speed": 0.0
-        },
-        {
-            "entity": 1588,
             "health": 40.0,
             "speed": 4.0
         },
         {
-            "entity": 1667,
-            "health": 80.0,
-            "speed": 8.0
+            "entity": 1509,
+            "health": 20.0,
+            "speed": 0.0
         },
         {
-            "entity": 1745,
+            "entity": 1589,
             "health": 80.0,
             "speed": 4.0
         },
         {
-            "entity": 1833,
+            "entity": 1667,
+            "health": 20.0,
+            "speed": 0.0
+        },
+        {
+            "entity": 1850,
             "health": 20.0,
             "speed": 0.0
         }
@@ -24780,8 +24742,8 @@
             "type": 0
         },
         {
-            "entity": 1787,
-            "timer": 3484.034912109375,
+            "entity": 1673,
+            "timer": 3305.38427734375,
             "type": 0
         }
     ],
@@ -28632,93 +28594,84 @@
     "3": null,
     "30": [
         {
-            "entity": 1872
+            "entity": 1938
         },
         {
-            "entity": 1970
+            "entity": 1888
         },
         {
-            "entity": 1984
-        },
-        {
-            "entity": 1802
-        },
-        {
-            "entity": 1942
-        },
-        {
-            "entity": 1921
-        },
-        {
-            "entity": 1814
-        },
-        {
-            "entity": 1818
-        },
-        {
-            "entity": 1963
+            "entity": 1958
         },
         {
             "entity": 1998
         },
         {
-            "entity": 1830
+            "entity": 1988
         },
         {
-            "entity": 1977
+            "entity": 1898
         },
         {
-            "entity": 1991
+            "entity": 2018
         },
         {
-            "entity": 1851
+            "entity": 1833
+        },
+        {
+            "entity": 1878
+        },
+        {
+            "entity": 2028
+        },
+        {
+            "entity": 1868
+        },
+        {
+            "entity": 1948
+        },
+        {
+            "entity": 1763
+        },
+        {
+            "entity": 1918
+        },
+        {
+            "entity": 2008
+        },
+        {
+            "entity": 1784
+        },
+        {
+            "entity": 1908
+        },
+        {
+            "entity": 1798
+        },
+        {
+            "entity": 1968
+        },
+        {
+            "entity": 1812
+        },
+        {
+            "entity": 1978
+        },
+        {
+            "entity": 1826
         },
         {
             "entity": 1858
         },
         {
-            "entity": 1865
-        },
-        {
-            "entity": 1879
-        },
-        {
-            "entity": 1886
-        },
-        {
-            "entity": 1893
-        },
-        {
-            "entity": 1900
-        },
-        {
-            "entity": 1907
-        },
-        {
-            "entity": 1914
-        },
-        {
             "entity": 1928
         },
         {
-            "entity": 1935
-        },
-        {
-            "entity": 1949
-        },
-        {
-            "entity": 1956
-        },
-        {
-            "entity": 2005
-        },
-        {
-            "entity": 2010
+            "entity": 2038
         }
     ],
     "31": [
         {
-            "entity": 1788
+            "entity": 1674
         }
     ],
     "32": null,
@@ -37688,7 +37641,7 @@
             "entity": 1504,
             "used_effect": 6,
             "used_geometry": 1,
-            "used_texture": 120
+            "used_texture": 124
         },
         {
             "entity": 1506,
@@ -37706,82 +37659,46 @@
             "entity": 1508,
             "used_effect": 5,
             "used_geometry": 1,
-            "used_texture": 63
+            "used_texture": 78
         },
         {
-            "entity": 1588,
+            "entity": 1509,
             "used_effect": 5,
             "used_geometry": 1,
-            "used_texture": 80
+            "used_texture": 60
+        },
+        {
+            "entity": 1589,
+            "used_effect": 5,
+            "used_geometry": 1,
+            "used_texture": 87
         },
         {
             "entity": 1667,
             "used_effect": 5,
             "used_geometry": 1,
-            "used_texture": 119
+            "used_texture": 56
         },
         {
-            "entity": 1745,
-            "used_effect": 5,
-            "used_geometry": 1,
-            "used_texture": 89
-        },
-        {
-            "entity": 1787,
+            "entity": 1673,
             "used_effect": 2,
             "used_geometry": 1,
             "used_texture": 1
         },
         {
-            "entity": 1872,
+            "entity": 1938,
             "used_effect": 7,
             "used_geometry": 1,
             "used_texture": 154
         },
         {
-            "entity": 1970,
+            "entity": 1888,
             "used_effect": 7,
             "used_geometry": 1,
             "used_texture": 154
         },
         {
-            "entity": 1984,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1802,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1942,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1921,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1814,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1818,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1963,
+            "entity": 1958,
             "used_effect": 7,
             "used_geometry": 1,
             "used_texture": 154
@@ -37793,79 +37710,121 @@
             "used_texture": 154
         },
         {
-            "entity": 1830,
+            "entity": 1988,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1898,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 2018,
             "used_effect": 7,
             "used_geometry": 1,
             "used_texture": 154
         },
         {
             "entity": 1833,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1878,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 2028,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1868,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1948,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1763,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1918,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 2008,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1784,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1908,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1798,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1968,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1812,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1978,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1826,
+            "used_effect": 7,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1850,
             "used_effect": 5,
             "used_geometry": 1,
-            "used_texture": 57
-        },
-        {
-            "entity": 1977,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1991,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1851,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
+            "used_texture": 63
         },
         {
             "entity": 1858,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1865,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1879,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1886,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1893,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1900,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1907,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1914,
             "used_effect": 7,
             "used_geometry": 1,
             "used_texture": 154
@@ -37877,31 +37836,7 @@
             "used_texture": 154
         },
         {
-            "entity": 1935,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1949,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1956,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 2005,
-            "used_effect": 7,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 2010,
+            "entity": 2038,
             "used_effect": 7,
             "used_geometry": 1,
             "used_texture": 154
@@ -37914,6 +37849,6 @@
     "current_seed": 0,
     "game_is_over": false,
     "game_screen": 0,
-    "id_count": 2015,
+    "id_count": 2042,
     "level": 1
 }

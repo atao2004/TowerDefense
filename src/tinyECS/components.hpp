@@ -441,7 +441,8 @@ struct ScreenState
             {"lerp_timer", lerp_timer},
             {"shake_duration_ms", shake_duration_ms},
             {"shake_intensity", shake_intensity},
-            {"shake_offset", {shake_offset.x, shake_offset.y}}};
+            {"shake_offset", {shake_offset.x, shake_offset.y}},
+            {"cg_index", cg_index}};
     }
 };
 

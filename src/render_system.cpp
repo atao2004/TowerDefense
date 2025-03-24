@@ -464,8 +464,7 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 
 	mat3 projection_2D = (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) ? createProjectionMatrix_splash(): createProjectionMatrix();
 
-	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) {
-		// std::cout<<"why failing?"<<std::endl;	
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) {	
 		for (Entity entity : registry.cgs.entities) {
 			drawTexturedMesh(entity, projection_2D);	
 		}

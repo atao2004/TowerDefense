@@ -25,8 +25,9 @@ void SeedSystem::step(float elapsed_ms)
 				registry.remove_all_components_of(i);
 				registry.seeds.remove(i);
 				createTower(renderer, { pos.x - GRID_CELL_WIDTH_PX / 2, pos.y - GRID_CELL_HEIGHT_PX / 2 });
-				++registry.screenStates.components[0].cg_index;
-				return WorldSystem::start_cg(renderer);
+				
+				if (registry.screenStates.components[0].cg_index++ == 11)
+					return WorldSystem::start_cg(renderer);
 			}
 			else
 			{

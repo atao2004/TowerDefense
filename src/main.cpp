@@ -96,7 +96,6 @@ int main()
 	while (!world_system.is_over()) {
 
 		GAME_SCREEN_ID game_screen = world_system.get_game_screen();
-		std::cout<<(int) game_screen<<std::endl;
 		// processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
 
@@ -144,7 +143,6 @@ int main()
 				if (fm_movement.can_update()) movement_system.step(fm_movement.get_time(), game_screen);
 				if (fm_animation.can_update()) animation_system.step(fm_animation.get_time());
 				if (fm_particle.can_update()) particle_system.step(fm_particle.get_time());
-				std::cout<<"i'm leaking good luck"<<std::endl;
 
 			} else {
 				//M2: FPS. make sure we only print once, lazy implementation
