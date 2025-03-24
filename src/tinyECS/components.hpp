@@ -549,7 +549,7 @@ struct Camera
     }
 };
 
-struct Button {
+struct CustomButton {
     BUTTON_ID type;
     vec2 position;
     json toJSON() const {
@@ -597,8 +597,8 @@ struct ParticleGenerator
 };
 
 struct Text {
-    vec2 position;
-    vec3 color;
+    glm::vec2 position;
+    glm::vec3 color;
     std::string text;
     float scale;
 

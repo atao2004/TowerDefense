@@ -388,6 +388,9 @@ void WorldSystem::start_cg(RenderSystem* renderer) {
 		createScreen(renderer, TEXTURE_ASSET_ID::NIGHT_BG);
 	else if (cg_idx == 12)
 		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+	else if (cg_idx == 19)
+		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+	std::cout<<cg_idx<<std::endl;
 }
 
 // Reset the world state to its initial state
@@ -621,6 +624,8 @@ void WorldSystem::player_attack()
 							registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 							level++;
+							if (++registry.screenStates.components[0].cg_index == 19)
+								return WorldSystem::start_cg(renderer);
 
 							// Get player entity and size
 							Entity player = registry.players.entities[0];
@@ -1259,6 +1264,11 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX-250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
 			}
 			else if (cg_index == 18) {
+				for (int i=registry.cgs.entities.size()-1; i>=0; i--)
+					registry.remove_all_components_of(registry.cgs.entities[i]);
+				set_game_screen(GAME_SCREEN_ID::PLAYING);
+			}
+			else if (cg_index == 20) {
 				for (int i=registry.cgs.entities.size()-1; i>=0; i--)
 					registry.remove_all_components_of(registry.cgs.entities[i]);
 				set_game_screen(GAME_SCREEN_ID::PLAYING);
