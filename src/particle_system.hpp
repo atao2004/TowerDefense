@@ -41,4 +41,5 @@ private:
     float randomFloat(float min, float max);
 
     void stopEffect(Entity generator_entity);
+    
 };

@@ -467,35 +467,38 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	for (Entity entity : registry.renderRequests.entities)
 	{
 		// filter to entities that have a motion component
-		if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE && !registry.players.has(entity))
-		{
-			// Note, its not very efficient to access elements indirectly via the entity
-			// albeit iterating through all Sprites in sequence. A good point to optimize
-			if (game_screen == GAME_SCREEN_ID::TUTORIAL)
+		if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE && !registry.players.has(entity) &&
+			!registry.particles.has(entity))
 			{
-				if (registry.mapTiles.has(entity))
+				// Note, its not very efficient to access elements indirectly via the entity
+				// albeit iterating through all Sprites in sequence. A good point to optimize
+				if (game_screen == GAME_SCREEN_ID::TUTORIAL)
 				{
-					if (registry.tutorialTiles.has(entity))
+					if (registry.mapTiles.has(entity))
+					{
+						if (registry.tutorialTiles.has(entity))
+						{
+							drawTexturedMesh(entity, projection_2D);
+						}
+					}
+					else
 					{
 						drawTexturedMesh(entity, projection_2D);
 					}
 				}
-				else
+				else if (!registry.tutorialSigns.has(entity) && !registry.tutorialTiles.has(entity))
 				{
 					drawTexturedMesh(entity, projection_2D);
 				}
 			}
-			else if (!registry.tutorialSigns.has(entity) && !registry.tutorialTiles.has(entity))
-			{
-				drawTexturedMesh(entity, projection_2D);
-			}
-		}
 		// draw grid lines separately, as they do not have motion but need to be rendered
 		else if (registry.gridLines.has(entity))
 		{
 			drawGridLine(entity, projection_2D);
 		}
 	}
+	drawParticlesInstanced(projection_2D);
+
 	// individually draw player, will render on top of all the motion sprites
 	if (!WorldSystem::game_is_over)
 		drawTexturedMesh(registry.players.entities[0], projection_2D);
@@ -803,4 +806,116 @@ void RenderSystem::renderText(std::string text, float x, float y, float scale, c
 	}
 	glBindVertexArray(vao);
 	// glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void RenderSystem::drawParticlesInstanced(const mat3 &projection)
+{
+	// Skip if no particles
+	if (registry.particles.entities.empty())
+		return;
+
+	// Count active particles
+	int particleCount = (int)registry.particles.size();
+	if (particleCount == 0)
+		return;
+
+	// Enable blending for particles
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Additive blending for glow effects
+
+	// Use particle shader
+	GLuint program = effects[(GLuint)EFFECT_ASSET_ID::PARTICLE];
+	glUseProgram(program);
+
+	// Prepare matrices
+	GLint proj_loc = glGetUniformLocation(program, "projection");
+	glUniformMatrix3fv(proj_loc, 1, GL_FALSE, (float *)&projection);
+
+	// Bind default particle texture
+	GLuint texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::PARTICLE];
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+
+	// Bind mesh data
+	const GLuint vbo = vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
+	const GLuint ibo = index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+	// Set up vertex attributes
+	GLint in_position_loc = glGetAttribLocation(program, "in_position");
+	GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+
+	glEnableVertexAttribArray(in_position_loc);
+	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
+						  sizeof(TexturedVertex), (void *)0);
+
+	glEnableVertexAttribArray(in_texcoord_loc);
+	glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE,
+						  sizeof(TexturedVertex), (void *)sizeof(vec3));
+
+	// Prepare instance data arrays
+	std::vector<vec4> instance_data(particleCount * 3); // 3 vec4s per instance
+
+	// Fill instance data
+	int idx = 0;
+	for (Entity entity : registry.particles.entities)
+	{
+		Particle &particle = registry.particles.get(entity);
+
+		// Get position and scale from Motion component
+		vec2 position = particle.Position;
+		vec2 scale = vec2(10.0f * (particle.Life / particle.MaxLife));
+		if (registry.motions.has(entity))
+		{
+			scale = registry.motions.get(entity).scale;
+		}
+
+		// First vec4: position(xy) and scale(zw)
+		instance_data[idx++] = vec4(position.x, position.y, scale.x, scale.y);
+
+		// Second vec4: color
+		instance_data[idx++] = particle.Color;
+
+		// Third vec4: life data and any other parameters
+		instance_data[idx++] = vec4(particle.Life / particle.MaxLife, 0.0f, 0.0f, 0.0f);
+	}
+
+	// Upload instance data
+	glBindBuffer(GL_ARRAY_BUFFER, particle_instance_VBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, instance_data.size() * sizeof(vec4), instance_data.data());
+
+	// Set up instance attributes
+	// 1. Position and scale (vec4)
+	GLint instance_pos_scale_loc = 2; // Attribute location = 2
+	glEnableVertexAttribArray(instance_pos_scale_loc);
+	glVertexAttribPointer(instance_pos_scale_loc, 4, GL_FLOAT, GL_FALSE,
+						  sizeof(vec4) * 3, (void *)0);
+	glVertexAttribDivisor(instance_pos_scale_loc, 1); // Once per instance
+
+	// 2. Color (vec4)
+	GLint instance_color_loc = 3; // Attribute location = 3
+	glEnableVertexAttribArray(instance_color_loc);
+	glVertexAttribPointer(instance_color_loc, 4, GL_FLOAT, GL_FALSE,
+						  sizeof(vec4) * 3, (void *)(sizeof(vec4)));
+	glVertexAttribDivisor(instance_color_loc, 1);
+
+	// 3. Life data (vec4)
+	GLint instance_life_loc = 4; // Attribute location = 4
+	glEnableVertexAttribArray(instance_life_loc);
+	glVertexAttribPointer(instance_life_loc, 4, GL_FLOAT, GL_FALSE,
+						  sizeof(vec4) * 3, (void *)(sizeof(vec4) * 2));
+	glVertexAttribDivisor(instance_life_loc, 1);
+
+	// Count indices
+	GLint size = 0;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+	GLsizei num_indices = size / sizeof(uint16_t);
+
+	// Draw all particles in one call!
+	glDrawElementsInstanced(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr, particleCount);
+
+
+	gl_has_errors();
 }
