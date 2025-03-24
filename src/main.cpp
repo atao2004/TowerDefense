@@ -12,7 +12,7 @@
 #include "render_system.hpp"
 #include "world_system.hpp"
 #include "status_system.hpp"
-#include "state_system.hpp"
+#include "player_system.hpp"
 #include "animation_system.hpp"
 #include "tower_system.hpp"
 #include "movement_system.hpp"
@@ -98,7 +98,7 @@ int main()
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
 		//when level up, we want the screen to be frozen
-		if (StateSystem::get_state() != STATE::LEVEL_UP) {
+		if (PlayerSystem::get_state() != STATE::LEVEL_UP) {
 			if (fm_world.can_update()) world_system.step(fm_world.get_time());
 			if (!WorldSystem::game_is_over) {
 

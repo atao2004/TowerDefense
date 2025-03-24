@@ -2,7 +2,7 @@
 #include "animation_system.hpp"
 #include "world_init.hpp"
 #include <iostream>
-#include "state_system.hpp"
+#include "player_system.hpp"
 
 RenderSystem *AnimationSystem::renderer;
 
@@ -94,7 +94,7 @@ void AnimationSystem::handle_animation_end(Entity entity)
     // Handle player state change
     if (registry.states.has(entity))
     {
-        StateSystem::update_state(STATE::IDLE);
+        PlayerSystem::update_state(STATE::IDLE);
     }
 
 

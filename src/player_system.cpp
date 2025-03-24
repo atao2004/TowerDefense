@@ -1,5 +1,5 @@
 // In status_system.cpp
-#include "state_system.hpp"
+#include "player_system.hpp"
 #include <iostream>
 #include "animation_system.hpp"
 
@@ -8,7 +8,7 @@
 * 
 * @param state_new The new state.
 */
-void StateSystem::update_state(STATE state_new)
+void PlayerSystem::update_state(STATE state_new)
 {
     Entity player = registry.players.entities[0];
     State& state = registry.states.get(player);
@@ -28,7 +28,7 @@ void StateSystem::update_state(STATE state_new)
     }
 }
 
-STATE StateSystem::get_state() {
+STATE PlayerSystem::get_state() {
     Entity player = registry.players.entities[0];
     State& state = registry.states.get(player);
     return state.state;
