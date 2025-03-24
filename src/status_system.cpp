@@ -197,6 +197,9 @@ void StatusSystem::handle_projectile_attack(Entity entity, float elapsed_ms)
             {
                 // Add death animation only if it doesn't already have one
                 registry.deathAnimations.emplace(entity);
+
+                // Increase player experience
+                WorldSystem::increase_exp_plant();
             }
         }
         else

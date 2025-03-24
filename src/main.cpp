@@ -92,6 +92,7 @@ int main()
 	FrameManager fm_animation = FrameManager(2);
 	FrameManager fm_particle = FrameManager(1);
 	FrameManager fm_seed = FrameManager(5);
+	FrameManager fm_render = FrameManager(5);
 
 	while (!world_system.is_over()) {
 
@@ -158,10 +159,9 @@ int main()
 		//DO NOT DELETE, OTHERWISE TEXT WON'T RENDER
 		glm::mat4 trans = glm::mat4(1.0f);
 		renderer_system.renderText("hello", 100, 100, 1, {1, 1, 0}, trans);
-		renderer_system.draw(game_screen);
-
-		
+    
+		if (fm_render.can_update()) renderer_system.step_and_draw(game_screen, fm_render.get_time());
+    
 	}
-
 	return EXIT_SUCCESS;
 }

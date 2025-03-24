@@ -321,7 +321,7 @@ Entity createScorchedEarth(vec2 position)
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(scorched_earth_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(SCORCHED_EARTH_DIMENSION_PX, SCORCHED_EARTH_DIMENSION_PX);
+	motion_component.scale = vec2(GRID_CELL_WIDTH_PX, GRID_CELL_HEIGHT_PX);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
@@ -606,7 +606,7 @@ Entity createToolbar(vec2 position)
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(toolbar_entity);
 	motion_component.position = position;
-	motion_component.scale = vec2(440, 55);
+	motion_component.scale = vec2(TOOLBAR_WIDTH, TOOLBAR_HEIGHT);
 	motion_component.velocity = vec2(0, 0);
 
 	// Render the object.
@@ -681,7 +681,11 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 	player.health = PLAYER_HEALTH;
 
 	Inventory &inventory = registry.inventorys.emplace(entity);
-	registry.inventorys.components[0].seedCount[0] = 5; // 5 starter seeds
+	for(int i = 0; i < NUM_SEED_TYPES; i++)
+	{
+		registry.inventorys.components[0].seedCount[i] = 1; // one of each seed type
+	}
+	//registry.inventorys.components[0].seedCount[0] = 5; // 5 starter seeds
 
 	MoveWithCamera &mwc = registry.moveWithCameras.emplace(entity);
 	Motion &motion = registry.motions.emplace(entity);
@@ -793,9 +797,12 @@ Entity createSeedInventory(vec2 pos, vec2 velocity, int type)
 	// Render the object.
 	registry.renderRequests.insert(
 		seed_entity,
-		{TEXTURE_ASSET_ID::SEED_0,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE});
+		{
+			(TEXTURE_ASSET_ID) ((int) TEXTURE_ASSET_ID::SEED_0 + type),
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
 
 	return seed_entity;
 }
@@ -894,6 +901,24 @@ Entity createArrow(vec2 position, vec2 direction, Entity source)
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
 	return entity;
+}
+
+Entity createText(std::string text) {
+	Entity text_entity = Entity();
+
+	Text& text_component = registry.texts.emplace(text_entity);
+	text_component.text = text;
+
+	registry.renderRequests.insert(
+		text_entity,
+		{
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::EGG,
+			GEOMETRY_BUFFER_ID::DEBUG_LINE
+		}
+	);
+
+	return text_entity;
 }
 
 Entity createChicken(RenderSystem *renderer)
