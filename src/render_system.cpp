@@ -513,9 +513,10 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	// }
 
 	glm::mat4 trans = glm::mat4(1.0f);
-	renderText("hi", 10, 10, 1, {1, 0, 1}, trans);
+	renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
+	renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
 
-	renderText("ooo", 100, 100, 1, {1, 1, 0}, trans);
+	renderText("FPS: ", 100, 100, 0.5, {1, 1, 0}, trans);
 
 	//  draw framebuffer to screen
 	//  adding "UI" effect when applied
