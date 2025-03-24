@@ -122,17 +122,36 @@ void SpawnManager::set_test_mode(bool enabled)
 }
 
 void SpawnManager::spawn_enemy(RenderSystem* renderer)
-{
+{   
     // Get a random spawn point
     int random_point = (int)(uniform_dist(rng) * spawn_points.size());
     vec2 spawn_pos = spawn_points[random_point].position;
-    
-    // Fixed 30% chance for skeleton
-    const float SKELETON_CHANCE = 0.3f;
-    
-    if (uniform_dist(rng) < SKELETON_CHANCE) {
+
+    // Fixed 30% chance for skeleton archer
+    float prob_skeleton_archer = 0.3;
+
+    // Spawn enemy
+    float prob = uniform_dist(rng);
+    if (prob < prob_skeleton_archer) {
         createSkeletonArcher(renderer, spawn_pos);
-    } else {
+    }
+    else if (prob < prob_skeleton_archer + 0.1f) {
+        createOrcElite(renderer, spawn_pos);
+    }
+    else if (prob < prob_skeleton_archer + 0.2f) {
+        createSkeleton(renderer, spawn_pos);
+    }
+    else if (prob < prob_skeleton_archer + 0.3f) {
+        createWerewolf(renderer, spawn_pos);
+    }
+    else if (prob < prob_skeleton_archer + 0.4f) {
+        createWerebear(renderer, spawn_pos);
+    }
+    else if (prob < prob_skeleton_archer + 0.5f) {
+        createSlime(renderer, spawn_pos);
+    }
+    else {
         createOrc(renderer, spawn_pos);
     }
+
 }
