@@ -6,7 +6,7 @@
 
 //splash screen
 Entity createSplashScreen(RenderSystem* renderer);
-Entity createButton(RenderSystem* renderer, std::string type, vec2 position);
+Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position);
 
 // enemies
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position);

@@ -178,7 +178,10 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 	// restart_tutorial();
 	game_screen = GAME_SCREEN_ID::SPLASH;
 	createSplashScreen(renderer);
-	createButton(renderer, "start", vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5));
+	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5));
+	createButton(renderer, BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5 + 200));
+	createButton(renderer, BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5 + 200*2));
+	createButton(renderer, BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5 + 200*3));
 }
 
 // Update our game world
@@ -1138,13 +1141,6 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	mouse_pos_y = mouse_position.y;
 
 	if (game_screen == GAME_SCREEN_ID::SPLASH) {
-		//implement
-		for (auto& b: registry.buttons.components) {
-			if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH/2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH/2 &&
-				mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT/2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT/2) {
-					
-				}
-		}
 		return;
 	}
 
@@ -1176,7 +1172,14 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 		for (auto& b: registry.buttons.components) {
 			if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH/2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH/2 &&
 				mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT/2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT/2) {
-					return restart_game();
+					if (b.type == BUTTON_ID::START)
+						return restart_game();
+					if (b.type == BUTTON_ID::LOAD)
+						return loadGame();
+					if (b.type == BUTTON_ID::TUTORIAL)
+						return restart_tutorial();
+					if (b.type == BUTTON_ID::QUIT)
+						return close_window();
 				}
 		}
 		return;

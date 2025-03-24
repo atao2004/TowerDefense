@@ -192,7 +192,10 @@ class RenderSystem
 		textures_path("towers/plant2/attack/Plant2_attack_b2.png"),
 		textures_path("towers/plant2/attack/Plant2_attack_s1.png"),
 		textures_path("towers/plant2/attack/Plant2_attack_s2.png"),
-		textures_path("ui/play_button.png"),
+		textures_path("ui/new_game.png"),
+		textures_path("ui/load_game.png"),
+		textures_path("ui/tutorial.png"),
+		textures_path("ui/quit.png"),
 		textures_path("ui/background.png"),
 	};
 

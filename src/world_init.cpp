@@ -24,7 +24,7 @@ using json = nlohmann::json;
 // 	return entity;
 // }
 
-Entity createButton(RenderSystem* renderer, std::string type, vec2 position) {
+Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position) {
 	Entity entity = Entity();
 	Button& button = registry.buttons.emplace(entity);
 	button.type = type;
@@ -33,11 +33,11 @@ Entity createButton(RenderSystem* renderer, std::string type, vec2 position) {
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
-	motion.scale = vec2({ 160, 83 });
+	motion.scale = vec2({ BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT });
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::START_BUTTON,
+			(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::START_BUTTON + (int)type),
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		},
