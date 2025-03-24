@@ -560,11 +560,6 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 		//  adding "UI" effect when applied
 		drawToScreen();
 	}
-	drawParticlesInstanced(projection_2D);
-
-	// individually draw player, will render on top of all the motion sprites
-	if (!WorldSystem::game_is_over)
-		drawTexturedMesh(registry.players.entities[0], projection_2D);
 
 	// // draw all particles
 	// for (Entity entity : registry.particles.entities)
