@@ -449,16 +449,17 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	if (!WorldSystem::game_is_over)
 		drawTexturedMesh(registry.players.entities[0], projection_2D);
 
-	// glm::mat4 trans = glm::mat4(1.0f);
-	// renderText("hi", 10, 10, 1, {1, 0, 1}, trans);
+	glm::mat4 trans = glm::mat4(1.0f);
+	renderText("hi", 10, 10, 1, {1, 0, 1}, trans);
 
+	renderText("ooo", 100, 100, 1, {1, 1, 0}, trans);
 
 	//  draw framebuffer to screen
 	//  adding "UI" effect when applied
 	drawToScreen();
 
 
-	//renderText("hi", 10, 10, 1, {1, 0, 1}, trans);
+	//renderText("test", 10, 10, 1, {1, 0, 1}, trans);
 
 
 	// flicker-free display with a double buffer
@@ -545,7 +546,7 @@ bool is_shader_error(unsigned int shader, std::string shader_name)
 
 std::string readShaderFile(const std::string &filename)
 {
-	std::cout << "Loading shader filename: " << filename << std::endl;
+	// std::cout << "Loading shader filename: " << filename << std::endl;
 
 	std::ifstream ifs(filename);
 
@@ -557,7 +558,7 @@ std::string readShaderFile(const std::string &filename)
 
 	std::ostringstream oss;
 	oss << ifs.rdbuf();
-	std::cout << oss.str() << std::endl;
+	// std::cout << oss.str() << std::endl;
 	return oss.str();
 }
 
@@ -743,5 +744,5 @@ void RenderSystem::renderText(std::string text, float x, float y, float scale, c
 		x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
 	}
 	glBindVertexArray(vao);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 }

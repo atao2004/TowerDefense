@@ -7,10 +7,13 @@
 #include <sstream>
 #include <iostream>
 #include <thread>
+#include <string>
 
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
 #include "player_system.hpp"
+#include "../ext/json.hpp"
+using json = nlohmann::json;
 
 // FreeType
 // #include <ft2build.h>
@@ -189,7 +192,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 				vec2 pos;
 				pos.x = registry.motions.get(i).position.x;
 				pos.y = registry.motions.get(i).position.y;
-				std::cout << "x pos " << pos.x << " y pos " << pos.y << std::endl;
+				// std::cout << "x pos " << pos.x << " y pos " << pos.y << std::endl;
 				registry.remove_all_components_of(i);
 				registry.seeds.remove(i);
 				createTower(renderer, {pos.x - GRID_CELL_WIDTH_PX / 2, pos.y - GRID_CELL_HEIGHT_PX / 2});
@@ -494,7 +497,7 @@ void WorldSystem::create_tutorial_enemies()
 	vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.65, TUTORIAL_HEIGHT_PX * 0.4);
 	createSkeleton(renderer, skeleton_pos);
 
-	std::cout << "Tutorial enemies created" << std::endl;
+	// std::cout << "Tutorial enemies created" << std::endl;
 }
 
 // Check if tutorial enemies need to be respawned
@@ -570,7 +573,7 @@ void WorldSystem::player_attack()
 				{
 					auto &enemy_comp = registry.enemies.get(enemy);
 					enemy_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
-					std::cout << "wow u r attacking so nice cool cool" << std::endl;
+					// std::cout << "wow u r attacking so nice cool cool" << std::endl;
 
 					// Calculate knockback direction (from player to enemy)
 					Motion &enemy_motion = registry.motions.get(enemy);
@@ -605,7 +608,7 @@ void WorldSystem::player_attack()
 
 						// Increase the counter that represents the number of zombies killed.
 						points++;
-						std::cout << "enemies killed: " << points << std::endl;
+						// std::cout << "enemies killed: " << points << std::endl;
 
 						// Kung: Upon killing a enemy, increase the experience of the player or reset the experience bar when it becomes full.
 						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
@@ -673,7 +676,7 @@ void WorldSystem::update_enemy_death_animations(float elapsed_ms)
 			registry.remove_all_components_of(entity);
 
 			// Kung: Upon killing a enemy, update the enemy count and print it to the console.
-			std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
+			// std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 		}
 	}
 }
@@ -906,6 +909,20 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
+	//load
+	if (action == GLFW_RELEASE && key == GLFW_KEY_MINUS)
+	{
+		loadGame();
+		return;
+	}
+
+	//save 
+	if (action == GLFW_RELEASE && key == GLFW_KEY_EQUAL)
+	{
+		saveGame();
+		return;
+	}
+
 	// Debug
 	if (action == GLFW_PRESS && key == GLFW_KEY_L)
 	{
@@ -990,7 +1007,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 								if (registry.motions.get(motion_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX))
 								{
 									hasSeed = 1;
-									std::cout << "A seed was already planted here." << std::endl;
+									// std::cout << "A seed was already planted here." << std::endl;
 								}
 							}
 						}
@@ -1203,6 +1220,7 @@ void WorldSystem::update_movement_sound(float elapsed_ms)
 void WorldSystem::update_camera()
 {
 	// Update camera position to follow player
+	// std::cout<<registry.players.size()<<" "<<registry.cameras.size()<<std::endl;
 	if (!registry.players.entities.empty() && !registry.cameras.entities.empty())
 	{
 		Entity player = registry.players.entities[0];
@@ -1301,4 +1319,312 @@ void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)
 			advance_to_next_day();
 		}
 	}
+}
+
+
+
+void WorldSystem::loadGame() {
+	registry.clear_all_components();
+
+	json jsonFile;
+	std::ifstream file(PROJECT_SOURCE_DIR + std::string("data/reload/game_0.json"));
+	file>>jsonFile;
+	game_is_over = jsonFile["game_is_over"];
+	game_screen = jsonFile["game_screen"];
+	current_day = jsonFile["current_day"];
+	current_seed = jsonFile["current_seed"];
+	level = jsonFile["level"];
+
+	json ss_json = jsonFile["0"][0];
+	ScreenState& ss = registry.screenStates.components[0];
+	ss.darken_screen_factor = ss_json["darken_screen_factor"];
+	ss.exp_percentage = ss_json["exp_percentage"];
+	ss.game_over = ss_json["game_over"];
+	ss.game_over_counter_ms = ss_json["game_over_counter_ms"];
+	ss.game_over_darken = ss_json["game_over_darken"];
+	ss.hp_percentage = ss_json["hp_percentage"];
+	ss.lerp_timer = ss_json["lerp_timer"];
+	ss.shake_duration_ms = ss_json["shake_duration_ms"];
+	ss.shake_intensity = ss_json["shake_intensity"];
+	ss.shake_offset = vec2(ss_json["shake_offset"][0], ss_json["shake_offset"][1]);
+
+	json attack_arr = jsonFile["1"];
+	for (int i=0; i<attack_arr.size(); i++) {
+		json attack_json = attack_arr[i];
+		Entity e = Entity(attack_json["entity"]);
+		Attack& attack = registry.attacks.emplace(e);
+		attack.range = attack_json["range"];
+		attack.damage = attack_json["damage"];
+	}
+
+	json motion_arr = jsonFile["2"];
+	for (int i=0; i<motion_arr.size(); i++) {
+		json motion = motion_arr[i];
+		Entity e = Entity(motion["entity"]);
+		Motion& m = registry.motions.emplace(e);
+		m.position = vec2(motion["position"][0], motion["position"][1]);
+		m.angle =  motion["angle"];
+		m.velocity = vec2(motion["velocity"][0], motion["velocity"][1]);
+		m.scale =  vec2(motion["scale"][0], motion["scale"][1]);
+	}
+
+	json collisions_arr = jsonFile["3"];
+	for (int i=0; i<collisions_arr.size(); i++) {
+		json collision = collisions_arr[i];
+		Entity e = Entity(collision["entity"].get<int>());
+		Entity other = Entity(collision["other"].get<int>());
+		registry.collisions.emplace(e, other);
+	}
+
+	//didnt add meshPtrs, maybe add constraints when chicken summoned cannot save lol
+
+	json dimension_arr = jsonFile["5"];
+	for (int i=0; i<dimension_arr.size(); i++) {
+		json dimension_json = dimension_arr[i];
+		Entity e = Entity(dimension_json["entity"]);
+		Dimension& dimension = registry.dimensions.emplace(e);
+		dimension.height = dimension_json["height"];
+		dimension.width  = dimension_json["width"];
+	}
+
+	json renderRequests_arr = jsonFile["6"];
+	for (int i=0; i<renderRequests_arr.size(); i++) {
+		json rr_json = renderRequests_arr[i];
+		Entity e = Entity(rr_json["entity"]);
+		RenderRequest& rr = registry.renderRequests.emplace(e);
+		rr.used_texture = (TEXTURE_ASSET_ID)rr_json["used_texture"];
+		rr.used_effect = (EFFECT_ASSET_ID)rr_json["used_effect"];
+		rr.used_geometry = (GEOMETRY_BUFFER_ID)rr_json["used_geometry"];
+	}
+
+	json tower_arr = jsonFile["8"];
+	for (int i=0; i<tower_arr.size(); i++) {
+		json tower_json = tower_arr[i];
+		Entity e = Entity(tower_json["entity"]);
+		Tower& tower = registry.towers.emplace(e);
+		tower.health = tower_json["health"];
+		tower.damage = tower_json["damage"];
+		tower.range = tower_json["range"];
+		tower.timer_ms = tower_json["timer_ms"];
+		tower.state = tower_json["state"];
+	}
+
+	json zombie_arr = jsonFile["10"];
+	for (int i=0; i<zombie_arr.size(); i++) {
+		json zombie_json = zombie_arr[i];
+		Entity e = Entity(zombie_json["entity"]);
+		Zombie& zombie = registry.zombies.emplace(e);
+		zombie.health = zombie_json["health"];
+	}
+
+	json zombieSpawn_arr = jsonFile["11"];
+	for (int i=0; i<zombieSpawn_arr.size(); i++) {
+		json zombieSpawn_json = zombieSpawn_arr[i];
+		Entity e = Entity(zombieSpawn_json["entity"]);
+		ZombieSpawn& zombieSpawn = registry.zombieSpawns.emplace(e);
+	}
+
+	json player_arr = jsonFile["12"];
+	for (int i=0; i<player_arr.size(); i++) {
+		json player_json = player_arr[i];
+		Entity e = Entity(player_json["entity"]);
+		Player& player = registry.players.emplace(e);
+		player.health = player_json["health"];
+	}
+
+	json sc_arr = jsonFile["13"];
+	for (int i=0; i<sc_arr.size(); i++) {
+		json sc_json = sc_arr[i];
+		Entity e = Entity(sc_json["entity"]);
+		StatusComponent& sc = registry.statuses.emplace(e);
+		for (const auto& s : sc_json["active_statuses"]) {
+			Status status;
+			status.type = s["type"];
+			status.duration_ms = s["duration_ms"];
+			status.value = s["value"];
+			sc.active_statuses.push_back(status);
+		}
+	}
+
+	json states_arr = jsonFile["14"];
+	for (int i=0; i<states_arr.size(); i++) {
+		json state_json = states_arr[i];
+		Entity e = Entity(state_json["entity"]);
+		State& state = registry.states.emplace(e);
+		state.state = (STATE)state_json["state"];
+	}
+
+	json animation_arr = jsonFile["15"];
+	for (int i=0; i<animation_arr.size(); i++) {
+		json animation_json = animation_arr[i];
+		Entity e = Entity(animation_json["entity"]);
+		Animation& animation = registry.animations.emplace(e);
+		animation.runtime_ms = animation_json["runtime_ms"];
+		animation.timer_ms = animation_json["timer_ms"];
+		animation.pose = animation_json["pose"];
+		animation.transition_ms = animation_json["transition_ms"];
+		animation.pose_count = animation_json["pose_count"];
+		animation.loop = animation_json["loop"];
+		animation.lock = animation_json["lock"];
+		animation.destroy = animation_json["destroy"];
+		animation.textures = NULL;
+	}
+	
+	json death_arr = jsonFile["16"];
+	for (int i=0; i<death_arr.size(); i++) {
+		json death_json = death_arr[i];
+		Entity e = Entity(death_json["entity"]);
+		Death& death = registry.deaths.emplace(e);
+	}
+
+	json cooldown_arr = jsonFile["17"];
+	for (int i=0; i<cooldown_arr.size(); i++) {
+		json cooldown_json = cooldown_arr[i];
+		Entity e = Entity(cooldown_json["entity"]);
+		Cooldown& cooldown = registry.cooldowns.emplace(e);
+		cooldown.timer_ms = cooldown_json["timer_ms"];
+	}
+
+	json da_arr = jsonFile["18"];
+	for (int i=0; i<da_arr.size(); i++) {
+		json da_json = da_arr[i];
+		Entity e = Entity(da_json["entity"]);
+		DeathAnimation& da = registry.deathAnimations.emplace(e);
+		da.slide_direction = vec2(da_json["slide_direction"][0],da_json["slide_direction"][1]);
+		da.alpha = da_json["alpha"];
+		da.duration_ms = da_json["duration_ms"];
+	}
+
+	json he_arr = jsonFile["19"];
+	for (int i=0; i<he_arr.size(); i++) {
+		json he_json = he_arr[i];
+		Entity e = Entity(he_json["entity"]);
+		HitEffect& he = registry.hitEffects.emplace(e);
+		he.duration_ms = he_json["duration_ms"];
+		he.is_white = he_json["is_white"];
+	}
+
+	json projectile_arr = jsonFile["20"];
+	for (int i=0; i<projectile_arr.size(); i++) {
+		json projectile_json = projectile_arr[i];
+		Entity e = Entity(projectile_json["entity"]);
+		Entity source = Entity(projectile_json["source"]);
+		Projectile& p = registry.projectiles.emplace(e);
+		p.source = source;
+		p.damage = projectile_json["damage"];
+		p.speed = projectile_json["speed"];
+		p.lifetime_ms = projectile_json["lifetime_ms"];
+		p.direction = vec2(projectile_json["direction"][0], projectile_json["direction"][1]);
+		p.invincible = projectile_json["invincible"];
+	}
+
+	json camera_arr = jsonFile["21"];
+	for (int i=0; i<camera_arr.size(); i++) {
+		json camera_json = camera_arr[i];
+		Entity e = Entity(camera_json["entity"]);
+		Camera& camera = registry.cameras.emplace(e);
+		camera.position = vec2(camera_json["position"][0], camera_json["position"][1]);
+		camera.camera_width = camera_json["camera_width"];
+		camera.camera_height = camera_json["camera_height"];
+		camera.lerp_factor = camera_json["lerp_factor"];
+	}
+
+	json skeleton_arr = jsonFile["22"];
+	for (int i=0; i<skeleton_arr.size(); i++) {
+		json skeleton_json = skeleton_arr[i];
+		Entity e = Entity(skeleton_json["entity"]);
+		Entity target = Entity(skeleton_json["target"]);
+		Skeleton& skeleton = registry.skeletons.emplace(e);
+		skeleton.attack_range = skeleton_json["attack_range"];
+		skeleton.stop_distance = skeleton_json["stop_distance"];
+		skeleton.attack_cooldown_ms = skeleton_json["attack_cooldown_ms"];
+		skeleton.cooldown_timer_ms = skeleton_json["cooldown_timer_ms"];
+		skeleton.target = target;
+		skeleton.is_attacking = skeleton_json["is_attacking"];
+		skeleton.health = skeleton_json["health"];
+		skeleton.attack_timer_ms = skeleton_json["attack_timer_ms"];
+		skeleton.arrow_fired = skeleton_json["arrow_fired"];
+		skeleton.current_state = (Skeleton::State)skeleton_json["current_state"];
+	}
+
+	json arrow_arr = jsonFile["23"];
+	for (int i=0; i<arrow_arr.size(); i++) {
+		json arrow_json = arrow_arr[i];
+		Entity e = Entity(arrow_json["entity"]);
+		Entity source = Entity(arrow_json["source"]);
+		Arrow& a = registry.arrows.emplace(e);
+		a.source = source;
+		a.damage = arrow_json["damage"];
+		a.speed = arrow_json["speed"];
+		a.lifetime_ms = arrow_json["lifetime_ms"];
+		a.direction = vec2(arrow_json["direction"][0], arrow_json["direction"][1]);
+	}
+
+	json visualScale_arr = jsonFile["24"];
+	for (int i=0; i<visualScale_arr.size(); i++) {
+		json visualScale_json = visualScale_arr[i];
+		Entity e = Entity(visualScale_json["entity"]);
+		VisualScale& vs = registry.visualScales.emplace(e);
+		vs.scale = vec2(visualScale_json["scale"][0], visualScale_json["scale"][1]);
+	}
+
+	json enemies_arr = jsonFile["25"];
+	for (int i=0; i<enemies_arr.size(); i++) {
+		json enemies_json = enemies_arr[i];
+		Entity e = Entity(enemies_json["entity"]);
+		Enemy& enemy = registry.enemies.emplace(e);
+		enemy.health = enemies_json["health"];
+	}
+
+	json inventory_arr = jsonFile["26"];
+	for (int i=0; i<inventory_arr.size(); i++) {
+		json inventory_json = inventory_arr[i];
+		Entity e = Entity(inventory_json["entity"]);
+		Inventory& in = registry.inventorys.emplace(e);
+		json seed_arr = inventory_json["seedCount"];
+		for (int i=0; i<seed_arr.size(); i++) {
+			in.seedCount[i] = seed_arr[std::to_string(i)];
+		}
+	}
+
+	json seed_arr = jsonFile["27"];
+	for (int i=0; i<seed_arr.size(); i++) {
+		json seed_json = seed_arr[i];
+		Entity e = Entity(seed_json["entity"]);
+		Seed& seed = registry.seeds.emplace(e);
+		seed.type = seed_json["type"];
+		seed.timer = seed_json["timer"];
+	}
+
+	json mvc_arr = jsonFile["28"];
+	for (int i=0; i<mvc_arr.size(); i++) {
+		json mvc_json = mvc_arr[i];
+		Entity e = Entity(mvc_json["entity"]);
+		registry.moveWithCameras.emplace(e);
+	}
+
+	std::cout<<"Game loaded successfully."<<std::endl;
+}
+
+void WorldSystem::saveGame() {
+	json jsonFile;
+	jsonFile["game_is_over"] = game_is_over;
+	jsonFile["game_screen"] = game_screen;
+	jsonFile["current_day"] = current_day;
+	jsonFile["current_seed"] = current_seed;
+	jsonFile["level"] = level;
+	
+	for (int i=0; i<registry.registry_list.size(); i++) {
+		jsonFile[std::to_string(i)] = registry.registry_list[i]->toJSON();
+	}
+	
+
+	std::ofstream outFile(PROJECT_SOURCE_DIR + std::string("data/reload/game_0.json"));
+    if (outFile.is_open()) {
+        outFile << jsonFile.dump(4);
+        outFile.close();
+        std::cout << "JSON written to file successfully.\n";
+    } else {
+        std::cerr << "Error opening file for writing.\n";
+    }
 }

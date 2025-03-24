@@ -9,6 +9,11 @@
 #include <assert.h>
 
 #include "entity.hpp"
+#include <iostream>
+#include <glm/gtc/type_ptr.hpp>
+#include "../ext/json.hpp"
+#include <type_traits>
+using json = nlohmann::json;
 
 
 // Common interface to refer to all containers in the ECS registry
@@ -18,6 +23,7 @@ struct ContainerInterface
 	virtual size_t size() = 0;
 	virtual void remove(Entity e) = 0;
 	virtual bool has(Entity entity) = 0;
+	virtual json toJSON() = 0;
 };
 
 // A container that stores components of type 'Component' and associated entities
@@ -38,6 +44,26 @@ public:
 	// Constructor that registers the type
 	ComponentContainer()
 	{
+	}
+
+	json toJSON() {
+		
+		json jsonData;
+		for (size_t i = 0; i < components.size(); ++i) {
+			if constexpr (std::is_pointer<Component>::value) {
+				json temp = components[i]->toJSON();
+				temp["entity"] = entities[i].id();
+				jsonData.push_back(temp); 
+				continue;
+			} else if constexpr(std::is_same<Component, glm::vec3>::value) {
+			} else {
+				json temp = components[i].toJSON();
+				temp["entity"] = entities[i].id();
+				jsonData.push_back(temp); 
+			}
+		}
+	
+		return jsonData;
 	}
 
 	// Inserting a component c associated to entity e

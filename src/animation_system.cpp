@@ -36,7 +36,8 @@ void AnimationSystem::step(float elapsed_ms)
                 animation.pose = 0;
             }
             RenderRequest &request = registry.renderRequests.get(entity);
-            request.used_texture = animation.textures[animation.pose];
+            if (animation.textures != NULL)
+                request.used_texture = animation.textures[animation.pose];
             animation.timer_ms = 0;
         }
     }
@@ -81,7 +82,7 @@ void AnimationSystem::handle_animation_end(Entity entity)
 {
     Animation &animation = registry.animations.get(entity);
 
-    std::cout << "Animation ended for entity " << entity << std::endl;
+    // std::cout << "Animation ended for entity " << entity << std::endl;
 
     // Handle zombie spawn
     if (registry.zombieSpawns.has(entity))
