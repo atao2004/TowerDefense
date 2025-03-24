@@ -497,8 +497,20 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 			if (cg_idx == 10)
 				renderText( "Uh oh...", 60, 350,0.6, {1,1,1}, trans);
 			
-			//second scene, plant grow?
-			// if (cg_idx == 12)
+			//second scene, plant grow? yes plant grow!
+			if (cg_idx == 13)
+				renderText( "Bro I thought I would get some carrots, not you?!", 60, 350,0.6, {1,1,1}, trans);
+			if (cg_idx == 14)
+				renderText( "I am here to only help!", WINDOW_WIDTH_PX-500, 350,0.6, {1,1,1}, trans);
+			if (cg_idx == 15)
+				renderText( "WTH you can talk??", 60, 350,0.6, {1,1,1}, trans);
+			if (cg_idx == 16) {
+
+				renderText( "The zombies can hold weapons,", WINDOW_WIDTH_PX-700, 450,0.6, {1,1,1}, trans);
+				renderText( "so WHY NOT", WINDOW_WIDTH_PX-700, 350,0.6, {1,1,1}, trans);
+			}
+			if (cg_idx == 17)
+				renderText( "Alright...", 60, 350,0.6, {1,1,1}, trans);
 
 		}
 	} else {
