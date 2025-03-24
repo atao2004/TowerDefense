@@ -307,6 +307,7 @@ const int GRID_CELL_WIDTH_PX = 60;
 const int GRID_CELL_HEIGHT_PX = 60;
 const int GRID_LINE_WIDTH_PX = 2;
 const vec3 GRID_COLOR = vec3(0, 0, 0);
+const vec3 GRASS_COLOR = vec3(0.6f, 0.7f, 0.3f);
 
 inline int MAP_WIDTH_TILE_NUM = 40;
 inline int MAP_HEIGHT_TILE_NUM = 30;
