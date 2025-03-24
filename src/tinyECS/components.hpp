@@ -276,10 +276,11 @@ struct Seed
 
 enum class STATE
 {
-    IDLE = 0,
-    MOVE = 1,
-    ATTACK = 2,
-    LEVEL_UP = 3,
+	IDLE = 0,
+	MOVE = 1,
+	ATTACK = 2,
+	LEVEL_UP = 3,
+    STATE_COUNT = LEVEL_UP + 1
 };
 
 struct State
@@ -422,12 +423,14 @@ struct ScreenState
     bool game_over = false;
     float lerp_timer = 0.0;
 
-    // Screen shake parameters
-    float shake_duration_ms = 0.f;
-    float shake_intensity = 0.f;
-    vec2 shake_offset = {0.f, 0.f};
-    json toJSON() const
-    {
+	// Screen shake parameters
+	float shake_duration_ms = 0.f;
+	float shake_intensity = 0.f;
+	vec2 shake_offset = {0.f, 0.f};
+
+    int cg_index = 0;
+
+	json toJSON() const {
         return json{
             {"darken_screen_factor", darken_screen_factor},
             {"game_over_darken", game_over_darken},
@@ -438,7 +441,8 @@ struct ScreenState
             {"lerp_timer", lerp_timer},
             {"shake_duration_ms", shake_duration_ms},
             {"shake_intensity", shake_intensity},
-            {"shake_offset", {shake_offset.x, shake_offset.y}}};
+            {"shake_offset", {shake_offset.x, shake_offset.y}},
+            {"cg_index", cg_index}};
     }
 };
 
@@ -545,6 +549,13 @@ struct Camera
     }
 };
 
+struct CustomButton {
+    BUTTON_ID type;
+    vec2 position;
+    json toJSON() const {
+        return json{}; //don't use it, just for compile purpose
+    }
+};
 // Update your existing Particle struct
 
 struct Particle
@@ -581,6 +592,25 @@ struct ParticleGenerator
           particles(), isActive(true), duration_ms(-1.0f) {}
     json toJSON() const
     {
+        return json{};
+    }
+};
+
+struct Text {
+    glm::vec2 position;
+    glm::vec3 color;
+    std::string text;
+    float scale;
+
+    //compile purpose, not gonna save it
+    json toJSON() const {
+        return json{};
+    }
+};
+
+struct CG {
+    //compile purpose, not gonna save it
+    json toJSON() const {
         return json{};
     }
 };

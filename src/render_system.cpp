@@ -388,7 +388,7 @@ void RenderSystem::drawToScreen()
 		GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
 
 		glUniform1f(game_continues_uloc, screen.game_over);
-		glUniform1f(hp_uloc, screen.hp_percentage);
+		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) ? 0 : screen.hp_percentage);
 		glUniform1f(exp_uloc, screen.exp_percentage);
 		gl_has_errors();
 
@@ -461,14 +461,69 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 							  // sprites back to front
 	gl_has_errors();
 
-	mat3 projection_2D = createProjectionMatrix();
+	mat3 projection_2D = (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) ? createProjectionMatrix_splash() : createProjectionMatrix();
 
-	// draw all entities with a render request to the frame buffer
-	for (Entity entity : registry.renderRequests.entities)
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG)
 	{
-		// filter to entities that have a motion component
-		if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE && !registry.players.has(entity) &&
-			!registry.particles.has(entity))
+		for (Entity entity : registry.cgs.entities)
+		{
+			drawTexturedMesh(entity, projection_2D);
+		}
+
+		drawToScreen();
+		if (game_screen == GAME_SCREEN_ID::SPLASH)
+			renderText("Farmer Defense", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100, 1, {0, 0, 0}, trans);
+		else
+		{
+			int cg_idx = registry.screenStates.components[0].cg_index;
+			if (cg_idx == 0)
+				renderText("After years on the battlefield, you hung up your sword and returned home...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 1)
+				renderText("You inherited the farm from your parents, and became a farmer...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 2)
+				renderText("But one night, a meteor carrying a strange virus struck the city...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 3)
+				renderText("*explosion from a distant space", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 4)
+			{
+				renderText("You heard the sound, walk up to the window, peered out but everything seems...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+				renderText("peaceful and normal...", 10, WINDOW_HEIGHT_PX - 150, 0.6, {1, 1, 1}, trans);
+			}
+			if (cg_idx == 5)
+				renderText("You went back to sleep, unaware that your world had already changed...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 6)
+				renderText("*The next day", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 8)
+				renderText("Uh... Hello?", 60, 350, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 9)
+				renderText("*Growl", WINDOW_WIDTH_PX - 300, 350, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 10)
+				renderText("Uh oh...", 60, 350, 0.6, {1, 1, 1}, trans);
+
+			// second scene, plant grow? yes plant grow!
+			if (cg_idx == 13)
+				renderText("Bro I thought I would get some carrots, not you?!", 60, 350, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 14)
+				renderText("I am here to only help!", WINDOW_WIDTH_PX - 500, 350, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 15)
+				renderText("WTH you can talk??", 60, 350, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 16)
+			{
+
+				renderText("The zombies can hold weapons,", WINDOW_WIDTH_PX - 700, 450, 0.6, {1, 1, 1}, trans);
+				renderText("so WHY NOT", WINDOW_WIDTH_PX - 700, 350, 0.6, {1, 1, 1}, trans);
+			}
+			if (cg_idx == 17)
+				renderText("Alright...", 60, 350, 0.6, {1, 1, 1}, trans);
+		}
+	}
+	else
+	{
+		// draw all entities with a render request to the frame buffer
+		for (Entity entity : registry.renderRequests.entities)
+		{
+			// filter to entities that have a motion component
+			if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE && !registry.players.has(entity))
 			{
 				// Note, its not very efficient to access elements indirectly via the entity
 				// albeit iterating through all Sprites in sequence. A good point to optimize
@@ -491,61 +546,44 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 					drawTexturedMesh(entity, projection_2D);
 				}
 			}
-		// draw grid lines separately, as they do not have motion but need to be rendered
-		else if (registry.gridLines.has(entity))
-		{
-			drawGridLine(entity, projection_2D);
+			// draw grid lines separately, as they do not have motion but need to be rendered
+			else if (registry.gridLines.has(entity))
+			{
+				drawGridLine(entity, projection_2D);
+			}
 		}
+		drawParticlesInstanced(projection_2D);
+		// individually draw player, will render on top of all the motion sprites
+		if (!WorldSystem::game_is_over)
+			drawTexturedMesh(registry.players.entities[0], projection_2D);
+		//  draw framebuffer to screen
+		//  adding "UI" effect when applied
+		drawToScreen();
 	}
-	drawParticlesInstanced(projection_2D);
-
-	// individually draw player, will render on top of all the motion sprites
-	if (!WorldSystem::game_is_over)
-		drawTexturedMesh(registry.players.entities[0], projection_2D);
-
-	// // draw all particles
-	// for (Entity entity : registry.particles.entities)
-	// {
-	// 	if (registry.renderRequests.has(entity))
-	// 	{
-	// 		drawTexturedMesh(entity, projection_2D);
-	// 	}
-	// }
-
-	glm::mat4 trans = glm::mat4(1.0f);
-	renderText("hi", 10, 10, 1, {1, 0, 1}, trans);
-
-	renderText("ooo", 100, 100, 1, {1, 1, 0}, trans);
-
-	//  draw framebuffer to screen
-	//  adding "UI" effect when applied
-	drawToScreen();
-
-	// renderText("test", 10, 10, 1, {1, 0, 1}, trans);
 
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
 	gl_has_errors();
 }
 
-// mat3 RenderSystem::createProjectionMatrix()
-// {
-// 	// fake projection matrix, scaled to window coordinates
-// 	float left = 0.f;
-// 	float top = 0.f;
-// 	float right = (float)WINDOW_WIDTH_PX;
-// 	float bottom = (float)WINDOW_HEIGHT_PX;
+mat3 RenderSystem::createProjectionMatrix_splash()
+{
+	// fake projection matrix, scaled to window coordinates
+	float left = 0.f;
+	float top = 0.f;
+	float right = (float)WINDOW_WIDTH_PX;
+	float bottom = (float)WINDOW_HEIGHT_PX;
 
-// 	float sx = 2.f / (right - left);
-// 	float sy = 2.f / (top - bottom);
-// 	float tx = -(right + left) / (right - left);
-// 	float ty = -(top + bottom) / (top - bottom);
+	float sx = 2.f / (right - left);
+	float sy = 2.f / (top - bottom);
+	float tx = -(right + left) / (right - left);
+	float ty = -(top + bottom) / (top - bottom);
 
-// 	return {
-// 		{sx, 0.f, 0.f},
-// 		{0.f, sy, 0.f},
-// 		{tx, ty, 1.f}};
-// }
+	return {
+		{sx, 0.f, 0.f},
+		{0.f, sy, 0.f},
+		{tx, ty, 1.f}};
+}
 
 // mat3 RenderSystem::createProjectionMatrix() {
 //     auto& screen = registry.screenStates.get(screen_state_entity);
@@ -721,8 +759,8 @@ bool RenderSystem::fontInit(const std::string &font_filename, unsigned int font_
 		// set texture options
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		// now store character for later use
 		Character character = {
@@ -755,6 +793,10 @@ void RenderSystem::renderText(std::string text, float x, float y, float scale, c
 {
 	// Activate shader
 	glUseProgram(m_font_shaderProgram);
+
+	// enable blending or you will just get solid boxes instead of text
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	GLint textColor_location = glGetUniformLocation(m_font_shaderProgram, "textColor");
 	assert(textColor_location > -1);
@@ -915,7 +957,6 @@ void RenderSystem::drawParticlesInstanced(const mat3 &projection)
 
 	// Draw all particles in one call!
 	glDrawElementsInstanced(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr, particleCount);
-
 
 	gl_has_errors();
 }

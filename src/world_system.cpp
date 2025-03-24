@@ -17,14 +17,13 @@ using json = nlohmann::json;
 #include "particle_system.hpp"
 
 // FreeType
-// #include <ft2build.h>
-// #include FT_FREETYPE_H
-
-// FT_Library library;
+#include <ft2build.h>
+#include FT_FREETYPE_H
+FT_Library library;
 
 bool WorldSystem::game_is_over = false;
 Mix_Chunk *WorldSystem::game_over_sound = nullptr;
-GAME_SCREEN_ID WorldSystem::game_screen = GAME_SCREEN_ID::PLAYING;
+GAME_SCREEN_ID WorldSystem::game_screen = GAME_SCREEN_ID::SPLASH;
 int WorldSystem::current_day = 1;
 
 // create the world
@@ -169,15 +168,13 @@ bool WorldSystem::start_and_load_sounds()
 
 void WorldSystem::init(RenderSystem *renderer_arg)
 {
-
 	this->renderer = renderer_arg;
-
-	// start playing background music indefinitely
-	std::cout << "Starting music..." << std::endl;
-
-	// Set all states to default
-	// restart_game();
-	restart_tutorial();
+	game_screen = GAME_SCREEN_ID::SPLASH;
+	createScreen(renderer, TEXTURE_ASSET_ID::BACKGROUND);
+	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5));
+	createButton(renderer, BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5 + 200));
+	createButton(renderer, BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5 + 200*2));
+	createButton(renderer, BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5 + 200*3));
 }
 
 // Update our game world
@@ -223,11 +220,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		music_thread.detach();
 	}
 
-	if (!WorldSystem::game_is_over)
+	if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH && game_screen != GAME_SCREEN_ID::CG)
 	{
 		update_camera();
 		// spawn_manager.step(elapsed_ms_since_last_update, renderer);
-		if (game_screen == GAME_SCREEN_ID::PLAYING) {
+		if (game_screen == GAME_SCREEN_ID::PLAYING)
+		{
 			updateDayInProgress(elapsed_ms_since_last_update);
 		}
 		// Check and respawn tutorial enemies if needed
@@ -380,6 +378,19 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 				registry.motions.get(mwc_entity).velocity.y += PLAYER_MOVE_UP_SPEED;
 		}
 	}
+}
+
+void WorldSystem::start_cg(RenderSystem* renderer) {
+	registry.cgs.clear();
+	game_screen = GAME_SCREEN_ID::CG;
+	int cg_idx = registry.screenStates.components[0].cg_index;
+	if (cg_idx == 0)
+		createScreen(renderer, TEXTURE_ASSET_ID::NIGHT_BG);
+	else if (cg_idx == 12)
+		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+	else if (cg_idx == 19)
+		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+	std::cout<<cg_idx<<std::endl;
 }
 
 // Reset the world state to its initial state
@@ -613,6 +624,8 @@ void WorldSystem::player_attack()
 							registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 							level++;
+							if (++registry.screenStates.components[0].cg_index == 19)
+								return WorldSystem::start_cg(renderer);
 
 							// Get player entity and size
 							Entity player = registry.players.entities[0];
@@ -890,15 +903,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	{
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
-
-		// if (game_screen == GAME_SCREEN_ID::TUTORIAL)
-		// {
-		// 	restart_tutorial();
-		// }
-		// else
-		// {
 		restart_game();
-		// }
 
 		return;
 	}
@@ -923,10 +928,15 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		registry.list_all_components();
 	}
 
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) {
+		//implement
+		return;
+	}
+
 	// when player is in the level up menu, disable some game inputs
 	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
 		game_is_over)
-		return;
+		return;	
 
 	// Player movement
 	Entity player = registry.players.entities[0];
@@ -980,62 +990,89 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
 
-	// Kung: Plant seed with the 'F' button
+	// Plant seed with the 'F' button
 	if (action == GLFW_PRESS && key == GLFW_KEY_F)
 	{
-		// You can only plant where there is farmland.
-		for (Entity maptile_entity : registry.mapTiles.entities)
-		{
-			if (registry.motions.has(maptile_entity) && registry.renderRequests.has(maptile_entity))
-			{
-				if (registry.renderRequests.get(maptile_entity).used_texture == DECORATION_LIST[6])
-				{
-					if (registry.motions.get(maptile_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX))
-					{
-						// Remove any seeds that have already been planted to begin with.
-						int hasSeed = 0;
-						for (Entity motion_entity : registry.motions.entities)
-						{
-							if (registry.seeds.has(motion_entity) || registry.towers.has(motion_entity))
-							{
-								if (registry.motions.get(motion_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX))
-								{
-									hasSeed = 1;
-									// std::cout << "A seed was already planted here." << std::endl;
-								}
-							}
-						}
-						if (!hasSeed)
-						{
-							if (registry.inventorys.components[0].seedCount[current_seed] > 0)
-							{
-								Entity seed = createSeed(vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX), current_seed);
-								registry.inventorys.components[0].seedCount[current_seed]--; // decrease the count of seed in inventory
-								if (registry.inventorys.components[0].seedCount[current_seed] == 0)
-								{
-									// Remove the seed from the toolbar.
-									for (Entity seed_entity : registry.seeds.entities)
-									{
-										if (registry.moveWithCameras.has(seed_entity))
-										{
-											if (registry.seeds.get(seed_entity).type == current_seed)
-											{
-												registry.remove_all_components_of(seed_entity);
-											}
-										}
-									}
-								}
-							}
-							else
-							{
-								std::cout << "No more inventory of seed type " << std::endl;
-							}
-						}
+		// Calculate player's current cell for proximity checking
+		int cell_x = static_cast<int>((motion.position.x + GRID_CELL_WIDTH_PX / 2) / GRID_CELL_WIDTH_PX);
+		int cell_y = static_cast<int>((motion.position.y + GRID_CELL_HEIGHT_PX / 2) / GRID_CELL_HEIGHT_PX);
+		vec2 grid_center = vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX);
 
-						std::cout << "inventory count of seed type " << current_seed << " is " << registry.inventorys.components[0].seedCount[current_seed] << std::endl;
+		// Find valid farmland closest to the player
+		Entity closest_farmland = NULL;
+		float closest_distance = GRID_CELL_WIDTH_PX; // Max distance to consider
+
+		for (Entity tile : registry.mapTiles.entities)
+		{
+			// Check if tile is farmland
+			if (registry.motions.has(tile) &&
+				registry.renderRequests.has(tile) &&
+				registry.renderRequests.get(tile).used_texture == DECORATION_LIST[6])
+			{
+				vec2 farmland_pos = registry.motions.get(tile).position;
+				float distance = length(farmland_pos - grid_center);
+
+				// Check if this is closer than previous matches
+				if (distance < closest_distance)
+				{
+					// Check if tile is already occupied by a seed or tower
+					bool is_occupied = false;
+					for (Entity entity : registry.motions.entities)
+					{
+						if ((registry.seeds.has(entity) || registry.towers.has(entity)) &&
+							length(registry.motions.get(entity).position - farmland_pos) < 10.0f)
+						{
+							is_occupied = true;
+							break;
+						}
+					}
+
+					if (!is_occupied)
+					{
+						closest_farmland = tile;
+						closest_distance = distance;
 					}
 				}
 			}
+		}
+
+		// If we found valid farmland, plant a seed
+		if (closest_farmland != NULL)
+		{
+			vec2 farmland_pos = registry.motions.get(closest_farmland).position;
+
+			// Check if player has seeds available
+			if (registry.inventorys.components[0].seedCount[current_seed] > 0)
+			{
+				// Plant the seed at the exact farmland position
+				Entity seed = createSeed(farmland_pos, current_seed);
+				registry.inventorys.components[0].seedCount[current_seed]--;
+
+				// If that was the last seed of this type, remove it from toolbar
+				if (registry.inventorys.components[0].seedCount[current_seed] == 0)
+				{
+					for (Entity seed_entity : registry.seeds.entities)
+					{
+						if (registry.moveWithCameras.has(seed_entity) &&
+							registry.seeds.get(seed_entity).type == current_seed)
+						{
+							registry.remove_all_components_of(seed_entity);
+							break;
+						}
+					}
+				}
+
+				std::cout << "Planted seed. Remaining: " << registry.inventorys.components[0].seedCount[current_seed] << std::endl;
+			}
+			else
+			{
+				std::cout << "No seeds of this type available!" << std::endl;
+			}
+		}
+		else
+		{
+			// No valid farmland found
+			std::cout << "No available farmland nearby. Move closer to farmland." << std::endl;
 		}
 	}
 
@@ -1160,6 +1197,10 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	mouse_pos_x = mouse_position.x;
 	mouse_pos_y = mouse_position.y;
 
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) {
+		return;
+	}
+
 	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
 		game_is_over)
 		return;
@@ -1183,6 +1224,63 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 
 void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 {
+	if (game_screen == GAME_SCREEN_ID::SPLASH) {
+		//implement
+		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {	
+			for (auto& b: registry.buttons.components) {
+				if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH/2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH/2 &&
+					mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT/2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT/2) {
+						if (b.type == BUTTON_ID::START) 
+							return start_cg(renderer);
+						if (b.type == BUTTON_ID::LOAD)
+							return loadGame();
+						if (b.type == BUTTON_ID::TUTORIAL)
+							return restart_tutorial();
+						if (b.type == BUTTON_ID::QUIT)
+							return close_window();
+					}
+			}
+		}
+		return;
+	}
+
+	if (game_screen == GAME_SCREEN_ID::CG) {
+		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {
+			int cg_index = ++registry.screenStates.components[0].cg_index;
+			std::cout<<cg_index<<std::endl;
+			if (cg_index == 6) {
+				for (int i=registry.cgs.entities.size()-1; i>=0; i--)
+					registry.remove_all_components_of(registry.cgs.entities[i]);
+				createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+			} else if (cg_index == 7) {
+				createCharacter(renderer, vec2(WINDOW_WIDTH_PX-200, WINDOW_HEIGHT_PX-250), vec2(-500, 500), TEXTURE_ASSET_ID::ORC_WALK2);
+				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX-250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
+			} else if (cg_index == 11)
+				restart_game();
+
+			//second scene yolo
+			else if (cg_index == 13) {
+				createCharacter(renderer, vec2(WINDOW_WIDTH_PX-200, WINDOW_HEIGHT_PX-250), vec2(200, 200), TEXTURE_ASSET_ID::PLANT_2_IDLE_S);
+				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX-250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
+			}
+			else if (cg_index == 18) {
+				for (int i=registry.cgs.entities.size()-1; i>=0; i--)
+					registry.remove_all_components_of(registry.cgs.entities[i]);
+				set_game_screen(GAME_SCREEN_ID::PLAYING);
+			}
+			else if (cg_index == 20) {
+				for (int i=registry.cgs.entities.size()-1; i>=0; i--)
+					registry.remove_all_components_of(registry.cgs.entities[i]);
+				set_game_screen(GAME_SCREEN_ID::PLAYING);
+			}
+
+			
+				
+		}
+
+		return;
+	}
+
 	if (!WorldSystem::game_is_over)
 	{
 		// on button press
@@ -1345,7 +1443,7 @@ void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)
 void WorldSystem::loadGame()
 {
 	registry.clear_all_components();
-
+	game_screen = GAME_SCREEN_ID::PLAYING;
 	json jsonFile;
 	std::ifstream file(PROJECT_SOURCE_DIR + std::string("data/reload/game_0.json"));
 	file >> jsonFile;
@@ -1354,6 +1452,7 @@ void WorldSystem::loadGame()
 	current_day = jsonFile["current_day"];
 	current_seed = jsonFile["current_seed"];
 	level = jsonFile["level"];
+	Entity::overrideIDCount((int)jsonFile["id_count"]);
 
 	json ss_json = jsonFile["0"][0];
 	ScreenState &ss = registry.screenStates.components[0];
@@ -1367,10 +1466,10 @@ void WorldSystem::loadGame()
 	ss.shake_duration_ms = ss_json["shake_duration_ms"];
 	ss.shake_intensity = ss_json["shake_intensity"];
 	ss.shake_offset = vec2(ss_json["shake_offset"][0], ss_json["shake_offset"][1]);
+	ss.cg_index = ss_json["cg_index"];
 
 	json attack_arr = jsonFile["1"];
-	for (int i = 0; i < attack_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<attack_arr.size(); i++) {
 		json attack_json = attack_arr[i];
 		Entity e = Entity(attack_json["entity"]);
 		Attack &attack = registry.attacks.emplace(e);
@@ -1379,8 +1478,7 @@ void WorldSystem::loadGame()
 	}
 
 	json motion_arr = jsonFile["2"];
-	for (int i = 0; i < motion_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<motion_arr.size(); i++) {
 		json motion = motion_arr[i];
 		Entity e = Entity(motion["entity"]);
 		Motion &m = registry.motions.emplace(e);
@@ -1391,8 +1489,7 @@ void WorldSystem::loadGame()
 	}
 
 	json collisions_arr = jsonFile["3"];
-	for (int i = 0; i < collisions_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<collisions_arr.size(); i++) {
 		json collision = collisions_arr[i];
 		Entity e = Entity(collision["entity"].get<int>());
 		Entity other = Entity(collision["other"].get<int>());
@@ -1402,8 +1499,7 @@ void WorldSystem::loadGame()
 	// didnt add meshPtrs, maybe add constraints when chicken summoned cannot save lol
 
 	json dimension_arr = jsonFile["5"];
-	for (int i = 0; i < dimension_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<dimension_arr.size(); i++) {
 		json dimension_json = dimension_arr[i];
 		Entity e = Entity(dimension_json["entity"]);
 		Dimension &dimension = registry.dimensions.emplace(e);
@@ -1412,8 +1508,7 @@ void WorldSystem::loadGame()
 	}
 
 	json renderRequests_arr = jsonFile["6"];
-	for (int i = 0; i < renderRequests_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<renderRequests_arr.size(); i++) {
 		json rr_json = renderRequests_arr[i];
 		Entity e = Entity(rr_json["entity"]);
 		RenderRequest &rr = registry.renderRequests.emplace(e);
@@ -1423,8 +1518,7 @@ void WorldSystem::loadGame()
 	}
 
 	json tower_arr = jsonFile["8"];
-	for (int i = 0; i < tower_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<tower_arr.size(); i++) {
 		json tower_json = tower_arr[i];
 		Entity e = Entity(tower_json["entity"]);
 		Tower &tower = registry.towers.emplace(e);
@@ -1436,8 +1530,7 @@ void WorldSystem::loadGame()
 	}
 
 	json zombie_arr = jsonFile["10"];
-	for (int i = 0; i < zombie_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<zombie_arr.size(); i++) {
 		json zombie_json = zombie_arr[i];
 		Entity e = Entity(zombie_json["entity"]);
 		Zombie &zombie = registry.zombies.emplace(e);
@@ -1445,16 +1538,14 @@ void WorldSystem::loadGame()
 	}
 
 	json zombieSpawn_arr = jsonFile["11"];
-	for (int i = 0; i < zombieSpawn_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<zombieSpawn_arr.size(); i++) {
 		json zombieSpawn_json = zombieSpawn_arr[i];
 		Entity e = Entity(zombieSpawn_json["entity"]);
 		ZombieSpawn &zombieSpawn = registry.zombieSpawns.emplace(e);
 	}
 
 	json player_arr = jsonFile["12"];
-	for (int i = 0; i < player_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<player_arr.size(); i++) {
 		json player_json = player_arr[i];
 		Entity e = Entity(player_json["entity"]);
 		Player &player = registry.players.emplace(e);
@@ -1462,8 +1553,7 @@ void WorldSystem::loadGame()
 	}
 
 	json sc_arr = jsonFile["13"];
-	for (int i = 0; i < sc_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<sc_arr.size(); i++) {
 		json sc_json = sc_arr[i];
 		Entity e = Entity(sc_json["entity"]);
 		StatusComponent &sc = registry.statuses.emplace(e);
@@ -1478,8 +1568,7 @@ void WorldSystem::loadGame()
 	}
 
 	json states_arr = jsonFile["14"];
-	for (int i = 0; i < states_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<states_arr.size(); i++) {
 		json state_json = states_arr[i];
 		Entity e = Entity(state_json["entity"]);
 		State &state = registry.states.emplace(e);
@@ -1487,8 +1576,7 @@ void WorldSystem::loadGame()
 	}
 
 	json animation_arr = jsonFile["15"];
-	for (int i = 0; i < animation_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<animation_arr.size(); i++) {
 		json animation_json = animation_arr[i];
 		Entity e = Entity(animation_json["entity"]);
 		Animation &animation = registry.animations.emplace(e);
@@ -1504,16 +1592,14 @@ void WorldSystem::loadGame()
 	}
 
 	json death_arr = jsonFile["16"];
-	for (int i = 0; i < death_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<death_arr.size(); i++) {
 		json death_json = death_arr[i];
 		Entity e = Entity(death_json["entity"]);
 		Death &death = registry.deaths.emplace(e);
 	}
 
 	json cooldown_arr = jsonFile["17"];
-	for (int i = 0; i < cooldown_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<cooldown_arr.size(); i++) {
 		json cooldown_json = cooldown_arr[i];
 		Entity e = Entity(cooldown_json["entity"]);
 		Cooldown &cooldown = registry.cooldowns.emplace(e);
@@ -1521,8 +1607,7 @@ void WorldSystem::loadGame()
 	}
 
 	json da_arr = jsonFile["18"];
-	for (int i = 0; i < da_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<da_arr.size(); i++) {
 		json da_json = da_arr[i];
 		Entity e = Entity(da_json["entity"]);
 		DeathAnimation &da = registry.deathAnimations.emplace(e);
@@ -1532,8 +1617,7 @@ void WorldSystem::loadGame()
 	}
 
 	json he_arr = jsonFile["19"];
-	for (int i = 0; i < he_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<he_arr.size(); i++) {
 		json he_json = he_arr[i];
 		Entity e = Entity(he_json["entity"]);
 		HitEffect &he = registry.hitEffects.emplace(e);
@@ -1542,8 +1626,7 @@ void WorldSystem::loadGame()
 	}
 
 	json projectile_arr = jsonFile["20"];
-	for (int i = 0; i < projectile_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<projectile_arr.size(); i++) {
 		json projectile_json = projectile_arr[i];
 		Entity e = Entity(projectile_json["entity"]);
 		Entity source = Entity(projectile_json["source"]);
@@ -1557,8 +1640,7 @@ void WorldSystem::loadGame()
 	}
 
 	json camera_arr = jsonFile["21"];
-	for (int i = 0; i < camera_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<camera_arr.size(); i++) {
 		json camera_json = camera_arr[i];
 		Entity e = Entity(camera_json["entity"]);
 		Camera &camera = registry.cameras.emplace(e);
@@ -1569,8 +1651,7 @@ void WorldSystem::loadGame()
 	}
 
 	json skeleton_arr = jsonFile["22"];
-	for (int i = 0; i < skeleton_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<skeleton_arr.size(); i++) {
 		json skeleton_json = skeleton_arr[i];
 		Entity e = Entity(skeleton_json["entity"]);
 		Entity target = Entity(skeleton_json["target"]);
@@ -1588,8 +1669,7 @@ void WorldSystem::loadGame()
 	}
 
 	json arrow_arr = jsonFile["23"];
-	for (int i = 0; i < arrow_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<arrow_arr.size(); i++) {
 		json arrow_json = arrow_arr[i];
 		Entity e = Entity(arrow_json["entity"]);
 		Entity source = Entity(arrow_json["source"]);
@@ -1602,8 +1682,7 @@ void WorldSystem::loadGame()
 	}
 
 	json visualScale_arr = jsonFile["24"];
-	for (int i = 0; i < visualScale_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<visualScale_arr.size(); i++) {
 		json visualScale_json = visualScale_arr[i];
 		Entity e = Entity(visualScale_json["entity"]);
 		VisualScale &vs = registry.visualScales.emplace(e);
@@ -1611,8 +1690,7 @@ void WorldSystem::loadGame()
 	}
 
 	json enemies_arr = jsonFile["25"];
-	for (int i = 0; i < enemies_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<enemies_arr.size(); i++) {
 		json enemies_json = enemies_arr[i];
 		Entity e = Entity(enemies_json["entity"]);
 		Enemy &enemy = registry.enemies.emplace(e);
@@ -1621,21 +1699,18 @@ void WorldSystem::loadGame()
 	}
 
 	json inventory_arr = jsonFile["26"];
-	for (int i = 0; i < inventory_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<inventory_arr.size(); i++) {
 		json inventory_json = inventory_arr[i];
 		Entity e = Entity(inventory_json["entity"]);
 		Inventory &in = registry.inventorys.emplace(e);
 		json seed_arr = inventory_json["seedCount"];
-		for (int i = 0; i < seed_arr.size(); i++)
-		{
+		for (long unsigned int i=0; i<seed_arr.size(); i++) {
 			in.seedCount[i] = seed_arr[std::to_string(i)];
 		}
 	}
 
 	json seed_arr = jsonFile["27"];
-	for (int i = 0; i < seed_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<seed_arr.size(); i++) {
 		json seed_json = seed_arr[i];
 		Entity e = Entity(seed_json["entity"]);
 		Seed &seed = registry.seeds.emplace(e);
@@ -1644,12 +1719,20 @@ void WorldSystem::loadGame()
 	}
 
 	json mvc_arr = jsonFile["28"];
-	for (int i = 0; i < mvc_arr.size(); i++)
-	{
+	for (long unsigned int i=0; i<mvc_arr.size(); i++) {
 		json mvc_json = mvc_arr[i];
 		Entity e = Entity(mvc_json["entity"]);
 		registry.moveWithCameras.emplace(e);
 	}
+
+	json mt_arr = jsonFile["29"];
+	for (long unsigned int i=0; i<mt_arr.size(); i++) {
+		json mt_json = mt_arr[i];
+		Entity e = Entity(mt_json["entity"]);
+		registry.mapTiles.emplace(e);
+	}
+
+
 
 	std::cout << "Game loaded successfully." << std::endl;
 }
@@ -1662,6 +1745,7 @@ void WorldSystem::saveGame()
 	jsonFile["current_day"] = current_day;
 	jsonFile["current_seed"] = current_seed;
 	jsonFile["level"] = level;
+	jsonFile["id_count"] = Entity::get_id_count();
 
 	for (int i = 0; i < registry.registry_list.size(); i++)
 	{

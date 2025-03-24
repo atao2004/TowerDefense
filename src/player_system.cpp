@@ -2,6 +2,7 @@
 #include "player_system.hpp"
 #include <iostream>
 #include "animation_system.hpp"
+#include "world_system.hpp"
 
 /**
 * Update the state of the player and its animation component.
@@ -29,6 +30,7 @@ void PlayerSystem::update_state(STATE state_new)
 }
 
 STATE PlayerSystem::get_state() {
+    if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) return STATE::STATE_COUNT;
     Entity player = registry.players.entities[0];
     State& state = registry.states.get(player);
     return state.state;
