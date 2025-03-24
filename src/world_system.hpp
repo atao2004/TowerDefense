@@ -130,4 +130,7 @@ private:
 	void advance_to_next_day();
 	int calculate_enemies_for_day(int day);
 	void updateDayInProgress(float elapsed_ms_since_last_update);
+
+	void loadGame();
+	void saveGame();
 };
