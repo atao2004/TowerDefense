@@ -85,6 +85,8 @@ class RenderSystem
 		textures_path("map/grass_decoration_1.png"),
 		textures_path("map/tree_1.png"),
 		textures_path("map/farmland_1.png"),
+		textures_path("map/stone_8.png"),
+		textures_path("map/tree_2.png"),
 		textures_path("enemies/SkeletonArcher-Idle1.png"),
 		textures_path("enemies/SkeletonArcher-Idle2.png"),
 		textures_path("enemies/SkeletonArcher-Idle3.png"),

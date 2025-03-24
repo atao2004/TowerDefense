@@ -224,7 +224,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	{
 		update_camera();
 		// spawn_manager.step(elapsed_ms_since_last_update, renderer);
-		if (game_screen == GAME_SCREEN_ID::PLAYING) {
+		if (game_screen == GAME_SCREEN_ID::PLAYING)
+		{
 			updateDayInProgress(elapsed_ms_since_last_update);
 		}
 		// Check and respawn tutorial enemies if needed
@@ -984,62 +985,89 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
 
-	// Kung: Plant seed with the 'F' button
+	// Plant seed with the 'F' button
 	if (action == GLFW_PRESS && key == GLFW_KEY_F)
 	{
-		// You can only plant where there is farmland.
-		for (Entity maptile_entity : registry.mapTiles.entities)
-		{
-			if (registry.motions.has(maptile_entity) && registry.renderRequests.has(maptile_entity))
-			{
-				if (registry.renderRequests.get(maptile_entity).used_texture == DECORATION_LIST[6])
-				{
-					if (registry.motions.get(maptile_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX))
-					{
-						// Remove any seeds that have already been planted to begin with.
-						int hasSeed = 0;
-						for (Entity motion_entity : registry.motions.entities)
-						{
-							if (registry.seeds.has(motion_entity) || registry.towers.has(motion_entity))
-							{
-								if (registry.motions.get(motion_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX))
-								{
-									hasSeed = 1;
-									// std::cout << "A seed was already planted here." << std::endl;
-								}
-							}
-						}
-						if (!hasSeed)
-						{
-							if (registry.inventorys.components[0].seedCount[current_seed] > 0)
-							{
-								Entity seed = createSeed(vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX), current_seed);
-								registry.inventorys.components[0].seedCount[current_seed]--; // decrease the count of seed in inventory
-								if (registry.inventorys.components[0].seedCount[current_seed] == 0)
-								{
-									// Remove the seed from the toolbar.
-									for (Entity seed_entity : registry.seeds.entities)
-									{
-										if (registry.moveWithCameras.has(seed_entity))
-										{
-											if (registry.seeds.get(seed_entity).type == current_seed)
-											{
-												registry.remove_all_components_of(seed_entity);
-											}
-										}
-									}
-								}
-							}
-							else
-							{
-								std::cout << "No more inventory of seed type " << std::endl;
-							}
-						}
+		// Calculate player's current cell for proximity checking
+		int cell_x = static_cast<int>((motion.position.x + GRID_CELL_WIDTH_PX / 2) / GRID_CELL_WIDTH_PX);
+		int cell_y = static_cast<int>((motion.position.y + GRID_CELL_HEIGHT_PX / 2) / GRID_CELL_HEIGHT_PX);
+		vec2 grid_center = vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX);
 
-						std::cout << "inventory count of seed type " << current_seed << " is " << registry.inventorys.components[0].seedCount[current_seed] << std::endl;
+		// Find valid farmland closest to the player
+		Entity closest_farmland = NULL;
+		float closest_distance = GRID_CELL_WIDTH_PX; // Max distance to consider
+
+		for (Entity tile : registry.mapTiles.entities)
+		{
+			// Check if tile is farmland
+			if (registry.motions.has(tile) &&
+				registry.renderRequests.has(tile) &&
+				registry.renderRequests.get(tile).used_texture == DECORATION_LIST[6])
+			{
+				vec2 farmland_pos = registry.motions.get(tile).position;
+				float distance = length(farmland_pos - grid_center);
+
+				// Check if this is closer than previous matches
+				if (distance < closest_distance)
+				{
+					// Check if tile is already occupied by a seed or tower
+					bool is_occupied = false;
+					for (Entity entity : registry.motions.entities)
+					{
+						if ((registry.seeds.has(entity) || registry.towers.has(entity)) &&
+							length(registry.motions.get(entity).position - farmland_pos) < 10.0f)
+						{
+							is_occupied = true;
+							break;
+						}
+					}
+
+					if (!is_occupied)
+					{
+						closest_farmland = tile;
+						closest_distance = distance;
 					}
 				}
 			}
+		}
+
+		// If we found valid farmland, plant a seed
+		if (closest_farmland != NULL)
+		{
+			vec2 farmland_pos = registry.motions.get(closest_farmland).position;
+
+			// Check if player has seeds available
+			if (registry.inventorys.components[0].seedCount[current_seed] > 0)
+			{
+				// Plant the seed at the exact farmland position
+				Entity seed = createSeed(farmland_pos, current_seed);
+				registry.inventorys.components[0].seedCount[current_seed]--;
+
+				// If that was the last seed of this type, remove it from toolbar
+				if (registry.inventorys.components[0].seedCount[current_seed] == 0)
+				{
+					for (Entity seed_entity : registry.seeds.entities)
+					{
+						if (registry.moveWithCameras.has(seed_entity) &&
+							registry.seeds.get(seed_entity).type == current_seed)
+						{
+							registry.remove_all_components_of(seed_entity);
+							break;
+						}
+					}
+				}
+
+				std::cout << "Planted seed. Remaining: " << registry.inventorys.components[0].seedCount[current_seed] << std::endl;
+			}
+			else
+			{
+				std::cout << "No seeds of this type available!" << std::endl;
+			}
+		}
+		else
+		{
+			// No valid farmland found
+			std::cout << "No available farmland nearby. Move closer to farmland." << std::endl;
 		}
 	}
 
