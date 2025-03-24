@@ -597,6 +597,37 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 	//  adding "UI" effect when applied
 	drawToScreen();
 
+	// // draw all particles
+	// for (Entity entity : registry.particles.entities)
+	// {
+	// 	if (registry.renderRequests.has(entity))
+	// 	{
+	// 		drawTexturedMesh(entity, projection_2D);
+	// 	}
+	// }
+
+	glm::mat4 trans = glm::mat4(1.0f);
+	renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
+	renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
+
+	for (int current_seed = 0; current_seed < registry.inventorys.size(); current_seed++) {
+		renderText(std::to_string(registry.inventorys.components[0].seedCount[current_seed]), WINDOW_WIDTH_PX * 0.375 + 55 * current_seed, 25, 0.25, {0, 1, 0}, trans);
+	}
+
+	// Render the FPS counter
+	float current_fps = (1/(elapsed_ms/1000));
+	renderText("FPS: " + std::to_string(current_fps), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.925, 0.3, {0, 1, 1}, trans);
+
+	// Render the number of enemies on screen
+	renderText("Enemy count: " + std::to_string(registry.enemies.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.875, 0.3, {0, 1, 1}, trans);
+
+	// Render the number of plants on screen (Includes plant in inventory)
+	renderText("Plant count: " + std::to_string(registry.seeds.size() + registry.towers.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.825, 0.3, {0, 1, 1}, trans);
+
+	//  draw framebuffer to screen
+	//  adding "UI" effect when applied
+	drawToScreen();
+
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
 	gl_has_errors();
