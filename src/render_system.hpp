@@ -264,7 +264,7 @@ public:
 	~RenderSystem();
 
 	// Draw all entities
-	void draw(GAME_SCREEN_ID game_screen);
+	void step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms);
 
 	mat3 createProjectionMatrix();
 	mat3 createProjectionMatrix_splash();

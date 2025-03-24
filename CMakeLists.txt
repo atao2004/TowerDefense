@@ -148,6 +148,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES}
 
 # FreeType - Windows-specific (x64 only)
 find_package(Freetype REQUIRED)
+find_package(Freetype REQUIRED)
 
 
 if(TARGET Freetype AND NOT TARGET Freetype::Freetype)
@@ -159,14 +160,16 @@ if(TARGET Freetype AND NOT TARGET Freetype::Freetype)
 endif()
 
 if(NOT TARGET Freetype::Freetype)
-     # insert error here
-     # or create the target correctly (see cmakes newer FindFreetype.cmake)
-     message(FATAL_ERROR "Can't find FreeType (fonts)." )
+    # insert error here
+    # or create the target correctly (see cmakes newer FindFreetype.cmake)
+    message(FATAL_ERROR "Can't find FreeType (fonts)." )
 endif()
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ext/freetype/include")
 # needed to add this for Linux
 if(IS_OS_LINUX)
     target_link_libraries(${PROJECT_NAME} PUBLIC glfw ${CMAKE_DL_LIBS})
 endif()
 
+target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm ${FREETYPE_LIBRARY})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES} ${SDL2_LIBRARIES} ${SDL2MIXER_LIBRARIES} glm::glm ${FREETYPE_LIBRARY})

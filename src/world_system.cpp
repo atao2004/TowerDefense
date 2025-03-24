@@ -19,6 +19,7 @@ using json = nlohmann::json;
 // FreeType
 #include <ft2build.h>
 #include FT_FREETYPE_H
+
 FT_Library library;
 
 bool WorldSystem::game_is_over = false;
@@ -253,7 +254,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 }
 
 // Shared elements between restarting a game and a tutorial
-void WorldSystem::restart_common_tasks()
+void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 {
 	registry.clear_all_components();
 	// for(Entity i: registry.seeds.entities) {
@@ -305,11 +306,15 @@ void WorldSystem::restart_common_tasks()
 	// Kung: Create the grass texture and scorched earth texture for the background and reset the pre-existing surfaces
 	removeSurfaces();
 	// commented out Kung's code
-	for (int x = -SCORCHED_EARTH_DIMENSION_PX * 4; x < MAP_WIDTH_PX + SCORCHED_EARTH_DIMENSION_PX * 4; x += SCORCHED_EARTH_DIMENSION_PX)
+	for (int x = -SCORCHED_EARTH_WIDTH * GRID_CELL_WIDTH_PX; x < map_dimensions.x + SCORCHED_EARTH_WIDTH * GRID_CELL_WIDTH_PX; x += GRID_CELL_WIDTH_PX)
 	{
-		for (int y = -SCORCHED_EARTH_DIMENSION_PX * 2; y < MAP_HEIGHT_PX + SCORCHED_EARTH_DIMENSION_PX * 2; y += SCORCHED_EARTH_DIMENSION_PX)
+		for (int y = -SCORCHED_EARTH_HEIGHT * GRID_CELL_HEIGHT_PX; y < map_dimensions.y + SCORCHED_EARTH_HEIGHT * GRID_CELL_HEIGHT_PX; y += GRID_CELL_HEIGHT_PX)
 		{
-			createScorchedEarth(vec2(x, y));
+			if (x < 0 || y < 0) {
+				createScorchedEarth(vec2(x, y));
+			} else if (x >= map_dimensions.x || y >= map_dimensions.y) {
+				createScorchedEarth(vec2(x, y));
+			}
 		}
 	}
 
@@ -335,7 +340,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	registry.toolbars.clear();
 	// createPause();
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
-	createSeedInventory(vec2(player_pos.x - 191, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
+	createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
 
 	// Kung: Reset player movement so that the player remains still when no keys are pressed
 
@@ -398,7 +403,7 @@ void WorldSystem::restart_game()
 {
 	std::cout << "Restarting game..." << std::endl;
 
-	restart_common_tasks();
+	restart_common_tasks(vec2(MAP_WIDTH_PX, MAP_HEIGHT_PX));
 
 	// Set the level to level 1 and the game_screen to PLAYING.
 	level = 1;
@@ -437,7 +442,7 @@ void WorldSystem::restart_tutorial()
 {
 	std::cout << "Restarting tutorial..." << std::endl;
 
-	restart_common_tasks();
+	restart_common_tasks(vec2(TUTORIAL_WIDTH_PX, TUTORIAL_HEIGHT_PX));
 
 	// Set the level to level 0 (non-existent) and the game_screen to TUTORIAL.
 	level = 0;
@@ -532,6 +537,36 @@ bool WorldSystem::is_over() const
 	return bool(glfwWindowShouldClose(window));
 }
 
+// Helper function to make it easier to increase experience
+void WorldSystem::increase_exp_player() {
+	Entity player_entity = registry.players.entities[0];
+	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
+	{
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(player_entity).damage / PLAYER_HEALTH;
+	} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
+	else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
+	{
+		// StateSystem::update_state(STATE::LEVEL_UP);
+		//come back later!
+		if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
+			createSeedInventory(vec2(registry.motions.get(player_entity).position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed);
+		}
+		registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+		level++;
+		std::cout << "==== LEVEL " << level << " ====" << std::endl;
+	}
+}
+
+// Helper function to make it easier to increase experience
+void WorldSystem::increase_exp_plant() {
+	Entity player_entity = registry.players.entities[0];
+	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
+	{
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(player_entity).damage / PLAYER_HEALTH;
+	} // Kung: Due to technical difficulties, plants cannot be used to level up.
+}
+
 // Helper function to handle what happens when the player does a mouse click
 void WorldSystem::player_attack()
 {
@@ -609,32 +644,7 @@ void WorldSystem::player_attack()
 						// std::cout << "enemies killed: " << points << std::endl;
 
 						// Kung: Upon killing a enemy, increase the experience of the player or reset the experience bar when it becomes full.
-						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
-						{
-							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
-						} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
-						else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
-						{
-							// PlayerSystem::update_state(STATE::LEVEL_UP);
-							// come back later!
-							if (registry.inventorys.components[0].seedCount[current_seed] == 0)
-							{
-								createSeedInventory(vec2(player_motion.position.x - 191, player_motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), player_motion.velocity, current_seed);
-							}
-							registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
-							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
-							level++;
-							if (++registry.screenStates.components[0].cg_index == 19)
-								return WorldSystem::start_cg(renderer);
-
-							// Get player entity and size
-							Entity player = registry.players.entities[0];
-							vec2 player_pos = registry.motions.get(player).position;
-							vec2 player_size = registry.motions.get(player).scale;
-							ParticleSystem::createLevelUpEffect(player_pos, player_size);
-
-							std::cout << "==== LEVEL " << level << " ====" << std::endl;
-						}
+						increase_exp_player();
 					}
 				}
 			}
@@ -681,9 +691,6 @@ void WorldSystem::update_enemy_death_animations(float elapsed_ms)
 		if (death_anim.duration_ms <= 0)
 		{
 			registry.remove_all_components_of(entity);
-
-			// Kung: Upon killing a enemy, update the enemy count and print it to the console.
-			// std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 		}
 	}
 }
@@ -990,8 +997,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
 
-	// Plant seed with the 'F' button
-	if (action == GLFW_PRESS && key == GLFW_KEY_F)
+	// Kung: Plant seed with the right click button (F button retained for debugging)
+	if ((action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_RIGHT) || (action == GLFW_PRESS && key == GLFW_KEY_F))
 	{
 		// Calculate player's current cell for proximity checking
 		int cell_x = static_cast<int>((motion.position.x + GRID_CELL_WIDTH_PX / 2) / GRID_CELL_WIDTH_PX);
@@ -1165,11 +1172,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		{
 			if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 			{
-				// PlayerSystem::update_state(STATE::LEVEL_UP);
-				// come back later!
-				if (registry.inventorys.components[0].seedCount[current_seed] == 0)
-				{
-					createSeedInventory(vec2(motion.position.x - 191, motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed);
+				// StateSystem::update_state(STATE::LEVEL_UP);
+				//come back later!
+				if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
+					createSeedInventory(vec2(motion.position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed);
 				}
 				registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
