@@ -167,7 +167,7 @@ class RenderSystem
 		textures_path("player/playerIdle(100)/Player-Idle4.png"),
 		textures_path("player/playerIdle(100)/Player-Idle5.png"),
 		textures_path("player/playerIdle(100)/Player-Idle6.png"),
-		
+
 		textures_path("player/playerWalk(100)/Player-Walk1.png"),
 		textures_path("player/playerWalk(100)/Player-Walk2.png"),
 		textures_path("player/playerWalk(100)/Player-Walk3.png"),
@@ -197,6 +197,7 @@ class RenderSystem
 		textures_path("ui/tutorial.png"),
 		textures_path("ui/quit.png"),
 		textures_path("ui/background.png"),
+		textures_path("particles/particle1.png"),
 	};
 
 
@@ -210,18 +211,20 @@ class RenderSystem
 		shader_path("vignette"),
 		shader_path("zombie"),
 		shader_path("player"),
+		shader_path("particle"),
 	};
 
 	// fonts
-	struct Character {
-		unsigned int TextureID;  // ID handle of the glyph texture
-		glm::ivec2   Size;       // Size of glyph
-		glm::ivec2   Bearing;    // Offset from baseline to left/top of glyph
-		unsigned int Advance;    // Offset to advance to next glyph
+	struct Character
+	{
+		unsigned int TextureID; // ID handle of the glyph texture
+		glm::ivec2 Size;		// Size of glyph
+		glm::ivec2 Bearing;		// Offset from baseline to left/top of glyph
+		unsigned int Advance;	// Offset to advance to next glyph
 		char character;
 	};
-	
-	// Font 
+
+	// Font
 	std::map<char, Character> m_ftCharacters;
 	GLuint m_font_shaderProgram;
 	GLuint m_font_VAO;
@@ -254,18 +257,19 @@ public:
 
 	// Destroy resources associated to one or all entities created by the system
 	~RenderSystem();
-	
+
 	// Draw all entities
 	void draw(GAME_SCREEN_ID game_screen);
-	
+
 	mat3 createProjectionMatrix();
 	mat3 createProjectionMatrix_splash();
 	
+
 	Entity get_screen_state_entity() { return screen_state_entity; }
-	
-	bool fontInit(const std::string& font_filename, unsigned int font_default_size);
-	void renderText(std::string text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
-	
+
+	bool fontInit(const std::string &font_filename, unsigned int font_default_size);
+	void renderText(std::string text, float x, float y, float scale, const glm::vec3 &color, const glm::mat4 &trans);
+
 private:
 	// Internal drawing functions for each entity type
 	void drawGridLine(Entity entity, const mat3 &projection);
@@ -283,6 +287,13 @@ private:
 
 	Entity screen_state_entity;
 	GLuint vao;
+
+	// For instanced particle rendering
+	GLuint particle_instance_VBO = 0;
+	const int MAX_PARTICLES = 2000;
+
+	// New method to render particles with instancing
+	void drawParticlesInstanced(const mat3 &projection);
 };
 
 bool loadEffectFromFile(

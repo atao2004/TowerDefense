@@ -14,6 +14,7 @@
 #include "player_system.hpp"
 #include "../ext/json.hpp"
 using json = nlohmann::json;
+#include "particle_system.hpp"
 
 // FreeType
 #include <ft2build.h>
@@ -231,7 +232,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	{
 		update_camera();
 		// spawn_manager.step(elapsed_ms_since_last_update, renderer);
-		updateDayInProgress(elapsed_ms_since_last_update);
+		if (game_screen == GAME_SCREEN_ID::PLAYING) {
+			updateDayInProgress(elapsed_ms_since_last_update);
+		}
 		// Check and respawn tutorial enemies if needed
 		if (game_screen == GAME_SCREEN_ID::TUTORIAL)
 		{
@@ -576,6 +579,11 @@ void WorldSystem::player_attack()
 					// Add hit effect
 					HitEffect &hit = registry.hitEffects.emplace_with_duplicates(enemy);
 
+					vec2 sprite_size = {50.0f, 50.0f}; // Default fallback size
+					sprite_size = registry.motions.get(enemy).scale;
+					// Create blood effect
+					ParticleSystem::createBloodEffect(registry.motions.get(enemy).position, sprite_size);
+
 					// This is what you do when you kill a enemy.
 					if (enemy_comp.health <= 0)
 					{
@@ -610,6 +618,13 @@ void WorldSystem::player_attack()
 							registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 							level++;
+
+							// Get player entity and size
+							Entity player = registry.players.entities[0];
+							vec2 player_pos = registry.motions.get(player).position;
+							vec2 player_size = registry.motions.get(player).scale;
+							ParticleSystem::createLevelUpEffect(player_pos, player_size);
+
 							std::cout << "==== LEVEL " << level << " ====" << std::endl;
 						}
 					}
@@ -885,14 +900,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
-	//load
+	// load
 	if (action == GLFW_RELEASE && key == GLFW_KEY_MINUS)
 	{
 		loadGame();
 		return;
 	}
 
-	//save 
+	// save
 	if (action == GLFW_RELEASE && key == GLFW_KEY_EQUAL)
 	{
 		saveGame();
@@ -1124,6 +1139,13 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 				level++;
+
+				// Get player entity and size
+				Entity player = registry.players.entities[0];
+				vec2 player_pos = registry.motions.get(player).position;
+				vec2 player_size = registry.motions.get(player).scale;
+				ParticleSystem::createLevelUpEffect(player_pos, player_size);
+
 				std::cout << "==== LEVEL " << level << " ====" << std::endl;
 			}
 			else
@@ -1344,14 +1366,13 @@ void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)
 	}
 }
 
-
-
-void WorldSystem::loadGame() {
+void WorldSystem::loadGame()
+{
 	registry.clear_all_components();
 
 	json jsonFile;
 	std::ifstream file(PROJECT_SOURCE_DIR + std::string("data/reload/game_0.json"));
-	file>>jsonFile;
+	file >> jsonFile;
 	game_is_over = jsonFile["game_is_over"];
 	game_screen = jsonFile["game_screen"];
 	current_day = jsonFile["current_day"];
@@ -1359,7 +1380,7 @@ void WorldSystem::loadGame() {
 	level = jsonFile["level"];
 
 	json ss_json = jsonFile["0"][0];
-	ScreenState& ss = registry.screenStates.components[0];
+	ScreenState &ss = registry.screenStates.components[0];
 	ss.darken_screen_factor = ss_json["darken_screen_factor"];
 	ss.exp_percentage = ss_json["exp_percentage"];
 	ss.game_over = ss_json["game_over"];
@@ -1375,7 +1396,7 @@ void WorldSystem::loadGame() {
 	for (long unsigned int i=0; i<attack_arr.size(); i++) {
 		json attack_json = attack_arr[i];
 		Entity e = Entity(attack_json["entity"]);
-		Attack& attack = registry.attacks.emplace(e);
+		Attack &attack = registry.attacks.emplace(e);
 		attack.range = attack_json["range"];
 		attack.damage = attack_json["damage"];
 	}
@@ -1384,11 +1405,11 @@ void WorldSystem::loadGame() {
 	for (long unsigned int i=0; i<motion_arr.size(); i++) {
 		json motion = motion_arr[i];
 		Entity e = Entity(motion["entity"]);
-		Motion& m = registry.motions.emplace(e);
+		Motion &m = registry.motions.emplace(e);
 		m.position = vec2(motion["position"][0], motion["position"][1]);
-		m.angle =  motion["angle"];
+		m.angle = motion["angle"];
 		m.velocity = vec2(motion["velocity"][0], motion["velocity"][1]);
-		m.scale =  vec2(motion["scale"][0], motion["scale"][1]);
+		m.scale = vec2(motion["scale"][0], motion["scale"][1]);
 	}
 
 	json collisions_arr = jsonFile["3"];
@@ -1399,22 +1420,22 @@ void WorldSystem::loadGame() {
 		registry.collisions.emplace(e, other);
 	}
 
-	//didnt add meshPtrs, maybe add constraints when chicken summoned cannot save lol
+	// didnt add meshPtrs, maybe add constraints when chicken summoned cannot save lol
 
 	json dimension_arr = jsonFile["5"];
 	for (long unsigned int i=0; i<dimension_arr.size(); i++) {
 		json dimension_json = dimension_arr[i];
 		Entity e = Entity(dimension_json["entity"]);
-		Dimension& dimension = registry.dimensions.emplace(e);
+		Dimension &dimension = registry.dimensions.emplace(e);
 		dimension.height = dimension_json["height"];
-		dimension.width  = dimension_json["width"];
+		dimension.width = dimension_json["width"];
 	}
 
 	json renderRequests_arr = jsonFile["6"];
 	for (long unsigned int i=0; i<renderRequests_arr.size(); i++) {
 		json rr_json = renderRequests_arr[i];
 		Entity e = Entity(rr_json["entity"]);
-		RenderRequest& rr = registry.renderRequests.emplace(e);
+		RenderRequest &rr = registry.renderRequests.emplace(e);
 		rr.used_texture = (TEXTURE_ASSET_ID)rr_json["used_texture"];
 		rr.used_effect = (EFFECT_ASSET_ID)rr_json["used_effect"];
 		rr.used_geometry = (GEOMETRY_BUFFER_ID)rr_json["used_geometry"];
@@ -1424,7 +1445,7 @@ void WorldSystem::loadGame() {
 	for (long unsigned int i=0; i<tower_arr.size(); i++) {
 		json tower_json = tower_arr[i];
 		Entity e = Entity(tower_json["entity"]);
-		Tower& tower = registry.towers.emplace(e);
+		Tower &tower = registry.towers.emplace(e);
 		tower.health = tower_json["health"];
 		tower.damage = tower_json["damage"];
 		tower.range = tower_json["range"];
@@ -1436,7 +1457,7 @@ void WorldSystem::loadGame() {
 	for (long unsigned int i=0; i<zombie_arr.size(); i++) {
 		json zombie_json = zombie_arr[i];
 		Entity e = Entity(zombie_json["entity"]);
-		Zombie& zombie = registry.zombies.emplace(e);
+		Zombie &zombie = registry.zombies.emplace(e);
 		zombie.health = zombie_json["health"];
 	}
 
@@ -1444,14 +1465,14 @@ void WorldSystem::loadGame() {
 	for (long unsigned int i=0; i<zombieSpawn_arr.size(); i++) {
 		json zombieSpawn_json = zombieSpawn_arr[i];
 		Entity e = Entity(zombieSpawn_json["entity"]);
-		ZombieSpawn& zombieSpawn = registry.zombieSpawns.emplace(e);
+		ZombieSpawn &zombieSpawn = registry.zombieSpawns.emplace(e);
 	}
 
 	json player_arr = jsonFile["12"];
 	for (long unsigned int i=0; i<player_arr.size(); i++) {
 		json player_json = player_arr[i];
 		Entity e = Entity(player_json["entity"]);
-		Player& player = registry.players.emplace(e);
+		Player &player = registry.players.emplace(e);
 		player.health = player_json["health"];
 	}
 
@@ -1459,8 +1480,9 @@ void WorldSystem::loadGame() {
 	for (long unsigned int i=0; i<sc_arr.size(); i++) {
 		json sc_json = sc_arr[i];
 		Entity e = Entity(sc_json["entity"]);
-		StatusComponent& sc = registry.statuses.emplace(e);
-		for (const auto& s : sc_json["active_statuses"]) {
+		StatusComponent &sc = registry.statuses.emplace(e);
+		for (const auto &s : sc_json["active_statuses"])
+		{
 			Status status;
 			status.type = s["type"];
 			status.duration_ms = s["duration_ms"];
@@ -1473,7 +1495,7 @@ void WorldSystem::loadGame() {
 	for (long unsigned int i=0; i<states_arr.size(); i++) {
 		json state_json = states_arr[i];
 		Entity e = Entity(state_json["entity"]);
-		State& state = registry.states.emplace(e);
+		State &state = registry.states.emplace(e);
 		state.state = (STATE)state_json["state"];
 	}
 
@@ -1481,7 +1503,7 @@ void WorldSystem::loadGame() {
 	for (long unsigned int i=0; i<animation_arr.size(); i++) {
 		json animation_json = animation_arr[i];
 		Entity e = Entity(animation_json["entity"]);
-		Animation& animation = registry.animations.emplace(e);
+		Animation &animation = registry.animations.emplace(e);
 		animation.runtime_ms = animation_json["runtime_ms"];
 		animation.timer_ms = animation_json["timer_ms"];
 		animation.pose = animation_json["pose"];
@@ -1492,19 +1514,19 @@ void WorldSystem::loadGame() {
 		animation.destroy = animation_json["destroy"];
 		animation.textures = NULL;
 	}
-	
+
 	json death_arr = jsonFile["16"];
 	for (long unsigned int i=0; i<death_arr.size(); i++) {
 		json death_json = death_arr[i];
 		Entity e = Entity(death_json["entity"]);
-		Death& death = registry.deaths.emplace(e);
+		Death &death = registry.deaths.emplace(e);
 	}
 
 	json cooldown_arr = jsonFile["17"];
 	for (long unsigned int i=0; i<cooldown_arr.size(); i++) {
 		json cooldown_json = cooldown_arr[i];
 		Entity e = Entity(cooldown_json["entity"]);
-		Cooldown& cooldown = registry.cooldowns.emplace(e);
+		Cooldown &cooldown = registry.cooldowns.emplace(e);
 		cooldown.timer_ms = cooldown_json["timer_ms"];
 	}
 
@@ -1512,8 +1534,8 @@ void WorldSystem::loadGame() {
 	for (long unsigned int i=0; i<da_arr.size(); i++) {
 		json da_json = da_arr[i];
 		Entity e = Entity(da_json["entity"]);
-		DeathAnimation& da = registry.deathAnimations.emplace(e);
-		da.slide_direction = vec2(da_json["slide_direction"][0],da_json["slide_direction"][1]);
+		DeathAnimation &da = registry.deathAnimations.emplace(e);
+		da.slide_direction = vec2(da_json["slide_direction"][0], da_json["slide_direction"][1]);
 		da.alpha = da_json["alpha"];
 		da.duration_ms = da_json["duration_ms"];
 	}
@@ -1522,7 +1544,7 @@ void WorldSystem::loadGame() {
 	for (long unsigned int i=0; i<he_arr.size(); i++) {
 		json he_json = he_arr[i];
 		Entity e = Entity(he_json["entity"]);
-		HitEffect& he = registry.hitEffects.emplace(e);
+		HitEffect &he = registry.hitEffects.emplace(e);
 		he.duration_ms = he_json["duration_ms"];
 		he.is_white = he_json["is_white"];
 	}
@@ -1532,7 +1554,7 @@ void WorldSystem::loadGame() {
 		json projectile_json = projectile_arr[i];
 		Entity e = Entity(projectile_json["entity"]);
 		Entity source = Entity(projectile_json["source"]);
-		Projectile& p = registry.projectiles.emplace(e);
+		Projectile &p = registry.projectiles.emplace(e);
 		p.source = source;
 		p.damage = projectile_json["damage"];
 		p.speed = projectile_json["speed"];
@@ -1545,7 +1567,7 @@ void WorldSystem::loadGame() {
 	for (long unsigned int i=0; i<camera_arr.size(); i++) {
 		json camera_json = camera_arr[i];
 		Entity e = Entity(camera_json["entity"]);
-		Camera& camera = registry.cameras.emplace(e);
+		Camera &camera = registry.cameras.emplace(e);
 		camera.position = vec2(camera_json["position"][0], camera_json["position"][1]);
 		camera.camera_width = camera_json["camera_width"];
 		camera.camera_height = camera_json["camera_height"];
@@ -1557,7 +1579,7 @@ void WorldSystem::loadGame() {
 		json skeleton_json = skeleton_arr[i];
 		Entity e = Entity(skeleton_json["entity"]);
 		Entity target = Entity(skeleton_json["target"]);
-		Skeleton& skeleton = registry.skeletons.emplace(e);
+		Skeleton &skeleton = registry.skeletons.emplace(e);
 		skeleton.attack_range = skeleton_json["attack_range"];
 		skeleton.stop_distance = skeleton_json["stop_distance"];
 		skeleton.attack_cooldown_ms = skeleton_json["attack_cooldown_ms"];
@@ -1575,7 +1597,7 @@ void WorldSystem::loadGame() {
 		json arrow_json = arrow_arr[i];
 		Entity e = Entity(arrow_json["entity"]);
 		Entity source = Entity(arrow_json["source"]);
-		Arrow& a = registry.arrows.emplace(e);
+		Arrow &a = registry.arrows.emplace(e);
 		a.source = source;
 		a.damage = arrow_json["damage"];
 		a.speed = arrow_json["speed"];
@@ -1587,7 +1609,7 @@ void WorldSystem::loadGame() {
 	for (long unsigned int i=0; i<visualScale_arr.size(); i++) {
 		json visualScale_json = visualScale_arr[i];
 		Entity e = Entity(visualScale_json["entity"]);
-		VisualScale& vs = registry.visualScales.emplace(e);
+		VisualScale &vs = registry.visualScales.emplace(e);
 		vs.scale = vec2(visualScale_json["scale"][0], visualScale_json["scale"][1]);
 	}
 
@@ -1595,15 +1617,16 @@ void WorldSystem::loadGame() {
 	for (long unsigned int i=0; i<enemies_arr.size(); i++) {
 		json enemies_json = enemies_arr[i];
 		Entity e = Entity(enemies_json["entity"]);
-		Enemy& enemy = registry.enemies.emplace(e);
+		Enemy &enemy = registry.enemies.emplace(e);
 		enemy.health = enemies_json["health"];
+		enemy.speed = enemies_json["speed"];
 	}
 
 	json inventory_arr = jsonFile["26"];
 	for (long unsigned int i=0; i<inventory_arr.size(); i++) {
 		json inventory_json = inventory_arr[i];
 		Entity e = Entity(inventory_json["entity"]);
-		Inventory& in = registry.inventorys.emplace(e);
+		Inventory &in = registry.inventorys.emplace(e);
 		json seed_arr = inventory_json["seedCount"];
 		for (long unsigned int i=0; i<seed_arr.size(); i++) {
 			in.seedCount[i] = seed_arr[std::to_string(i)];
@@ -1614,7 +1637,7 @@ void WorldSystem::loadGame() {
 	for (long unsigned int i=0; i<seed_arr.size(); i++) {
 		json seed_json = seed_arr[i];
 		Entity e = Entity(seed_json["entity"]);
-		Seed& seed = registry.seeds.emplace(e);
+		Seed &seed = registry.seeds.emplace(e);
 		seed.type = seed_json["type"];
 		seed.timer = seed_json["timer"];
 	}
@@ -1626,28 +1649,32 @@ void WorldSystem::loadGame() {
 		registry.moveWithCameras.emplace(e);
 	}
 
-	std::cout<<"Game loaded successfully."<<std::endl;
+	std::cout << "Game loaded successfully." << std::endl;
 }
 
-void WorldSystem::saveGame() {
+void WorldSystem::saveGame()
+{
 	json jsonFile;
 	jsonFile["game_is_over"] = game_is_over;
 	jsonFile["game_screen"] = game_screen;
 	jsonFile["current_day"] = current_day;
 	jsonFile["current_seed"] = current_seed;
 	jsonFile["level"] = level;
-	
-	for (int i=0; i<registry.registry_list.size(); i++) {
+
+	for (int i = 0; i < registry.registry_list.size(); i++)
+	{
 		jsonFile[std::to_string(i)] = registry.registry_list[i]->toJSON();
 	}
-	
 
 	std::ofstream outFile(PROJECT_SOURCE_DIR + std::string("data/reload/game_0.json"));
-    if (outFile.is_open()) {
-        outFile << jsonFile.dump(4);
-        outFile.close();
-        std::cout << "JSON written to file successfully.\n";
-    } else {
-        std::cerr << "Error opening file for writing.\n";
-    }
+	if (outFile.is_open())
+	{
+		outFile << jsonFile.dump(4);
+		outFile.close();
+		std::cout << "JSON written to file successfully.\n";
+	}
+	else
+	{
+		std::cerr << "Error opening file for writing.\n";
+	}
 }

@@ -20,6 +20,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <map>
+#include "particle_system.hpp"
 #include "seed_system.hpp"
 #include "frame_manager.hpp"
 
@@ -38,6 +39,7 @@ int main()
 	TowerSystem tower_system;
 	SeedSystem seed_system;
 	MovementSystem movement_system;
+	ParticleSystem particle_system;
 
 	// initialize window
 	GLFWwindow* window = world_system.create_window();
@@ -68,6 +70,7 @@ int main()
 	renderer_system.init(window);
 	world_system.init(&renderer_system);
 	animation_system.init(&renderer_system);
+	particle_system.init(&renderer_system);
 	seed_system.init(&renderer_system);
 
 	// variable timestep loop
@@ -87,6 +90,7 @@ int main()
 	FrameManager fm_tower = FrameManager(5);
 	FrameManager fm_movement = FrameManager(2);
 	FrameManager fm_animation = FrameManager(2);
+	FrameManager fm_particle = FrameManager(1);
 	FrameManager fm_seed = FrameManager(5);
 
 	while (!world_system.is_over()) {
@@ -108,7 +112,6 @@ int main()
 		if (PlayerSystem::get_state() != STATE::LEVEL_UP) {
 			if (fm_world.can_update()) world_system.step(fm_world.get_time());
 			if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH) {
-
 				//M2: FPS
 				float current_fps = (1/(elapsed_ms/1000));
 				cooldown -= elapsed_ms;
@@ -137,6 +140,8 @@ int main()
 				if (fm_tower.can_update()) tower_system.step(fm_tower.get_time());
 				if (fm_movement.can_update()) movement_system.step(fm_movement.get_time(), game_screen);
 				if (fm_animation.can_update()) animation_system.step(fm_animation.get_time());
+				if (fm_particle.can_update()) particle_system.step(fm_particle.get_time());
+
 			} else {
 				//M2: FPS. make sure we only print once, lazy implementation
 				if (record_times != 0) {

@@ -65,7 +65,7 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms)
     vec2 direction = calculate_direction_to_target(motion.position, player_pos);
 
     // If entity has hit effect, reduce chase speed
-    Enemy& enemy = registry.enemies.get(entity);
+    Enemy &enemy = registry.enemies.get(entity);
     float current_speed = enemy.speed * 100;
 
     // Add to velocity instead of overwriting
@@ -329,7 +329,7 @@ void AISystem::update_skeletons(float elapsed_ms)
         if (dist > skeleton.attack_range)
         {
             // Target out of range, move towards it
-            skeleton_motion.velocity = normalize(direction) * (float) SKELETON_ARCHER_SPEED;
+            skeleton_motion.velocity = normalize(direction) * (float)SKELETON_ARCHER_SPEED;
             skeleton.current_state = Skeleton::State::WALK;
 
             // Update facing direction
@@ -383,57 +383,75 @@ void AISystem::update_skeletons(float elapsed_ms)
         }
 
         // Handle animation changes when state changes
-        if (prev_state != skeleton.current_state ||
-            (skeleton.current_state == Skeleton::State::ATTACK && skeleton.is_attacking && !registry.animations.has(entity)))
+        if (prev_state != skeleton.current_state)
         {
-            bool currently_attacking = skeleton.is_attacking &&
-                                       registry.animations.has(entity) &&
-                                       registry.animations.get(entity).textures == SKELETON_ATTACK_ANIMATION;
-            if (!currently_attacking)
+            // When state changes to WALK, force walk animation regardless of current animation
+            if (skeleton.current_state == Skeleton::State::WALK)
             {
-                switch (skeleton.current_state)
+                // Force change to walk animation
+                AnimationSystem::update_animation(
+                    entity,
+                    SKELETON_WALK_DURATION,
+                    SKELETON_WALK_ANIMATION,
+                    SKELETON_WALK_FRAMES,
+                    true,  // loop
+                    false, // not locked
+                    false  // don't destroy
+                );
+            }
+            else
+            {
+                // Original animation logic for other state changes
+                bool currently_attacking = skeleton.is_attacking &&
+                                           registry.animations.has(entity) &&
+                                           registry.animations.get(entity).textures == SKELETON_ATTACK_ANIMATION;
+                if (!currently_attacking)
                 {
-                case Skeleton::State::IDLE:
-                    // Apply idle animation
-                    AnimationSystem::update_animation(
-                        entity,
-                        SKELETON_IDLE_DURATION,
-                        SKELETON_IDLE_ANIMATION,
-                        SKELETON_IDLE_FRAMES,
-                        true,  // loop
-                        false, // not locked
-                        false  // don't destroy
-                    );
-                    break;
-
-                case Skeleton::State::WALK:
-                    // Apply walk animation
-                    AnimationSystem::update_animation(
-                        entity,
-                        SKELETON_WALK_DURATION,
-                        SKELETON_WALK_ANIMATION,
-                        SKELETON_WALK_FRAMES,
-                        true,  // loop
-                        false, // not locked
-                        false  // don't destroy
-                    );
-                    break;
-
-                case Skeleton::State::ATTACK:
-                    if (skeleton.is_attacking)
+                    // Original switch case for animations
+                    switch (skeleton.current_state)
                     {
-                        // Apply attack animation when entering attack state and starting to attack
+                    case Skeleton::State::IDLE:
+                        // Apply idle animation
                         AnimationSystem::update_animation(
                             entity,
-                            SKELETON_ATTACK_DURATION,
-                            SKELETON_ATTACK_ANIMATION,
-                            SKELETON_ATTACK_FRAMES,
-                            false, // don't loop
-                            false, // don't lock animation
+                            SKELETON_IDLE_DURATION,
+                            SKELETON_IDLE_ANIMATION,
+                            SKELETON_IDLE_FRAMES,
+                            true,  // loop
+                            false, // not locked
                             false  // don't destroy
                         );
+                        break;
+
+                    case Skeleton::State::WALK:
+                        // Apply walk animation
+                        AnimationSystem::update_animation(
+                            entity,
+                            SKELETON_WALK_DURATION,
+                            SKELETON_WALK_ANIMATION,
+                            SKELETON_WALK_FRAMES,
+                            true,  // loop
+                            false, // not locked
+                            false  // don't destroy
+                        );
+                        break;
+
+                    case Skeleton::State::ATTACK:
+                        if (skeleton.is_attacking)
+                        {
+                            // Apply attack animation when entering attack state and starting to attack
+                            AnimationSystem::update_animation(
+                                entity,
+                                SKELETON_ATTACK_DURATION,
+                                SKELETON_ATTACK_ANIMATION,
+                                SKELETON_ATTACK_FRAMES,
+                                false, // don't loop
+                                false, // don't lock animation
+                                false  // don't destroy
+                            );
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }

@@ -47,10 +47,18 @@ bool RenderSystem::init(GLFWwindow *window_arg)
 
 	// We are not really using VAO's but without at least one bound we will crash in
 	// some systems.
-	//GLuint vao;
+	// GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	gl_has_errors();
+
+    // Initialize particle instance buffer
+    glGenBuffers(1, &particle_instance_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, particle_instance_VBO);
+    // Pre-allocate buffer for particle instances
+    glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * sizeof(vec4) * 3, nullptr, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
 
 	initScreenTexture();
 	initializeGlTextures();
@@ -69,6 +77,7 @@ bool RenderSystem::init(GLFWwindow *window_arg)
 		std::cerr << "Font file not found!" << std::endl;
 	}
 	fontInit(font_filename, font_default_size);
+	
 
 	return true;
 }
@@ -333,6 +342,7 @@ RenderSystem::~RenderSystem()
 	glDeleteTextures(1, &off_screen_render_buffer_color);
 	glDeleteRenderbuffers(1, &off_screen_render_buffer_depth);
 	gl_has_errors();
+
 
 	for (uint i = 0; i < effect_count; i++)
 	{

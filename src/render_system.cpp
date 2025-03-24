@@ -262,6 +262,57 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 							  sizeof(ColoredVertex), (void *)sizeof(vec3));
 		gl_has_errors();
 	}
+	else if (render_request.used_effect == EFFECT_ASSET_ID::PARTICLE)
+	{
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+		gl_has_errors();
+		assert(in_texcoord_loc >= 0);
+
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
+							  sizeof(TexturedVertex), (void *)0);
+		gl_has_errors();
+
+		glEnableVertexAttribArray(in_texcoord_loc);
+		glVertexAttribPointer(
+			in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex),
+			(void *)sizeof(vec3));
+		gl_has_errors();
+
+		// Pass color as vec4 including alpha
+		vec4 particleColor = {1.0f, 1.0f, 1.0f, 1.0f};
+		if (registry.particles.has(entity))
+		{
+			Particle &particle = registry.particles.get(entity);
+			particleColor = particle.Color;
+		}
+
+		GLint color_loc = glGetUniformLocation(program, "color");
+		glUniform4fv(color_loc, 1, &particleColor[0]);
+		gl_has_errors();
+
+		// Pass life ratio for visual effects
+		float lifeRatio = 1.0f;
+		if (registry.particles.has(entity))
+		{
+			Particle &particle = registry.particles.get(entity);
+			lifeRatio = particle.Life / particle.MaxLife;
+		}
+
+		GLint life_loc = glGetUniformLocation(program, "life_ratio");
+		glUniform1f(life_loc, lifeRatio);
+		gl_has_errors();
+
+		// Enabling and binding texture
+		glActiveTexture(GL_TEXTURE0);
+		gl_has_errors();
+
+		GLuint texture_id =
+			texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+		gl_has_errors();
+	}
 	else
 	{
 		assert(false && "Type of render request not supported");
@@ -755,5 +806,117 @@ void RenderSystem::renderText(std::string text, float x, float y, float scale, c
 		x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
 	}
 	glBindVertexArray(vao);
-	//glBindTexture(GL_TEXTURE_2D, 0);
+	// glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void RenderSystem::drawParticlesInstanced(const mat3 &projection)
+{
+	// Skip if no particles
+	if (registry.particles.entities.empty())
+		return;
+
+	// Count active particles
+	int particleCount = (int)registry.particles.size();
+	if (particleCount == 0)
+		return;
+
+	// Enable blending for particles
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Additive blending for glow effects
+
+	// Use particle shader
+	GLuint program = effects[(GLuint)EFFECT_ASSET_ID::PARTICLE];
+	glUseProgram(program);
+
+	// Prepare matrices
+	GLint proj_loc = glGetUniformLocation(program, "projection");
+	glUniformMatrix3fv(proj_loc, 1, GL_FALSE, (float *)&projection);
+
+	// Bind default particle texture
+	GLuint texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::PARTICLE];
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+
+	// Bind mesh data
+	const GLuint vbo = vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
+	const GLuint ibo = index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+	// Set up vertex attributes
+	GLint in_position_loc = glGetAttribLocation(program, "in_position");
+	GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+
+	glEnableVertexAttribArray(in_position_loc);
+	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
+						  sizeof(TexturedVertex), (void *)0);
+
+	glEnableVertexAttribArray(in_texcoord_loc);
+	glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE,
+						  sizeof(TexturedVertex), (void *)sizeof(vec3));
+
+	// Prepare instance data arrays
+	std::vector<vec4> instance_data(particleCount * 3); // 3 vec4s per instance
+
+	// Fill instance data
+	int idx = 0;
+	for (Entity entity : registry.particles.entities)
+	{
+		Particle &particle = registry.particles.get(entity);
+
+		// Get position and scale from Motion component
+		vec2 position = particle.Position;
+		vec2 scale = vec2(10.0f * (particle.Life / particle.MaxLife));
+		if (registry.motions.has(entity))
+		{
+			scale = registry.motions.get(entity).scale;
+		}
+
+		// First vec4: position(xy) and scale(zw)
+		instance_data[idx++] = vec4(position.x, position.y, scale.x, scale.y);
+
+		// Second vec4: color
+		instance_data[idx++] = particle.Color;
+
+		// Third vec4: life data and any other parameters
+		instance_data[idx++] = vec4(particle.Life / particle.MaxLife, 0.0f, 0.0f, 0.0f);
+	}
+
+	// Upload instance data
+	glBindBuffer(GL_ARRAY_BUFFER, particle_instance_VBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, instance_data.size() * sizeof(vec4), instance_data.data());
+
+	// Set up instance attributes
+	// 1. Position and scale (vec4)
+	GLint instance_pos_scale_loc = 2; // Attribute location = 2
+	glEnableVertexAttribArray(instance_pos_scale_loc);
+	glVertexAttribPointer(instance_pos_scale_loc, 4, GL_FLOAT, GL_FALSE,
+						  sizeof(vec4) * 3, (void *)0);
+	glVertexAttribDivisor(instance_pos_scale_loc, 1); // Once per instance
+
+	// 2. Color (vec4)
+	GLint instance_color_loc = 3; // Attribute location = 3
+	glEnableVertexAttribArray(instance_color_loc);
+	glVertexAttribPointer(instance_color_loc, 4, GL_FLOAT, GL_FALSE,
+						  sizeof(vec4) * 3, (void *)(sizeof(vec4)));
+	glVertexAttribDivisor(instance_color_loc, 1);
+
+	// 3. Life data (vec4)
+	GLint instance_life_loc = 4; // Attribute location = 4
+	glEnableVertexAttribArray(instance_life_loc);
+	glVertexAttribPointer(instance_life_loc, 4, GL_FLOAT, GL_FALSE,
+						  sizeof(vec4) * 3, (void *)(sizeof(vec4) * 2));
+	glVertexAttribDivisor(instance_life_loc, 1);
+
+	// Count indices
+	GLint size = 0;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+	GLsizei num_indices = size / sizeof(uint16_t);
+
+	// Draw all particles in one call!
+	glDrawElementsInstanced(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr, particleCount);
+
+
+	gl_has_errors();
 }

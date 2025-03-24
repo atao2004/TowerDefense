@@ -52,6 +52,8 @@ public:
 
 	ComponentContainer<Enemy> enemies;
 	ComponentContainer<Button> buttons;
+	ComponentContainer<Particle> particles;
+	ComponentContainer<ParticleGenerator> particleGenerators;
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
@@ -84,7 +86,8 @@ public:
 		registry_list.push_back(&inventorys);//26
 		registry_list.push_back(&seeds);//27
 		registry_list.push_back(&moveWithCameras);//28
-		registry_list.push_back(&buttons);//29 dont save this
+		registry_list.push_back(&particles);//29
+		registry_list.push_back(&particleGenerators);//30
 	}
 
 	void clear_all_components() {
