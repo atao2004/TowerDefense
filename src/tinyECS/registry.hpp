@@ -54,6 +54,8 @@ public:
 	ComponentContainer<Particle> particles;
 	ComponentContainer<ParticleGenerator> particleGenerators;
 
+	ComponentContainer<Text> texts;
+
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
 		registry_list.push_back(&screenStates); //0

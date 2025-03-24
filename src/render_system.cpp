@@ -516,13 +516,13 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
 	renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
 
-	renderText("FPS: ", 100, 100, 0.5, {1, 1, 0}, trans);
+	for (int current_seed = 0; current_seed < registry.inventorys.size(); current_seed++) {
+		renderText(std::to_string(registry.inventorys.components[0].seedCount[current_seed]), WINDOW_WIDTH_PX * 0.375 + 55 * current_seed, 25, 0.25, {0, 0, 0}, trans);
+	}
 
 	//  draw framebuffer to screen
 	//  adding "UI" effect when applied
 	drawToScreen();
-
-	// renderText("test", 10, 10, 1, {1, 0, 1}, trans);
 
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);

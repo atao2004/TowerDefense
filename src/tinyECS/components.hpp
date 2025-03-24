@@ -407,6 +407,11 @@ struct MoveWithCamera
     };
 };
 
+// Text for M3 and beyond
+struct Text {
+	std::string text;
+};
+
 // Sets the brightness of the screen
 // Includes HP and EXP parameters
 struct ScreenState

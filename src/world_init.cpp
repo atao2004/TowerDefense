@@ -856,6 +856,24 @@ Entity createArrow(vec2 position, vec2 direction, Entity source)
 	return entity;
 }
 
+Entity createText(std::string text) {
+	Entity text_entity = Entity();
+
+	Text& text_component = registry.texts.emplace(text_entity);
+	text_component.text = text;
+
+	registry.renderRequests.insert(
+		text_entity,
+		{
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::EGG,
+			GEOMETRY_BUFFER_ID::DEBUG_LINE
+		}
+	);
+
+	return text_entity;
+}
+
 Entity createChicken(RenderSystem *renderer)
 {
 	auto entity = Entity();
