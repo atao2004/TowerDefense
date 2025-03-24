@@ -1197,24 +1197,32 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 {
 	if (game_screen == GAME_SCREEN_ID::SPLASH) {
 		//implement
-		for (auto& b: registry.buttons.components) {
-			if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH/2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH/2 &&
-				mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT/2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT/2) {
-					if (b.type == BUTTON_ID::START) 
-						return start_cg();
-					if (b.type == BUTTON_ID::LOAD)
-						return loadGame();
-					if (b.type == BUTTON_ID::TUTORIAL)
-						return restart_tutorial();
-					if (b.type == BUTTON_ID::QUIT)
-						return close_window();
-				}
+		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {	
+			for (auto& b: registry.buttons.components) {
+				if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH/2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH/2 &&
+					mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT/2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT/2) {
+						if (b.type == BUTTON_ID::START) 
+							return start_cg();
+						if (b.type == BUTTON_ID::LOAD)
+							return loadGame();
+						if (b.type == BUTTON_ID::TUTORIAL)
+							return restart_tutorial();
+						if (b.type == BUTTON_ID::QUIT)
+							return close_window();
+					}
+			}
 		}
 		return;
 	}
 
 	if (game_screen == GAME_SCREEN_ID::CG) {
-		
+		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {
+			int cg_index = registry.screenStates.components[0].cg_index++;
+			std::cout<<cg_index<<std::endl;
+			if (cg_index == 5)
+				restart_game();
+		}
+
 		return;
 	}
 

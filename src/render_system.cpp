@@ -473,7 +473,17 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 		if (game_screen == GAME_SCREEN_ID::SPLASH)
 			renderText("Farmer Defense", WINDOW_WIDTH_PX/3,WINDOW_HEIGHT_PX-100,1,{0,0,0}, trans);
 		else {
-
+			int cg_idx = registry.screenStates.components[0].cg_index;
+			if (cg_idx == 0)
+				renderText("You are a humble farmer, tending to your crops in peace...", 10,WINDOW_HEIGHT_PX-100,0.6,{1,1,1}, trans);
+			if (cg_idx == 1)
+				renderText( "But one night, a meteor carrying a strange virus struck the city...", 10,WINDOW_HEIGHT_PX-100,0.6,{1,1,1}, trans);
+			if (cg_idx == 2)
+				renderText("You are a humble farmer, tending to your crops in peace...", 10,WINDOW_HEIGHT_PX-100,0.6,{1,1,1}, trans);
+			if (cg_idx == 3)
+				renderText("You are a humble farmer, tending to your crops in peace...", 10,WINDOW_HEIGHT_PX-100,0.6,{1,1,1}, trans);
+			if (cg_idx == 4)
+				renderText("You are a humble farmer, tending to your crops in peace...", 10,WINDOW_HEIGHT_PX-100,0.6,{1,1,1}, trans);
 		}
 	} else {
 		// draw all entities with a render request to the frame buffer

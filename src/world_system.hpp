@@ -44,6 +44,11 @@ public:
 		return game_screen;
 	}
 
+	void set_game_screen(GAME_SCREEN_ID gs)
+	{
+		game_screen = gs;
+	}
+
 	// steps the game ahead by ms milliseconds
 	bool step(float elapsed_ms);
 
