@@ -86,8 +86,9 @@ public:
 		registry_list.push_back(&inventorys);//26
 		registry_list.push_back(&seeds);//27
 		registry_list.push_back(&moveWithCameras);//28
-		registry_list.push_back(&particles);//29
-		registry_list.push_back(&particleGenerators);//30
+		registry_list.push_back(&mapTiles);//29
+		registry_list.push_back(&particles);//30
+		registry_list.push_back(&particleGenerators);//31
 	}
 
 	void clear_all_components() {

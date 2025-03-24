@@ -1369,7 +1369,7 @@ void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)
 void WorldSystem::loadGame()
 {
 	registry.clear_all_components();
-
+	game_screen = GAME_SCREEN_ID::PLAYING;
 	json jsonFile;
 	std::ifstream file(PROJECT_SOURCE_DIR + std::string("data/reload/game_0.json"));
 	file >> jsonFile;
@@ -1648,6 +1648,13 @@ void WorldSystem::loadGame()
 		json mvc_json = mvc_arr[i];
 		Entity e = Entity(mvc_json["entity"]);
 		registry.moveWithCameras.emplace(e);
+	}
+
+	json mt_arr = jsonFile["29"];
+	for (long unsigned int i=0; i<mt_arr.size(); i++) {
+		json mt_json = mt_arr[i];
+		Entity e = Entity(mt_json["entity"]);
+		registry.mapTiles.emplace(e);
 	}
 
 
