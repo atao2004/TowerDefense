@@ -380,7 +380,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 }
 
 void WorldSystem::start_cg(RenderSystem* renderer) {
-	registry.clear_all_components();
+	registry.cgs.clear();
 	game_screen = GAME_SCREEN_ID::CG;
 	int cg_idx = registry.screenStates.components[0].cg_index;
 	if (cg_idx == 0)
@@ -1216,14 +1216,21 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			int cg_index = ++registry.screenStates.components[0].cg_index;
 			std::cout<<cg_index<<std::endl;
 			if (cg_index == 6) {
-				registry.clear_all_components();
+				for (int i=registry.cgs.entities.size()-1; i>=0; i--)
+					registry.remove_all_components_of(registry.cgs.entities[i]);
 				createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
 			} else if (cg_index == 7) {
 				createCharacter(renderer, vec2(WINDOW_WIDTH_PX-200, WINDOW_HEIGHT_PX-250), vec2(-500, 500), TEXTURE_ASSET_ID::ORC_WALK2);
 				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX-250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
 			} else if (cg_index == 11)
 				restart_game();
-			// if (cg_index == 6)
+			else if (cg_index == 13) {
+				for (int i=registry.cgs.entities.size()-1; i>=0; i--)
+					registry.remove_all_components_of(registry.cgs.entities[i]);
+				set_game_screen(GAME_SCREEN_ID::PLAYING);
+			}
+
+			
 				
 		}
 

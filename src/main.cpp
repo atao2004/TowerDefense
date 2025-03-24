@@ -96,6 +96,7 @@ int main()
 	while (!world_system.is_over()) {
 
 		GAME_SCREEN_ID game_screen = world_system.get_game_screen();
+		std::cout<<(int) game_screen<<std::endl;
 		// processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
 
@@ -105,14 +106,13 @@ int main()
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
 
-		FrameManager::tick(elapsed_ms);
-
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
 		//when level up, we want the screen to be frozen
 		if (PlayerSystem::get_state() != STATE::LEVEL_UP) {
 			if (fm_world.can_update()) world_system.step(fm_world.get_time());
 			if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH && game_screen != GAME_SCREEN_ID::CG ) {
 				//M2: FPS
+				FrameManager::tick(elapsed_ms); //moved here so when doing cg the game will pause
 				float current_fps = (1/(elapsed_ms/1000));
 				cooldown -= elapsed_ms;
 				if (cooldown <= 0) {                             //used to prevent screen flickering
@@ -144,6 +144,7 @@ int main()
 				if (fm_movement.can_update()) movement_system.step(fm_movement.get_time(), game_screen);
 				if (fm_animation.can_update()) animation_system.step(fm_animation.get_time());
 				if (fm_particle.can_update()) particle_system.step(fm_particle.get_time());
+				std::cout<<"i'm leaking good luck"<<std::endl;
 
 			} else {
 				//M2: FPS. make sure we only print once, lazy implementation
@@ -156,6 +157,7 @@ int main()
 			}
 		}
 		
+		//DO NOT DELETE, OTHERWISE TEXT WON'T RENDER
 		glm::mat4 trans = glm::mat4(1.0f);
 		renderer_system.renderText("hello", 100, 100, 1, {1, 1, 0}, trans);
 		renderer_system.draw(game_screen);
