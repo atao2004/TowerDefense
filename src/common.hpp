@@ -431,9 +431,9 @@ const int SKELETON_ATTACK_DURATION = 1800;
 const int PROJECTILE_DAMAGE = 10;
 
 // control player movement
-const int PLAYER_MOVE_UP_SPEED = -200;
+const int PLAYER_MOVE_UP_SPEED = -150;
 const int PLAYER_MOVE_DOWN_SPEED = -PLAYER_MOVE_UP_SPEED;
-const int PLAYER_MOVE_LEFT_SPEED = -200;
+const int PLAYER_MOVE_LEFT_SPEED = -150;
 const int PLAYER_MOVE_RIGHT_SPEED = -PLAYER_MOVE_LEFT_SPEED;
 
 // These are hard coded to the dimensions of the entity's texture
