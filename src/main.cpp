@@ -16,6 +16,7 @@
 #include "animation_system.hpp"
 #include "tower_system.hpp"
 #include "movement_system.hpp"
+#include "seed_system.hpp"
 #include "frame_manager.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
@@ -31,6 +32,7 @@ int main()
 	StatusSystem  status_system;
 	AnimationSystem animation_system;
 	TowerSystem tower_system;
+	SeedSystem seed_system;
 	MovementSystem movement_system;
 
 	// initialize window
@@ -62,6 +64,7 @@ int main()
 	renderer_system.init(window);
 	world_system.init(&renderer_system);
 	animation_system.init(&renderer_system);
+	seed_system.init(&renderer_system);
 
 	// variable timestep loop
 	auto t = Clock::now();
@@ -80,6 +83,7 @@ int main()
 	FrameManager fm_tower = FrameManager(5);
 	FrameManager fm_movement = FrameManager(2);
 	FrameManager fm_animation = FrameManager(2);
+	FrameManager fm_seed = FrameManager(5);
 
 	while (!world_system.is_over()) {
 
@@ -126,6 +130,7 @@ int main()
 				if (fm_ai.can_update()) ai_system.step(fm_ai.get_time());
 				if (fm_physics.can_update()) physics_system.step(fm_physics.get_time());
 				if (fm_status.can_update()) status_system.step(fm_status.get_time());
+				if (fm_seed.can_update()) seed_system.step(fm_seed.get_time());
 				if (fm_tower.can_update()) tower_system.step(fm_tower.get_time());
 				if (fm_movement.can_update()) movement_system.step(fm_movement.get_time(), game_screen);
 				if (fm_animation.can_update()) animation_system.step(fm_animation.get_time());
