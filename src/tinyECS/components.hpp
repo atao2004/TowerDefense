@@ -410,6 +410,11 @@ struct MoveWithCamera
 // Text for M3 and beyond
 struct Text {
 	std::string text;
+
+    json toJSON() const
+    {
+        return json{};
+    };
 };
 
 // Sets the brightness of the screen
