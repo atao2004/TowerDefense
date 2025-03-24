@@ -1,18 +1,32 @@
-#version 330 core
-layout (location = 0) in vec3 in_position;
-layout (location = 1) in vec2 in_texcoord;
+#version 330
 
+// Input attributes
+in vec3 in_position;
+in vec2 in_texcoord;
+
+// Instance attributes
+in vec4 instance_pos_scale; // xy = position, zw = scale
+in vec4 instance_color;     // rgba color
+in vec4 instance_life_data; // x = life_ratio, yzw = reserved
+
+// Output to fragment shader
 out vec2 TexCoords;
 out vec4 ParticleColor;
+out float life_ratio;
 
-uniform mat3 transform;
+// Transformation matrices
 uniform mat3 projection;
-uniform vec4 color;
 
 void main()
 {
-    vec3 pos = projection * transform * vec3(in_position.xy, 1.0);
-    gl_Position = vec4(pos.xy, 0.0, 1.0);
+    // Transform position by instance attributes
+    vec2 pos = in_position.xy * instance_pos_scale.zw;
+    vec3 screen_pos = projection * vec3(pos + instance_pos_scale.xy, 1.0);
+    
+    // Pass values to fragment shader
     TexCoords = in_texcoord;
-    ParticleColor = color;
+    ParticleColor = instance_color;
+    life_ratio = instance_life_data.x;
+    
+    gl_Position = vec4(screen_pos.xy, 0.0, 1.0);
 }

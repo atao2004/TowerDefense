@@ -104,8 +104,6 @@ int main()
 
 		FrameManager::tick(elapsed_ms);
 
-		FrameManager::tick(elapsed_ms);
-
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
 		//when level up, we want the screen to be frozen
 		if (PlayerSystem::get_state() != STATE::LEVEL_UP) {
@@ -141,7 +139,7 @@ int main()
 				if (fm_tower.can_update()) tower_system.step(fm_tower.get_time());
 				if (fm_movement.can_update()) movement_system.step(fm_movement.get_time(), game_screen);
 				if (fm_animation.can_update()) animation_system.step(fm_animation.get_time());
-				if (fm_particle.can_update()) particle_system.step(fm_animation.get_time());
+				if (fm_particle.can_update()) particle_system.step(fm_particle.get_time());
 
 			} else {
 				//M2: FPS. make sure we only print once, lazy implementation

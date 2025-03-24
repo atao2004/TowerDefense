@@ -24,5 +24,5 @@ void main()
         discard;
     
     // If you want to use an actual texture:
-    color = texture(sprite, TexCoords) * ParticleColor;
+    // color = texture(sprite, TexCoords) * ParticleColor;
 }
