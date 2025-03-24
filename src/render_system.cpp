@@ -388,7 +388,7 @@ void RenderSystem::drawToScreen()
 		GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
 
 		glUniform1f(game_continues_uloc, screen.game_over);
-		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) ?  0 : screen.hp_percentage);
+		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) ? 0 : screen.hp_percentage);
 		glUniform1f(exp_uloc, screen.exp_percentage);
 		gl_has_errors();
 
@@ -461,59 +461,64 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 							  // sprites back to front
 	gl_has_errors();
 
+	mat3 projection_2D = (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) ? createProjectionMatrix_splash() : createProjectionMatrix();
 
-	mat3 projection_2D = (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) ? createProjectionMatrix_splash(): createProjectionMatrix();
-
-	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) {	
-		for (Entity entity : registry.cgs.entities) {
-			drawTexturedMesh(entity, projection_2D);	
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG)
+	{
+		for (Entity entity : registry.cgs.entities)
+		{
+			drawTexturedMesh(entity, projection_2D);
 		}
-		
+
 		drawToScreen();
 		if (game_screen == GAME_SCREEN_ID::SPLASH)
-			renderText("Farmer Defense", WINDOW_WIDTH_PX/3,WINDOW_HEIGHT_PX-100,1,{0,0,0}, trans);
-		else {
+			renderText("Farmer Defense", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100, 1, {0, 0, 0}, trans);
+		else
+		{
 			int cg_idx = registry.screenStates.components[0].cg_index;
 			if (cg_idx == 0)
-				renderText("After years on the battlefield, you hung up your sword and returned home...", 10, WINDOW_HEIGHT_PX-100,0.6, {1,1,1}, trans);
+				renderText("After years on the battlefield, you hung up your sword and returned home...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
 			if (cg_idx == 1)
-				renderText( "You inherited the farm from your parents, and became a farmer...", 10, WINDOW_HEIGHT_PX-100,0.6, {1,1,1}, trans);
+				renderText("You inherited the farm from your parents, and became a farmer...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
 			if (cg_idx == 2)
-				renderText( "But one night, a meteor carrying a strange virus struck the city...", 10, WINDOW_HEIGHT_PX-100,0.6, {1,1,1}, trans);
+				renderText("But one night, a meteor carrying a strange virus struck the city...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
 			if (cg_idx == 3)
-				renderText( "*explosion from a distant space", 10, WINDOW_HEIGHT_PX-100,0.6,{1,1,1}, trans);
-			if (cg_idx == 4) {
-				renderText( "You heard the sound, walk up to the window, peered out but everything seems...", 10, WINDOW_HEIGHT_PX-100,0.6,{1,1,1}, trans);
-				renderText( "peaceful and normal...", 10, WINDOW_HEIGHT_PX-150,0.6,{1,1,1}, trans);
+				renderText("*explosion from a distant space", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 4)
+			{
+				renderText("You heard the sound, walk up to the window, peered out but everything seems...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+				renderText("peaceful and normal...", 10, WINDOW_HEIGHT_PX - 150, 0.6, {1, 1, 1}, trans);
 			}
 			if (cg_idx == 5)
-				renderText( "You went back to sleep, unaware that your world had already changed...", 10, WINDOW_HEIGHT_PX-100,0.6, {1,1,1}, trans);
+				renderText("You went back to sleep, unaware that your world had already changed...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
 			if (cg_idx == 6)
-				renderText( "*The next day", 10, WINDOW_HEIGHT_PX-100,0.6, {1,1,1}, trans);
+				renderText("*The next day", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
 			if (cg_idx == 8)
-				renderText( "Uh... Hello?", 60, 350,0.6, {1,1,1}, trans);
+				renderText("Uh... Hello?", 60, 350, 0.6, {1, 1, 1}, trans);
 			if (cg_idx == 9)
-				renderText( "*Growl", WINDOW_WIDTH_PX-300, 350,0.6, {1,1,1}, trans);
+				renderText("*Growl", WINDOW_WIDTH_PX - 300, 350, 0.6, {1, 1, 1}, trans);
 			if (cg_idx == 10)
-				renderText( "Uh oh...", 60, 350,0.6, {1,1,1}, trans);
-			
-			//second scene, plant grow? yes plant grow!
-			if (cg_idx == 13)
-				renderText( "Bro I thought I would get some carrots, not you?!", 60, 350,0.6, {1,1,1}, trans);
-			if (cg_idx == 14)
-				renderText( "I am here to only help!", WINDOW_WIDTH_PX-500, 350,0.6, {1,1,1}, trans);
-			if (cg_idx == 15)
-				renderText( "WTH you can talk??", 60, 350,0.6, {1,1,1}, trans);
-			if (cg_idx == 16) {
+				renderText("Uh oh...", 60, 350, 0.6, {1, 1, 1}, trans);
 
-				renderText( "The zombies can hold weapons,", WINDOW_WIDTH_PX-700, 450,0.6, {1,1,1}, trans);
-				renderText( "so WHY NOT", WINDOW_WIDTH_PX-700, 350,0.6, {1,1,1}, trans);
+			// second scene, plant grow? yes plant grow!
+			if (cg_idx == 13)
+				renderText("Bro I thought I would get some carrots, not you?!", 60, 350, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 14)
+				renderText("I am here to only help!", WINDOW_WIDTH_PX - 500, 350, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 15)
+				renderText("WTH you can talk??", 60, 350, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 16)
+			{
+
+				renderText("The zombies can hold weapons,", WINDOW_WIDTH_PX - 700, 450, 0.6, {1, 1, 1}, trans);
+				renderText("so WHY NOT", WINDOW_WIDTH_PX - 700, 350, 0.6, {1, 1, 1}, trans);
 			}
 			if (cg_idx == 17)
-				renderText( "Alright...", 60, 350,0.6, {1,1,1}, trans);
-
+				renderText("Alright...", 60, 350, 0.6, {1, 1, 1}, trans);
 		}
-	} else {
+	}
+	else
+	{
 		// draw all entities with a render request to the frame buffer
 		for (Entity entity : registry.renderRequests.entities)
 		{
@@ -547,6 +552,7 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 				drawGridLine(entity, projection_2D);
 			}
 		}
+		drawParticlesInstanced(projection_2D);
 		// individually draw player, will render on top of all the motion sprites
 		if (!WorldSystem::game_is_over)
 			drawTexturedMesh(registry.players.entities[0], projection_2D);
@@ -554,7 +560,6 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 		//  adding "UI" effect when applied
 		drawToScreen();
 	}
-
 
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
@@ -788,7 +793,7 @@ void RenderSystem::renderText(std::string text, float x, float y, float scale, c
 {
 	// Activate shader
 	glUseProgram(m_font_shaderProgram);
-	
+
 	// enable blending or you will just get solid boxes instead of text
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -952,7 +957,6 @@ void RenderSystem::drawParticlesInstanced(const mat3 &projection)
 
 	// Draw all particles in one call!
 	glDrawElementsInstanced(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr, particleCount);
-
 
 	gl_has_errors();
 }
