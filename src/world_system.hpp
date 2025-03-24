@@ -29,6 +29,8 @@ public:
 
 	// call to close the window
 	void close_window();
+	
+	static void start_cg(RenderSystem* renderer);
 
 	// starts the game
 	void init(RenderSystem *renderer);
@@ -40,6 +42,11 @@ public:
 	static GAME_SCREEN_ID get_game_screen()
 	{
 		return game_screen;
+	}
+
+	static void set_game_screen(GAME_SCREEN_ID gs)
+	{
+		game_screen = gs;
 	}
 
 	// steps the game ahead by ms milliseconds

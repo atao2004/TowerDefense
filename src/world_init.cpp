@@ -25,6 +25,49 @@ using json = nlohmann::json;
 // 	return entity;
 // }
 
+Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position) {
+	Entity entity = Entity();
+	Button& button = registry.buttons.emplace(entity);
+	button.type = type;
+	button.position = position;
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = vec2({ BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT });
+	registry.renderRequests.insert(
+		entity,
+		{
+			(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::START_BUTTON + (int)type),
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+	registry.cgs.emplace(entity);
+	return entity;
+}
+
+Entity createScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background) {
+	Entity entity = Entity();
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = {WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2};
+	motion.scale = vec2({ WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX });
+	registry.renderRequests.insert(
+		entity,
+		{
+			background,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+	registry.cgs.emplace(entity);
+	return entity;
+}
+
 // createZombieSpawn
 Entity createZombieSpawn(RenderSystem *renderer, vec2 position)
 {
@@ -885,5 +928,25 @@ Entity createChicken(RenderSystem *renderer)
 		 EFFECT_ASSET_ID::CHICKEN,
 		 GEOMETRY_BUFFER_ID::CHICKEN});
 
+	return entity;
+}
+
+Entity createCharacter(RenderSystem *renderer, vec2 position, vec2 scale, TEXTURE_ASSET_ID texture)
+{
+	Entity entity = Entity();
+	Motion &motion = registry.motions.emplace(entity);
+
+	motion.angle = 0.f;
+	motion.velocity = {0, 0};
+	motion.position = position;
+	motion.scale = scale;
+
+	registry.renderRequests.insert(
+		entity,
+		{texture,
+		 EFFECT_ASSET_ID::PLAYER,
+		 GEOMETRY_BUFFER_ID::SPRITE},
+		false);
+	registry.cgs.emplace(entity);
 	return entity;
 }

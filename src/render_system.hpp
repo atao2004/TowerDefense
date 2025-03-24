@@ -192,8 +192,16 @@ class RenderSystem
 		textures_path("towers/plant2/attack/Plant2_attack_b2.png"),
 		textures_path("towers/plant2/attack/Plant2_attack_s1.png"),
 		textures_path("towers/plant2/attack/Plant2_attack_s2.png"),
+		textures_path("ui/new_game.png"),
+		textures_path("ui/load_game.png"),
+		textures_path("ui/tutorial.png"),
+		textures_path("ui/quit.png"),
+		textures_path("ui/background.png"),
+		textures_path("particles/particle1.png"),
+		textures_path("cut_scenes/night_bg.png"),
+		textures_path("cut_scenes/day_bg.png"),
+	};
 
-		textures_path("particles/particle1.png")};
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
@@ -223,6 +231,7 @@ class RenderSystem
 	GLuint m_font_shaderProgram;
 	GLuint m_font_VAO;
 	GLuint m_font_VBO;
+	glm::mat4 trans = glm::mat4(1.0f);
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -256,6 +265,8 @@ public:
 	void draw(GAME_SCREEN_ID game_screen);
 
 	mat3 createProjectionMatrix();
+	mat3 createProjectionMatrix_splash();
+	
 
 	Entity get_screen_state_entity() { return screen_state_entity; }
 

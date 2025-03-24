@@ -12,6 +12,7 @@
 // Render initialization
 bool RenderSystem::init(GLFWwindow *window_arg)
 {
+	// struct nk_font_atlas atlas;  
 	this->window = window_arg;
 
 	glfwMakeContextCurrent(window);
@@ -63,7 +64,11 @@ bool RenderSystem::init(GLFWwindow *window_arg)
 	initializeGlTextures();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
-	std::string font_filename = PROJECT_SOURCE_DIR + std::string("data/fonts/Kenney_Mini_Square.ttf");
+
+	// ctx = nk_glfw3_init(&glfw, const_cast<GLFWwindow *>(window), NK_GLFW3_INSTALL_CALLBACKS);
+	// init_helper(ctx, this->window);
+
+	std::string font_filename = PROJECT_SOURCE_DIR + std::string("data/fonts/SquadaOne-Regular.ttf");
 	unsigned int font_default_size = 100;
 	std::cout << "Loading font from: " << font_filename << std::endl;
 	std::ifstream fontFile(font_filename);
@@ -182,8 +187,8 @@ void RenderSystem::initializeGlTextures()
 		}
 
 		// Set texture parameters
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		gl_has_errors();
 	}
 	gl_has_errors();
@@ -364,8 +369,8 @@ bool RenderSystem::initScreenTexture()
 	glGenTextures(1, &off_screen_render_buffer_color);
 	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, framebuffer_width, framebuffer_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	gl_has_errors();
 
 	glGenRenderbuffers(1, &off_screen_render_buffer_depth);
