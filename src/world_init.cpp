@@ -3,6 +3,7 @@
 #include <iostream>
 #include "animation_system.hpp"
 #include "../ext/json.hpp"
+#include "particle_system.hpp"
 using json = nlohmann::json;
 
 // Entity createGridLine(vec2 start_pos, vec2 end_pos)
@@ -25,75 +26,102 @@ using json = nlohmann::json;
 // }
 
 // createZombieSpawn
-Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
+Entity createZombieSpawn(RenderSystem *renderer, vec2 position)
+{
 	Entity entity = Entity();
 
 	registry.zombieSpawns.emplace(entity);
 
-	Motion& motion = registry.motions.emplace(entity);
+	Motion &motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, 0 };
+	motion.velocity = {0, 0};
 	motion.position = position;
-	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
+	motion.scale = vec2({ ENEMY_WIDTH, ENEMY_HEIGHT });
 
 	registry.renderRequests.insert(
 		entity,
-		{
-			TEXTURE_ASSET_ID::ZOMBIE_SPAWN_1,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		},
-		false
-	);
+		{TEXTURE_ASSET_ID::ZOMBIE_SPAWN_1,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE},
+		false);
 
 	AnimationSystem::update_animation(entity, ZOMBIE_SPAWN_DURATION, ZOMBIE_SPAWN_ANIMATION, ZOMBIE_SPAWN_SIZE, false, false, true);
 
 	return entity;
 }
 
-Entity createZombie(RenderSystem *renderer, vec2 position)
+Entity createEnemy(RenderSystem* renderer, vec2 position, int health, int damage, int speed, int anim_duration, const TEXTURE_ASSET_ID* anim_textures, int anim_size)
 {
 	auto entity = Entity();
 
-	Zombie &zombie = registry.zombies.emplace(entity);
+	Zombie& zombie = registry.zombies.emplace(entity);
 
-	Attack &attack = registry.attacks.emplace(entity);
+	Attack& attack = registry.attacks.emplace(entity);
 	attack.range = 30.0f;
-	attack.damage = ZOMBIE_DAMAGE;
+	attack.damage = damage;
 
-	Enemy &enemy = registry.enemies.emplace(entity);
-	enemy.health = ZOMBIE_HEALTH;
+	Enemy& enemy = registry.enemies.emplace(entity);
+	enemy.health = health;
+	enemy.speed = speed;
 
-	auto& motion = registry.motions.emplace(entity);
+	auto &motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, 0 };
+	motion.velocity = {0, 0};
 	motion.position = position;
-	motion.scale = vec2({ ZOMBIE_WIDTH, ZOMBIE_HEIGHT });
+	motion.scale = vec2({ ENEMY_WIDTH, ENEMY_HEIGHT });
 
-
-	VisualScale &vscale = registry.visualScales.emplace(entity);
-    vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x
+	VisualScale& vscale = registry.visualScales.emplace(entity);
+	vscale.scale = { 5.f, 5.f }; // Scale visuals 3.1x
 
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::ZOMBIE_SPAWN_1,
+			anim_textures[0],
 			EFFECT_ASSET_ID::ZOMBIE,
 			GEOMETRY_BUFFER_ID::SPRITE
 		},
 		false
 	);
 
-	AnimationSystem::update_animation(entity, ZOMBIE_MOVE_DURATION, ZOMBIE_MOVE_ANIMATION, ZOMBIE_MOVE_SIZE, true, false, false);
-
-	// Kung: Update the enemy count and print it to the console.
-    // std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
+	AnimationSystem::update_animation(entity, anim_duration, anim_textures, anim_size, true, false, false);
 
 	return entity;
 }
 
-Entity createTower(RenderSystem* renderer, vec2 position) {
-    Entity entity = Entity();
+Entity createOrc(RenderSystem *renderer, vec2 position)
+{
+	return createEnemy(renderer, position, ORC_HEALTH, ORC_DAMAGE, ORC_SPEED, ORC_ANIMATION_DURATION, ORC_ANIMATION, ORC_ANIMATION_SIZE);
+}
+
+Entity createOrcElite(RenderSystem* renderer, vec2 position)
+{
+	return createEnemy(renderer, position, ORC_ELITE_HEALTH, ORC_ELITE_DAMAGE, ORC_ELITE_SPEED, ORC_ELITE_ANIMATION_DURATION, ORC_ELITE_ANIMATION, ORC_ELITE_ANIMATION_SIZE);
+}
+
+Entity createSkeleton(RenderSystem* renderer, vec2 position)
+{
+	return createEnemy(renderer, position, SKELETON_HEALTH, SKELETON_DAMAGE, SKELETON_SPEED, SKELETON_ANIMATION_DURATION, SKELETON_ANIMATION, SKELETON_ANIMATION_SIZE);
+}
+
+Entity createWerebear(RenderSystem* renderer, vec2 position)
+{
+	return createEnemy(renderer, position, WEREBEAR_HEALTH, WEREBEAR_DAMAGE, WEREBEAR_SPEED, WEREBEAR_ANIMATION_DURATION, WEREBEAR_ANIMATION, WEREBEAR_ANIMATION_SIZE);
+}
+
+Entity createWerewolf(RenderSystem* renderer, vec2 position)
+{
+	return createEnemy(renderer, position, WEREWOLF_HEALTH, WEREWOLF_DAMAGE, WEREWOLF_SPEED, WEREWOLF_ANIMATION_DURATION, WEREWOLF_ANIMATION, WEREWOLF_ANIMATION_SIZE);
+}
+
+Entity createSlime(RenderSystem* renderer, vec2 position)
+{
+	return createEnemy(renderer, position, SLIME_HEALTH, SLIME_DAMAGE, SLIME_SPEED, SLIME_ANIMATION_DURATION, SLIME_ANIMATION, SLIME_ANIMATION_SIZE);
+}
+
+
+Entity createTower(RenderSystem *renderer, vec2 position)
+{
+	Entity entity = Entity();
 
 	// Basic tower stats
 	Tower &tower = registry.towers.emplace(entity);
@@ -105,7 +133,7 @@ Entity createTower(RenderSystem* renderer, vec2 position) {
 
 	// Motion component for position and rotation
 	Motion &motion = registry.motions.emplace(entity);
-	motion.position = {position.x + TOWER_BB_WIDTH/2, position.y + TOWER_BB_HEIGHT/2};
+	motion.position = {position.x + TOWER_BB_WIDTH / 2, position.y + TOWER_BB_HEIGHT / 2};
 	motion.angle = 0.f;
 	motion.velocity = {0, 0};								// Towers don't move
 	motion.scale = vec2({TOWER_BB_WIDTH, TOWER_BB_HEIGHT}); // Using constants from common.hpp
@@ -146,12 +174,13 @@ void removeTower(vec2 position)
 }
 
 // Kung: Create the grass texture that will be used as part of the texture map.
-Entity createMapTile(Entity maptile_entity, vec2 position) {
+Entity createMapTile(Entity maptile_entity, vec2 position)
+{
 	// Create the associated component.
-	MapTile& maptile_component = registry.mapTiles.emplace(maptile_entity);
+	MapTile &maptile_component = registry.mapTiles.emplace(maptile_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(maptile_entity);
+	Motion &motion_component = registry.motions.emplace(maptile_entity);
 	motion_component.position = position;
 	motion_component.scale = vec2(GRID_CELL_WIDTH_PX, GRID_CELL_HEIGHT_PX);
 	motion_component.velocity = vec2(0, 0);
@@ -159,18 +188,16 @@ Entity createMapTile(Entity maptile_entity, vec2 position) {
 	// Render the object.
 	registry.renderRequests.insert(
 		maptile_entity,
-		{
-			DECORATION_LIST[1],
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
+		{DECORATION_LIST[1],
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
 
 	return maptile_entity;
 }
 
 // Helper function to make it easier to create tutorial tiles.
-Entity createMapTile(vec2 position) {
+Entity createMapTile(vec2 position)
+{
 	// Create the associated entity.
 	Entity maptile_entity = Entity();
 
@@ -179,31 +206,30 @@ Entity createMapTile(vec2 position) {
 }
 
 // Create decorations to overlay on the map.
-Entity createMapTileDecoration(Entity decoration_entity, int i, vec2 position) {
+Entity createMapTileDecoration(Entity decoration_entity, int i, vec2 position)
+{
 	// Create the associated component.
-	MapTile& maptile_component = registry.mapTiles.emplace(decoration_entity);
+	MapTile &maptile_component = registry.mapTiles.emplace(decoration_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(decoration_entity);
+	Motion &motion_component = registry.motions.emplace(decoration_entity);
 	motion_component.position = position;
 	motion_component.scale = DECORATION_SIZE_LIST[i];
 	motion_component.velocity = vec2(0, 0);
-	
+
 	// Render the object.
 	registry.renderRequests.insert(
 		decoration_entity,
-		{
-			DECORATION_LIST[i],
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
+		{DECORATION_LIST[i],
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
 
 	return decoration_entity;
 }
 
 // Helper function to make it easier to create tutorial tiles.
-Entity createMapTileDecoration(int i, vec2 position) {
+Entity createMapTileDecoration(int i, vec2 position)
+{
 	// Create the associated entity.
 	Entity decoration_entity = Entity();
 
@@ -211,12 +237,13 @@ Entity createMapTileDecoration(int i, vec2 position) {
 	return createMapTileDecoration(decoration_entity, i, position);
 }
 
-Entity createTutorialTile(vec2 position) {
+Entity createTutorialTile(vec2 position)
+{
 	// Create the associated entity.
 	Entity tutorial_tile_entity = Entity();
 
 	// Create the associated component.
-	TutorialTile& tutorial_tile_component = registry.tutorialTiles.emplace(tutorial_tile_entity);
+	TutorialTile &tutorial_tile_component = registry.tutorialTiles.emplace(tutorial_tile_entity);
 
 	// Create the associated maptile component.
 	createMapTile(tutorial_tile_entity, position);
@@ -224,12 +251,13 @@ Entity createTutorialTile(vec2 position) {
 	return tutorial_tile_entity;
 }
 
-Entity createTutorialTileDecoration(int i, vec2 position) {
+Entity createTutorialTileDecoration(int i, vec2 position)
+{
 	// Create the associated entity.
 	Entity tutorial_tile_entity = Entity();
 
 	// Create the associated component.
-	TutorialTile& tutorial_tile_component = registry.tutorialTiles.emplace(tutorial_tile_entity);
+	TutorialTile &tutorial_tile_component = registry.tutorialTiles.emplace(tutorial_tile_entity);
 
 	// Create the associated maptile component.
 	createMapTileDecoration(tutorial_tile_entity, i, position);
@@ -268,7 +296,8 @@ Entity createScorchedEarth(vec2 position)
 void removeSurfaces()
 {
 	// remove all mapTiles
-	for (Entity& maptile_entity : registry.mapTiles.entities) {
+	for (Entity &maptile_entity : registry.mapTiles.entities)
+	{
 		registry.remove_all_components_of(maptile_entity);
 	}
 	// remove all scorched earth
@@ -281,15 +310,16 @@ void removeSurfaces()
 }
 
 // Create a sign that will only appear once it appears in a tutorial.
-Entity createTutorialMove(vec2 position) {
+Entity createTutorialMove(vec2 position)
+{
 	// Create the associated entity.
 	Entity tutorial_entity = Entity();
 
 	// Create the associated component.
-	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+	TutorialSign &tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(tutorial_entity);
+	Motion &motion_component = registry.motions.emplace(tutorial_entity);
 	motion_component.position = position;
 	motion_component.scale = vec2(465, 345);
 	motion_component.velocity = vec2(0, 0);
@@ -297,12 +327,9 @@ Entity createTutorialMove(vec2 position) {
 	// Render the sign.
 	registry.renderRequests.insert(
 		tutorial_entity,
-		{
-			TEXTURE_ASSET_ID::TUTORIAL_MOVE,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
+		{TEXTURE_ASSET_ID::TUTORIAL_MOVE,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
 
 	// Create the animation
 	static TEXTURE_ASSET_ID asset_id_array[8] = {
@@ -316,7 +343,7 @@ Entity createTutorialMove(vec2 position) {
 		TEXTURE_ASSET_ID::TUTORIAL_MOVE_D,
 	};
 
-	Animation& animation_component = registry.animations.emplace(tutorial_entity);
+	Animation &animation_component = registry.animations.emplace(tutorial_entity);
 	animation_component.transition_ms = 1000;
 	animation_component.pose_count = 8;
 	animation_component.loop = true;
@@ -327,15 +354,16 @@ Entity createTutorialMove(vec2 position) {
 }
 
 // Create a sign that will only appear once it appears in a tutorial.
-Entity createTutorialAttack(vec2 position) {
+Entity createTutorialAttack(vec2 position)
+{
 	// Create the associated entity.
 	Entity tutorial_entity = Entity();
 
 	// Create the associated component.
-	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+	TutorialSign &tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(tutorial_entity);
+	Motion &motion_component = registry.motions.emplace(tutorial_entity);
 	motion_component.position = position;
 	motion_component.scale = vec2(465, 345);
 	motion_component.velocity = vec2(0, 0);
@@ -343,20 +371,16 @@ Entity createTutorialAttack(vec2 position) {
 	// Render the sign.
 	registry.renderRequests.insert(
 		tutorial_entity,
-		{
-			TEXTURE_ASSET_ID::TUTORIAL_ATTACK,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
+		{TEXTURE_ASSET_ID::TUTORIAL_ATTACK,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
 
 	// Create the animation
 	static TEXTURE_ASSET_ID asset_id_array[2] = {
 		TEXTURE_ASSET_ID::TUTORIAL_ATTACK,
-		TEXTURE_ASSET_ID::TUTORIAL_ATTACK_ANIMATED
-	};
+		TEXTURE_ASSET_ID::TUTORIAL_ATTACK_ANIMATED};
 
-	Animation& animation_component = registry.animations.emplace(tutorial_entity);
+	Animation &animation_component = registry.animations.emplace(tutorial_entity);
 	animation_component.transition_ms = 1000;
 	animation_component.pose_count = 2;
 	animation_component.loop = true;
@@ -367,15 +391,16 @@ Entity createTutorialAttack(vec2 position) {
 }
 
 // Create a sign that will only appear once it appears in a tutorial.
-Entity createTutorialPlant(vec2 position) {
+Entity createTutorialPlant(vec2 position)
+{
 	// Create the associated entity.
 	Entity tutorial_entity = Entity();
 
 	// Create the associated component.
-	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+	TutorialSign &tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(tutorial_entity);
+	Motion &motion_component = registry.motions.emplace(tutorial_entity);
 	motion_component.position = position;
 	motion_component.scale = vec2(465, 345);
 	motion_component.velocity = vec2(0, 0);
@@ -383,20 +408,16 @@ Entity createTutorialPlant(vec2 position) {
 	// Render the sign.
 	registry.renderRequests.insert(
 		tutorial_entity,
-		{
-			TEXTURE_ASSET_ID::TUTORIAL_PLANT,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
+		{TEXTURE_ASSET_ID::TUTORIAL_PLANT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
 
 	// Create the animation
 	static TEXTURE_ASSET_ID asset_id_array[2] = {
 		TEXTURE_ASSET_ID::TUTORIAL_PLANT,
-		TEXTURE_ASSET_ID::TUTORIAL_PLANT_ANIMATED
-	};
+		TEXTURE_ASSET_ID::TUTORIAL_PLANT_ANIMATED};
 
-	Animation& animation_component = registry.animations.emplace(tutorial_entity);
+	Animation &animation_component = registry.animations.emplace(tutorial_entity);
 	animation_component.transition_ms = 1000;
 	animation_component.pose_count = 2;
 	animation_component.loop = true;
@@ -407,15 +428,16 @@ Entity createTutorialPlant(vec2 position) {
 }
 
 // Create a sign that will only appear once it appears in a tutorial.
-Entity createTutorialRestart(vec2 position) {
+Entity createTutorialRestart(vec2 position)
+{
 	// Create the associated entity.
 	Entity tutorial_entity = Entity();
 
 	// Create the associated component.
-	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+	TutorialSign &tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(tutorial_entity);
+	Motion &motion_component = registry.motions.emplace(tutorial_entity);
 	motion_component.position = position;
 	motion_component.scale = vec2(465, 345);
 	motion_component.velocity = vec2(0, 0);
@@ -423,20 +445,16 @@ Entity createTutorialRestart(vec2 position) {
 	// Render the sign.
 	registry.renderRequests.insert(
 		tutorial_entity,
-		{
-			TEXTURE_ASSET_ID::TUTORIAL_RESTART,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
+		{TEXTURE_ASSET_ID::TUTORIAL_RESTART,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
 
 	// Create the animation
 	static TEXTURE_ASSET_ID asset_id_array[2] = {
 		TEXTURE_ASSET_ID::TUTORIAL_RESTART,
-		TEXTURE_ASSET_ID::TUTORIAL_RESTART_ANIMATED
-	};
+		TEXTURE_ASSET_ID::TUTORIAL_RESTART_ANIMATED};
 
-	Animation& animation_component = registry.animations.emplace(tutorial_entity);
+	Animation &animation_component = registry.animations.emplace(tutorial_entity);
 	animation_component.transition_ms = 1000;
 	animation_component.pose_count = 2;
 	animation_component.loop = true;
@@ -447,15 +465,16 @@ Entity createTutorialRestart(vec2 position) {
 }
 
 // Create an arrow to go along with the tutorial map.
-Entity createTutorialArrow(vec2 position) {
+Entity createTutorialArrow(vec2 position)
+{
 	// Create the associated entity.
 	Entity arrow_entity = Entity();
 
 	// Create the associated component.
-	TutorialSign& tutorial_component = registry.tutorialSigns.emplace(arrow_entity);
+	TutorialSign &tutorial_component = registry.tutorialSigns.emplace(arrow_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(arrow_entity);
+	Motion &motion_component = registry.motions.emplace(arrow_entity);
 	motion_component.position = position;
 	motion_component.scale = vec2(80, 150);
 	motion_component.velocity = vec2(0, 0);
@@ -463,24 +482,25 @@ Entity createTutorialArrow(vec2 position) {
 	// Render the sign.
 	registry.renderRequests.insert(
 		arrow_entity,
-		{
-			TEXTURE_ASSET_ID::TUTORIAL_ARROW,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
+		{TEXTURE_ASSET_ID::TUTORIAL_ARROW,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
 
 	return arrow_entity;
 }
 
-void parseMap(bool tutorial) {
+void parseMap(bool tutorial)
+{
 	json jsonFile;
-	if (tutorial) {
+	if (tutorial)
+	{
 		std::ifstream file(PROJECT_SOURCE_DIR + std::string("data/map/tutorialMap.json"));
-		file>>jsonFile;
-	} else  {
+		file >> jsonFile;
+	}
+	else
+	{
 		std::ifstream file(PROJECT_SOURCE_DIR + std::string("data/map/myMap.json"));
-		file>>jsonFile;
+		file >> jsonFile;
 	}
 
 	int numCol = jsonFile["width"];
@@ -489,26 +509,38 @@ void parseMap(bool tutorial) {
 	std::vector<int> decoration_layer = jsonFile["layers"][1]["data"];
 
 	// create background
-	for (int i=0; i<numRow; i++) { //iterating row-by-row
-		for (int j=0; j<numCol; j++) {
-			if (map_layer[i*numCol+j] == 1) {
-				if (tutorial) {
-					createTutorialTile({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
-				} else {
-					createMapTile({j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+	for (int i = 0; i < numRow; i++)
+	{ // iterating row-by-row
+		for (int j = 0; j < numCol; j++)
+		{
+			if (map_layer[i * numCol + j] == 1)
+			{
+				if (tutorial)
+				{
+					createTutorialTile({j * GRID_CELL_WIDTH_PX, i * GRID_CELL_HEIGHT_PX});
+				}
+				else
+				{
+					createMapTile({j * GRID_CELL_WIDTH_PX, i * GRID_CELL_HEIGHT_PX});
 				}
 			}
 		}
 	}
 
 	// add decorations
-	for (int i=0; i<numRow; i++) { //iterating row-by-row
-		for (int j=0; j<numCol; j++) {	
-			if (decoration_layer[i*numCol+j] != 0) {
-				if (tutorial) {
-					createTutorialTileDecoration(decoration_layer[i*numCol+j], {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
-				} else {
-					createMapTileDecoration(decoration_layer[i*numCol+j], {j*GRID_CELL_WIDTH_PX, i*GRID_CELL_HEIGHT_PX});
+	for (int i = 0; i < numRow; i++)
+	{ // iterating row-by-row
+		for (int j = 0; j < numCol; j++)
+		{
+			if (decoration_layer[i * numCol + j] != 0)
+			{
+				if (tutorial)
+				{
+					createTutorialTileDecoration(decoration_layer[i * numCol + j], {j * GRID_CELL_WIDTH_PX, i * GRID_CELL_HEIGHT_PX});
+				}
+				else
+				{
+					createMapTileDecoration(decoration_layer[i * numCol + j], {j * GRID_CELL_WIDTH_PX, i * GRID_CELL_HEIGHT_PX});
 				}
 			}
 		}
@@ -523,13 +555,13 @@ Entity createToolbar(vec2 position)
 	Entity toolbar_entity = Entity();
 
 	// Create the associated component.
-	Toolbar& toolbar_component = registry.toolbars.emplace(toolbar_entity);
+	Toolbar &toolbar_component = registry.toolbars.emplace(toolbar_entity);
 
 	// Create a component to simplify movement.
-	MoveWithCamera& mwc = registry.moveWithCameras.emplace(toolbar_entity);
+	MoveWithCamera &mwc = registry.moveWithCameras.emplace(toolbar_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(toolbar_entity);
+	Motion &motion_component = registry.motions.emplace(toolbar_entity);
 	motion_component.position = position;
 	motion_component.scale = vec2(TOOLBAR_WIDTH, TOOLBAR_HEIGHT);
 	motion_component.velocity = vec2(0, 0);
@@ -574,13 +606,13 @@ Entity createPause()
 	Entity pause_entity = Entity();
 
 	// Create the associated component.
-	Pause& pause_component = registry.pauses.emplace(pause_entity);
+	Pause &pause_component = registry.pauses.emplace(pause_entity);
 
 	// Create a component to simplify movement.
-	MoveWithCamera& mwc = registry.moveWithCameras.emplace(pause_entity);
+	MoveWithCamera &mwc = registry.moveWithCameras.emplace(pause_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(pause_entity);
+	Motion &motion_component = registry.motions.emplace(pause_entity);
 	motion_component.position = vec2(-150, -50);
 	motion_component.scale = vec2(120, 120);
 	motion_component.velocity = vec2(0, 0);
@@ -607,9 +639,9 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 
 	Inventory &inventory = registry.inventorys.emplace(entity);
 	registry.inventorys.components[0].seedCount[0] = 5; // 5 starter seeds
-	
-	MoveWithCamera& mwc = registry.moveWithCameras.emplace(entity);
-	Motion& motion = registry.motions.emplace(entity);
+
+	MoveWithCamera &mwc = registry.moveWithCameras.emplace(entity);
+	Motion &motion = registry.motions.emplace(entity);
 
 	motion.angle = 0.f;
 	motion.velocity = {0, 0};
@@ -617,7 +649,7 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 	motion.scale = vec2({PLAYER_HEIGHT, PLAYER_HEIGHT});
 
 	VisualScale &vscale = registry.visualScales.emplace(entity);
-    vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x
+	vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x
 
 	Attack &attack = registry.attacks.emplace(entity);
 	attack.range = 60;
@@ -690,6 +722,8 @@ Entity createSeed(vec2 pos, int type)
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
+	ParticleSystem::createSeedGrowthEffect(pos, motion_component.scale);
+
 	return seed_entity;
 }
 
@@ -705,10 +739,10 @@ Entity createSeedInventory(vec2 pos, vec2 velocity, int type)
 	seed_component.timer = 5000;
 
 	// Create a component to simplify movement.
-	MoveWithCamera& mwc = registry.moveWithCameras.emplace(seed_entity);
+	MoveWithCamera &mwc = registry.moveWithCameras.emplace(seed_entity);
 
 	// Create the relevant motion component.
-	Motion& motion_component = registry.motions.emplace(seed_entity);
+	Motion &motion_component = registry.motions.emplace(seed_entity);
 	motion_component.position = pos;
 	motion_component.scale = vec2(50, 50);
 	motion_component.velocity = velocity;
@@ -726,7 +760,6 @@ Entity createSeedInventory(vec2 pos, vec2 velocity, int type)
 	return seed_entity;
 }
 
-
 // create a camera
 Entity createCamera(RenderSystem *renderer, vec2 position)
 {
@@ -740,54 +773,54 @@ Entity createCamera(RenderSystem *renderer, vec2 position)
 	return camera;
 }
 
-Entity createSkeleton(RenderSystem *renderer, vec2 position)
+Entity createSkeletonArcher(RenderSystem *renderer, vec2 position)
 {
-    // Create base entity
-    Entity entity = Entity();
+	// Create base entity
+	Entity entity = Entity();
 
-    // Add skeleton specific component with improved properties
-    Skeleton &skeleton = registry.skeletons.emplace(entity);
-    skeleton.attack_range = 400.0f;      // Longer range than zombies
-    skeleton.stop_distance = 300.0f;     // Stops moving at this distance
-    skeleton.attack_cooldown_ms = SKELETON_ATTACK_DURATION;// Attack cooldown
+	// Add skeleton specific component with improved properties
+	Skeleton &skeleton = registry.skeletons.emplace(entity);
+	skeleton.attack_range = 400.0f;							// Longer range than zombies
+	skeleton.stop_distance = 300.0f;						// Stops moving at this distance
+	skeleton.attack_cooldown_ms = SKELETON_ATTACK_DURATION; // Attack cooldown
 
 	Enemy &enemy = registry.enemies.emplace(entity);
-	enemy.health = SKELETON_HEALTH;
+	enemy.health = SKELETON_ARCHER_HEALTH;
 
     // Add attack component separate from zombies
     Attack &attack = registry.attacks.emplace(entity);
     attack.range = skeleton.attack_range; // Match the attack range
-	attack.damage = SKELETON_ARROW_DAMAGE;       // Set the damage value
+	attack.damage = SKELETON_ARCHER_DAMAGE;       // Set the damage value
 
     // Add motion component
     Motion &motion = registry.motions.emplace(entity);
     motion.position = position;
     motion.velocity = {0, 0};
-    motion.scale = {50.f, 50.f};
+    motion.scale = {ENEMY_WIDTH, ENEMY_HEIGHT};
 
 	VisualScale &vscale = registry.visualScales.emplace(entity);
-    vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x
+	vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x
 
-    // Add render request - temporarily use zombie texture
-    registry.renderRequests.insert(
-        entity,
-        {TEXTURE_ASSET_ID::SKELETON_IDLE1, // Replace with SKELETON texture
-         EFFECT_ASSET_ID::ZOMBIE, // Consider using a unique shader for skeletons
-         GEOMETRY_BUFFER_ID::SPRITE});
+	// Add render request - temporarily use zombie texture
+	registry.renderRequests.insert(
+		entity,
+		{TEXTURE_ASSET_ID::SKELETON_IDLE1, // Replace with SKELETON texture
+		 EFFECT_ASSET_ID::ZOMBIE,		   // Consider using a unique shader for skeletons
+		 GEOMETRY_BUFFER_ID::SPRITE});
 
-    // Add animation using zombie textures until skeleton textures are added
-        // Add idle animation
-		AnimationSystem::update_animation(
-			entity,
-			800,                       // Duration in ms (slower for idle)
-			SKELETON_IDLE_ANIMATION,   // Idle animation texture array
-			6,      // Number of frames (6)
-			true,                      // Loop animation
-			false,                     // Not locked (can be replaced)
-			false                      // Don't destroy when done
-		);
+	// Add animation using zombie textures until skeleton textures are added
+	// Add idle animation
+	AnimationSystem::update_animation(
+		entity,
+		800,					 // Duration in ms (slower for idle)
+		SKELETON_IDLE_ANIMATION, // Idle animation texture array
+		6,						 // Number of frames (6)
+		true,					 // Loop animation
+		false,					 // Not locked (can be replaced)
+		false					 // Don't destroy when done
+	);
 
-    return entity;
+	return entity;
 }
 
 // Create an arrow projectile
@@ -800,7 +833,7 @@ Entity createArrow(vec2 position, vec2 direction, Entity source)
     Arrow &arrow = registry.arrows.emplace(entity);
     arrow.source = source;
     arrow.direction = normalize(direction); // Ensure direction is normalized
-    arrow.damage = SKELETON_ARROW_DAMAGE;
+    arrow.damage = SKELETON_ARCHER_DAMAGE;
     
     // Add motion component
     Motion &motion = registry.motions.emplace(entity);
@@ -811,53 +844,49 @@ Entity createArrow(vec2 position, vec2 direction, Entity source)
     motion.scale = {10.f, 10.f}; // Arrow size
 
 	VisualScale &vscale = registry.visualScales.emplace(entity);
-    vscale.scale = {10.f, 10.f}; // Scale visuals 2.5x
+	vscale.scale = {10.f, 10.f}; // Scale visuals 2.5x
 
-    
-    // Add render request - use projectile texture or a specific arrow texture
-    registry.renderRequests.insert(
-        entity,
-        {TEXTURE_ASSET_ID::ARROW,
-         EFFECT_ASSET_ID::TEXTURED,
-         GEOMETRY_BUFFER_ID::SPRITE});
-    
-    return entity;
+	// Add render request - use projectile texture or a specific arrow texture
+	registry.renderRequests.insert(
+		entity,
+		{TEXTURE_ASSET_ID::ARROW,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
+
+	return entity;
 }
 
-
-Entity createChicken(RenderSystem* renderer)
+Entity createChicken(RenderSystem *renderer)
 {
 	auto entity = Entity();
 
-	Projectile& projectile = registry.projectiles.emplace(entity);
+	Projectile &projectile = registry.projectiles.emplace(entity);
 	projectile.damage = CHICKEN_DAMAGE;
 	projectile.invincible = true;
 
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::CHICKEN);
+	Mesh &mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::CHICKEN);
 	registry.meshPtrs.emplace(entity, &mesh);
 
-	auto& motion = registry.motions.emplace(entity);
+	auto &motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { CHICKEN_SPEED, 0 };
+	motion.velocity = {CHICKEN_SPEED, 0};
 	motion.position = vec2(0, WINDOW_HEIGHT_PX / 2);
 	motion.scale = mesh.original_size * CHICKEN_SIZE;
 	motion.scale.x *= -1;
 	motion.scale.y *= -1;
 
-	if (registry.players.size() > 0) {
-		Entity& player_entity = registry.players.entities[0];
-		Motion& player_motion = registry.motions.get(player_entity);
+	if (registry.players.size() > 0)
+	{
+		Entity &player_entity = registry.players.entities[0];
+		Motion &player_motion = registry.motions.get(player_entity);
 		motion.position.y = player_motion.position.y;
 	}
 
 	registry.renderRequests.insert(
 		entity,
-		{
-			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::CHICKEN,
-			GEOMETRY_BUFFER_ID::CHICKEN
-		}
-	);
+		{TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::CHICKEN,
+		 GEOMETRY_BUFFER_ID::CHICKEN});
 
 	return entity;
 }
