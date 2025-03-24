@@ -679,9 +679,6 @@ void WorldSystem::update_enemy_death_animations(float elapsed_ms)
 		if (death_anim.duration_ms <= 0)
 		{
 			registry.remove_all_components_of(entity);
-
-			// Kung: Upon killing a enemy, update the enemy count and print it to the console.
-			// std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 		}
 	}
 }

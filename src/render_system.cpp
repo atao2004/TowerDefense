@@ -522,7 +522,14 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 
 	// Render the FPS counter
 	float current_fps = (1/(elapsed_ms/1000));
-	renderText("FPS: " + std::to_string(current_fps), WINDOW_WIDTH_PX * 0.1, WINDOW_HEIGHT_PX * 0.925, 0.5, {0, 1, 1}, glm::mat4(1.0f));
+	renderText("FPS: " + std::to_string(current_fps), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.925, 0.3, {0, 1, 1}, trans);
+
+	// Render the number of enemies on screen
+	renderText("Enemy count: " + std::to_string(registry.enemies.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.875, 0.3, {0, 1, 1}, trans);
+
+	// Render the number of plants on screen (Includes plant in inventory)
+	renderText("Plant count: " + std::to_string(registry.seeds.size() + registry.towers.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.825, 0.3, {0, 1, 1}, trans);
+
 
 	//  draw framebuffer to screen
 	//  adding "UI" effect when applied
