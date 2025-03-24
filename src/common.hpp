@@ -472,6 +472,8 @@ const vec2 DECORATION_SIZE_LIST[] = {
 	vec2(9 * 2, 6 * 2),
 	vec2(60 * 3, 60 * 3),
 	vec2(60, 60),
+	vec2(45, 45),
+	vec2(45, 45),
 };
 
 // animation (time)
