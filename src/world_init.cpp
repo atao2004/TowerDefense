@@ -47,7 +47,7 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position) {
 	return entity;
 }
 
-Entity createSplashScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background) {
+Entity createScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background) {
 	Entity entity = Entity();
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
@@ -687,7 +687,7 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = {0, 0};
 	motion.position = position;
-	motion.scale = vec2({PLAYER_HEIGHT*5, PLAYER_HEIGHT*5});
+	motion.scale = vec2({PLAYER_HEIGHT, PLAYER_HEIGHT});
 
 	VisualScale &vscale = registry.visualScales.emplace(entity);
 	vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x

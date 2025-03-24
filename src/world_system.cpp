@@ -228,7 +228,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		music_thread.detach();
 	}
 
-	if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH)
+	if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH && game_screen != GAME_SCREEN_ID::CG)
 	{
 		update_camera();
 		// spawn_manager.step(elapsed_ms_since_last_update, renderer);
@@ -390,8 +390,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 void WorldSystem::start_cg() {
 	registry.clear_all_components();
 	game_screen = GAME_SCREEN_ID::CG;
-
-	
+	createScreen(renderer, TEXTURE_ASSET_ID::NIGHT_BG);
 }
 
 // Reset the world state to its initial state
@@ -927,7 +926,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		registry.list_all_components();
 	}
 
-	if (game_screen == GAME_SCREEN_ID::SPLASH) {
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) {
 		//implement
 		return;
 	}
@@ -1169,7 +1168,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	mouse_pos_x = mouse_position.x;
 	mouse_pos_y = mouse_position.y;
 
-	if (game_screen == GAME_SCREEN_ID::SPLASH) {
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) {
 		return;
 	}
 

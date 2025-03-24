@@ -388,7 +388,7 @@ void RenderSystem::drawToScreen()
 		GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
 
 		glUniform1f(game_continues_uloc, screen.game_over);
-		glUniform1f(hp_uloc, WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH? 0:screen.hp_percentage);
+		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) ?  0 : screen.hp_percentage);
 		glUniform1f(exp_uloc, screen.exp_percentage);
 		gl_has_errors();
 
@@ -462,19 +462,19 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	gl_has_errors();
 
 
-	mat3 projection_2D = game_screen == GAME_SCREEN_ID::SPLASH ? createProjectionMatrix_splash(): createProjectionMatrix();
+	mat3 projection_2D = (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) ? createProjectionMatrix_splash(): createProjectionMatrix();
 
-	if (game_screen == GAME_SCREEN_ID::SPLASH) {
-		//render game title
-
-		for (Entity entity : registry.renderRequests.entities)
-		{
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) {
+		for (Entity entity : registry.renderRequests.entities) {
 			drawTexturedMesh(entity, projection_2D);	
 		}
 		
 		drawToScreen();
-		
-		renderText("Farmer Defense", WINDOW_WIDTH_PX/3,WINDOW_HEIGHT_PX-100,1,{0,0,0}, trans);
+		if (game_screen == GAME_SCREEN_ID::SPLASH)
+			renderText("Farmer Defense", WINDOW_WIDTH_PX/3,WINDOW_HEIGHT_PX-100,1,{0,0,0}, trans);
+		else {
+
+		}
 	} else {
 		// draw all entities with a render request to the frame buffer
 		for (Entity entity : registry.renderRequests.entities)
