@@ -592,3 +592,15 @@ struct ParticleGenerator
         return json{};
     }
 };
+
+struct Text {
+    vec2 position;
+    vec3 color;
+    std::string text;
+    float scale;
+
+    //compile purpose, not gonna save it
+    json toJSON() const {
+        return json{};
+    }
+};

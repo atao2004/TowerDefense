@@ -473,7 +473,7 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 		}
 		
 		drawToScreen();
-		glm::mat4 trans = glm::mat4(1.0f);
+		
 		renderText("Farmer Defense", WINDOW_WIDTH_PX/3,WINDOW_HEIGHT_PX-100,1,{0,0,0}, trans);
 	} else {
 		// draw all entities with a render request to the frame buffer
@@ -516,8 +516,6 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 		//  adding "UI" effect when applied
 		drawToScreen();
 	}
-
-	//renderText("test", 10, 10, 1, {1, 0, 1}, trans);
 
 
 	// flicker-free display with a double buffer

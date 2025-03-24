@@ -229,6 +229,7 @@ class RenderSystem
 	GLuint m_font_shaderProgram;
 	GLuint m_font_VAO;
 	GLuint m_font_VBO;
+	glm::mat4 trans = glm::mat4(1.0f);
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
