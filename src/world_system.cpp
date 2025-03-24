@@ -1219,7 +1219,13 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {
 			int cg_index = ++registry.screenStates.components[0].cg_index;
 			std::cout<<cg_index<<std::endl;
-			if (cg_index == 6)
+			if (cg_index == 6) {
+				registry.clear_all_components();
+				createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+			} else if (cg_index == 7) {
+				createCharacter(renderer, vec2(WINDOW_WIDTH_PX-200, WINDOW_HEIGHT_PX-250), vec2(-500, 500), TEXTURE_ASSET_ID::ORC_WALK2);
+				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX-250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
+			} else if (cg_index == 11)
 				restart_game();
 			// if (cg_index == 6)
 				

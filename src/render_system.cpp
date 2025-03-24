@@ -488,6 +488,15 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 			}
 			if (cg_idx == 5)
 				renderText( "You went back to sleep, unaware that your world had already changed...", 10, WINDOW_HEIGHT_PX-100,0.6, {1,1,1}, trans);
+			if (cg_idx == 6)
+				renderText( "*The next day", 10, WINDOW_HEIGHT_PX-100,0.6, {1,1,1}, trans);
+			if (cg_idx == 8)
+				renderText( "Uh... Hello?", 60, 350,0.6, {1,1,1}, trans);
+			if (cg_idx == 9)
+				renderText( "*Growl", WINDOW_WIDTH_PX-300, 350,0.6, {1,1,1}, trans);
+			if (cg_idx == 10)
+				renderText( "Uh oh...", 60, 350,0.6, {1,1,1}, trans);
+
 		}
 	} else {
 		// draw all entities with a render request to the frame buffer

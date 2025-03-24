@@ -199,6 +199,7 @@ class RenderSystem
 		textures_path("ui/background.png"),
 		textures_path("particles/particle1.png"),
 		textures_path("cut_scenes/night_bg.png"),
+		textures_path("cut_scenes/day_bg.png"),
 	};
 
 

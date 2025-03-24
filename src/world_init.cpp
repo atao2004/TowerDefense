@@ -928,3 +928,23 @@ Entity createChicken(RenderSystem *renderer)
 
 	return entity;
 }
+
+Entity createCharacter(RenderSystem *renderer, vec2 position, vec2 scale, TEXTURE_ASSET_ID texture)
+{
+	Entity entity = Entity();
+	Motion &motion = registry.motions.emplace(entity);
+
+	motion.angle = 0.f;
+	motion.velocity = {0, 0};
+	motion.position = position;
+	motion.scale = scale;
+
+	registry.renderRequests.insert(
+		entity,
+		{texture,
+		 EFFECT_ASSET_ID::PLAYER,
+		 GEOMETRY_BUFFER_ID::SPRITE},
+		false);
+
+	return entity;
+}
