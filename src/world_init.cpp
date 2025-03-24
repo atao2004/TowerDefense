@@ -24,6 +24,25 @@ using json = nlohmann::json;
 // 	return entity;
 // }
 
+Entity createSplashScreen(RenderSystem* renderer) {
+	Entity entity = Entity();
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = {0, 0};
+	motion.scale = vec2({ WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX });
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::ZOMBIE_SPAWN_1,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+	return entity;
+}
+
 // createZombieSpawn
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position) {
 	Entity entity = Entity();

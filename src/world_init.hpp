@@ -4,6 +4,9 @@
 #include "tinyECS/tiny_ecs.hpp"
 #include "render_system.hpp"
 
+//splash screen
+Entity createSplashScreen(RenderSystem* renderer);
+
 // zombies
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position);
 Entity createZombie(RenderSystem* renderer, vec2 position);

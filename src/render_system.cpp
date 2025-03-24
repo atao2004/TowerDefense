@@ -402,7 +402,7 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	// glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
 
 	glClearDepth(10.f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST); // native OpenGL does not work with a depth buffer
@@ -414,7 +414,18 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	mat3 projection_2D = game_screen == GAME_SCREEN_ID::SPLASH ? createProjectionMatrix_splash(): createProjectionMatrix();
 
 	if (game_screen == GAME_SCREEN_ID::SPLASH) {
+		//render game title
 
+		for (Entity entity : registry.renderRequests.entities)
+		{
+			std::cout<<"yolo"<<std::endl;
+			drawTexturedMesh(entity, projection_2D);
+			
+		}
+		
+		drawToScreen();
+		glm::mat4 trans = glm::mat4(1.0f);
+		renderText("splash, inside draw", WINDOW_WIDTH_PX/3,WINDOW_HEIGHT_PX-100,1,{1,1,1}, trans);
 	} else {
 		// draw all entities with a render request to the frame buffer
 		for (Entity entity : registry.renderRequests.entities)
@@ -452,12 +463,10 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 		// individually draw player, will render on top of all the motion sprites
 		if (!WorldSystem::game_is_over)
 			drawTexturedMesh(registry.players.entities[0], projection_2D);
-
-		// glm::mat4 trans = glm::mat4(1.0f);
-		// renderText("hi", 10, 10, 1, {1, 0, 1}, trans);
-
 		//  draw framebuffer to screen
 		//  adding "UI" effect when applied
+		glm::mat4 trans = glm::mat4(1.0f);
+		renderText("inside draw", WINDOW_WIDTH_PX/3,WINDOW_HEIGHT_PX-100,1,{1,1,1}, trans);
 		drawToScreen();
 	}
 
@@ -693,6 +702,10 @@ void RenderSystem::renderText(std::string text, float x, float y, float scale, c
 {
 	// Activate shader
 	glUseProgram(m_font_shaderProgram);
+	
+	// enable blending or you will just get solid boxes instead of text
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	GLint textColor_location = glGetUniformLocation(m_font_shaderProgram, "textColor");
 	assert(textColor_location > -1);
@@ -743,5 +756,5 @@ void RenderSystem::renderText(std::string text, float x, float y, float scale, c
 		x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
 	}
 	glBindVertexArray(vao);
-	// glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }

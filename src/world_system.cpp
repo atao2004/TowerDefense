@@ -176,9 +176,12 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 	// std::cout << "Starting music..." << std::endl;
 
 	// Set all states to default
-	// restart_game();
+	restart_game();
 	// restart_tutorial();
-	init_splash_screen();
+	// init_splash_screen();
+	// createSplashScreen(renderer);
+		glm::mat4 trans =  glm::ortho(0.0f, (float)WINDOW_WIDTH_PX, 0.0f, (float)WINDOW_HEIGHT_PX);
+		renderer->renderText("hi", 10, 10, 1, {1, 0, 1}, trans);
 }
 
 // Update our game world
@@ -245,7 +248,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		music_thread.detach();
 	}
 
-	if (!WorldSystem::game_is_over)
+	if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH)
 	{
 		update_camera();
 		// spawn_manager.step(elapsed_ms_since_last_update, renderer);
