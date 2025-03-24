@@ -51,6 +51,7 @@ public:
 	ComponentContainer<VisualScale> visualScales;
 
 	ComponentContainer<Enemy> enemies;
+	ComponentContainer<Button> buttons;
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
@@ -83,6 +84,7 @@ public:
 		registry_list.push_back(&inventorys);//26
 		registry_list.push_back(&seeds);//27
 		registry_list.push_back(&moveWithCameras);//28
+		registry_list.push_back(&buttons);//29 dont save this
 	}
 
 	void clear_all_components() {

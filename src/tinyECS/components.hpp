@@ -517,3 +517,11 @@ struct Camera {
         };
     }
 };
+
+struct Button {
+    std::string type;
+    vec2 position;
+    json toJSON() const {
+        return json{}; //don't use it, just for compile purpose
+    }
+};

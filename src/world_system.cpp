@@ -13,8 +13,6 @@
 #include "spawn_manager.hpp"
 #include "state_system.hpp"
 #include "../ext/json.hpp"
-#include "../ext/nuklear.h"
-// #include "../ext/nuklear_glfw_gl3.h"
 using json = nlohmann::json;
 
 // FreeType
@@ -176,10 +174,11 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 	// std::cout << "Starting music..." << std::endl;
 
 	// Set all states to default
-	restart_game();
+	// restart_game();
 	// restart_tutorial();
-	// init_splash_screen();
-	// createSplashScreen(renderer);
+	game_screen = GAME_SCREEN_ID::SPLASH;
+	createSplashScreen(renderer);
+	createButton(renderer, "start", vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5));
 }
 
 // Update our game world
@@ -412,7 +411,7 @@ void WorldSystem::restart_game()
 
 	// Set the level to level 1 and the game_screen to PLAYING.
 	level = 1;
-	game_screen = GAME_SCREEN_ID::SPLASH;
+	game_screen = GAME_SCREEN_ID::PLAYING;
 
 	// Kung: This is for Milestone #2. This creates the farmland.
 	parseMap(false);
@@ -899,15 +898,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	{
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
-
-		// if (game_screen == GAME_SCREEN_ID::TUTORIAL)
-		// {
-		// 	restart_tutorial();
-		// }
-		// else
-		// {
 		restart_game();
-		// }
 
 		return;
 	}
@@ -1149,7 +1140,12 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 
 	if (game_screen == GAME_SCREEN_ID::SPLASH) {
 		//implement
-		std::cout<<"heloo"<<std::endl;
+		for (auto& b: registry.buttons.components) {
+			if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH/2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH/2 &&
+				mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT/2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT/2) {
+					
+				}
+		}
 		return;
 	}
 
@@ -1176,7 +1172,18 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 
 void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 {
-	if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH)
+	if (game_screen == GAME_SCREEN_ID::SPLASH) {
+		//implement
+		for (auto& b: registry.buttons.components) {
+			if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH/2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH/2 &&
+				mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT/2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT/2) {
+					return restart_game();
+				}
+		}
+		return;
+	}
+
+	if (!WorldSystem::game_is_over)
 	{
 		// on button press
 		if (action == GLFW_PRESS)

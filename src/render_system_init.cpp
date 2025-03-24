@@ -60,7 +60,7 @@ bool RenderSystem::init(GLFWwindow *window_arg)
 	// ctx = nk_glfw3_init(&glfw, const_cast<GLFWwindow *>(window), NK_GLFW3_INSTALL_CALLBACKS);
 	// init_helper(ctx, this->window);
 
-	std::string font_filename = PROJECT_SOURCE_DIR + std::string("data/fonts/Kenney_Mini_Square.ttf");
+	std::string font_filename = PROJECT_SOURCE_DIR + std::string("data/fonts/SquadaOne-Regular.ttf");
 	unsigned int font_default_size = 100;
 	std::cout << "Loading font from: " << font_filename << std::endl;
 	std::ifstream fontFile(font_filename);

@@ -6,6 +6,7 @@
 
 //splash screen
 Entity createSplashScreen(RenderSystem* renderer);
+Entity createButton(RenderSystem* renderer, std::string type, vec2 position);
 
 // zombies
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position);

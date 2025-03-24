@@ -418,14 +418,12 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 
 		for (Entity entity : registry.renderRequests.entities)
 		{
-			std::cout<<"yolo"<<std::endl;
-			drawTexturedMesh(entity, projection_2D);
-			
+			drawTexturedMesh(entity, projection_2D);	
 		}
 		
 		drawToScreen();
 		glm::mat4 trans = glm::mat4(1.0f);
-		renderText("splash, inside draw", WINDOW_WIDTH_PX/3,WINDOW_HEIGHT_PX-100,1,{1,1,1}, trans);
+		renderText("Farmer Defense", WINDOW_WIDTH_PX/3,WINDOW_HEIGHT_PX-100,1,{1,1,1}, trans);
 	} else {
 		// draw all entities with a render request to the frame buffer
 		for (Entity entity : registry.renderRequests.entities)
@@ -465,8 +463,6 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 			drawTexturedMesh(registry.players.entities[0], projection_2D);
 		//  draw framebuffer to screen
 		//  adding "UI" effect when applied
-		glm::mat4 trans = glm::mat4(1.0f);
-		renderText("inside draw", WINDOW_WIDTH_PX/3,WINDOW_HEIGHT_PX-100,1,{1,1,1}, trans);
 		drawToScreen();
 	}
 
