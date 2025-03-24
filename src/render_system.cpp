@@ -435,7 +435,7 @@ void RenderSystem::drawToScreen()
 
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-void RenderSystem::draw(GAME_SCREEN_ID game_screen)
+void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 {
 	// Getting size of window
 	int w, h;
@@ -517,8 +517,12 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 	renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
 
 	for (int current_seed = 0; current_seed < registry.inventorys.size(); current_seed++) {
-		renderText(std::to_string(registry.inventorys.components[0].seedCount[current_seed]), WINDOW_WIDTH_PX * 0.375 + 55 * current_seed, 25, 0.25, {0, 0, 0}, trans);
+		renderText(std::to_string(registry.inventorys.components[0].seedCount[current_seed]), WINDOW_WIDTH_PX * 0.375 + 55 * current_seed, 25, 0.25, {0, 1, 0}, trans);
 	}
+
+	// Render the FPS counter
+	float current_fps = (1/(elapsed_ms/1000));
+	renderText("FPS: " + std::to_string(current_fps), WINDOW_WIDTH_PX * 0.1, WINDOW_HEIGHT_PX * 0.925, 0.5, {0, 1, 1}, glm::mat4(1.0f));
 
 	//  draw framebuffer to screen
 	//  adding "UI" effect when applied

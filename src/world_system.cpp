@@ -251,10 +251,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		return true;
 	}
 
-	// // Render the FPS counter
-	// float current_fps = (1/(elapsed_ms_since_last_update/1000));
-	// this->renderer->renderText(std::to_string(current_fps), 100, 100, 1, {1, 1, 0}, glm::mat4(1.0f));
-
 	return true;
 }
 
