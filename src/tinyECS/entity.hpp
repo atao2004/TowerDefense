@@ -25,4 +25,7 @@ public:
     operator unsigned int() { return m_id; } // enables automatic casting to int
 
     unsigned int id() const { return m_id; }
+
+    static void overrideIDCount(int count) {id_count = count; }
+    static int get_id_count() {return id_count; }
 };

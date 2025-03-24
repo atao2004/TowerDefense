@@ -1378,6 +1378,7 @@ void WorldSystem::loadGame()
 	current_day = jsonFile["current_day"];
 	current_seed = jsonFile["current_seed"];
 	level = jsonFile["level"];
+	Entity::overrideIDCount((int)jsonFile["id_count"]);
 
 	json ss_json = jsonFile["0"][0];
 	ScreenState &ss = registry.screenStates.components[0];
@@ -1649,6 +1650,8 @@ void WorldSystem::loadGame()
 		registry.moveWithCameras.emplace(e);
 	}
 
+
+
 	std::cout << "Game loaded successfully." << std::endl;
 }
 
@@ -1660,6 +1663,7 @@ void WorldSystem::saveGame()
 	jsonFile["current_day"] = current_day;
 	jsonFile["current_seed"] = current_seed;
 	jsonFile["level"] = level;
+	jsonFile["id_count"] = Entity::get_id_count();
 
 	for (int i = 0; i < registry.registry_list.size(); i++)
 	{
