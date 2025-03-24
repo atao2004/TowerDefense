@@ -51,12 +51,12 @@ Entity createSplashScreen(RenderSystem* renderer) {
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
-	motion.position = {0, 0};
+	motion.position = {WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2};
 	motion.scale = vec2({ WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX });
 	registry.renderRequests.insert(
 		entity,
 		{
-			TEXTURE_ASSET_ID::ZOMBIE_SPAWN_1,
+			TEXTURE_ASSET_ID::BACKGROUND,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		},
