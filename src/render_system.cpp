@@ -939,7 +939,7 @@ void RenderSystem::drawParticlesInstanced(const mat3 &projection)
     
     // Verify all attributes exist
     if (in_position_loc < 0 || in_texcoord_loc < 0 || 
-        instance_pos_scale_loc < 0 || instance_color_loc < 0 || instance_life_loc < 0) {
+        instance_pos_scale_loc < 0 || instance_color_loc < 0 ) {
         std::cout << "Error: Missing shader attributes for instanced rendering" << std::endl;
         return;
     }
@@ -1000,12 +1000,20 @@ void RenderSystem::drawParticlesInstanced(const mat3 &projection)
     glVertexAttribDivisor(instance_color_loc, 1);
     gl_has_errors();
 
-    // 3. Life data (vec4)
-    glEnableVertexAttribArray(instance_life_loc);
-    glVertexAttribPointer(instance_life_loc, 4, GL_FLOAT, GL_FALSE,
-                          sizeof(vec4) * 3, (void *)(sizeof(vec4) * 2));
-    glVertexAttribDivisor(instance_life_loc, 1);
-    gl_has_errors();
+    // // 3. Life data (vec4)
+    // glEnableVertexAttribArray(instance_life_loc);
+    // glVertexAttribPointer(instance_life_loc, 4, GL_FLOAT, GL_FALSE,
+    //                       sizeof(vec4) * 3, (void *)(sizeof(vec4) * 2));
+    // glVertexAttribDivisor(instance_life_loc, 1);
+    // gl_has_errors();
+
+	if (instance_life_loc >= 0) {
+        glEnableVertexAttribArray(instance_life_loc);
+        glVertexAttribPointer(instance_life_loc, 4, GL_FLOAT, GL_FALSE,
+                              sizeof(vec4) * 3, (void *)(sizeof(vec4) * 2));
+        glVertexAttribDivisor(instance_life_loc, 1);
+        gl_has_errors();
+    }
 
     // Count indices
     GLint size = 0;
@@ -1019,12 +1027,17 @@ void RenderSystem::drawParticlesInstanced(const mat3 &projection)
     // Reset attribute divisors to avoid affecting other rendering
     glVertexAttribDivisor(instance_pos_scale_loc, 0);
     glVertexAttribDivisor(instance_color_loc, 0);
-    glVertexAttribDivisor(instance_life_loc, 0);
+    //glVertexAttribDivisor(instance_life_loc, 0);
     gl_has_errors();
     
     // Disable attributes we enabled
     glDisableVertexAttribArray(instance_pos_scale_loc);
     glDisableVertexAttribArray(instance_color_loc);
-    glDisableVertexAttribArray(instance_life_loc);
+    //glDisableVertexAttribArray(instance_life_loc);
+
+	if (instance_life_loc >= 0) {
+        glVertexAttribDivisor(instance_life_loc, 0);
+        glDisableVertexAttribArray(instance_life_loc);
+    }
     gl_has_errors();
 }
