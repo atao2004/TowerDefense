@@ -1573,6 +1573,7 @@ void WorldSystem::loadGame() {
 		Entity e = Entity(enemies_json["entity"]);
 		Enemy& enemy = registry.enemies.emplace(e);
 		enemy.health = enemies_json["health"];
+		enemy.speed = enemies_json["speed"];
 	}
 
 	json inventory_arr = jsonFile["26"];
