@@ -51,7 +51,7 @@ public:
 	ComponentContainer<VisualScale> visualScales;
 
 	ComponentContainer<Enemy> enemies;
-	ComponentContainer<Button> buttons;
+	ComponentContainer<CustomButton> buttons;
 	ComponentContainer<Particle> particles;
 	ComponentContainer<ParticleGenerator> particleGenerators;
 	ComponentContainer<Text> texts;

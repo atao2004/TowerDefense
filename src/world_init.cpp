@@ -27,7 +27,7 @@ using json = nlohmann::json;
 
 Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position) {
 	Entity entity = Entity();
-	Button& button = registry.buttons.emplace(entity);
+	CustomButton& button = registry.buttons.emplace(entity);
 	button.type = type;
 	button.position = position;
 	Motion& motion = registry.motions.emplace(entity);
