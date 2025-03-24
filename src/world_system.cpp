@@ -526,7 +526,7 @@ bool WorldSystem::is_over() const
 }
 
 // Helper function to make it easier to increase experience
-void WorldSystem::increase_exp() {
+void WorldSystem::increase_exp_player() {
 	Entity player_entity = registry.players.entities[0];
 	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 	{
@@ -544,6 +544,15 @@ void WorldSystem::increase_exp() {
 		level++;
 		std::cout << "==== LEVEL " << level << " ====" << std::endl;
 	}
+}
+
+// Helper function to make it easier to increase experience
+void WorldSystem::increase_exp_plant() {
+	Entity player_entity = registry.players.entities[0];
+	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
+	{
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(player_entity).damage / PLAYER_HEALTH;
+	} // Kung: Due to technical difficulties, plants cannot be used to level up.
 }
 
 // Helper function to handle what happens when the player does a mouse click
@@ -623,7 +632,7 @@ void WorldSystem::player_attack()
 						// std::cout << "enemies killed: " << points << std::endl;
 
 						// Kung: Upon killing a enemy, increase the experience of the player or reset the experience bar when it becomes full.
-						increase_exp();
+						increase_exp_player();
 					}
 				}
 			}
@@ -982,8 +991,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
 
-	// Kung: Plant seed with the right click button
-	if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_RIGHT)
+	// Kung: Plant seed with the right click button (F button retained for debugging)
+	if ((action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_RIGHT) || (action == GLFW_PRESS && key == GLFW_KEY_F))
 	{
 		// You can only plant where there is farmland.
 		for (Entity maptile_entity : registry.mapTiles.entities)
