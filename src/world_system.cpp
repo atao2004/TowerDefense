@@ -182,7 +182,7 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
-	if (StateSystem::get_state() == STATE::LEVEL_UP)
+	if (PlayerSystem::get_state() == STATE::LEVEL_UP)
 	{
 		registry.inventorys.components[0].seedCount[current_seed]++;
 	}
