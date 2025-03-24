@@ -4,9 +4,20 @@
 #include "tinyECS/tiny_ecs.hpp"
 #include "render_system.hpp"
 
-// zombies
+//splash screen
+Entity createScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background);
+Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position);
+
+// enemies
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position);
-Entity createZombie(RenderSystem* renderer, vec2 position);
+Entity createEnemy(RenderSystem* renderer, vec2 position);
+Entity createOrc(RenderSystem* renderer, vec2 position);
+Entity createOrcElite(RenderSystem* renderer, vec2 position);
+Entity createSkeleton(RenderSystem* renderer, vec2 position);
+Entity createCharacter(RenderSystem* renderer, vec2 position, vec2 scale, TEXTURE_ASSET_ID texture);
+Entity createWerebear(RenderSystem* renderer, vec2 position);
+Entity createWerewolf(RenderSystem* renderer, vec2 position);
+Entity createSlime(RenderSystem* renderer, vec2 position);
 
 // towers
 Entity createTower(RenderSystem* renderer, vec2 position);
@@ -52,6 +63,6 @@ Entity createCamera(RenderSystem* renderer, vec2 position);
 
 Entity createGameOver();
 
-Entity createSkeleton(RenderSystem* renderer, vec2 position);
+Entity createSkeletonArcher(RenderSystem* renderer, vec2 position);
 Entity createArrow(vec2 position, vec2 direction, Entity source);
 

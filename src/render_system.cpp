@@ -10,7 +10,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <sstream>
 
-
 void RenderSystem::drawGridLine(Entity entity,
 								const mat3 &projection)
 {
@@ -126,7 +125,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 
 	// Setting shaders
 	glUseProgram(program);
-	
+
 	gl_has_errors();
 
 	assert(render_request.used_geometry != GEOMETRY_BUFFER_ID::GEOMETRY_COUNT);
@@ -136,7 +135,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	// // Setting vertex and index buffers
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	
+
 	gl_has_errors();
 
 	// texture-mapped entities - use data location as in the vertex buffer
@@ -263,6 +262,57 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 							  sizeof(ColoredVertex), (void *)sizeof(vec3));
 		gl_has_errors();
 	}
+	else if (render_request.used_effect == EFFECT_ASSET_ID::PARTICLE)
+	{
+		GLint in_position_loc = glGetAttribLocation(program, "in_position");
+		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+		gl_has_errors();
+		assert(in_texcoord_loc >= 0);
+
+		glEnableVertexAttribArray(in_position_loc);
+		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
+							  sizeof(TexturedVertex), (void *)0);
+		gl_has_errors();
+
+		glEnableVertexAttribArray(in_texcoord_loc);
+		glVertexAttribPointer(
+			in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex),
+			(void *)sizeof(vec3));
+		gl_has_errors();
+
+		// Pass color as vec4 including alpha
+		vec4 particleColor = {1.0f, 1.0f, 1.0f, 1.0f};
+		if (registry.particles.has(entity))
+		{
+			Particle &particle = registry.particles.get(entity);
+			particleColor = particle.Color;
+		}
+
+		GLint color_loc = glGetUniformLocation(program, "color");
+		glUniform4fv(color_loc, 1, &particleColor[0]);
+		gl_has_errors();
+
+		// Pass life ratio for visual effects
+		float lifeRatio = 1.0f;
+		if (registry.particles.has(entity))
+		{
+			Particle &particle = registry.particles.get(entity);
+			lifeRatio = particle.Life / particle.MaxLife;
+		}
+
+		GLint life_loc = glGetUniformLocation(program, "life_ratio");
+		glUniform1f(life_loc, lifeRatio);
+		gl_has_errors();
+
+		// Enabling and binding texture
+		glActiveTexture(GL_TEXTURE0);
+		gl_has_errors();
+
+		GLuint texture_id =
+			texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+		gl_has_errors();
+	}
 	else
 	{
 		assert(false && "Type of render request not supported");
@@ -315,7 +365,7 @@ void RenderSystem::drawToScreen()
 	gl_has_errors();
 	// Enabling alpha channel for textures
 	glDisable(GL_BLEND);
-	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
 
 	// Draw the screen texture on the quad geometry
@@ -338,7 +388,7 @@ void RenderSystem::drawToScreen()
 		GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
 
 		glUniform1f(game_continues_uloc, screen.game_over);
-		glUniform1f(hp_uloc, screen.hp_percentage);
+		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) ? 0 : screen.hp_percentage);
 		glUniform1f(exp_uloc, screen.exp_percentage);
 		gl_has_errors();
 
@@ -358,7 +408,6 @@ void RenderSystem::drawToScreen()
 		GLuint dead_timer_uloc1 = glGetUniformLocation(vignette_program, "darken_screen_factor");
 		GLuint game_continues_uloc1 = glGetUniformLocation(vignette_program, "game_over");
 		GLuint tex_offset_uloc = glGetUniformLocation(vignette_program, "tex_offset");
-		
 
 		GLint in_position_loc1 = glGetAttribLocation(vignette_program, "in_position");
 		// std::cout<<screen.lerp_timer/2000<<std::endl;
@@ -380,12 +429,13 @@ void RenderSystem::drawToScreen()
 		GL_TRIANGLES, 3, GL_UNSIGNED_SHORT,
 		nullptr); // one triangle = 3 vertices; nullptr indicates that there is
 				  // no offset from the bound index buffer
+
 	gl_has_errors();
 }
 
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-void RenderSystem::draw(GAME_SCREEN_ID game_screen)
+void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 {
 	// Getting size of window
 	int w, h;
@@ -410,71 +460,160 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 							  // sprites back to front
 	gl_has_errors();
 
-	mat3 projection_2D = createProjectionMatrix();
+	mat3 projection_2D = (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) ? createProjectionMatrix_splash() : createProjectionMatrix();
 
-	// draw all entities with a render request to the frame buffer
-	for (Entity entity : registry.renderRequests.entities)
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG)
 	{
-		// filter to entities that have a motion component
-		if (registry.motions.has(entity) 
-		&& registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE
-	    && !registry.players.has(entity))
+		for (Entity entity : registry.cgs.entities)
 		{
-			// Note, its not very efficient to access elements indirectly via the entity
-			// albeit iterating through all Sprites in sequence. A good point to optimize
-			if (game_screen == GAME_SCREEN_ID::TUTORIAL) {
-				if (registry.mapTiles.has(entity)) {
-					if (registry.tutorialTiles.has(entity)) {
-						drawTexturedMesh(entity, projection_2D);
-					}
-				} else { 
-					drawTexturedMesh(entity, projection_2D);
-				}
-			} else if (!registry.tutorialSigns.has(entity) && !registry.tutorialTiles.has(entity)) {
-				drawTexturedMesh(entity, projection_2D);
-			}
-			
+			drawTexturedMesh(entity, projection_2D);
 		}
-		// draw grid lines separately, as they do not have motion but need to be rendered
-		else if (registry.gridLines.has(entity))
+
+		drawToScreen();
+		if (game_screen == GAME_SCREEN_ID::SPLASH)
+			renderText("Farmer Defense", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100, 1, {0, 0, 0}, trans);
+		else
 		{
-			drawGridLine(entity, projection_2D);
+			int cg_idx = registry.screenStates.components[0].cg_index;
+			if (cg_idx == 0)
+				renderText("After years on the battlefield, you hung up your sword and returned home...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 1)
+				renderText("You inherited the farm from your parents, and became a farmer...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 2)
+				renderText("But one night, a meteor carrying a strange virus struck the city...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 3)
+				renderText("*explosion from a distant space", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 4)
+			{
+				renderText("You heard the sound, walk up to the window, peered out but everything seems...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+				renderText("peaceful and normal...", 10, WINDOW_HEIGHT_PX - 150, 0.6, {1, 1, 1}, trans);
+			}
+			if (cg_idx == 5)
+				renderText("You went back to sleep, unaware that your world had already changed...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 6)
+				renderText("*The next day", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 8)
+				renderText("Uh... Hello?", 60, 350, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 9)
+				renderText("*Growl", WINDOW_WIDTH_PX - 300, 350, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 10)
+				renderText("Uh oh...", 60, 350, 0.6, {1, 1, 1}, trans);
+
+			// second scene, plant grow? yes plant grow!
+			if (cg_idx == 13)
+				renderText("Bro I thought I would get some carrots, not you?!", 60, 350, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 14)
+				renderText("I am here to only help!", WINDOW_WIDTH_PX - 500, 350, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 15)
+				renderText("WTH you can talk??", 60, 350, 0.6, {1, 1, 1}, trans);
+			if (cg_idx == 16)
+			{
+
+				renderText("The zombies can hold weapons,", WINDOW_WIDTH_PX - 700, 450, 0.6, {1, 1, 1}, trans);
+				renderText("so WHY NOT", WINDOW_WIDTH_PX - 700, 350, 0.6, {1, 1, 1}, trans);
+			}
+			if (cg_idx == 17)
+				renderText("Alright...", 60, 350, 0.6, {1, 1, 1}, trans);
 		}
 	}
+	else
+	{
+		// draw all entities with a render request to the frame buffer
+		for (Entity entity : registry.renderRequests.entities)
+		{
+			// filter to entities that have a motion component
+			if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE && !registry.players.has(entity))
+			{
+				// Note, its not very efficient to access elements indirectly via the entity
+				// albeit iterating through all Sprites in sequence. A good point to optimize
+				if (game_screen == GAME_SCREEN_ID::TUTORIAL)
+				{
+					if (registry.mapTiles.has(entity))
+					{
+						if (registry.tutorialTiles.has(entity))
+						{
+							drawTexturedMesh(entity, projection_2D);
+						}
+					}
+					else
+					{
+						drawTexturedMesh(entity, projection_2D);
+					}
+				}
+				else if (!registry.tutorialSigns.has(entity) && !registry.tutorialTiles.has(entity))
+				{
+					drawTexturedMesh(entity, projection_2D);
+				}
+			}
+			// draw grid lines separately, as they do not have motion but need to be rendered
+			else if (registry.gridLines.has(entity))
+			{
+				drawGridLine(entity, projection_2D);
+			}
+		}
+		drawParticlesInstanced(projection_2D);
+		// individually draw player, will render on top of all the motion sprites
+		if (!WorldSystem::game_is_over)
+			drawTexturedMesh(registry.players.entities[0], projection_2D);
+		//  draw framebuffer to screen
+		//  adding "UI" effect when applied
+		drawToScreen();
+	}
 
-	//individually draw player, will render on top of all the motion sprites
-	if (!WorldSystem::game_is_over)
-		drawTexturedMesh(registry.players.entities[0], projection_2D);
+	// // draw all particles
+	// for (Entity entity : registry.particles.entities)
+	// {
+	// 	if (registry.renderRequests.has(entity))
+	// 	{
+	// 		drawTexturedMesh(entity, projection_2D);
+	// 	}
+	// }
 
-	// draw framebuffer to screen
-	// adding "UI" effect when applied
-	drawToScreen();
 	glm::mat4 trans = glm::mat4(1.0f);
-	// renderText("hello", 1000, 1000, 1, {1,0,0}, trans);
+	renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
+	renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
+
+	for (int current_seed = 0; current_seed < registry.inventorys.size(); current_seed++) {
+		renderText(std::to_string(registry.inventorys.components[0].seedCount[current_seed]), WINDOW_WIDTH_PX * 0.375 + 55 * current_seed, 25, 0.25, {0, 1, 0}, trans);
+	}
+
+	// Render the FPS counter
+	float current_fps = (1/(elapsed_ms/1000));
+	renderText("FPS: " + std::to_string(current_fps), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.925, 0.3, {0, 1, 1}, trans);
+
+	// Render the number of enemies on screen
+	renderText("Enemy count: " + std::to_string(registry.enemies.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.875, 0.3, {0, 1, 1}, trans);
+
+	// Render the number of plants on screen (Includes plant in inventory)
+	renderText("Plant count: " + std::to_string(registry.seeds.size() + registry.towers.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.825, 0.3, {0, 1, 1}, trans);
+
+	//  draw framebuffer to screen
+	//  adding "UI" effect when applied
+	drawToScreen();
 
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
 	gl_has_errors();
 }
 
-// mat3 RenderSystem::createProjectionMatrix()
-// {
-// 	// fake projection matrix, scaled to window coordinates
-// 	float left = 0.f;
-// 	float top = 0.f;
-// 	float right = (float)WINDOW_WIDTH_PX;
-// 	float bottom = (float)WINDOW_HEIGHT_PX;
+mat3 RenderSystem::createProjectionMatrix_splash()
+{
+	// fake projection matrix, scaled to window coordinates
+	float left = 0.f;
+	float top = 0.f;
+	float right = (float)WINDOW_WIDTH_PX;
+	float bottom = (float)WINDOW_HEIGHT_PX;
 
-// 	float sx = 2.f / (right - left);
-// 	float sy = 2.f / (top - bottom);
-// 	float tx = -(right + left) / (right - left);
-// 	float ty = -(top + bottom) / (top - bottom);
+	float sx = 2.f / (right - left);
+	float sy = 2.f / (top - bottom);
+	float tx = -(right + left) / (right - left);
+	float ty = -(top + bottom) / (top - bottom);
 
-// 	return {
-// 		{sx, 0.f, 0.f},
-// 		{0.f, sy, 0.f},
-// 		{tx, ty, 1.f}};
-// }
+	return {
+		{sx, 0.f, 0.f},
+		{0.f, sy, 0.f},
+		{tx, ty, 1.f}};
+}
 
 // mat3 RenderSystem::createProjectionMatrix() {
 //     auto& screen = registry.screenStates.get(screen_state_entity);
@@ -511,11 +650,13 @@ mat3 RenderSystem::createProjectionMatrix()
 	return {{sx, 0.f, 0.f}, {0.f, sy, 0.f}, {tx, ty, 1.f}};
 }
 
-bool is_shader_error(unsigned int shader, std::string shader_name) {
+bool is_shader_error(unsigned int shader, std::string shader_name)
+{
 
 	GLint fs_compile_result;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &fs_compile_result);
-	if (fs_compile_result != GL_TRUE) {
+	if (fs_compile_result != GL_TRUE)
+	{
 		std::cerr << "ERROR: shader compiler error for shader: " << shader_name << std::endl;
 
 		char errBuff[1024];
@@ -525,15 +666,16 @@ bool is_shader_error(unsigned int shader, std::string shader_name) {
 		assert(bufLen == 0);
 		return true;
 	}
-	else {
+	else
+	{
 		std::cout << "No error with shader: " << shader_name << std::endl;
 		return false;
 	}
 }
 
-std::string readShaderFile(const std::string& filename)
+std::string readShaderFile(const std::string &filename)
 {
-	std::cout << "Loading shader filename: " << filename << std::endl;
+	// std::cout << "Loading shader filename: " << filename << std::endl;
 
 	std::ifstream ifs(filename);
 
@@ -545,192 +687,306 @@ std::string readShaderFile(const std::string& filename)
 
 	std::ostringstream oss;
 	oss << ifs.rdbuf();
-	std::cout << oss.str() << std::endl;
+	// std::cout << oss.str() << std::endl;
 	return oss.str();
 }
 
-// bool RenderSystem::fontInit(const std::string& font_filename, unsigned int font_default_size) {
+bool RenderSystem::fontInit(const std::string &font_filename, unsigned int font_default_size)
+{
 
-// 	// read in our shader files
-// 	std::string vertexShaderSource = readShaderFile(PROJECT_SOURCE_DIR + std::string("shaders/font.vs.glsl"));
-// 	std::string fragmentShaderSource = readShaderFile(PROJECT_SOURCE_DIR + std::string("shaders/font.fs.glsl"));
-// 	const char* vertexShaderSource_c = vertexShaderSource.c_str();
-// 	const char* fragmentShaderSource_c = fragmentShaderSource.c_str();
+	// read in our shader files
+	std::string vertexShaderSource = readShaderFile(PROJECT_SOURCE_DIR + std::string("shaders/font.vs.glsl"));
+	std::string fragmentShaderSource = readShaderFile(PROJECT_SOURCE_DIR + std::string("shaders/font.fs.glsl"));
+	const char *vertexShaderSource_c = vertexShaderSource.c_str();
+	const char *fragmentShaderSource_c = fragmentShaderSource.c_str();
 
-// 	// enable blending or you will just get solid boxes instead of text
-// 	glEnable(GL_BLEND);
-// 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// enable blending or you will just get solid boxes instead of text
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-// 	// font buffer setup
-// 	glGenVertexArrays(1, &m_font_VAO);
-// 	glGenBuffers(1, &m_font_VBO);
+	// font buffer setup
+	glGenVertexArrays(1, &m_font_VAO);
+	glGenBuffers(1, &m_font_VBO);
 
-// 	// font vertex shader
-// 	unsigned int font_vertexShader;
-// 	font_vertexShader = glCreateShader(GL_VERTEX_SHADER);
-// 	glShaderSource(font_vertexShader, 1, &vertexShaderSource_c, NULL);
-// 	glCompileShader(font_vertexShader);
+	// font vertex shader
+	unsigned int font_vertexShader;
+	font_vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(font_vertexShader, 1, &vertexShaderSource_c, NULL);
+	glCompileShader(font_vertexShader);
 
-// 	// font fragement shader
-// 	unsigned int font_fragmentShader;
-// 	font_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-// 	glShaderSource(font_fragmentShader, 1, &fragmentShaderSource_c, NULL);
-// 	glCompileShader(font_fragmentShader);
+	// font fragement shader
+	unsigned int font_fragmentShader;
+	font_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(font_fragmentShader, 1, &fragmentShaderSource_c, NULL);
+	glCompileShader(font_fragmentShader);
 
-// 	// font shader program
-// 	m_font_shaderProgram = glCreateProgram();
-// 	glAttachShader(m_font_shaderProgram, font_vertexShader);
-// 	glAttachShader(m_font_shaderProgram, font_fragmentShader);
-// 	glLinkProgram(m_font_shaderProgram);
+	// font shader program
+	m_font_shaderProgram = glCreateProgram();
+	glAttachShader(m_font_shaderProgram, font_vertexShader);
+	glAttachShader(m_font_shaderProgram, font_fragmentShader);
+	glLinkProgram(m_font_shaderProgram);
 
-// 	// apply orthographic projection matrix for font, i.e., screen space
-// 	glUseProgram(m_font_shaderProgram);
-// 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(WINDOW_WIDTH_PX), 0.0f, static_cast<float>(WINDOW_HEIGHT_PX));
-// 	GLint project_location = glGetUniformLocation(m_font_shaderProgram, "projection");
-// 	assert(project_location > -1);
-// 	glUniformMatrix4fv(project_location, 1, GL_FALSE, glm::value_ptr(projection));
+	// apply orthographic projection matrix for font, i.e., screen space
+	glUseProgram(m_font_shaderProgram);
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(WINDOW_WIDTH_PX), 0.0f, static_cast<float>(WINDOW_HEIGHT_PX));
+	GLint project_location = glGetUniformLocation(m_font_shaderProgram, "projection");
+	assert(project_location > -1);
+	glUniformMatrix4fv(project_location, 1, GL_FALSE, glm::value_ptr(projection));
 
-// 	// clean up shaders
-// 	glDeleteShader(font_vertexShader);
-// 	glDeleteShader(font_fragmentShader);
+	// clean up shaders
+	glDeleteShader(font_vertexShader);
+	glDeleteShader(font_fragmentShader);
 
-// 	// init FreeType fonts
-// 	FT_Library ft;
-// 	if (FT_Init_FreeType(&ft))
-// 	{
-// 		std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
-// 		return false;
-// 	}
+	// init FreeType fonts
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+	{
+		std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		return false;
+	}
 
-// 	FT_Face face;
-// 	if (FT_New_Face(ft, font_filename.c_str(), 0, &face))
-// 	{
-// 		std::cerr << "ERROR::FREETYPE: Failed to load font: " << font_filename << std::endl;
-// 		return false;
-// 	}
+	FT_Face face;
+	if (FT_New_Face(ft, font_filename.c_str(), 0, &face))
+	{
+		std::cerr << "ERROR::FREETYPE: Failed to load font: " << font_filename << std::endl;
+		return false;
+	}
 
-// 	// extract a default size
-// 	FT_Set_Pixel_Sizes(face, 0, font_default_size);
+	// extract a default size
+	FT_Set_Pixel_Sizes(face, 0, font_default_size);
 
-// 	// disable byte-alignment restriction in OpenGL
-// 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	// disable byte-alignment restriction in OpenGL
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-// 	// load each of the chars - note only first 128 ASCII chars
-// 	for (unsigned char c = (unsigned char)0; c < (unsigned char)128; c++)
-// 	{
-// 		// load character glyph 
-// 		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
-// 		{
-// 			std::cerr << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
-// 			continue;
-// 		}
+	// load each of the chars - note only first 128 ASCII chars
+	for (unsigned char c = (unsigned char)0; c < (unsigned char)128; c++)
+	{
+		// load character glyph
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			std::cerr << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			continue;
+		}
 
-// 		// generate texture
-// 		unsigned int texture;
-// 		glGenTextures(1, &texture);
-// 		glBindTexture(GL_TEXTURE_2D, texture);
+		// generate texture
+		unsigned int texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
 
-// 		// std::cout << "texture: " << c << " = " << texture << std::endl;
+		// std::cout << "texture: " << c << " = " << texture << std::endl;
 
-// 		glTexImage2D(
-// 			GL_TEXTURE_2D,
-// 			0,
-// 			GL_RED,
-// 			face->glyph->bitmap.width,
-// 			face->glyph->bitmap.rows,
-// 			0,
-// 			GL_RED,
-// 			GL_UNSIGNED_BYTE,
-// 			face->glyph->bitmap.buffer
-// 		);
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			face->glyph->bitmap.buffer);
 
-// 		// set texture options
-// 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-// 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-// 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-// 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-// 		// now store character for later use
-// 		Character character = {
-// 			texture,
-// 			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-// 			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-// 			static_cast<unsigned int>(face->glyph->advance.x),
-// 			(char)c
-// 		};
-// 		m_ftCharacters.insert(std::pair<char, Character>(c, character));
-// 	}
-// 	glBindTexture(GL_TEXTURE_2D, 0);
+		// now store character for later use
+		Character character = {
+			texture,
+			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			static_cast<unsigned int>(face->glyph->advance.x),
+			(char)c};
+		m_ftCharacters.insert(std::pair<char, Character>(c, character));
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
 
-// 	// clean up
-// 	FT_Done_Face(face);
-// 	FT_Done_FreeType(ft);
+	// clean up
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
 
-// 	// bind buffers
-// 	glBindVertexArray(m_font_VAO);
-// 	glBindBuffer(GL_ARRAY_BUFFER, m_font_VBO);
-// 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-// 	glEnableVertexAttribArray(0);
-// 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+	// bind buffers
+	glBindVertexArray(m_font_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_font_VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 
-// 	// // release buffers
-// 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-// 	return true;
-// }
+	// // release buffers
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	return true;
+}
 
-// void RenderSystem::renderText(std::string text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans)
-// {
-// 	// activate corresponding render state
-// 	glUseProgram(m_font_shaderProgram);
+void RenderSystem::renderText(std::string text, float x, float y, float scale, const glm::vec3 &color, const glm::mat4 &trans)
+{
+	// Activate shader
+	glUseProgram(m_font_shaderProgram);
 
-// 	GLint textColor_location = glGetUniformLocation(m_font_shaderProgram, "textColor");
-// 	assert(textColor_location > -1);
-// 	// std::cout << "textColor_location: " << textColor_location << std::endl;
-// 	glUniform3f(textColor_location, color.x, color.y, color.z);
+	// enable blending or you will just get solid boxes instead of text
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-// 	auto transformLoc = glGetUniformLocation(m_font_shaderProgram, "transform");
-// 	// std::cout << "transformLoc: " << transformLoc << std::endl;
-// 	assert(transformLoc > -1);
-// 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+	GLint textColor_location = glGetUniformLocation(m_font_shaderProgram, "textColor");
+	assert(textColor_location > -1);
+	// std::cout << "textColor_location: " << textColor_location << std::endl;
+	glUniform3f(textColor_location, color.x, color.y, color.z);
 
-// 	glBindVertexArray(m_font_VAO);
+	auto transformLoc = glGetUniformLocation(m_font_shaderProgram, "transform");
+	// std::cout << "transformLoc: " << transformLoc << std::endl;
+	assert(transformLoc > -1);
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
-// 	// iterate through each character
-// 	std::string::const_iterator c;
-// 	for (c = text.begin(); c != text.end(); c++)
-// 	{
-// 		Character ch = m_ftCharacters[*c];
+	glBindVertexArray(m_font_VAO);
 
-// 		float xpos = x + ch.Bearing.x * scale;
-// 		float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+	// iterate through each character
+	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++)
+	{
+		Character ch = m_ftCharacters[*c];
 
-// 		float w = ch.Size.x * scale;
-// 		float h = ch.Size.y * scale;
+		float xpos = x + ch.Bearing.x * scale;
+		float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
 
-// 		float vertices[6][4] = {
-// 			{ xpos,     ypos + h,   0.0f, 0.0f },
-// 			{ xpos,     ypos,       0.0f, 1.0f },
-// 			{ xpos + w, ypos,       1.0f, 1.0f },
+		float w = ch.Size.x * scale;
+		float h = ch.Size.y * scale;
 
-// 			{ xpos,     ypos + h,   0.0f, 0.0f },
-// 			{ xpos + w, ypos,       1.0f, 1.0f },
-// 			{ xpos + w, ypos + h,   1.0f, 0.0f }
-// 		};
+		float vertices[6][4] = {
+			{xpos, ypos + h, 0.0f, 0.0f},
+			{xpos, ypos, 0.0f, 1.0f},
+			{xpos + w, ypos, 1.0f, 1.0f},
 
-// 		// render glyph texture over quad
-// 		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-// 		// std::cout << "binding texture: " << ch.character << " = " << ch.TextureID << std::endl;
+			{xpos, ypos + h, 0.0f, 0.0f},
+			{xpos + w, ypos, 1.0f, 1.0f},
+			{xpos + w, ypos + h, 1.0f, 0.0f}};
 
-// 		// update content of VBO memory
-// 		glBindBuffer(GL_ARRAY_BUFFER, m_font_VBO);
-// 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-// 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// render glyph texture over quad
+		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+		// std::cout << "binding texture: " << ch.character << " = " << ch.TextureID << std::endl;
 
-// 		// render quad
-// 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		// update content of VBO memory
+		glBindBuffer(GL_ARRAY_BUFFER, m_font_VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-// 		// advance to next glyph (note that advance is number of 1/64 pixels)
-// 		x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
-// 	}
-// 	glBindTexture(GL_TEXTURE_2D, 0);
-// }
+		// render quad
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		// advance to next glyph (note that advance is number of 1/64 pixels)
+		x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+	}
+	glBindVertexArray(vao);
+	// glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void RenderSystem::drawParticlesInstanced(const mat3 &projection)
+{
+	// Skip if no particles
+	if (registry.particles.entities.empty())
+		return;
+
+	// Count active particles
+	int particleCount = (int)registry.particles.size();
+	if (particleCount == 0)
+		return;
+
+	// Enable blending for particles
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Additive blending for glow effects
+
+	// Use particle shader
+	GLuint program = effects[(GLuint)EFFECT_ASSET_ID::PARTICLE];
+	glUseProgram(program);
+
+	// Prepare matrices
+	GLint proj_loc = glGetUniformLocation(program, "projection");
+	glUniformMatrix3fv(proj_loc, 1, GL_FALSE, (float *)&projection);
+
+	// Bind default particle texture
+	GLuint texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::PARTICLE];
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+
+	// Bind mesh data
+	const GLuint vbo = vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
+	const GLuint ibo = index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+	// Set up vertex attributes
+	GLint in_position_loc = glGetAttribLocation(program, "in_position");
+	GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+
+	glEnableVertexAttribArray(in_position_loc);
+	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
+						  sizeof(TexturedVertex), (void *)0);
+
+	glEnableVertexAttribArray(in_texcoord_loc);
+	glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE,
+						  sizeof(TexturedVertex), (void *)sizeof(vec3));
+
+	// Prepare instance data arrays
+	std::vector<vec4> instance_data(particleCount * 3); // 3 vec4s per instance
+
+	// Fill instance data
+	int idx = 0;
+	for (Entity entity : registry.particles.entities)
+	{
+		Particle &particle = registry.particles.get(entity);
+
+		// Get position and scale from Motion component
+		vec2 position = particle.Position;
+		vec2 scale = vec2(10.0f * (particle.Life / particle.MaxLife));
+		if (registry.motions.has(entity))
+		{
+			scale = registry.motions.get(entity).scale;
+		}
+
+		// First vec4: position(xy) and scale(zw)
+		instance_data[idx++] = vec4(position.x, position.y, scale.x, scale.y);
+
+		// Second vec4: color
+		instance_data[idx++] = particle.Color;
+
+		// Third vec4: life data and any other parameters
+		instance_data[idx++] = vec4(particle.Life / particle.MaxLife, 0.0f, 0.0f, 0.0f);
+	}
+
+	// Upload instance data
+	glBindBuffer(GL_ARRAY_BUFFER, particle_instance_VBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, instance_data.size() * sizeof(vec4), instance_data.data());
+
+	// Set up instance attributes
+	// 1. Position and scale (vec4)
+	GLint instance_pos_scale_loc = 2; // Attribute location = 2
+	glEnableVertexAttribArray(instance_pos_scale_loc);
+	glVertexAttribPointer(instance_pos_scale_loc, 4, GL_FLOAT, GL_FALSE,
+						  sizeof(vec4) * 3, (void *)0);
+	glVertexAttribDivisor(instance_pos_scale_loc, 1); // Once per instance
+
+	// 2. Color (vec4)
+	GLint instance_color_loc = 3; // Attribute location = 3
+	glEnableVertexAttribArray(instance_color_loc);
+	glVertexAttribPointer(instance_color_loc, 4, GL_FLOAT, GL_FALSE,
+						  sizeof(vec4) * 3, (void *)(sizeof(vec4)));
+	glVertexAttribDivisor(instance_color_loc, 1);
+
+	// 3. Life data (vec4)
+	GLint instance_life_loc = 4; // Attribute location = 4
+	glEnableVertexAttribArray(instance_life_loc);
+	glVertexAttribPointer(instance_life_loc, 4, GL_FLOAT, GL_FALSE,
+						  sizeof(vec4) * 3, (void *)(sizeof(vec4) * 2));
+	glVertexAttribDivisor(instance_life_loc, 1);
+
+	// Count indices
+	GLint size = 0;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+	GLsizei num_indices = size / sizeof(uint16_t);
+
+	// Draw all particles in one call!
+	glDrawElementsInstanced(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr, particleCount);
+
+	gl_has_errors();
+}

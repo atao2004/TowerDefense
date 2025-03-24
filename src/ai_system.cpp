@@ -39,7 +39,7 @@ void AISystem::update_enemy_behaviors(float elapsed_ms)
 
             // For now, just handle basic movement
             update_zombie_movement(entity, elapsed_ms);
-            update_zombie_attack(entity, elapsed_ms);
+            update_enemy_melee_attack(entity, elapsed_ms);
         }
     }
     update_skeletons(elapsed_ms);
@@ -65,7 +65,8 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms)
     vec2 direction = calculate_direction_to_target(motion.position, player_pos);
 
     // If entity has hit effect, reduce chase speed
-    float current_speed = BASE_ENEMY_SPEED;
+    Enemy& enemy = registry.enemies.get(entity);
+    float current_speed = enemy.speed * 100;
 
     // Add to velocity instead of overwriting
     float step_seconds = elapsed_ms / 1000.f;
@@ -87,7 +88,7 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms)
     }
 }
 
-void AISystem::update_zombie_attack(Entity entity, float elapsed_ms)
+void AISystem::update_enemy_melee_attack(Entity entity, float elapsed_ms)
 {
     if (!registry.players.entities.size())
         return;
@@ -97,7 +98,7 @@ void AISystem::update_zombie_attack(Entity entity, float elapsed_ms)
     Motion &enemy_motion = registry.motions.get(entity);
     Motion &player_motion = registry.motions.get(player);
 
-    attack.range = 60.0f; // Set attack range
+    attack.range = 40.0f; // Set attack range
 
     // Calculate distance to player
     float distance = calculate_distance_to_target(enemy_motion.position, player_motion.position);
@@ -263,7 +264,7 @@ void AISystem::update_skeletons(float elapsed_ms)
                         // Mark that we've fired the arrow for this attack cycle
                         skeleton.arrow_fired = true;
 
-                        std::cout << "Arrow created from AI system timer" << std::endl;
+                        // std::cout << "Arrow created from AI system timer" << std::endl;
                     }
                 }
             }
@@ -328,7 +329,7 @@ void AISystem::update_skeletons(float elapsed_ms)
         if (dist > skeleton.attack_range)
         {
             // Target out of range, move towards it
-            skeleton_motion.velocity = normalize(direction) * SKELETON_SPEED;
+            skeleton_motion.velocity = normalize(direction) * (float) SKELETON_ARCHER_SPEED;
             skeleton.current_state = Skeleton::State::WALK;
 
             // Update facing direction

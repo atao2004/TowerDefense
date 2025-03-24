@@ -1,14 +1,15 @@
 // In status_system.cpp
-#include "state_system.hpp"
+#include "player_system.hpp"
 #include <iostream>
 #include "animation_system.hpp"
+#include "world_system.hpp"
 
 /**
 * Update the state of the player and its animation component.
 * 
 * @param state_new The new state.
 */
-void StateSystem::update_state(STATE state_new)
+void PlayerSystem::update_state(STATE state_new)
 {
     Entity player = registry.players.entities[0];
     State& state = registry.states.get(player);
@@ -17,8 +18,6 @@ void StateSystem::update_state(STATE state_new)
         state.state = state_new;
 
         if (state.state == STATE::IDLE) {
-            // RenderRequest& request = registry.renderRequests.get(player);
-            // request.used_texture = TEXTURE_ASSET_ID::PLAYER_IDLE;
             AnimationSystem::update_animation(player, PLAYER_IDLE_DURATION, PLAYER_IDLE_ANIMATION, PLAYER_IDLE_SIZE, true, false, false);
         }
         else if (state.state == STATE::MOVE) {
@@ -30,7 +29,8 @@ void StateSystem::update_state(STATE state_new)
     }
 }
 
-STATE StateSystem::get_state() {
+STATE PlayerSystem::get_state() {
+    if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) return STATE::STATE_COUNT;
     Entity player = registry.players.entities[0];
     State& state = registry.states.get(player);
     return state.state;

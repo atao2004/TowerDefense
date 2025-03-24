@@ -7,12 +7,16 @@
 #include <sstream>
 #include <iostream>
 #include <thread>
+#include <string>
 
 #include "physics_system.hpp"
 #include "spawn_manager.hpp"
-#include "state_system.hpp"
+#include "player_system.hpp"
+#include "../ext/json.hpp"
+using json = nlohmann::json;
+#include "particle_system.hpp"
 
-//FreeType
+// FreeType
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -20,10 +24,11 @@ FT_Library library;
 
 bool WorldSystem::game_is_over = false;
 Mix_Chunk *WorldSystem::game_over_sound = nullptr;
-GAME_SCREEN_ID WorldSystem::game_screen = GAME_SCREEN_ID::PLAYING;
+GAME_SCREEN_ID WorldSystem::game_screen = GAME_SCREEN_ID::SPLASH;
+int WorldSystem::current_day = 1;
 
 // create the world
-WorldSystem::WorldSystem() : points(0), level(1),current_seed(0)
+WorldSystem::WorldSystem() : points(0), level(1), current_seed(0)
 {
 }
 
@@ -164,37 +169,20 @@ bool WorldSystem::start_and_load_sounds()
 
 void WorldSystem::init(RenderSystem *renderer_arg)
 {
-
 	this->renderer = renderer_arg;
-
-	// start playing background music indefinitely
-	std::cout << "Starting music..." << std::endl;
-
-	// Set all states to default
-	//restart_game();
-	restart_tutorial();
+	game_screen = GAME_SCREEN_ID::SPLASH;
+	createScreen(renderer, TEXTURE_ASSET_ID::BACKGROUND);
+	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5));
+	createButton(renderer, BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5 + 200));
+	createButton(renderer, BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5 + 200*2));
+	createButton(renderer, BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/5 + 200*3));
 }
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
-	for(Entity i: registry.seeds.entities) {
-
-		if (!registry.moveWithCameras.has(i)) {
-			if(registry.seeds.get(i).timer <= 0) {
-				vec2 pos;
-				pos.x = registry.motions.get(i).position.x;
-				pos.y = registry.motions.get(i).position.y;
-				std::cout<<"x pos "<< pos.x << " y pos "<< pos.y << std::endl;
-				registry.remove_all_components_of(i);
-				registry.seeds.remove(i);
-				createTower(renderer, {pos.x - GRID_CELL_WIDTH_PX/2, pos.y - GRID_CELL_HEIGHT_PX/2});
-			} else {
-				registry.seeds.get(i).timer -= elapsed_ms_since_last_update;
-			}
-		}
-	}
-	if(StateSystem::get_state() == STATE::LEVEL_UP) {
+	if (PlayerSystem::get_state() == STATE::LEVEL_UP)
+	{
 		registry.inventorys.components[0].seedCount[current_seed]++;
 	}
 	// Using the spawn manager to generate zombies
@@ -233,11 +221,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		music_thread.detach();
 	}
 
-	if (!WorldSystem::game_is_over)
+	if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH && game_screen != GAME_SCREEN_ID::CG)
 	{
 		update_camera();
-		spawn_manager.step(elapsed_ms_since_last_update, renderer);
-
+		// spawn_manager.step(elapsed_ms_since_last_update, renderer);
+		if (game_screen == GAME_SCREEN_ID::PLAYING)
+		{
+			updateDayInProgress(elapsed_ms_since_last_update);
+		}
 		// Check and respawn tutorial enemies if needed
 		if (game_screen == GAME_SCREEN_ID::TUTORIAL)
 		{
@@ -250,7 +241,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 
 		// Summon the chicken when in low health
 		ScreenState &screen = registry.screenStates.components[0];
-		if (screen.hp_percentage < 0.25f && !chicken_summoned) {
+		if (screen.hp_percentage < 0.25f && !chicken_summoned)
+		{
 			createChicken(renderer);
 			chicken_summoned = true;
 		}
@@ -266,8 +258,18 @@ void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 {
 	registry.clear_all_components();
 	// for(Entity i: registry.seeds.entities) {
-	// 	registry.seeds.remove(i); 
+	// 	registry.seeds.remove(i);
 	// }
+
+	// Reset day counter and related variables
+	current_day = 1;
+	rest_timer_ms = 0.f;
+	enemy_spawn_timer_ms = 0.f;
+	enemies_spawned_today = 0;
+	enemies_to_spawn_today = calculate_enemies_for_day(current_day);
+	day_in_progress = true;
+
+	chicken_summoned = false;
 
 	current_bgm = night_bgm;
 	// smooth fade in, thread to prevent blocking
@@ -329,7 +331,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 {
 	// reset player and spawn player in the middle of the screen
 	Entity player = createPlayer(renderer, player_pos);
-	
+
 	// reset camera position
 	createCamera(renderer, player_pos);
 
@@ -338,7 +340,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	registry.toolbars.clear();
 	// createPause();
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
-	createSeedInventory(vec2(player_pos.x - 191, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
+	createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
 
 	// Kung: Reset player movement so that the player remains still when no keys are pressed
 
@@ -383,13 +385,25 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	}
 }
 
+void WorldSystem::start_cg(RenderSystem* renderer) {
+	registry.cgs.clear();
+	game_screen = GAME_SCREEN_ID::CG;
+	int cg_idx = registry.screenStates.components[0].cg_index;
+	if (cg_idx == 0)
+		createScreen(renderer, TEXTURE_ASSET_ID::NIGHT_BG);
+	else if (cg_idx == 12)
+		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+	else if (cg_idx == 19)
+		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+	std::cout<<cg_idx<<std::endl;
+}
+
 // Reset the world state to its initial state
 void WorldSystem::restart_game()
 {
 	std::cout << "Restarting game..." << std::endl;
 
 	restart_common_tasks(vec2(MAP_WIDTH_PX, MAP_HEIGHT_PX));
-	
 
 	// Set the level to level 1 and the game_screen to PLAYING.
 	level = 1;
@@ -454,7 +468,7 @@ void WorldSystem::restart_tutorial()
 	// }
 
 	// create the tutorial assets
-	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_HEIGHT_PX * -0.5 ));
+	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_HEIGHT_PX * -0.5));
 	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, TUTORIAL_HEIGHT_PX * -0.5));
 	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, TUTORIAL_HEIGHT_PX * -0.5));
 	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_HEIGHT_PX * -0.5));
@@ -464,7 +478,7 @@ void WorldSystem::restart_tutorial()
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 2 - 15, TUTORIAL_HEIGHT_PX * 0.4));
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75 - 15, TUTORIAL_HEIGHT_PX * 0.4));
 	create_tutorial_enemies();
-	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX *0.05 , TUTORIAL_HEIGHT_PX * 0.4});
+	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX * 0.05, TUTORIAL_HEIGHT_PX * 0.4});
 
 	// Print the starting level (Level 0)
 	std::cout << "==== LEVEL " << level << " ====" << std::endl;
@@ -475,13 +489,13 @@ void WorldSystem::create_tutorial_enemies()
 {
 	// Create a zombie under the "Attack" tutorial board
 	vec2 zombie_pos = vec2(TUTORIAL_WIDTH_PX * 0.4, TUTORIAL_HEIGHT_PX * 0.4);
-	createZombie(renderer, zombie_pos);
+	createOrc(renderer, zombie_pos);
 
 	// Create a skeleton under the "Plant" tutorial board
 	vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.65, TUTORIAL_HEIGHT_PX * 0.4);
-	createSkeleton(renderer, skeleton_pos);
+	createSkeletonArcher(renderer, skeleton_pos);
 
-	std::cout << "Tutorial enemies created" << std::endl;
+	// std::cout << "Tutorial enemies created" << std::endl;
 }
 
 // Check if tutorial enemies need to be respawned
@@ -497,11 +511,9 @@ void WorldSystem::check_tutorial_enemies()
 		{
 			Motion &motion = registry.motions.get(zombie);
 
-
 			zombie_exists = true;
 			// Keep zombie in place by setting velocity to zero
 			motion.velocity = vec2(0.0f, 0.0f);
-
 		}
 	}
 
@@ -512,36 +524,11 @@ void WorldSystem::check_tutorial_enemies()
 		{
 			Motion &motion = registry.motions.get(entity);
 
-
 			skeleton_exists = true;
 			// Keep skeleton in place by setting velocity to zero
 			motion.velocity = vec2(0.0f, 0.0f);
-
 		}
 	}
-
-	// Respawn zombie if needed
-	if (!zombie_exists)
-	{
-		vec2 zombie_pos = vec2(TUTORIAL_WIDTH_PX * 0.4, TUTORIAL_HEIGHT_PX * 0.4);
-		createZombie(renderer, zombie_pos);
-		std::cout << "Tutorial zombie respawned" << std::endl;
-	}
-
-	// Respawn skeleton if needed
-	if (!skeleton_exists)
-	{
-		vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.65, TUTORIAL_HEIGHT_PX * 0.4);
-		createSkeleton(renderer, skeleton_pos);
-		std::cout << "Tutorial skeleton respawned" << std::endl;
-	}
-}
-
-
-
-// Compute collisions between entities
-void WorldSystem::handle_collisions()
-{
 }
 
 // Should the game be over ?
@@ -550,11 +537,41 @@ bool WorldSystem::is_over() const
 	return bool(glfwWindowShouldClose(window));
 }
 
+// Helper function to make it easier to increase experience
+void WorldSystem::increase_exp_player() {
+	Entity player_entity = registry.players.entities[0];
+	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
+	{
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(player_entity).damage / PLAYER_HEALTH;
+	} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
+	else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
+	{
+		// StateSystem::update_state(STATE::LEVEL_UP);
+		//come back later!
+		if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
+			createSeedInventory(vec2(registry.motions.get(player_entity).position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed);
+		}
+		registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+		level++;
+		std::cout << "==== LEVEL " << level << " ====" << std::endl;
+	}
+}
+
+// Helper function to make it easier to increase experience
+void WorldSystem::increase_exp_plant() {
+	Entity player_entity = registry.players.entities[0];
+	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
+	{
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(player_entity).damage / PLAYER_HEALTH;
+	} // Kung: Due to technical difficulties, plants cannot be used to level up.
+}
+
 // Helper function to handle what happens when the player does a mouse click
 void WorldSystem::player_attack()
 {
 	Entity player = registry.players.entities[0];
-	if (!registry.cooldowns.has(player))
+	if (!registry.cooldowns.has(player) && PlayerSystem::get_state() != STATE::ATTACK)
 	{
 		// Play the sword attack sound
 		Mix_PlayChannel(3, sword_attack_sound, 0);
@@ -584,7 +601,7 @@ void WorldSystem::player_attack()
 				{
 					auto &enemy_comp = registry.enemies.get(enemy);
 					enemy_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
-					std::cout << "wow u r attacking so nice cool cool" << std::endl;
+					// std::cout << "wow u r attacking so nice cool cool" << std::endl;
 
 					// Calculate knockback direction (from player to enemy)
 					Motion &enemy_motion = registry.motions.get(enemy);
@@ -603,6 +620,11 @@ void WorldSystem::player_attack()
 					// Add hit effect
 					HitEffect &hit = registry.hitEffects.emplace_with_duplicates(enemy);
 
+					vec2 sprite_size = {50.0f, 50.0f}; // Default fallback size
+					sprite_size = registry.motions.get(enemy).scale;
+					// Create blood effect
+					ParticleSystem::createBloodEffect(registry.motions.get(enemy).position, sprite_size);
+
 					// This is what you do when you kill a enemy.
 					if (enemy_comp.health <= 0)
 					{
@@ -619,31 +641,16 @@ void WorldSystem::player_attack()
 
 						// Increase the counter that represents the number of zombies killed.
 						points++;
-						std::cout << "enemies killed: " << points << std::endl;
+						// std::cout << "enemies killed: " << points << std::endl;
 
 						// Kung: Upon killing a enemy, increase the experience of the player or reset the experience bar when it becomes full.
-						if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
-						{
-							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(registry.players.entities[0]).damage / PLAYER_HEALTH;
-						} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
-						else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
-						{
-							// StateSystem::update_state(STATE::LEVEL_UP);
-							//come back later!
-							if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
-								createSeedInventory(vec2(player_motion.position.x - 191, player_motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), player_motion.velocity, current_seed);
-							}
-							registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
-							registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
-							level++;
-							std::cout << "==== LEVEL " << level << " ====" << std::endl;
-						}
+						increase_exp_player();
 					}
 				}
 			}
 		}
 		// Player State
-		StateSystem::update_state(STATE::ATTACK);
+		PlayerSystem::update_state(STATE::ATTACK);
 
 		// Cooldown
 		if (registry.cooldowns.has(player))
@@ -684,9 +691,6 @@ void WorldSystem::update_enemy_death_animations(float elapsed_ms)
 		if (death_anim.duration_ms <= 0)
 		{
 			registry.remove_all_components_of(entity);
-
-			// Kung: Upon killing a enemy, update the enemy count and print it to the console.
-			std::cout << "Enemy count: " << registry.zombies.size() << " zombies" << std::endl;
 		}
 	}
 }
@@ -906,23 +910,40 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	{
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
-
-		// if (game_screen == GAME_SCREEN_ID::TUTORIAL)
-		// {
-		// 	restart_tutorial();
-		// }
-		// else
-		// {
-			restart_game();
-		// }
+		restart_game();
 
 		return;
 	}
 
-	// when player is in the level up menu, disable some game inputs
-	if (StateSystem::get_state() == STATE::LEVEL_UP ||
-		game_is_over)
+	// load
+	if (action == GLFW_RELEASE && key == GLFW_KEY_MINUS)
+	{
+		loadGame();
 		return;
+	}
+
+	// save
+	if (action == GLFW_RELEASE && key == GLFW_KEY_EQUAL)
+	{
+		saveGame();
+		return;
+	}
+
+	// Debug
+	if (action == GLFW_PRESS && key == GLFW_KEY_L)
+	{
+		registry.list_all_components();
+	}
+
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) {
+		//implement
+		return;
+	}
+
+	// when player is in the level up menu, disable some game inputs
+	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
+		game_is_over)
+		return;	
 
 	// Player movement
 	Entity player = registry.players.entities[0];
@@ -976,51 +997,89 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
 
-	// Kung: Plant seed with the right click button
-	if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_RIGHT)
+	// Kung: Plant seed with the right click button (F button retained for debugging)
+	if ((action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_RIGHT) || (action == GLFW_PRESS && key == GLFW_KEY_F))
 	{
-		// You can only plant where there is farmland.
-		for (Entity maptile_entity : registry.mapTiles.entities)
-		{
-			if (registry.motions.has(maptile_entity) && registry.renderRequests.has(maptile_entity))
-			{
-				if (registry.renderRequests.get(maptile_entity).used_texture == DECORATION_LIST[6])
-				{
-					if (registry.motions.get(maptile_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX))
-					{
-						// Remove any seeds that have already been planted to begin with.
-						int hasSeed = 0;
-						for (Entity motion_entity : registry.motions.entities) {
-							if (registry.seeds.has(motion_entity) || registry.towers.has(motion_entity)) {
-								if (registry.motions.get(motion_entity).position == vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX)) {
-									hasSeed = 1;
-									std::cout<<"A seed was already planted here."<<std::endl;
-								}
-							}
-						}
-						if (!hasSeed) {
-							if(registry.inventorys.components[0].seedCount[current_seed] > 0) {
-								Entity seed = createSeed(vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX), current_seed);
-								registry.inventorys.components[0].seedCount[current_seed]--; // decrease the count of seed in inventory
-								if(registry.inventorys.components[0].seedCount[current_seed] == 0) {
-									// Remove the seed from the toolbar.
-									for (Entity seed_entity : registry.seeds.entities) {
-										if (registry.moveWithCameras.has(seed_entity)) {
-											if (registry.seeds.get(seed_entity).type == current_seed) {
-												registry.remove_all_components_of(seed_entity);
-											}
-										}
-									}
-								}
-							} else {
-								std::cout<<"No more inventory of seed type "<<std::endl;
-							}
-						}
+		// Calculate player's current cell for proximity checking
+		int cell_x = static_cast<int>((motion.position.x + GRID_CELL_WIDTH_PX / 2) / GRID_CELL_WIDTH_PX);
+		int cell_y = static_cast<int>((motion.position.y + GRID_CELL_HEIGHT_PX / 2) / GRID_CELL_HEIGHT_PX);
+		vec2 grid_center = vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX);
 
-						std::cout<<"inventory count of seed type "<< current_seed << " is " << registry.inventorys.components[0].seedCount[current_seed] << std::endl;
+		// Find valid farmland closest to the player
+		Entity closest_farmland = NULL;
+		float closest_distance = GRID_CELL_WIDTH_PX; // Max distance to consider
+
+		for (Entity tile : registry.mapTiles.entities)
+		{
+			// Check if tile is farmland
+			if (registry.motions.has(tile) &&
+				registry.renderRequests.has(tile) &&
+				registry.renderRequests.get(tile).used_texture == DECORATION_LIST[6])
+			{
+				vec2 farmland_pos = registry.motions.get(tile).position;
+				float distance = length(farmland_pos - grid_center);
+
+				// Check if this is closer than previous matches
+				if (distance < closest_distance)
+				{
+					// Check if tile is already occupied by a seed or tower
+					bool is_occupied = false;
+					for (Entity entity : registry.motions.entities)
+					{
+						if ((registry.seeds.has(entity) || registry.towers.has(entity)) &&
+							length(registry.motions.get(entity).position - farmland_pos) < 10.0f)
+						{
+							is_occupied = true;
+							break;
+						}
+					}
+
+					if (!is_occupied)
+					{
+						closest_farmland = tile;
+						closest_distance = distance;
 					}
 				}
 			}
+		}
+
+		// If we found valid farmland, plant a seed
+		if (closest_farmland != NULL)
+		{
+			vec2 farmland_pos = registry.motions.get(closest_farmland).position;
+
+			// Check if player has seeds available
+			if (registry.inventorys.components[0].seedCount[current_seed] > 0)
+			{
+				// Plant the seed at the exact farmland position
+				Entity seed = createSeed(farmland_pos, current_seed);
+				registry.inventorys.components[0].seedCount[current_seed]--;
+
+				// If that was the last seed of this type, remove it from toolbar
+				if (registry.inventorys.components[0].seedCount[current_seed] == 0)
+				{
+					for (Entity seed_entity : registry.seeds.entities)
+					{
+						if (registry.moveWithCameras.has(seed_entity) &&
+							registry.seeds.get(seed_entity).type == current_seed)
+						{
+							registry.remove_all_components_of(seed_entity);
+							break;
+						}
+					}
+				}
+
+				std::cout << "Planted seed. Remaining: " << registry.inventorys.components[0].seedCount[current_seed] << std::endl;
+			}
+			else
+			{
+				std::cout << "No seeds of this type available!" << std::endl;
+			}
+		}
+		else
+		{
+			// No valid farmland found
+			std::cout << "No available farmland nearby. Move closer to farmland." << std::endl;
 		}
 	}
 
@@ -1033,17 +1092,17 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	{
 		player_movement(key, action, motion);
 	}
-	
+
 	// Update state if player is moving
 	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
 	{
 		if (motion.velocity == vec2(0, 0))
 		{
-			StateSystem::update_state(STATE::IDLE);
+			PlayerSystem::update_state(STATE::IDLE);
 		}
 		else
 		{
-			StateSystem::update_state(STATE::MOVE);
+			PlayerSystem::update_state(STATE::MOVE);
 		}
 	}
 
@@ -1080,30 +1139,58 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		createChicken(renderer);
 
 	// Debug
-	if (action == GLFW_PRESS && key == GLFW_KEY_L)
+	if (action == GLFW_PRESS)
 	{
-		registry.list_all_components();
-	}
-	if (action == GLFW_PRESS && key == GLFW_KEY_0)
-	{
-		if (registry.players.size() > 0) {
-			createSkeleton(renderer, vec2(motion.position.x + CAMERA_VIEW_WIDTH / 2, motion.position.y));
+		vec2 position = vec2(motion.position.x + CAMERA_VIEW_WIDTH / 2, motion.position.y);
+		switch (key) {
+			case GLFW_KEY_1:
+				createOrc(renderer, position);
+				break;
+			case GLFW_KEY_2:
+				createOrcElite(renderer, position);
+				break;
+			case GLFW_KEY_3:
+				createSkeleton(renderer, position);
+				break;
+			case GLFW_KEY_4:
+				createSkeletonArcher(renderer, position);
+				break;
+			case GLFW_KEY_5:
+				createWerewolf(renderer, position);
+				break;
+			case GLFW_KEY_6:
+				createWerebear(renderer, position);
+				break;
+			case GLFW_KEY_7:
+				createSlime(renderer, position);
+				break;
 		}
 	}
-	if (action == GLFW_PRESS && key == GLFW_KEY_1)
+	if (action == GLFW_PRESS && key == GLFW_KEY_9)
 	{
-		if (registry.screenStates.size() != 0) {
-			if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0) {
+		if (registry.screenStates.size() != 0)
+		{
+			if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
+			{
 				// StateSystem::update_state(STATE::LEVEL_UP);
 				//come back later!
 				if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
-					createSeedInventory(vec2(motion.position.x - 191, motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed);
+					createSeedInventory(vec2(motion.position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed);
 				}
 				registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 				level++;
+
+				// Get player entity and size
+				Entity player = registry.players.entities[0];
+				vec2 player_pos = registry.motions.get(player).position;
+				vec2 player_size = registry.motions.get(player).scale;
+				ParticleSystem::createLevelUpEffect(player_pos, player_size);
+
 				std::cout << "==== LEVEL " << level << " ====" << std::endl;
-			} else  {
+			}
+			else
+			{
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += 0.1;
 			}
 		}
@@ -1116,7 +1203,11 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	mouse_pos_x = mouse_position.x;
 	mouse_pos_y = mouse_position.y;
 
-	if (StateSystem::get_state() == STATE::LEVEL_UP ||
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) {
+		return;
+	}
+
+	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
 		game_is_over)
 		return;
 
@@ -1139,6 +1230,63 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 
 void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 {
+	if (game_screen == GAME_SCREEN_ID::SPLASH) {
+		//implement
+		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {	
+			for (auto& b: registry.buttons.components) {
+				if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH/2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH/2 &&
+					mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT/2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT/2) {
+						if (b.type == BUTTON_ID::START) 
+							return start_cg(renderer);
+						if (b.type == BUTTON_ID::LOAD)
+							return loadGame();
+						if (b.type == BUTTON_ID::TUTORIAL)
+							return restart_tutorial();
+						if (b.type == BUTTON_ID::QUIT)
+							return close_window();
+					}
+			}
+		}
+		return;
+	}
+
+	if (game_screen == GAME_SCREEN_ID::CG) {
+		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {
+			int cg_index = ++registry.screenStates.components[0].cg_index;
+			std::cout<<cg_index<<std::endl;
+			if (cg_index == 6) {
+				for (int i=registry.cgs.entities.size()-1; i>=0; i--)
+					registry.remove_all_components_of(registry.cgs.entities[i]);
+				createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+			} else if (cg_index == 7) {
+				createCharacter(renderer, vec2(WINDOW_WIDTH_PX-200, WINDOW_HEIGHT_PX-250), vec2(-500, 500), TEXTURE_ASSET_ID::ORC_WALK2);
+				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX-250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
+			} else if (cg_index == 11)
+				restart_game();
+
+			//second scene yolo
+			else if (cg_index == 13) {
+				createCharacter(renderer, vec2(WINDOW_WIDTH_PX-200, WINDOW_HEIGHT_PX-250), vec2(200, 200), TEXTURE_ASSET_ID::PLANT_2_IDLE_S);
+				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX-250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
+			}
+			else if (cg_index == 18) {
+				for (int i=registry.cgs.entities.size()-1; i>=0; i--)
+					registry.remove_all_components_of(registry.cgs.entities[i]);
+				set_game_screen(GAME_SCREEN_ID::PLAYING);
+			}
+			else if (cg_index == 20) {
+				for (int i=registry.cgs.entities.size()-1; i>=0; i--)
+					registry.remove_all_components_of(registry.cgs.entities[i]);
+				set_game_screen(GAME_SCREEN_ID::PLAYING);
+			}
+
+			
+				
+		}
+
+		return;
+	}
+
 	if (!WorldSystem::game_is_over)
 	{
 		// on button press
@@ -1154,7 +1302,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 
 		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
 		{
-			if (StateSystem::get_state() == STATE::LEVEL_UP)
+			if (PlayerSystem::get_state() == STATE::LEVEL_UP)
 				return;
 			player_attack();
 		}
@@ -1197,6 +1345,7 @@ void WorldSystem::update_movement_sound(float elapsed_ms)
 void WorldSystem::update_camera()
 {
 	// Update camera position to follow player
+	// std::cout<<registry.players.size()<<" "<<registry.cameras.size()<<std::endl;
 	if (!registry.players.entities.empty() && !registry.cameras.entities.empty())
 	{
 		Entity player = registry.players.entities[0];
@@ -1207,5 +1356,417 @@ void WorldSystem::update_camera()
 
 		// move camera to player position
 		cam.position = player_motion.position;
+	}
+}
+
+void WorldSystem::advance_to_next_day()
+{
+	current_day++;
+	std::cout << "===== ADVANCING TO DAY " << current_day << " =====" << std::endl;
+
+	// Calculate number of enemies for the new day with a reasonable progression curve
+	enemies_to_spawn_today = calculate_enemies_for_day(current_day);
+
+	// Reset day stats
+	enemies_spawned_today = 0;
+	day_in_progress = true;
+	enemy_spawn_timer_ms = 0.f;
+
+	// Reset chicken summon flag for the new day
+	chicken_summoned = false;
+
+	// Show day number as text overlay
+	// Could create a temporary text entity here to display day number
+	std::cout << "Day " << current_day << " will have " << enemies_to_spawn_today << " enemies" << std::endl;
+}
+
+// Helper function to calculate number of enemies per day
+int WorldSystem::calculate_enemies_for_day(int day)
+{
+	// Base enemies for day 1
+	const int BASE_ENEMIES = 5;
+
+	// Progressive difficulty scaling:
+	// - Days 1-3: Linear increase (+2 enemies per day)
+	// - Days 4-7: Slightly faster increase (+3 enemies per day)
+	// - Days 8+: Challenging increase (+4 enemies per day)
+
+	if (day <= 1)
+		return BASE_ENEMIES;
+	else if (day <= 3)
+		return BASE_ENEMIES + (day - 1) * 2;
+	else if (day <= 7)
+		return BASE_ENEMIES + 4 + (day - 3) * 3;
+	else
+		return BASE_ENEMIES + 16 + (day - 7) * 4;
+}
+
+void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)
+{
+	if (day_in_progress)
+	{
+		// We're still spawning enemies for current day
+		if (enemies_spawned_today < enemies_to_spawn_today)
+		{
+			// Time to spawn next enemy?
+			enemy_spawn_timer_ms += elapsed_ms_since_last_update;
+			if (enemy_spawn_timer_ms >= 1000.f)
+			{ // 1 enemy per second
+				// Spawn a single enemy
+				spawn_manager.spawn_enemy(renderer);
+				enemies_spawned_today++;
+				enemy_spawn_timer_ms = 0.f;
+			}
+		}
+		else
+		{
+			// All enemies for this day have been spawned
+			day_in_progress = false;
+		}
+	}
+	else if (registry.enemies.size() == 0)
+	{
+		// All enemies are defeated, time for rest period
+		rest_timer_ms += elapsed_ms_since_last_update;
+
+		// Display rest time remaining
+		if (rest_timer_ms < 10000.f)
+		{ // 10 second rest
+			// Optional: Display countdown text
+			float remaining = (10000.f - rest_timer_ms) / 1000.f;
+			std::cout << "Next day in: " << (int)remaining << " seconds\r" << std::flush;
+		}
+		else
+		{
+			std::cout << std::endl; // Clear the countdown line
+			// Rest period is over, advance to next day
+			rest_timer_ms = 0.f;
+			advance_to_next_day();
+		}
+	}
+}
+
+void WorldSystem::loadGame()
+{
+	registry.clear_all_components();
+	game_screen = GAME_SCREEN_ID::PLAYING;
+	json jsonFile;
+	std::ifstream file(PROJECT_SOURCE_DIR + std::string("data/reload/game_0.json"));
+	file >> jsonFile;
+	game_is_over = jsonFile["game_is_over"];
+	game_screen = jsonFile["game_screen"];
+	current_day = jsonFile["current_day"];
+	current_seed = jsonFile["current_seed"];
+	level = jsonFile["level"];
+	Entity::overrideIDCount((int)jsonFile["id_count"]);
+
+	json ss_json = jsonFile["0"][0];
+	ScreenState &ss = registry.screenStates.components[0];
+	ss.darken_screen_factor = ss_json["darken_screen_factor"];
+	ss.exp_percentage = ss_json["exp_percentage"];
+	ss.game_over = ss_json["game_over"];
+	ss.game_over_counter_ms = ss_json["game_over_counter_ms"];
+	ss.game_over_darken = ss_json["game_over_darken"];
+	ss.hp_percentage = ss_json["hp_percentage"];
+	ss.lerp_timer = ss_json["lerp_timer"];
+	ss.shake_duration_ms = ss_json["shake_duration_ms"];
+	ss.shake_intensity = ss_json["shake_intensity"];
+	ss.shake_offset = vec2(ss_json["shake_offset"][0], ss_json["shake_offset"][1]);
+	ss.cg_index = ss_json["cg_index"];
+
+	json attack_arr = jsonFile["1"];
+	for (long unsigned int i=0; i<attack_arr.size(); i++) {
+		json attack_json = attack_arr[i];
+		Entity e = Entity(attack_json["entity"]);
+		Attack &attack = registry.attacks.emplace(e);
+		attack.range = attack_json["range"];
+		attack.damage = attack_json["damage"];
+	}
+
+	json motion_arr = jsonFile["2"];
+	for (long unsigned int i=0; i<motion_arr.size(); i++) {
+		json motion = motion_arr[i];
+		Entity e = Entity(motion["entity"]);
+		Motion &m = registry.motions.emplace(e);
+		m.position = vec2(motion["position"][0], motion["position"][1]);
+		m.angle = motion["angle"];
+		m.velocity = vec2(motion["velocity"][0], motion["velocity"][1]);
+		m.scale = vec2(motion["scale"][0], motion["scale"][1]);
+	}
+
+	json collisions_arr = jsonFile["3"];
+	for (long unsigned int i=0; i<collisions_arr.size(); i++) {
+		json collision = collisions_arr[i];
+		Entity e = Entity(collision["entity"].get<int>());
+		Entity other = Entity(collision["other"].get<int>());
+		registry.collisions.emplace(e, other);
+	}
+
+	// didnt add meshPtrs, maybe add constraints when chicken summoned cannot save lol
+
+	json dimension_arr = jsonFile["5"];
+	for (long unsigned int i=0; i<dimension_arr.size(); i++) {
+		json dimension_json = dimension_arr[i];
+		Entity e = Entity(dimension_json["entity"]);
+		Dimension &dimension = registry.dimensions.emplace(e);
+		dimension.height = dimension_json["height"];
+		dimension.width = dimension_json["width"];
+	}
+
+	json renderRequests_arr = jsonFile["6"];
+	for (long unsigned int i=0; i<renderRequests_arr.size(); i++) {
+		json rr_json = renderRequests_arr[i];
+		Entity e = Entity(rr_json["entity"]);
+		RenderRequest &rr = registry.renderRequests.emplace(e);
+		rr.used_texture = (TEXTURE_ASSET_ID)rr_json["used_texture"];
+		rr.used_effect = (EFFECT_ASSET_ID)rr_json["used_effect"];
+		rr.used_geometry = (GEOMETRY_BUFFER_ID)rr_json["used_geometry"];
+	}
+
+	json tower_arr = jsonFile["8"];
+	for (long unsigned int i=0; i<tower_arr.size(); i++) {
+		json tower_json = tower_arr[i];
+		Entity e = Entity(tower_json["entity"]);
+		Tower &tower = registry.towers.emplace(e);
+		tower.health = tower_json["health"];
+		tower.damage = tower_json["damage"];
+		tower.range = tower_json["range"];
+		tower.timer_ms = tower_json["timer_ms"];
+		tower.state = tower_json["state"];
+	}
+
+	json zombie_arr = jsonFile["10"];
+	for (long unsigned int i=0; i<zombie_arr.size(); i++) {
+		json zombie_json = zombie_arr[i];
+		Entity e = Entity(zombie_json["entity"]);
+		Zombie &zombie = registry.zombies.emplace(e);
+		zombie.health = zombie_json["health"];
+	}
+
+	json zombieSpawn_arr = jsonFile["11"];
+	for (long unsigned int i=0; i<zombieSpawn_arr.size(); i++) {
+		json zombieSpawn_json = zombieSpawn_arr[i];
+		Entity e = Entity(zombieSpawn_json["entity"]);
+		ZombieSpawn &zombieSpawn = registry.zombieSpawns.emplace(e);
+	}
+
+	json player_arr = jsonFile["12"];
+	for (long unsigned int i=0; i<player_arr.size(); i++) {
+		json player_json = player_arr[i];
+		Entity e = Entity(player_json["entity"]);
+		Player &player = registry.players.emplace(e);
+		player.health = player_json["health"];
+	}
+
+	json sc_arr = jsonFile["13"];
+	for (long unsigned int i=0; i<sc_arr.size(); i++) {
+		json sc_json = sc_arr[i];
+		Entity e = Entity(sc_json["entity"]);
+		StatusComponent &sc = registry.statuses.emplace(e);
+		for (const auto &s : sc_json["active_statuses"])
+		{
+			Status status;
+			status.type = s["type"];
+			status.duration_ms = s["duration_ms"];
+			status.value = s["value"];
+			sc.active_statuses.push_back(status);
+		}
+	}
+
+	json states_arr = jsonFile["14"];
+	for (long unsigned int i=0; i<states_arr.size(); i++) {
+		json state_json = states_arr[i];
+		Entity e = Entity(state_json["entity"]);
+		State &state = registry.states.emplace(e);
+		state.state = (STATE)state_json["state"];
+	}
+
+	json animation_arr = jsonFile["15"];
+	for (long unsigned int i=0; i<animation_arr.size(); i++) {
+		json animation_json = animation_arr[i];
+		Entity e = Entity(animation_json["entity"]);
+		Animation &animation = registry.animations.emplace(e);
+		animation.runtime_ms = animation_json["runtime_ms"];
+		animation.timer_ms = animation_json["timer_ms"];
+		animation.pose = animation_json["pose"];
+		animation.transition_ms = animation_json["transition_ms"];
+		animation.pose_count = animation_json["pose_count"];
+		animation.loop = animation_json["loop"];
+		animation.lock = animation_json["lock"];
+		animation.destroy = animation_json["destroy"];
+		animation.textures = NULL;
+	}
+
+	json death_arr = jsonFile["16"];
+	for (long unsigned int i=0; i<death_arr.size(); i++) {
+		json death_json = death_arr[i];
+		Entity e = Entity(death_json["entity"]);
+		Death &death = registry.deaths.emplace(e);
+	}
+
+	json cooldown_arr = jsonFile["17"];
+	for (long unsigned int i=0; i<cooldown_arr.size(); i++) {
+		json cooldown_json = cooldown_arr[i];
+		Entity e = Entity(cooldown_json["entity"]);
+		Cooldown &cooldown = registry.cooldowns.emplace(e);
+		cooldown.timer_ms = cooldown_json["timer_ms"];
+	}
+
+	json da_arr = jsonFile["18"];
+	for (long unsigned int i=0; i<da_arr.size(); i++) {
+		json da_json = da_arr[i];
+		Entity e = Entity(da_json["entity"]);
+		DeathAnimation &da = registry.deathAnimations.emplace(e);
+		da.slide_direction = vec2(da_json["slide_direction"][0], da_json["slide_direction"][1]);
+		da.alpha = da_json["alpha"];
+		da.duration_ms = da_json["duration_ms"];
+	}
+
+	json he_arr = jsonFile["19"];
+	for (long unsigned int i=0; i<he_arr.size(); i++) {
+		json he_json = he_arr[i];
+		Entity e = Entity(he_json["entity"]);
+		HitEffect &he = registry.hitEffects.emplace(e);
+		he.duration_ms = he_json["duration_ms"];
+		he.is_white = he_json["is_white"];
+	}
+
+	json projectile_arr = jsonFile["20"];
+	for (long unsigned int i=0; i<projectile_arr.size(); i++) {
+		json projectile_json = projectile_arr[i];
+		Entity e = Entity(projectile_json["entity"]);
+		Entity source = Entity(projectile_json["source"]);
+		Projectile &p = registry.projectiles.emplace(e);
+		p.source = source;
+		p.damage = projectile_json["damage"];
+		p.speed = projectile_json["speed"];
+		p.lifetime_ms = projectile_json["lifetime_ms"];
+		p.direction = vec2(projectile_json["direction"][0], projectile_json["direction"][1]);
+		p.invincible = projectile_json["invincible"];
+	}
+
+	json camera_arr = jsonFile["21"];
+	for (long unsigned int i=0; i<camera_arr.size(); i++) {
+		json camera_json = camera_arr[i];
+		Entity e = Entity(camera_json["entity"]);
+		Camera &camera = registry.cameras.emplace(e);
+		camera.position = vec2(camera_json["position"][0], camera_json["position"][1]);
+		camera.camera_width = camera_json["camera_width"];
+		camera.camera_height = camera_json["camera_height"];
+		camera.lerp_factor = camera_json["lerp_factor"];
+	}
+
+	json skeleton_arr = jsonFile["22"];
+	for (long unsigned int i=0; i<skeleton_arr.size(); i++) {
+		json skeleton_json = skeleton_arr[i];
+		Entity e = Entity(skeleton_json["entity"]);
+		Entity target = Entity(skeleton_json["target"]);
+		Skeleton &skeleton = registry.skeletons.emplace(e);
+		skeleton.attack_range = skeleton_json["attack_range"];
+		skeleton.stop_distance = skeleton_json["stop_distance"];
+		skeleton.attack_cooldown_ms = skeleton_json["attack_cooldown_ms"];
+		skeleton.cooldown_timer_ms = skeleton_json["cooldown_timer_ms"];
+		skeleton.target = target;
+		skeleton.is_attacking = skeleton_json["is_attacking"];
+		skeleton.health = skeleton_json["health"];
+		skeleton.attack_timer_ms = skeleton_json["attack_timer_ms"];
+		skeleton.arrow_fired = skeleton_json["arrow_fired"];
+		skeleton.current_state = (Skeleton::State)skeleton_json["current_state"];
+	}
+
+	json arrow_arr = jsonFile["23"];
+	for (long unsigned int i=0; i<arrow_arr.size(); i++) {
+		json arrow_json = arrow_arr[i];
+		Entity e = Entity(arrow_json["entity"]);
+		Entity source = Entity(arrow_json["source"]);
+		Arrow &a = registry.arrows.emplace(e);
+		a.source = source;
+		a.damage = arrow_json["damage"];
+		a.speed = arrow_json["speed"];
+		a.lifetime_ms = arrow_json["lifetime_ms"];
+		a.direction = vec2(arrow_json["direction"][0], arrow_json["direction"][1]);
+	}
+
+	json visualScale_arr = jsonFile["24"];
+	for (long unsigned int i=0; i<visualScale_arr.size(); i++) {
+		json visualScale_json = visualScale_arr[i];
+		Entity e = Entity(visualScale_json["entity"]);
+		VisualScale &vs = registry.visualScales.emplace(e);
+		vs.scale = vec2(visualScale_json["scale"][0], visualScale_json["scale"][1]);
+	}
+
+	json enemies_arr = jsonFile["25"];
+	for (long unsigned int i=0; i<enemies_arr.size(); i++) {
+		json enemies_json = enemies_arr[i];
+		Entity e = Entity(enemies_json["entity"]);
+		Enemy &enemy = registry.enemies.emplace(e);
+		enemy.health = enemies_json["health"];
+		enemy.speed = enemies_json["speed"];
+	}
+
+	json inventory_arr = jsonFile["26"];
+	for (long unsigned int i=0; i<inventory_arr.size(); i++) {
+		json inventory_json = inventory_arr[i];
+		Entity e = Entity(inventory_json["entity"]);
+		Inventory &in = registry.inventorys.emplace(e);
+		json seed_arr = inventory_json["seedCount"];
+		for (long unsigned int i=0; i<seed_arr.size(); i++) {
+			in.seedCount[i] = seed_arr[std::to_string(i)];
+		}
+	}
+
+	json seed_arr = jsonFile["27"];
+	for (long unsigned int i=0; i<seed_arr.size(); i++) {
+		json seed_json = seed_arr[i];
+		Entity e = Entity(seed_json["entity"]);
+		Seed &seed = registry.seeds.emplace(e);
+		seed.type = seed_json["type"];
+		seed.timer = seed_json["timer"];
+	}
+
+	json mvc_arr = jsonFile["28"];
+	for (long unsigned int i=0; i<mvc_arr.size(); i++) {
+		json mvc_json = mvc_arr[i];
+		Entity e = Entity(mvc_json["entity"]);
+		registry.moveWithCameras.emplace(e);
+	}
+
+	json mt_arr = jsonFile["29"];
+	for (long unsigned int i=0; i<mt_arr.size(); i++) {
+		json mt_json = mt_arr[i];
+		Entity e = Entity(mt_json["entity"]);
+		registry.mapTiles.emplace(e);
+	}
+
+
+
+	std::cout << "Game loaded successfully." << std::endl;
+}
+
+void WorldSystem::saveGame()
+{
+	json jsonFile;
+	jsonFile["game_is_over"] = game_is_over;
+	jsonFile["game_screen"] = game_screen;
+	jsonFile["current_day"] = current_day;
+	jsonFile["current_seed"] = current_seed;
+	jsonFile["level"] = level;
+	jsonFile["id_count"] = Entity::get_id_count();
+
+	for (int i = 0; i < registry.registry_list.size(); i++)
+	{
+		jsonFile[std::to_string(i)] = registry.registry_list[i]->toJSON();
+	}
+
+	std::ofstream outFile(PROJECT_SOURCE_DIR + std::string("data/reload/game_0.json"));
+	if (outFile.is_open())
+	{
+		outFile << jsonFile.dump(4);
+		outFile.close();
+		std::cout << "JSON written to file successfully.\n";
+	}
+	else
+	{
+		std::cerr << "Error opening file for writing.\n";
 	}
 }

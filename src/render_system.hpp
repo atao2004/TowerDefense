@@ -8,8 +8,8 @@
 #include "tinyECS/tiny_ecs.hpp"
 
 // fonts
-// #include <ft2build.h>
-// #include FT_FREETYPE_H
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #include <map>
 
 // System responsible for setting up OpenGL and for rendering all the
@@ -85,6 +85,8 @@ class RenderSystem
 		textures_path("map/grass_decoration_1.png"),
 		textures_path("map/tree_1.png"),
 		textures_path("map/farmland_1.png"),
+		textures_path("map/stone_8.png"),
+		textures_path("map/tree_2.png"),
 		textures_path("enemies/SkeletonArcher-Idle1.png"),
 		textures_path("enemies/SkeletonArcher-Idle2.png"),
 		textures_path("enemies/SkeletonArcher-Idle3.png"),
@@ -118,13 +120,56 @@ class RenderSystem
 		textures_path("enemies/Orc-Walk7.png"),
 		textures_path("enemies/Orc-Walk8.png"),
 
+		textures_path("enemies/orc_elite/OrcElite_Walk_1.png"),
+		textures_path("enemies/orc_elite/OrcElite_Walk_2.png"),
+		textures_path("enemies/orc_elite/OrcElite_Walk_3.png"),
+		textures_path("enemies/orc_elite/OrcElite_Walk_4.png"),
+		textures_path("enemies/orc_elite/OrcElite_Walk_5.png"),
+		textures_path("enemies/orc_elite/OrcElite_Walk_6.png"),
+		textures_path("enemies/orc_elite/OrcElite_Walk_7.png"),
+		textures_path("enemies/orc_elite/OrcElite_Walk_8.png"),
+
+		textures_path("enemies/skeleton/Skeleton_Walk_1.png"),
+		textures_path("enemies/skeleton/Skeleton_Walk_2.png"),
+		textures_path("enemies/skeleton/Skeleton_Walk_3.png"),
+		textures_path("enemies/skeleton/Skeleton_Walk_4.png"),
+		textures_path("enemies/skeleton/Skeleton_Walk_5.png"),
+		textures_path("enemies/skeleton/Skeleton_Walk_6.png"),
+		textures_path("enemies/skeleton/Skeleton_Walk_7.png"),
+		textures_path("enemies/skeleton/Skeleton_Walk_8.png"),
+
+		textures_path("enemies/slime/Slime_Walk_1.png"),
+		textures_path("enemies/slime/Slime_Walk_2.png"),
+		textures_path("enemies/slime/Slime_Walk_3.png"),
+		textures_path("enemies/slime/Slime_Walk_4.png"),
+		textures_path("enemies/slime/Slime_Walk_5.png"),
+		textures_path("enemies/slime/Slime_Walk_6.png"),
+
+		textures_path("enemies/werebear/Werebear_Walk_1.png"),
+		textures_path("enemies/werebear/Werebear_Walk_2.png"),
+		textures_path("enemies/werebear/Werebear_Walk_3.png"),
+		textures_path("enemies/werebear/Werebear_Walk_4.png"),
+		textures_path("enemies/werebear/Werebear_Walk_5.png"),
+		textures_path("enemies/werebear/Werebear_Walk_6.png"),
+		textures_path("enemies/werebear/Werebear_Walk_7.png"),
+		textures_path("enemies/werebear/Werebear_Walk_8.png"),
+
+		textures_path("enemies/werewolf/Werewolf_Walk_1.png"),
+		textures_path("enemies/werewolf/Werewolf_Walk_2.png"),
+		textures_path("enemies/werewolf/Werewolf_Walk_3.png"),
+		textures_path("enemies/werewolf/Werewolf_Walk_4.png"),
+		textures_path("enemies/werewolf/Werewolf_Walk_5.png"),
+		textures_path("enemies/werewolf/Werewolf_Walk_6.png"),
+		textures_path("enemies/werewolf/Werewolf_Walk_7.png"),
+		textures_path("enemies/werewolf/Werewolf_Walk_8.png"),
+
 		textures_path("player/playerIdle(100)/Player-Idle1.png"),
 		textures_path("player/playerIdle(100)/Player-Idle2.png"),
 		textures_path("player/playerIdle(100)/Player-Idle3.png"),
 		textures_path("player/playerIdle(100)/Player-Idle4.png"),
 		textures_path("player/playerIdle(100)/Player-Idle5.png"),
 		textures_path("player/playerIdle(100)/Player-Idle6.png"),
-		
+
 		textures_path("player/playerWalk(100)/Player-Walk1.png"),
 		textures_path("player/playerWalk(100)/Player-Walk2.png"),
 		textures_path("player/playerWalk(100)/Player-Walk3.png"),
@@ -148,7 +193,15 @@ class RenderSystem
 		textures_path("towers/plant2/attack/Plant2_attack_b1.png"),
 		textures_path("towers/plant2/attack/Plant2_attack_b2.png"),
 		textures_path("towers/plant2/attack/Plant2_attack_s1.png"),
-		textures_path("towers/plant2/attack/Plant2_attack_s2.png")
+		textures_path("towers/plant2/attack/Plant2_attack_s2.png"),
+		textures_path("ui/new_game.png"),
+		textures_path("ui/load_game.png"),
+		textures_path("ui/tutorial.png"),
+		textures_path("ui/quit.png"),
+		textures_path("ui/background.png"),
+		textures_path("particles/particle1.png"),
+		textures_path("cut_scenes/night_bg.png"),
+		textures_path("cut_scenes/day_bg.png"),
 	};
 
 
@@ -161,23 +214,27 @@ class RenderSystem
 		shader_path("ui"),
 		shader_path("vignette"),
 		shader_path("zombie"),
-		shader_path("player")
+		shader_path("player"),
+		shader_path("particle"),
 	};
 
 	// fonts
-	struct Character {
-		unsigned int TextureID;  // ID handle of the glyph texture
-		glm::ivec2   Size;       // Size of glyph
-		glm::ivec2   Bearing;    // Offset from baseline to left/top of glyph
-		unsigned int Advance;    // Offset to advance to next glyph
+	struct Character
+	{
+		unsigned int TextureID; // ID handle of the glyph texture
+		glm::ivec2 Size;		// Size of glyph
+		glm::ivec2 Bearing;		// Offset from baseline to left/top of glyph
+		unsigned int Advance;	// Offset to advance to next glyph
 		char character;
 	};
 
-	// fonts
+	// Font
 	std::map<char, Character> m_ftCharacters;
 	GLuint m_font_shaderProgram;
 	GLuint m_font_VAO;
 	GLuint m_font_VBO;
+	glm::mat4 trans = glm::mat4(1.0f);
+
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
 	std::array<Mesh, geometry_count> meshes;
@@ -207,20 +264,23 @@ public:
 	~RenderSystem();
 
 	// Draw all entities
-	void draw(GAME_SCREEN_ID game_screen);
+	void step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms);
 
 	mat3 createProjectionMatrix();
+	mat3 createProjectionMatrix_splash();
+	
 
 	Entity get_screen_state_entity() { return screen_state_entity; }
 
-	bool fontInit(const std::string& font_filename, unsigned int font_default_size);
-	void renderText(std::string text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
+	bool fontInit(const std::string &font_filename, unsigned int font_default_size);
+	void renderText(std::string text, float x, float y, float scale, const glm::vec3 &color, const glm::mat4 &trans);
 
 private:
 	// Internal drawing functions for each entity type
 	void drawGridLine(Entity entity, const mat3 &projection);
 	void drawTexturedMesh(Entity entity, const mat3 &projection);
 	void drawToScreen();
+	void drawUI();
 
 	// Window handle
 	GLFWwindow *window;
@@ -231,6 +291,14 @@ private:
 	GLuint off_screen_render_buffer_depth;
 
 	Entity screen_state_entity;
+	GLuint vao;
+
+	// For instanced particle rendering
+	GLuint particle_instance_VBO = 0;
+	const int MAX_PARTICLES = 2000;
+
+	// New method to render particles with instancing
+	void drawParticlesInstanced(const mat3 &projection);
 };
 
 bool loadEffectFromFile(
