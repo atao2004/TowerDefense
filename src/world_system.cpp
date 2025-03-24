@@ -1217,10 +1217,12 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 
 	if (game_screen == GAME_SCREEN_ID::CG) {
 		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {
-			int cg_index = registry.screenStates.components[0].cg_index++;
+			int cg_index = ++registry.screenStates.components[0].cg_index;
 			std::cout<<cg_index<<std::endl;
-			if (cg_index == 5)
+			if (cg_index == 6)
 				restart_game();
+			// if (cg_index == 6)
+				
 		}
 
 		return;

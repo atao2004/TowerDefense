@@ -475,15 +475,19 @@ void RenderSystem::draw(GAME_SCREEN_ID game_screen)
 		else {
 			int cg_idx = registry.screenStates.components[0].cg_index;
 			if (cg_idx == 0)
-				renderText("You are a humble farmer, tending to your crops in peace...", 10,WINDOW_HEIGHT_PX-100,0.6,{1,1,1}, trans);
+				renderText("After years on the battlefield, you hung up your sword and returned home...", 10, WINDOW_HEIGHT_PX-100,0.6, {1,1,1}, trans);
 			if (cg_idx == 1)
-				renderText( "But one night, a meteor carrying a strange virus struck the city...", 10,WINDOW_HEIGHT_PX-100,0.6,{1,1,1}, trans);
+				renderText( "You inherited the farm from your parents, and became a farmer...", 10, WINDOW_HEIGHT_PX-100,0.6, {1,1,1}, trans);
 			if (cg_idx == 2)
-				renderText("You are a humble farmer, tending to your crops in peace...", 10,WINDOW_HEIGHT_PX-100,0.6,{1,1,1}, trans);
+				renderText( "But one night, a meteor carrying a strange virus struck the city...", 10, WINDOW_HEIGHT_PX-100,0.6, {1,1,1}, trans);
 			if (cg_idx == 3)
-				renderText("You are a humble farmer, tending to your crops in peace...", 10,WINDOW_HEIGHT_PX-100,0.6,{1,1,1}, trans);
-			if (cg_idx == 4)
-				renderText("You are a humble farmer, tending to your crops in peace...", 10,WINDOW_HEIGHT_PX-100,0.6,{1,1,1}, trans);
+				renderText( "*explosion from a distant space", 10, WINDOW_HEIGHT_PX-100,0.6,{1,1,1}, trans);
+			if (cg_idx == 4) {
+				renderText( "You heard the sound, walk up to the window, peered out but everything seems...", 10, WINDOW_HEIGHT_PX-100,0.6,{1,1,1}, trans);
+				renderText( "peaceful and normal...", 10, WINDOW_HEIGHT_PX-150,0.6,{1,1,1}, trans);
+			}
+			if (cg_idx == 5)
+				renderText( "You went back to sleep, unaware that your world had already changed...", 10, WINDOW_HEIGHT_PX-100,0.6, {1,1,1}, trans);
 		}
 	} else {
 		// draw all entities with a render request to the frame buffer
