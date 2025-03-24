@@ -55,12 +55,6 @@ public:
 	unsigned int level;
 
 	static int current_day;
-
-	void init_splash_screen() {
-		std::cout<<"start game"<<std::endl;
-		
-		std::cout<<"done"<<std::endl;
-	}
 	
 private:
 	float mouse_pos_x = 0.0f;

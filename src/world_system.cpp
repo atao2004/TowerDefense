@@ -180,8 +180,6 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 	// restart_tutorial();
 	// init_splash_screen();
 	// createSplashScreen(renderer);
-		glm::mat4 trans =  glm::ortho(0.0f, (float)WINDOW_WIDTH_PX, 0.0f, (float)WINDOW_HEIGHT_PX);
-		renderer->renderText("hi", 10, 10, 1, {1, 0, 1}, trans);
 }
 
 // Update our game world
@@ -414,7 +412,7 @@ void WorldSystem::restart_game()
 
 	// Set the level to level 1 and the game_screen to PLAYING.
 	level = 1;
-	game_screen = GAME_SCREEN_ID::PLAYING;
+	game_screen = GAME_SCREEN_ID::SPLASH;
 
 	// Kung: This is for Milestone #2. This creates the farmland.
 	parseMap(false);
@@ -1151,6 +1149,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 
 	if (game_screen == GAME_SCREEN_ID::SPLASH) {
 		//implement
+		std::cout<<"heloo"<<std::endl;
 		return;
 	}
 

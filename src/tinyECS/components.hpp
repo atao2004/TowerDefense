@@ -401,8 +401,6 @@ struct ScreenState
 	float shake_intensity = 0.f;
 	vec2 shake_offset = {0.f, 0.f};
 
-    GAME_SCREEN_ID game_screen = GAME_SCREEN_ID::SPLASH;
-
 	json toJSON() const {
         return json{
             {"darken_screen_factor", darken_screen_factor},

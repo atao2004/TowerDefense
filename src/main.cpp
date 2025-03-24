@@ -103,7 +103,7 @@ int main()
 		//when level up, we want the screen to be frozen
 		if (StateSystem::get_state() != STATE::LEVEL_UP) {
 			world_system.step(elapsed_ms);
-			if (!WorldSystem::game_is_over && registry.screenStates.components[0].game_screen != GAME_SCREEN_ID::SPLASH) {
+			if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH) {
 
 				//M2: FPS
 				float current_fps = (1/(elapsed_ms/1000));
