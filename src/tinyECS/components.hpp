@@ -505,18 +505,10 @@ struct Mesh
 // Animation related components
 struct DeathAnimation
 {
-<<<<<<< HEAD
 	vec2 slide_direction; // Direction to slide
 	float alpha = 1.0f;	  // Transparency (1.0 = solid, 0.0 = invisible)
 	float duration_ms = 500.0f;	  // How long the animation lasts (Animation lasts 0.5 seconds)
 	json toJSON() const {
-=======
-    vec2 slide_direction; // Direction to slide
-    float alpha = 1.0f;   // Transparency (1.0 = solid, 0.0 = invisible)
-    float duration_ms;    // How long the animation lasts
-    json toJSON() const
-    {
->>>>>>> main
         return json{
             {"slide_direction", {slide_direction.x, slide_direction.y}},
             {"alpha", alpha},
