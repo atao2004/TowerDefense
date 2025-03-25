@@ -96,6 +96,7 @@ GLFWwindow *WorldSystem::create_window()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	WINDOW_HEIGHT_PX = WINDOW_HEIGHT_PX * 3 / 4;
 	WINDOW_WIDTH_PX = WINDOW_WIDTH_PX * 3 / 4;
+	OS = OS_RESOLUTION * 3 / 4;
 #endif
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	// CK: setting GLFW_SCALE_TO_MONITOR to true will rescale window but then you must handle different scalings
@@ -921,7 +922,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// exit game w/ ESC
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE)
 	{
-		close_window();
+		
 		return;
 	}
 
@@ -1821,6 +1822,10 @@ void WorldSystem::loadGame()
 
 void WorldSystem::saveGame()
 {
+	if (chicken_summoned) {
+		std::cout<<"Chicken summoned, cannot save, please give it some time to fly."<<std::endl;
+		return;
+	}
 	json jsonFile;
 	jsonFile["game_is_over"] = game_is_over;
 	jsonFile["game_screen"] = game_screen;

@@ -471,62 +471,62 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 
 		drawToScreen();
 		if (game_screen == GAME_SCREEN_ID::SPLASH)
-			renderText("Farmer Defense", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100, 1, {0, 0, 0}, trans);
+			renderText("Farmer Defense", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100, OS_RES, {0, 0, 0}, trans);
 		else
 		{
 			int cg_idx = registry.screenStates.components[0].cg_index;
 			int cutscene = registry.screenStates.components[0].cutscene;
 			if (cutscene == 1) {
 				if (cg_idx == 0)
-					renderText("After years on the battlefield, you hung up your sword and returned home...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+					renderText("After years on the battlefield, you hung up your sword and returned home...", 10, WINDOW_HEIGHT_PX - 100, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 1)
-					renderText("You inherited the farm from your parents, and became a farmer...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+					renderText("You inherited the farm from your parents, and became a farmer...", 10, WINDOW_HEIGHT_PX - 100, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 2)
-					renderText("But one night, a meteor carrying a strange virus struck the city...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+					renderText("But one night, a meteor carrying a strange virus struck the city...", 10, WINDOW_HEIGHT_PX - 100, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 3)
 					renderText("*explosion from a distant space", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
 				if (cg_idx == 4)
 				{
-					renderText("You heard the sound, walk up to the window, peered out but everything seems...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+					renderText("You heard the sound, walk up to the window, peered out but everything seems...", 10, WINDOW_HEIGHT_PX - 100, 0.6*OS_RES, {1, 1, 1}, trans);
 					renderText("peaceful and normal...", 10, WINDOW_HEIGHT_PX - 150, 0.6, {1, 1, 1}, trans);
 				}
 				if (cg_idx == 5)
-					renderText("You went back to sleep, unaware that your world had already changed...", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+					renderText("You went back to sleep, unaware that your world had already changed...", 10, WINDOW_HEIGHT_PX - 100, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 6)
-					renderText("*The next day", 10, WINDOW_HEIGHT_PX - 100, 0.6, {1, 1, 1}, trans);
+					renderText("*The next day", 10, WINDOW_HEIGHT_PX - 100, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 8)
-					renderText("Uh... Hello?", 60, 350, 0.6, {1, 1, 1}, trans);
+					renderText("Uh... Hello?", 60, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 9)
-					renderText("*Growl", WINDOW_WIDTH_PX - 300, 350, 0.6, {1, 1, 1}, trans);
+					renderText("*Growl", WINDOW_WIDTH_PX - 400, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 10)
-					renderText("Uh oh...", 60, 350, 0.6, {1, 1, 1}, trans);
+					renderText("Uh oh...", 60, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 			}
 			else if (cutscene == 2) {
 				// second scene, plant grow? yes plant grow!
 				if (cg_idx == 1)
-					renderText("Bro I thought I would get some carrots, not you?!", 60, 350, 0.6, {1, 1, 1}, trans);
+					renderText("Bro I thought I would get some carrots, not you?!", 60, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 2)
-					renderText("I am here to only help!", WINDOW_WIDTH_PX - 500, 350, 0.6, {1, 1, 1}, trans);
+					renderText("I am here to only help!", WINDOW_WIDTH_PX - 500, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 3)
-					renderText("WTH you can talk??", 60, 350, 0.6, {1, 1, 1}, trans);
+					renderText("WTH you can talk??", 60, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 4)
 				{
 
-					renderText("The zombies can hold weapons,", WINDOW_WIDTH_PX - 700, 450, 0.6, {1, 1, 1}, trans);
-					renderText("so WHY NOT", WINDOW_WIDTH_PX - 700, 350, 0.6, {1, 1, 1}, trans);
+					renderText("The zombies can hold weapons,", WINDOW_WIDTH_PX - 700, 450, 0.6*OS_RES, {1, 1, 1}, trans);
+					renderText("so WHY NOT", WINDOW_WIDTH_PX - 700, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 				}
 				if (cg_idx == 5)
-					renderText("Alright...", 60, 350, 0.6, {1, 1, 1}, trans);
+					renderText("Alright...", 60, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 			}
 			else if (cutscene == 3) {
 				if (cg_idx == 1)
-					renderText("Summon the chicken!", WINDOW_WIDTH_PX - 700, 450, 0.6, {1, 1, 1}, trans);
+					renderText("Summon the chicken!", WINDOW_WIDTH_PX - 700, 450, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 2)
-					renderText("How should I do that", 60, 350, 0.6, {1, 1, 1}, trans);
+					renderText("How should I do that", 60, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 3)
-					renderText("\'C\' for the chicken!", WINDOW_WIDTH_PX - 700, 450, 0.6, {1, 1, 1}, trans);
+					renderText("\'C\' for the chicken!", WINDOW_WIDTH_PX - 700, 450, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 4)
-					renderText("Alright...", 60, 350, 0.6, {1, 1, 1}, trans);
+					renderText("Alright...", 60, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 			}
 		}
 	}
