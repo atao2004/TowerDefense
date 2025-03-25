@@ -419,9 +419,8 @@ void WorldSystem::start_cg(RenderSystem *renderer)
 	}
 	else {
 		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
-	else if (cg_idx == 19)
-		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
-	std::cout << cg_idx << std::endl;
+	}
+	std::cout << "what hello hello?" << std::endl;
 }
 
 // Reset the world state to its initial state
@@ -587,6 +586,13 @@ void WorldSystem::increase_exp_player()
 		vec2 player_pos = registry.motions.get(player_entity).position;
 		vec2 player_size = registry.motions.get(player_entity).scale;
 		ParticleSystem::createLevelUpEffect(player_pos, player_size);
+
+		if (level == 2) {
+			std::cout<<"hihi"<<std::endl;
+			registry.screenStates.components[0].cutscene = 3;
+			registry.screenStates.components[0].cg_index = 0;
+			return start_cg(renderer);
+		}
 		
 		std::cout << "==== LEVEL " << level << " ====" << std::endl;
 	}
@@ -1236,8 +1242,11 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 				if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
 					mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT / 2)
 				{
-					if (b.type == BUTTON_ID::START)
+					if (b.type == BUTTON_ID::START) {
+						registry.screenStates.components[0].cutscene = 1;
+						registry.screenStates.components[0].cg_index = 0;
 						return start_cg(renderer);
+					}
 					if (b.type == BUTTON_ID::LOAD)
 						return loadGame();
 					if (b.type == BUTTON_ID::TUTORIAL)
@@ -1298,28 +1307,32 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 				for (int i = registry.cgs.entities.size() - 1; i >= 0; i--)
 					registry.remove_all_components_of(registry.cgs.entities[i]);
 				createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
-			}
-			else if (cg_index == 7)
-			{
-				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 200, WINDOW_HEIGHT_PX - 250), vec2(-500, 500), TEXTURE_ASSET_ID::ORC_WALK2);
+				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 300, WINDOW_HEIGHT_PX - 250), vec2(-500, 500), TEXTURE_ASSET_ID::ORC_WALK2);
 				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX - 250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
 			}
-			else if (cg_index == 11)
+			else if (cutscene == 1 && cg_index == 10)
 				restart_game();
 
 			// second scene yolo
-			else if (cg_index == 13)
+			else if (cutscene == 2 && cg_index == 0)
 			{
-				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 200, WINDOW_HEIGHT_PX - 250), vec2(200, 200), TEXTURE_ASSET_ID::PLANT_2_IDLE_S);
+				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 300, WINDOW_HEIGHT_PX - 250), vec2(200, 200), TEXTURE_ASSET_ID::PLANT_2_IDLE_S);
 				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX - 250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
 			}
-			else if (cg_index == 18)
+			else if (cutscene == 2 && cg_index == 6)
 			{
 				for (int i = registry.cgs.entities.size() - 1; i >= 0; i--)
 					registry.remove_all_components_of(registry.cgs.entities[i]);
 				set_game_screen(GAME_SCREEN_ID::PLAYING);
 			}
-			else if (cg_index == 20)
+			else if (cutscene == 3 && cg_index == 0)
+			{
+				std::cout<<"cutscene == 3 wowowo"<<std::endl;
+				std::cout<<(int)game_screen<<std::endl;
+				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 300, WINDOW_HEIGHT_PX - 250), vec2(200, 200), TEXTURE_ASSET_ID::CHICKEN_CG);
+				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX - 250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
+			}
+			else if (cutscene == 3 && cg_index == 5)
 			{
 				for (int i = registry.cgs.entities.size() - 1; i >= 0; i--)
 					registry.remove_all_components_of(registry.cgs.entities[i]);
