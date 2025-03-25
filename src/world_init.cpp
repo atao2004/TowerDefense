@@ -681,7 +681,11 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 	player.health = PLAYER_HEALTH;
 
 	Inventory &inventory = registry.inventorys.emplace(entity);
-	registry.inventorys.components[0].seedCount[0] = 5; // 5 starter seeds
+	for(int i = 0; i < NUM_SEED_TYPES; i++)
+	{
+		registry.inventorys.components[0].seedCount[i] = 1; // one each of the 8 seed types
+	}
+	//registry.inventorys.components[0].seedCount[0] = 5; // 5 starter seeds
 
 	MoveWithCamera &mwc = registry.moveWithCameras.emplace(entity);
 	Motion &motion = registry.motions.emplace(entity);
@@ -746,6 +750,7 @@ Entity createSeed(vec2 pos, int type)
 {
 	// Create the associated entity.
 	Entity seed_entity = Entity();
+	TEXTURE_ASSET_ID seed_texture = (TEXTURE_ASSET_ID) ((int) TEXTURE_ASSET_ID::SEED_0 + type);
 
 	// Create the associated component.
 	Seed &seed_component = registry.seeds.emplace(seed_entity);
@@ -761,7 +766,7 @@ Entity createSeed(vec2 pos, int type)
 	// Render the object.
 	registry.renderRequests.insert(
 		seed_entity,
-		{TEXTURE_ASSET_ID::SEED_0,
+		{(TEXTURE_ASSET_ID) ((int) TEXTURE_ASSET_ID::SEED_0 + type),
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
@@ -771,7 +776,7 @@ Entity createSeed(vec2 pos, int type)
 }
 
 // Kung: Create the seed that appears within the toolbar.
-Entity createSeedInventory(vec2 pos, vec2 velocity, int type)
+Entity createSeedInventory(vec2 pos, vec2 velocity, int type, int toolbar_pos)
 {
 	// Create the associated entity.
 	Entity seed_entity = Entity();
@@ -780,6 +785,8 @@ Entity createSeedInventory(vec2 pos, vec2 velocity, int type)
 	Seed &seed_component = registry.seeds.emplace(seed_entity);
 	seed_component.type = type;
 	seed_component.timer = 5000;
+
+	registry.inventorys.components[0].seedPosition[toolbar_pos] = type;
 
 	// Create a component to simplify movement.
 	MoveWithCamera &mwc = registry.moveWithCameras.emplace(seed_entity);
