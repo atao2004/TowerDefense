@@ -40,8 +40,8 @@
 - **R** – Restart game
 - **T** - Enter/Exit tutorial  
 - **ESC** – Close game 
-- **-** - Load Game
-- **=** - Save 
+- **"-"** – Load Game
+- **"="** – Save 
 
 ## M1 Features:
 
