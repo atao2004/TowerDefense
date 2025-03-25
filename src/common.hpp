@@ -233,8 +233,9 @@ enum class TEXTURE_ASSET_ID
 	//cutscenes
 	NIGHT_BG = PARTICLE + 1,
 	DAY_BG = NIGHT_BG + 1,
+	CHICKEN_CG = DAY_BG + 1,
 
-	TEXTURE_COUNT = DAY_BG + 1
+	TEXTURE_COUNT = CHICKEN_CG + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -302,6 +303,7 @@ struct RenderRequest
 
 inline int WINDOW_WIDTH_PX = 1920;
 inline int WINDOW_HEIGHT_PX = 1080;
+inline float OS_RES = 1;
 
 const int GRID_CELL_WIDTH_PX = 60;
 const int GRID_CELL_HEIGHT_PX = 60;

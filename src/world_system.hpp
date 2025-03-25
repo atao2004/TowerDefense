@@ -34,6 +34,7 @@ public:
 
 	// starts the game
 	void init(RenderSystem *renderer);
+	void restart_splash_screen();
 
 	// releases all associated resources
 	~WorldSystem();
@@ -144,4 +145,6 @@ private:
 
 	void loadGame();
 	void saveGame();
+
+	void plant_seed();
 };

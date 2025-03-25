@@ -96,6 +96,7 @@ GLFWwindow *WorldSystem::create_window()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	WINDOW_HEIGHT_PX = WINDOW_HEIGHT_PX * 3 / 4;
 	WINDOW_WIDTH_PX = WINDOW_WIDTH_PX * 3 / 4;
+	OS = OS_RESOLUTION * 3 / 4;
 #endif
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	// CK: setting GLFW_SCALE_TO_MONITOR to true will rescale window but then you must handle different scalings
@@ -170,6 +171,10 @@ bool WorldSystem::start_and_load_sounds()
 void WorldSystem::init(RenderSystem *renderer_arg)
 {
 	this->renderer = renderer_arg;
+	restart_splash_screen();
+}
+
+void WorldSystem::restart_splash_screen() {
 	game_screen = GAME_SCREEN_ID::SPLASH;
 	createScreen(renderer, TEXTURE_ASSET_ID::BACKGROUND);
 	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5));
@@ -393,13 +398,14 @@ void WorldSystem::start_cg(RenderSystem *renderer)
 	registry.cgs.clear();
 	game_screen = GAME_SCREEN_ID::CG;
 	int cg_idx = registry.screenStates.components[0].cg_index;
-	if (cg_idx == 0)
+	int cutscene = registry.screenStates.components[0].cutscene;
+	if (cutscene == 1) {
 		createScreen(renderer, TEXTURE_ASSET_ID::NIGHT_BG);
-	else if (cg_idx == 12)
+	}
+	else {
 		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
-	else if (cg_idx == 19)
-		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
-	std::cout << cg_idx << std::endl;
+	}
+	std::cout << "what hello hello?" << std::endl;
 }
 
 // Reset the world state to its initial state
@@ -564,6 +570,13 @@ void WorldSystem::increase_exp_player()
 		vec2 player_pos = registry.motions.get(player_entity).position;
 		vec2 player_size = registry.motions.get(player_entity).scale;
 		ParticleSystem::createLevelUpEffect(player_pos, player_size);
+
+		if (level == 2) {
+			std::cout<<"hihi"<<std::endl;
+			registry.screenStates.components[0].cutscene = 3;
+			registry.screenStates.components[0].cg_index = 0;
+			return start_cg(renderer);
+		}
 		
 		std::cout << "==== LEVEL " << level << " ====" << std::endl;
 	}
@@ -1010,90 +1023,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
 
-	// Kung: Plant seed with the right click button (F button retained for debugging)
-	if ((action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_RIGHT) || (action == GLFW_PRESS && key == GLFW_KEY_F))
+	// Plant seed
+	if (action == GLFW_PRESS && key == GLFW_KEY_F)
 	{
-		// Calculate player's current cell for proximity checking
-		int cell_x = static_cast<int>((motion.position.x + GRID_CELL_WIDTH_PX / 2) / GRID_CELL_WIDTH_PX);
-		int cell_y = static_cast<int>((motion.position.y + GRID_CELL_HEIGHT_PX / 2) / GRID_CELL_HEIGHT_PX);
-		vec2 grid_center = vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX);
-
-		// Find valid farmland closest to the player
-		Entity closest_farmland = NULL;
-		float closest_distance = GRID_CELL_WIDTH_PX; // Max distance to consider
-
-		for (Entity tile : registry.mapTiles.entities)
-		{
-			// Check if tile is farmland
-			if (registry.motions.has(tile) &&
-				registry.renderRequests.has(tile) &&
-				registry.renderRequests.get(tile).used_texture == DECORATION_LIST[6])
-			{
-				vec2 farmland_pos = registry.motions.get(tile).position;
-				float distance = length(farmland_pos - grid_center);
-
-				// Check if this is closer than previous matches
-				if (distance < closest_distance)
-				{
-					// Check if tile is already occupied by a seed or tower
-					bool is_occupied = false;
-					for (Entity entity : registry.motions.entities)
-					{
-						if ((registry.seeds.has(entity) || registry.towers.has(entity)) &&
-							length(registry.motions.get(entity).position - farmland_pos) < 10.0f)
-						{
-							is_occupied = true;
-							break;
-						}
-					}
-
-					if (!is_occupied)
-					{
-						closest_farmland = tile;
-						closest_distance = distance;
-					}
-				}
-			}
-		}
-
-		// If we found valid farmland, plant a seed
-		if (closest_farmland != NULL)
-		{
-			vec2 farmland_pos = registry.motions.get(closest_farmland).position;
-
-			// Check if player has seeds available
-			if (registry.inventorys.components[0].seedCount[current_seed] > 0)
-			{
-				// Plant the seed at the exact farmland position
-				Entity seed = createSeed(farmland_pos, current_seed);
-				registry.inventorys.components[0].seedCount[current_seed]--;
-
-				// If that was the last seed of this type, remove it from toolbar
-				if (registry.inventorys.components[0].seedCount[current_seed] == 0)
-				{
-					for (Entity seed_entity : registry.seeds.entities)
-					{
-						if (registry.moveWithCameras.has(seed_entity) &&
-							registry.seeds.get(seed_entity).type == current_seed)
-						{
-							registry.remove_all_components_of(seed_entity);
-							break;
-						}
-					}
-				}
-
-				std::cout << "Planted seed. Remaining: " << registry.inventorys.components[0].seedCount[current_seed] << std::endl;
-			}
-			else
-			{
-				std::cout << "No seeds of this type available!" << std::endl;
-			}
-		}
-		else
-		{
-			// No valid farmland found
-			std::cout << "No available farmland nearby. Move closer to farmland." << std::endl;
-		}
+		plant_seed();
 	}
 
 	// Kung: Helper function for player movement (see above for description)
@@ -1201,6 +1134,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				vec2 player_pos = registry.motions.get(player).position;
 				vec2 player_size = registry.motions.get(player).scale;
 				ParticleSystem::createLevelUpEffect(player_pos, player_size);
+				if (level == 2) {
+					std::cout<<"hihi"<<std::endl;
+					registry.screenStates.components[0].cutscene = 3;
+					registry.screenStates.components[0].cg_index = 0;
+					return start_cg(renderer);
+				}
 
 				std::cout << "==== LEVEL " << level << " ====" << std::endl;
 			}
@@ -1256,8 +1195,11 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 				if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
 					mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT / 2)
 				{
-					if (b.type == BUTTON_ID::START)
+					if (b.type == BUTTON_ID::START) {
+						registry.screenStates.components[0].cutscene = 1;
+						registry.screenStates.components[0].cg_index = 0;
 						return start_cg(renderer);
+					}
 					if (b.type == BUTTON_ID::LOAD)
 						return loadGame();
 					if (b.type == BUTTON_ID::TUTORIAL)
@@ -1274,35 +1216,39 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 	{
 		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
 		{
-			int cg_index = ++registry.screenStates.components[0].cg_index;
-			std::cout << cg_index << std::endl;
-			if (cg_index == 6)
-			{
+			int cg_index = registry.screenStates.components[0].cg_index++;
+			int cutscene = registry.screenStates.components[0].cutscene;
+			std::cout <<cutscene<<" "<< cg_index << std::endl;
+			if (cutscene == 1 && cg_index == 6) {
 				for (int i = registry.cgs.entities.size() - 1; i >= 0; i--)
 					registry.remove_all_components_of(registry.cgs.entities[i]);
 				createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
-			}
-			else if (cg_index == 7)
-			{
-				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 200, WINDOW_HEIGHT_PX - 250), vec2(-500, 500), TEXTURE_ASSET_ID::ORC_WALK2);
+				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 300, WINDOW_HEIGHT_PX - 250), vec2(-500, 500), TEXTURE_ASSET_ID::ORC_WALK2);
 				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX - 250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
 			}
-			else if (cg_index == 11)
+			else if (cutscene == 1 && cg_index == 10)
 				restart_game();
 
 			// second scene yolo
-			else if (cg_index == 13)
+			else if (cutscene == 2 && cg_index == 0)
 			{
-				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 200, WINDOW_HEIGHT_PX - 250), vec2(200, 200), TEXTURE_ASSET_ID::PLANT_2_IDLE_S);
+				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 300, WINDOW_HEIGHT_PX - 250), vec2(200, 200), TEXTURE_ASSET_ID::PLANT_2_IDLE_S);
 				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX - 250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
 			}
-			else if (cg_index == 18)
+			else if (cutscene == 2 && cg_index == 6)
 			{
 				for (int i = registry.cgs.entities.size() - 1; i >= 0; i--)
 					registry.remove_all_components_of(registry.cgs.entities[i]);
 				set_game_screen(GAME_SCREEN_ID::PLAYING);
 			}
-			else if (cg_index == 20)
+			else if (cutscene == 3 && cg_index == 0)
+			{
+				std::cout<<"cutscene == 3 wowowo"<<std::endl;
+				std::cout<<(int)game_screen<<std::endl;
+				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 300, WINDOW_HEIGHT_PX - 250), vec2(200, 200), TEXTURE_ASSET_ID::CHICKEN_CG);
+				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX - 250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
+			}
+			else if (cutscene == 3 && cg_index == 5)
 			{
 				for (int i = registry.cgs.entities.size() - 1; i >= 0; i--)
 					registry.remove_all_components_of(registry.cgs.entities[i]);
@@ -1326,11 +1272,14 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
 		}
 
-		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
+		if (action == GLFW_RELEASE)
 		{
 			if (PlayerSystem::get_state() == STATE::LEVEL_UP)
 				return;
-			player_attack();
+			if (button == GLFW_MOUSE_BUTTON_LEFT)
+				player_attack();
+			if (button == GLFW_MOUSE_BUTTON_RIGHT)
+				plant_seed();
 		}
 	}
 }
@@ -1500,6 +1449,8 @@ void WorldSystem::loadGame()
 	ss.shake_intensity = ss_json["shake_intensity"];
 	ss.shake_offset = vec2(ss_json["shake_offset"][0], ss_json["shake_offset"][1]);
 	ss.cg_index = ss_json["cg_index"];
+	ss.cutscene = ss_json["cutscene"];
+	ss.seed_cg = ss_json["seed_cg"];
 
 	json attack_arr = jsonFile["1"];
 	for (long unsigned int i = 0; i < attack_arr.size(); i++)
@@ -1798,6 +1749,14 @@ void WorldSystem::loadGame()
 
 void WorldSystem::saveGame()
 {
+	if (chicken_summoned) {
+		std::cout<<"Chicken summoned, cannot save, please give it some time to fly."<<std::endl;
+		return;
+	}
+	if (game_screen == GAME_SCREEN_ID::CG) {
+		std::cout<<"Finish the cutscene before trying to save."<<std::endl;
+		return;
+	}
 	json jsonFile;
 	jsonFile["game_is_over"] = game_is_over;
 	jsonFile["game_screen"] = game_screen;
@@ -1821,5 +1780,94 @@ void WorldSystem::saveGame()
 	else
 	{
 		std::cerr << "Error opening file for writing.\n";
+	}
+}
+
+void WorldSystem::plant_seed()
+{
+	// Get player's motion component
+	Entity player = registry.players.entities[0];
+	Motion& motion = registry.motions.get(player);
+
+	// Calculate player's current cell for proximity checking
+	int cell_x = static_cast<int>((motion.position.x + GRID_CELL_WIDTH_PX / 2) / GRID_CELL_WIDTH_PX);
+	int cell_y = static_cast<int>((motion.position.y + GRID_CELL_HEIGHT_PX / 2) / GRID_CELL_HEIGHT_PX);
+	vec2 grid_center = vec2(cell_x * GRID_CELL_WIDTH_PX, cell_y * GRID_CELL_HEIGHT_PX);
+
+	// Find valid farmland closest to the player
+	Entity closest_farmland = NULL;
+	float closest_distance = GRID_CELL_WIDTH_PX; // Max distance to consider
+
+	for (Entity tile : registry.mapTiles.entities)
+	{
+		// Check if tile is farmland
+		if (registry.motions.has(tile) &&
+			registry.renderRequests.has(tile) &&
+			registry.renderRequests.get(tile).used_texture == DECORATION_LIST[6])
+		{
+			vec2 farmland_pos = registry.motions.get(tile).position;
+			float distance = length(farmland_pos - grid_center);
+
+			// Check if this is closer than previous matches
+			if (distance < closest_distance)
+			{
+				// Check if tile is already occupied by a seed or tower
+				bool is_occupied = false;
+				for (Entity entity : registry.motions.entities)
+				{
+					if ((registry.seeds.has(entity) || registry.towers.has(entity)) &&
+						length(registry.motions.get(entity).position - farmland_pos) < 10.0f)
+					{
+						is_occupied = true;
+						break;
+					}
+				}
+
+				if (!is_occupied)
+				{
+					closest_farmland = tile;
+					closest_distance = distance;
+				}
+			}
+		}
+	}
+
+	// If we found valid farmland, plant a seed
+	if (closest_farmland != NULL)
+	{
+		vec2 farmland_pos = registry.motions.get(closest_farmland).position;
+
+		// Check if player has seeds available
+		if (registry.inventorys.components[0].seedCount[current_seed] > 0)
+		{
+			// Plant the seed at the exact farmland position
+			Entity seed = createSeed(farmland_pos, current_seed);
+			registry.inventorys.components[0].seedCount[current_seed]--;
+
+			// If that was the last seed of this type, remove it from toolbar
+			if (registry.inventorys.components[0].seedCount[current_seed] == 0)
+			{
+				for (Entity seed_entity : registry.seeds.entities)
+				{
+					if (registry.moveWithCameras.has(seed_entity) &&
+						registry.seeds.get(seed_entity).type == current_seed)
+					{
+						registry.remove_all_components_of(seed_entity);
+						break;
+					}
+				}
+			}
+
+			std::cout << "Planted seed. Remaining: " << registry.inventorys.components[0].seedCount[current_seed] << std::endl;
+		}
+		else
+		{
+			std::cout << "No seeds of this type available!" << std::endl;
+		}
+	}
+	else
+	{
+		// No valid farmland found
+		std::cout << "No available farmland nearby. Move closer to farmland." << std::endl;
 	}
 }

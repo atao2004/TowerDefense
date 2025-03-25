@@ -428,7 +428,9 @@ struct ScreenState
 	float shake_intensity = 0.f;
 	vec2 shake_offset = {0.f, 0.f};
 
+    int cutscene = 0;
     int cg_index = 0;
+    bool seed_cg = true;
 
 	json toJSON() const {
         return json{
@@ -442,7 +444,9 @@ struct ScreenState
             {"shake_duration_ms", shake_duration_ms},
             {"shake_intensity", shake_intensity},
             {"shake_offset", {shake_offset.x, shake_offset.y}},
-            {"cg_index", cg_index}};
+            {"cg_index", cg_index},
+            {"cutscene", cutscene},
+            {"seed_cg", seed_cg}};
     }
 };
 

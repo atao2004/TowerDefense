@@ -128,11 +128,11 @@ int main()
 				{ // used to prevent screen flickering
 					// std::cout<<"FPS: "<<current_fps<<std::endl;
 					std::stringstream title_ss;
-					title_ss << "Farmer Defense: The Last Days"
-							 << " | LEVEL: " << world_system.level
-							 << " | SEED COUNT: " << registry.inventorys.components[0].seedCount[world_system.current_seed]
-							 << "| FPS: " << (int)current_fps;
-
+					title_ss <<"Farmer Defense: The Last Days";
+							// << " | LEVEL: "<< world_system.level 
+							// <<" | SEED COUNT: "<< registry.inventorys.components[0].seedCount[world_system.current_seed]
+							// <<"| FPS: " << (int)current_fps;
+							
 					glfwSetWindowTitle(window, title_ss.str().c_str());
 					cooldown = 1000;
 				}
@@ -185,9 +185,10 @@ int main()
 		// DO NOT DELETE, OTHERWISE TEXT WON'T RENDER
 		glm::mat4 trans = glm::mat4(1.0f);
 		renderer_system.renderText("hello", 100, 100, 1, {1, 1, 0}, trans);
-
-		if (fm_render.can_update())
+    
+		if (fm_render.can_update() || WorldSystem::game_is_over || game_screen == GAME_SCREEN_ID::CG) 
 			renderer_system.step_and_draw(game_screen, fm_render.get_time());
+    
 	}
 	return EXIT_SUCCESS;
 }
