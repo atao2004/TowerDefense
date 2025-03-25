@@ -118,10 +118,10 @@ int main()
 				if (cooldown <= 0) {                             //used to prevent screen flickering
 					// std::cout<<"FPS: "<<current_fps<<std::endl;
 					std::stringstream title_ss;
-					title_ss <<"Farmer Defense: The Last Days"
-							<< " | LEVEL: "<< world_system.level 
-							<<" | SEED COUNT: "<< registry.inventorys.components[0].seedCount[world_system.current_seed]
-							<<"| FPS: " << (int)current_fps;
+					title_ss <<"Farmer Defense: The Last Days";
+							// << " | LEVEL: "<< world_system.level 
+							// <<" | SEED COUNT: "<< registry.inventorys.components[0].seedCount[world_system.current_seed]
+							// <<"| FPS: " << (int)current_fps;
 							
 					glfwSetWindowTitle(window, title_ss.str().c_str());
 					cooldown = 1000;

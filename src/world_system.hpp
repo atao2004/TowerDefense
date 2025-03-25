@@ -34,6 +34,7 @@ public:
 
 	// starts the game
 	void init(RenderSystem *renderer);
+	void restart_splash_screen();
 
 	// releases all associated resources
 	~WorldSystem();

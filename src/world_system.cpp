@@ -171,6 +171,10 @@ bool WorldSystem::start_and_load_sounds()
 void WorldSystem::init(RenderSystem *renderer_arg)
 {
 	this->renderer = renderer_arg;
+	restart_splash_screen();
+}
+
+void WorldSystem::restart_splash_screen() {
 	game_screen = GAME_SCREEN_ID::SPLASH;
 	createScreen(renderer, TEXTURE_ASSET_ID::BACKGROUND);
 	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5));
@@ -922,7 +926,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// exit game w/ ESC
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE)
 	{
-		
+		close_window();
 		return;
 	}
 
