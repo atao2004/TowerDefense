@@ -144,4 +144,6 @@ private:
 
 	void loadGame();
 	void saveGame();
+
+	void plant_seed();
 };
