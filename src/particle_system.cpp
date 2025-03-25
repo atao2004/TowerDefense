@@ -28,15 +28,17 @@ void ParticleSystem::updateParticleGenerators(float elapsed_ms)
 
         if (!generator.isActive)
             continue;
-        // Follow player if needed (for level_up effect)
-        if (generator.follow_entity != NULL &&
-            registry.motions.has(generator.follow_entity) &&
-            registry.motions.has(entity))
-        {
-            // Update generator position to follow the entity
-            Motion &follow_motion = registry.motions.get(generator.follow_entity);
-            registry.motions.get(entity).position = follow_motion.position;
-        }
+
+        // // Follow player if needed (for level_up effect)
+        // if (generator.follow_entity != NULL &&
+        //     registry.motions.has(generator.follow_entity) &&
+        //     registry.motions.has(entity))
+        // {
+        //     // Update generator position to follow the entity
+        //     Motion &follow_motion = registry.motions.get(generator.follow_entity);
+        //     registry.motions.get(entity).position = follow_motion.position;
+        // }
+
         // Check if the generator has expired
         if (generator.duration_ms > 0)
         {
@@ -381,14 +383,13 @@ Entity ParticleSystem::createLevelUpEffect(vec2 position, vec2 sprite_size)
     // Add generator component
     ParticleGenerator &generator = registry.particleGenerators.emplace(entity);
     generator.type = "level_up";
-    generator.amount = 120;
-    generator.spawnInterval = 0.005f;
+    generator.amount = 80;           // Reduced from 120 for better performance
+    generator.spawnInterval = 0.01f; // Slightly slower spawn rate
     generator.timer = 0.0f;
     generator.isActive = true;
-    generator.duration_ms = 1500.0f;
+    generator.duration_ms = 200.0f;  // Shorter duration 
 
-    // Store the player entity for following
-    generator.follow_entity = registry.players.entities[0];
+    // generator.follow_entity = registry.players.entities[0];
 
     return entity;
 }
