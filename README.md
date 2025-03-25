@@ -148,6 +148,7 @@
 * The game now has more types of enemies with different appearances, health values, speeds, and attacks
 * Inventory now shows the seed count
 * The game has been optimized to improve frame rate
+* Adjusted the difficulty curve for a better gaming experience
 
 ### Creative Elements
 
