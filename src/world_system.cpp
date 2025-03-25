@@ -1753,6 +1753,10 @@ void WorldSystem::saveGame()
 		std::cout<<"Chicken summoned, cannot save, please give it some time to fly."<<std::endl;
 		return;
 	}
+	if (game_screen == GAME_SCREEN_ID::CG) {
+		std::cout<<"Finish the cutscene before trying to save."<<std::endl;
+		return;
+	}
 	json jsonFile;
 	jsonFile["game_is_over"] = game_is_over;
 	jsonFile["game_screen"] = game_screen;
