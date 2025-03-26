@@ -12,6 +12,7 @@
 
 - https://youtu.be/HwS0V2wAJzY
 - https://youtu.be/OYWhfxRYuS4
+- https://www.youtube.com/watch?v=d-8PPzW4rto
 
 **Description**
 
@@ -39,8 +40,8 @@
 - **R** – Restart game
 - **T** - Enter/Exit tutorial  
 - **ESC** – Close game 
-- **-** - Load Game
-- **=** - Save 
+- **"-"** – Load Game
+- **"="** – Save 
 
 ## M1 Features:
 
@@ -148,6 +149,7 @@
 * The game now has more types of enemies with different appearances, health values, speeds, and attacks
 * Inventory now shows the seed count
 * The game has been optimized to improve frame rate
+* Adjusted the difficulty curve for a better gaming experience
 
 ### Creative Elements
 
