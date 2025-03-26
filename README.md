@@ -36,7 +36,8 @@
 - **WASD** – Move the player  
 - **Left Click** – Attack
 - **Right Click (or F)** - Plant seed
-- **G** – Spawn enemy  
+- **C** - Summon chicken
+- **G** – Spawn enemy
 - **R** – Restart game
 - **T** - Enter/Exit tutorial  
 - **ESC** – Close game 
