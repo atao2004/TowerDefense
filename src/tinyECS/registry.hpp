@@ -93,6 +93,7 @@ public:
 		registry_list.push_back(&particleGenerators);//31
 		registry_list.push_back(&texts);
 		registry_list.push_back(&cgs);
+		registry_list.push_back(&buttons);
 	}
 
 	void clear_all_components() {

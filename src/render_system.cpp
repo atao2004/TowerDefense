@@ -511,7 +511,6 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 					renderText("WTH you can talk??", 60, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 4)
 				{
-
 					renderText("The zombies can hold weapons,", WINDOW_WIDTH_PX - 700, 450, 0.6*OS_RES, {1, 1, 1}, trans);
 					renderText("so WHY NOT", WINDOW_WIDTH_PX - 700, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 				}

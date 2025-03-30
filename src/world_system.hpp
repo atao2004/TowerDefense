@@ -31,6 +31,8 @@ public:
 	void close_window();
 	
 	static void start_cg(RenderSystem* renderer);
+	bool detectButtons();
+	void clearButtons();
 
 	// starts the game
 	void init(RenderSystem *renderer);

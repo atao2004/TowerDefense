@@ -643,7 +643,7 @@ Entity createGameOver()
 
 // Kung: Create the pause button that will eventually pause the game.
 // As of now, it is purely cosmetic.
-Entity createPause()
+Entity createPause(vec2 position)
 {
 	// Create the associated entity.
 	Entity pause_entity = Entity();
@@ -656,14 +656,18 @@ Entity createPause()
 
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(pause_entity);
-	motion_component.position = vec2(-150, -50);
-	motion_component.scale = vec2(120, 120);
+	motion_component.position = position;
+	motion_component.scale = vec2(60, 60);
 	motion_component.velocity = vec2(0, 0);
+
+	CustomButton& button = registry.buttons.emplace(pause_entity);
+	button.type = BUTTON_ID::PAUSE;
+	button.position = vec2(30, 30);
 
 	// Render the object.
 	registry.renderRequests.insert(
 		pause_entity,
-		{TEXTURE_ASSET_ID::PAUSE,
+		{TEXTURE_ASSET_ID::PAUSE_BUTTON,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 

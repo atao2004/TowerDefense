@@ -96,7 +96,7 @@ GLFWwindow *WorldSystem::create_window()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	WINDOW_HEIGHT_PX = WINDOW_HEIGHT_PX * 3 / 4;
 	WINDOW_WIDTH_PX = WINDOW_WIDTH_PX * 3 / 4;
-	OS = OS_RESOLUTION * 3 / 4;
+	OS_RES = OS_RES * 3 / 4;
 #endif
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	// CK: setting GLFW_SCALE_TO_MONITOR to true will rescale window but then you must handle different scalings
@@ -344,9 +344,8 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	createCamera(renderer, player_pos);
 
 	// Kung: Create the pause button and toolbar, and have them overlay the player
-	// registry.pauses.clear();
 	registry.toolbars.clear();
-	// createPause();
+	createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30));
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
 	createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
 
@@ -1183,42 +1182,71 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	}
 }
 
-void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
-{
-	if (game_screen == GAME_SCREEN_ID::SPLASH)
+void WorldSystem::clearButtons() {
+	for (int i=registry.buttons.entities.size()-1; i>=0; i--) {
+		Entity e = registry.buttons.entities[i];
+		registry.remove_all_components_of(e);
+	}
+}
+
+bool WorldSystem::detectButtons() {
+	for (auto &b : registry.buttons.components)
 	{
-		// implement
-		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
-		{
-			for (auto &b : registry.buttons.components)
-			{
-				if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
-					mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT / 2)
-				{
-					if (b.type == BUTTON_ID::START) {
-						registry.screenStates.components[0].cutscene = 1;
-						registry.screenStates.components[0].cg_index = 0;
-						return start_cg(renderer);
-					}
-					if (b.type == BUTTON_ID::LOAD)
-						return loadGame();
-					if (b.type == BUTTON_ID::TUTORIAL)
-						return restart_tutorial();
-					if (b.type == BUTTON_ID::QUIT)
-						return close_window();
+		if (game_screen == GAME_SCREEN_ID::PLAYING || game_screen == GAME_SCREEN_ID::PAUSE) {
+			
+			if (mouse_pos_x >= b.position.x - 30 && mouse_pos_x <= b.position.x + 30 &&
+				mouse_pos_y >= b.position.y - 30 && mouse_pos_y <= b.position.y + 30) {
+				if (game_screen == GAME_SCREEN_ID::PLAYING && b.type == BUTTON_ID::PAUSE)
+					game_screen = GAME_SCREEN_ID::PAUSE;
+				else if (game_screen == GAME_SCREEN_ID::PAUSE && b.type == BUTTON_ID::PAUSE) {
+					game_screen = GAME_SCREEN_ID::PLAYING;
+					Entity& player_entity = registry.players.entities[0];
+					vec2 player_pos = registry.motions.get(player_entity).position;
+					clearButtons();
+					createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30));
 				}
+				return true;
 			}
 		}
-		return;
+		else if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
+			mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT / 2)
+		{
+			if (b.type == BUTTON_ID::START) {
+				registry.screenStates.components[0].cutscene = 1;
+				registry.screenStates.components[0].cg_index = 0;
+				start_cg(renderer);
+			}
+			if (b.type == BUTTON_ID::LOAD)
+				loadGame();
+			else if (b.type == BUTTON_ID::TUTORIAL)
+				restart_tutorial();
+			else if (b.type == BUTTON_ID::QUIT)
+				(game_screen == GAME_SCREEN_ID::SPLASH ? restart_splash_screen():close_window());
+			else if (b.type == BUTTON_ID::SAVE)
+				saveGame();
+			return true;
+		}
+	}
+	return false;
+}
+
+void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
+{
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::PAUSE)
+	{
+		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
+		{
+			detectButtons();
+			return;
+		}
 	}
 
-	if (game_screen == GAME_SCREEN_ID::CG)
+	else if (game_screen == GAME_SCREEN_ID::CG)
 	{
 		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
 		{
 			int cg_index = registry.screenStates.components[0].cg_index++;
 			int cutscene = registry.screenStates.components[0].cutscene;
-			std::cout <<cutscene<<" "<< cg_index << std::endl;
 			if (cutscene == 1 && cg_index == 6) {
 				for (int i = registry.cgs.entities.size() - 1; i >= 0; i--)
 					registry.remove_all_components_of(registry.cgs.entities[i]);
@@ -1229,7 +1257,6 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			else if (cutscene == 1 && cg_index == 10)
 				restart_game();
 
-			// second scene yolo
 			else if (cutscene == 2 && cg_index == 0)
 			{
 				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 300, WINDOW_HEIGHT_PX - 250), vec2(200, 200), TEXTURE_ASSET_ID::PLANT_2_IDLE_S);
@@ -1243,8 +1270,6 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			}
 			else if (cutscene == 3 && cg_index == 0)
 			{
-				std::cout<<"cutscene == 3 wowowo"<<std::endl;
-				std::cout<<(int)game_screen<<std::endl;
 				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 300, WINDOW_HEIGHT_PX - 250), vec2(200, 200), TEXTURE_ASSET_ID::CHICKEN_CG);
 				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX - 250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
 			}
@@ -1259,7 +1284,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 		return;
 	}
 
-	if (!WorldSystem::game_is_over)
+	else if (!WorldSystem::game_is_over)
 	{
 		// on button press
 		if (action == GLFW_PRESS)
@@ -1274,12 +1299,14 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 
 		if (action == GLFW_RELEASE)
 		{
-			if (PlayerSystem::get_state() == STATE::LEVEL_UP)
-				return;
-			if (button == GLFW_MOUSE_BUTTON_LEFT)
-				player_attack();
-			if (button == GLFW_MOUSE_BUTTON_RIGHT)
-				plant_seed();
+			if (!detectButtons()) {
+				if (PlayerSystem::get_state() == STATE::LEVEL_UP)
+					return;
+				else if (button == GLFW_MOUSE_BUTTON_LEFT)
+					player_attack();
+				else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+					plant_seed();
+			}
 		}
 	}
 }
