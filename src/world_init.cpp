@@ -192,11 +192,11 @@ Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage
 	// Add render request for tower
 	registry.renderRequests.insert(
 		entity,
-		{TEXTURE_ASSET_ID::PLANT_2_IDLE_F,
+		{PLANT_ANIMATION_MAP.at(id).idle.textures[0],
 		 EFFECT_ASSET_ID::ZOMBIE,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
-	AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(id).duration, PLANT_ANIMATION_MAP.at(id).textures, PLANT_ANIMATION_MAP.at(id).size, true, false, false);
+	AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(id).idle.duration, PLANT_ANIMATION_MAP.at(id).idle.textures, PLANT_ANIMATION_MAP.at(id).idle.size, true, false, false);
 
 	return entity;
 }
