@@ -189,6 +189,10 @@ Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage
 	Mesh &mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
+	// Plant animation id
+	PlantAnimation& plant_animation = registry.plantAnimations.emplace(entity);
+	plant_animation.id = id;
+
 	// Add render request for tower
 	registry.renderRequests.insert(
 		entity,
