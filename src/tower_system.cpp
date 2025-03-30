@@ -23,7 +23,6 @@ void TowerSystem::step(float elapsed_ms)
             Entity target;
             if (find_nearest_enemy(entity, target))
             {
-                fire_projectile(entity, target);
                 tower.state = true;
                 AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.size, false, false, false);
             }
@@ -32,6 +31,9 @@ void TowerSystem::step(float elapsed_ms)
         {
             if (!registry.animations.has(entity))
             {
+                Entity target;
+                if (find_nearest_enemy(entity, target))
+                    fire_projectile(entity, target);
                 tower.state = false;
                 AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.size, true, false, false);
             }
