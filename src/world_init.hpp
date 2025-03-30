@@ -20,7 +20,7 @@ Entity createWerewolf(RenderSystem* renderer, vec2 position);
 Entity createSlime(RenderSystem* renderer, vec2 position);
 
 // towers
-Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage, int range, int reload, PLANT_ID id);
+Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage, int range, PLANT_ID id);
 Entity createPlant1(RenderSystem* renderer, vec2 position);
 Entity createPlant2(RenderSystem* renderer, vec2 position);
 Entity createPlant3(RenderSystem* renderer, vec2 position);

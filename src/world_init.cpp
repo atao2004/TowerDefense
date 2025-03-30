@@ -162,16 +162,16 @@ Entity createSlime(RenderSystem* renderer, vec2 position)
 }
 
 
-Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage, int range, int reload, PLANT_ID id)
+Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage, int range, PLANT_ID id)
 {
 	Entity entity = Entity();
 
 	// Basic tower stats
 	Tower &tower = registry.towers.emplace(entity);
-	tower.health = 100.f;
-	tower.damage = 10.f;
-	tower.range = 2000.f;  // Detection range in pixels
-	tower.timer_ms = 2000; // Attack every 2 second
+	tower.health = health;
+	tower.damage = damage;
+	tower.range = range; // Detection range in pixels
+	tower.timer_ms = 2000.0f; // Attack every 2 second (unused ?)
 	tower.state = false;
 
 	// Motion component for position and rotation
@@ -207,17 +207,17 @@ Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage
 
 Entity createPlant1(RenderSystem* renderer, vec2 position)
 {
-	return createTower(renderer, position, 0, 0, 0, 0, PLANT_ID::PLANT_1);
+	return createTower(renderer, position, PLANT_1_HEALTH, PLANT_1_DAMAGE, PLANT_1_RANGE, PLANT_ID::PLANT_1);
 }
 
 Entity createPlant2(RenderSystem* renderer, vec2 position)
 {
-	return createTower(renderer, position, 0, 0, 0, 0, PLANT_ID::PLANT_2);
+	return createTower(renderer, position, PLANT_2_HEALTH, PLANT_2_DAMAGE, PLANT_2_RANGE, PLANT_ID::PLANT_2);
 }
 
 Entity createPlant3(RenderSystem* renderer, vec2 position)
 {
-	return createTower(renderer, position, 0, 0, 0, 0, PLANT_ID::PLANT_3);
+	return createTower(renderer, position, PLANT_3_HEALTH, PLANT_3_DAMAGE, PLANT_3_RANGE, PLANT_ID::PLANT_3);
 }
 
 // Kung: Create the grass texture that will be used as part of the texture map.
