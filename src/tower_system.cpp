@@ -13,22 +13,22 @@ TowerSystem::~TowerSystem()
 
 void TowerSystem::step(float elapsed_ms)
 {
-    for (int i = 0; i < registry.towers.entities.size(); i++)
-    {
-        Tower& tower = registry.towers.components[i];
-        if (!tower.state)
-        {
-            Entity entity = registry.towers.entities[i];
-            Entity target;
-            if (find_nearest_enemy(entity, target))
-            {
-                fire_projectile(entity, target);
-                tower.state = true;
-                AnimationSystem::update_animation(entity, PLANT_ATTACK_DURATION, PLANT_ATTACK_ANIMATION, PLANT_ATTACK_SIZE, false, false, false);
-            }
-            else {}
-        }
-    }
+    //for (int i = 0; i < registry.towers.entities.size(); i++)
+    //{
+    //    Tower& tower = registry.towers.components[i];
+    //    if (!tower.state)
+    //    {
+    //        Entity entity = registry.towers.entities[i];
+    //        Entity target;
+    //        if (find_nearest_enemy(entity, target))
+    //        {
+    //            fire_projectile(entity, target);
+    //            tower.state = true;
+    //            AnimationSystem::update_animation(entity, PLANT_ATTACK_DURATION, PLANT_ATTACK_ANIMATION, PLANT_ATTACK_SIZE, false, false, false);
+    //        }
+    //        else {}
+    //    }
+    //}
 }
 
 void TowerSystem::fire_projectile(Entity tower, Entity target)

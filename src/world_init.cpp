@@ -162,7 +162,7 @@ Entity createSlime(RenderSystem* renderer, vec2 position)
 }
 
 
-Entity createTower(RenderSystem *renderer, vec2 position)
+Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage, int range, int reload, PLANT_ID id)
 {
 	Entity entity = Entity();
 
@@ -196,24 +196,24 @@ Entity createTower(RenderSystem *renderer, vec2 position)
 		 EFFECT_ASSET_ID::ZOMBIE,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
+	AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(id).duration, PLANT_ANIMATION_MAP.at(id).textures, PLANT_ANIMATION_MAP.at(id).size, true, false, false);
+
 	return entity;
 }
 
-void removeTower(vec2 position)
+Entity createPlant1(RenderSystem* renderer, vec2 position)
 {
-	// remove any towers at this position
-	for (Entity &tower_entity : registry.towers.entities)
-	{
-		// get each tower's position to determine it's row
-		const Motion &tower_motion = registry.motions.get(tower_entity);
+	return createTower(renderer, position, 0, 0, 0, 0, PLANT_ID::PLANT_1);
+}
 
-		if (tower_motion.position.y == position.y)
-		{
-			// remove this tower
-			registry.remove_all_components_of(tower_entity);
-			std::cout << "tower removed" << std::endl;
-		}
-	}
+Entity createPlant2(RenderSystem* renderer, vec2 position)
+{
+	return createTower(renderer, position, 0, 0, 0, 0, PLANT_ID::PLANT_2);
+}
+
+Entity createPlant3(RenderSystem* renderer, vec2 position)
+{
+	return createTower(renderer, position, 0, 0, 0, 0, PLANT_ID::PLANT_3);
 }
 
 // Kung: Create the grass texture that will be used as part of the texture map.

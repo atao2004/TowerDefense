@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "tinyECS/tiny_ecs.hpp"
 #include "render_system.hpp"
+#include "plants.hpp"
 
 //splash screen
 Entity createScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background);
@@ -10,7 +11,7 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position);
 
 // enemies
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position);
-Entity createEnemy(RenderSystem* renderer, vec2 position);
+Entity createEnemy(RenderSystem* renderer, vec2 position, int health, int damage, int speed, int anim_duration, const TEXTURE_ASSET_ID* anim_textures, int anim_size);
 Entity createOrc(RenderSystem* renderer, vec2 position);
 Entity createOrcElite(RenderSystem* renderer, vec2 position);
 Entity createSkeleton(RenderSystem* renderer, vec2 position);
@@ -20,8 +21,10 @@ Entity createWerewolf(RenderSystem* renderer, vec2 position);
 Entity createSlime(RenderSystem* renderer, vec2 position);
 
 // towers
-Entity createTower(RenderSystem* renderer, vec2 position);
-void removeTower(vec2 position);
+Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage, int range, int reload, PLANT_ID id);
+Entity createPlant1(RenderSystem* renderer, vec2 position);
+Entity createPlant2(RenderSystem* renderer, vec2 position);
+Entity createPlant3(RenderSystem* renderer, vec2 position);
 
 // chicken
 Entity createChicken(RenderSystem* renderer);

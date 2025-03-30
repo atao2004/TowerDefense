@@ -1,0 +1,51 @@
+#pragma once
+
+#include <map>
+#include "common.hpp"
+
+enum class PLANT_ID {
+    PLANT_1 = 0,
+    PLANT_2 = PLANT_1 + 1,
+    PLANT_3 = PLANT_2 + 1
+};
+
+struct animation {
+    const TEXTURE_ASSET_ID* textures;
+    int size;
+    int duration;
+    animation(const TEXTURE_ASSET_ID* textures, int size, int duration) : textures(textures), size(size), duration(duration) {}
+};
+
+const TEXTURE_ASSET_ID PLANT_1_IDLE_ANIM[] = {
+    TEXTURE_ASSET_ID::PLANT_1_IDLE_1,
+    TEXTURE_ASSET_ID::PLANT_1_IDLE_2,
+    TEXTURE_ASSET_ID::PLANT_1_IDLE_3,
+    TEXTURE_ASSET_ID::PLANT_1_IDLE_4
+};
+const TEXTURE_ASSET_ID PLANT_2_IDLE_ANIM[] = {
+    TEXTURE_ASSET_ID::PLANT_2_IDLE_1,
+    TEXTURE_ASSET_ID::PLANT_2_IDLE_2,
+    TEXTURE_ASSET_ID::PLANT_2_IDLE_3,
+    TEXTURE_ASSET_ID::PLANT_2_IDLE_4
+};
+const TEXTURE_ASSET_ID PLANT_3_IDLE_ANIM[] = {
+    TEXTURE_ASSET_ID::PLANT_3_IDLE_1,
+    TEXTURE_ASSET_ID::PLANT_3_IDLE_2,
+    TEXTURE_ASSET_ID::PLANT_3_IDLE_3,
+    TEXTURE_ASSET_ID::PLANT_3_IDLE_4
+};
+
+const int PLANT_1_IDLE_ANIM_SIZE = sizeof(PLANT_1_IDLE_ANIM) / sizeof(PLANT_1_IDLE_ANIM[0]);
+const int PLANT_2_IDLE_ANIM_SIZE = sizeof(PLANT_2_IDLE_ANIM) / sizeof(PLANT_2_IDLE_ANIM[0]);
+const int PLANT_3_IDLE_ANIM_SIZE = sizeof(PLANT_3_IDLE_ANIM) / sizeof(PLANT_3_IDLE_ANIM[0]);
+
+const int PLANT_1_IDLE_ANIM_DURATION = 2000;
+const int PLANT_2_IDLE_ANIM_DURATION = 2000;
+const int PLANT_3_IDLE_ANIM_DURATION = 2000;
+
+const std::map<PLANT_ID, animation>
+PLANT_ANIMATION_MAP = {
+    {PLANT_ID::PLANT_1, animation(PLANT_1_IDLE_ANIM, PLANT_1_IDLE_ANIM_SIZE, PLANT_1_IDLE_ANIM_DURATION)},
+    {PLANT_ID::PLANT_2, animation(PLANT_2_IDLE_ANIM, PLANT_2_IDLE_ANIM_SIZE, PLANT_2_IDLE_ANIM_DURATION)},
+    {PLANT_ID::PLANT_3, animation(PLANT_3_IDLE_ANIM, PLANT_3_IDLE_ANIM_SIZE, PLANT_3_IDLE_ANIM_DURATION)}
+};
