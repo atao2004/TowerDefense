@@ -96,7 +96,7 @@ GLFWwindow *WorldSystem::create_window()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	WINDOW_HEIGHT_PX = WINDOW_HEIGHT_PX * 3 / 4;
 	WINDOW_WIDTH_PX = WINDOW_WIDTH_PX * 3 / 4;
-	OS = OS_RESOLUTION * 3 / 4;
+	OS_RES = OS_RES * 3 / 4;
 #endif
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	// CK: setting GLFW_SCALE_TO_MONITOR to true will rescale window but then you must handle different scalings
@@ -344,9 +344,8 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	createCamera(renderer, player_pos);
 
 	// Kung: Create the pause button and toolbar, and have them overlay the player
-	// registry.pauses.clear();
 	registry.toolbars.clear();
-	// createPause();
+	createPauseButton(vec2(player_pos.x - CAMERA_VIEW_WIDTH * 0.25, player_pos.y - CAMERA_VIEW_HEIGHT * 0.45));
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
 	createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
 

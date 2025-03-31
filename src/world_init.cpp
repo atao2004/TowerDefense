@@ -643,22 +643,24 @@ Entity createGameOver()
 
 // Kung: Create the pause button that will eventually pause the game.
 // As of now, it is purely cosmetic.
-Entity createPause()
+Entity createPauseButton(vec2 position)
 {
 	// Create the associated entity.
 	Entity pause_entity = Entity();
-
-	// Create the associated component.
-	Pause &pause_component = registry.pauses.emplace(pause_entity);
 
 	// Create a component to simplify movement.
 	MoveWithCamera &mwc = registry.moveWithCameras.emplace(pause_entity);
 
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(pause_entity);
-	motion_component.position = vec2(-150, -50);
-	motion_component.scale = vec2(120, 120);
+	motion_component.position = vec2(300, 50);
+	motion_component.scale = vec2(60, 60);
 	motion_component.velocity = vec2(0, 0);
+
+	// // Create a component to represent the button.
+	CustomButton& button = registry.buttons.emplace(pause_entity);
+	button.type = BUTTON_ID::PAUSE;
+	button.position = motion_component.position;
 
 	// Render the object.
 	registry.renderRequests.insert(
@@ -899,21 +901,15 @@ Entity createArrow(vec2 position, vec2 direction, Entity source)
 	return entity;
 }
 
-Entity createText(std::string text) {
+Entity createText(std::string text, vec2 pos, float size, vec3 color) {
 	Entity text_entity = Entity();
 
 	Text& text_component = registry.texts.emplace(text_entity);
 	text_component.text = text;
-
-	registry.renderRequests.insert(
-		text_entity,
-		{
-			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::EGG,
-			GEOMETRY_BUFFER_ID::DEBUG_LINE
-		}
-	);
-
+	text_component.pos = pos;
+	text_component.size = size;
+	text_component.color = color;
+	
 	return text_entity;
 }
 
