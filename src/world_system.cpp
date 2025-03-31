@@ -1771,6 +1771,11 @@ void WorldSystem::loadGame()
 		registry.mapTiles.emplace(e);
 	}
 
+	Entity& player_entity = registry.players.entities[0];
+	vec2 player_pos = registry.motions.get(player_entity).position;
+	clearButtons();
+	createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30));
+
 	std::cout << "Game loaded successfully." << std::endl;
 }
 

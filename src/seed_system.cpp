@@ -30,7 +30,8 @@ void SeedSystem::step(float elapsed_ms)
 					registry.screenStates.components[0].seed_cg = false;
 					registry.screenStates.components[0].cutscene = 2;
 					registry.screenStates.components[0].cg_index = 0;
-					return WorldSystem::start_cg(renderer);
+					if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::PLAYING)
+						return WorldSystem::start_cg(renderer);
 				}
 			}
 			else
