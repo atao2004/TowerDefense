@@ -388,8 +388,8 @@ void RenderSystem::drawToScreen()
 		GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
 
 		glUniform1f(game_continues_uloc, screen.game_over);
-		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) ? 0 : screen.hp_percentage);
-		glUniform1f(exp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) ? 0 :screen.exp_percentage);
+		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE) ? 0 : screen.hp_percentage);
+		glUniform1f(exp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE) ? 0 :screen.exp_percentage);
 		gl_has_errors();
 
 		// Set the vertex position and vertex texture coordinates (both stored in the
@@ -566,11 +566,11 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 		}
 		drawParticlesInstanced(projection_2D);
 		// individually draw player, will render on top of all the motion sprites
-		if (!WorldSystem::game_is_over) drawTexturedMesh(registry.players.entities[0], projection_2D);
-
-		renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
-		renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
-	
+		if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::PAUSE) {
+			drawTexturedMesh(registry.players.entities[0], projection_2D);
+			renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
+			renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
+		}
 		for (int current_seed = 0; current_seed < registry.inventorys.size(); current_seed++) {
 			renderText(std::to_string(registry.inventorys.components[0].seedCount[current_seed]), WINDOW_WIDTH_PX * 0.375 + 55 * current_seed, 25, 0.25, {0, 1, 0}, trans);
 		}

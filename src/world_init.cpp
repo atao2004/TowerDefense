@@ -25,11 +25,34 @@ using json = nlohmann::json;
 // 	return entity;
 // }
 
-Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position) {
+Entity createPausePanel(RenderSystem* renderer, vec2 position) {
+	Entity entity = Entity();
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = vec2({ 800, 700 });
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::PAUSE_PANEL,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+	registry.cgs.emplace(entity);
+	return entity;
+}
+
+Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct) {
 	Entity entity = Entity();
 	CustomButton& button = registry.buttons.emplace(entity);
 	button.type = type;
-	button.position = position;
+	
+	button.position = toDeduct;
+	std::cout<<button.position.x<<" "<<button.position.y<<std::endl;
+	
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };

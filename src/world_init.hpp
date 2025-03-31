@@ -6,7 +6,7 @@
 
 //splash screen
 Entity createScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background);
-Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position);
+Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct);
 
 // enemies
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position);
@@ -38,6 +38,7 @@ void removeSurfaces();
 
 // texture elements (new)
 void parseMap(bool tutorial);
+Entity createPausePanel(RenderSystem* renderer, vec2 position);
 
 // tutorial components
 Entity createTutorialMove(vec2 position);
