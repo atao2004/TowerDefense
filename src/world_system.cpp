@@ -945,7 +945,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// exit game w/ ESC
 	if (action == GLFW_RELEASE && key == GLFW_KEY_ESCAPE)
 	{
-		
+		close_window();
 		return;
 	}
 
