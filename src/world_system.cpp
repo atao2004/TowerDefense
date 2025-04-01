@@ -1861,7 +1861,6 @@ void WorldSystem::loadGame()
 	std::cout << "Game loaded successfully." << std::endl;
 }
 
-
 void WorldSystem::saveGame()
 {
 	if (chicken_summoned)
