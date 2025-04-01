@@ -29,8 +29,8 @@ public:
 
 	// call to close the window
 	void close_window();
-	
-	static void start_cg(RenderSystem* renderer);
+
+	static void start_cg(RenderSystem *renderer);
 
 	// starts the game
 	void init(RenderSystem *renderer);
@@ -66,9 +66,11 @@ public:
 	void increase_exp_player();
 	static void increase_exp_plant();
 
-	static int current_day;
-	
+	static int get_current_day() { return current_day; }
+
 private:
+	static int current_day;
+
 	float mouse_pos_x = 0.0f;
 	float mouse_pos_y = 0.0f;
 

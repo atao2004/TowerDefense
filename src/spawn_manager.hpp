@@ -18,6 +18,7 @@ public:
     int current_wave;
 
     void spawn_enemy(RenderSystem* renderer);
+    Entity spawnEnemyByDay(RenderSystem* renderer, vec2 spawn_pos, int current_day);
 
 private:
     struct SpawnPoint {

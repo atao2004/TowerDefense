@@ -43,6 +43,7 @@ void AISystem::update_enemy_behaviors(float elapsed_ms)
         }
     }
     update_skeletons(elapsed_ms);
+    update_orcriders(elapsed_ms);
 }
 
 void AISystem::update_zombie_movement(Entity entity, float elapsed_ms)
@@ -65,7 +66,7 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms)
     vec2 direction = calculate_direction_to_target(motion.position, player_pos);
 
     // If entity has hit effect, reduce chase speed
-    Enemy& enemy = registry.enemies.get(entity);
+    Enemy &enemy = registry.enemies.get(entity);
     float current_speed = enemy.speed * 1000;
 
     // Add to velocity instead of overwriting
@@ -329,7 +330,7 @@ void AISystem::update_skeletons(float elapsed_ms)
         if (dist > skeleton.attack_range)
         {
             // Target out of range, move towards it
-            skeleton_motion.velocity = normalize(direction) * (float) SKELETON_ARCHER_SPEED;
+            skeleton_motion.velocity = normalize(direction) * (float)SKELETON_ARCHER_SPEED;
             skeleton.current_state = Skeleton::State::WALK;
 
             // Update facing direction
@@ -435,6 +436,218 @@ void AISystem::update_skeletons(float elapsed_ms)
                     }
                     break;
                 }
+            }
+        }
+    }
+}
+
+void AISystem::update_orcriders(float elapsed_ms)
+{
+    // Skip if no player exists
+    if (registry.players.entities.empty()) {
+        return;
+    }
+
+    Entity player = registry.players.entities[0];
+    if (!registry.motions.has(player)) {
+        return;
+    }
+
+    vec2 player_pos = registry.motions.get(player).position;
+
+    for (auto entity : registry.orcRiders.entities)
+    {
+        if (!registry.motions.has(entity)) {
+            continue;
+        }
+
+        OrcRider &orcrider = registry.orcRiders.get(entity);
+        Motion &motion = registry.motions.get(entity);
+
+        // Previous state for detecting state changes
+        OrcRider::State prev_state = orcrider.current_state;
+
+        // Calculate distance to player
+        vec2 direction = player_pos - motion.position;
+        float dist = length(direction);
+
+        // Handle charging state first (has priority)
+        if (orcrider.is_charging)
+        {
+            // Continue charge for the specified distance or until hitting something
+            orcrider.charge_timer_ms += elapsed_ms;
+            float charge_duration_ms = (orcrider.charge_distance / orcrider.charge_speed) * 1000.0f;
+
+            // Move in charge direction
+            motion.velocity = orcrider.charge_direction * orcrider.charge_speed;
+
+            // Check for player collision during charge
+            if (!orcrider.has_hit_player && dist < 50.0f)
+            {
+                // Player was hit by charge
+                orcrider.has_hit_player = true;
+
+                // Apply damage to player
+                if (registry.statuses.has(player))
+                {
+                    Status attack_status{
+                        "attack",
+                        0.0f,
+                        static_cast<float>(orcrider.damage)
+                    };
+                    registry.statuses.get(player).active_statuses.push_back(attack_status);
+
+                    // Play hit sound
+                    Mix_PlayChannel(2, injured_sound, 0);
+                }
+            }
+
+            // When charge is complete
+            if (orcrider.charge_timer_ms >= charge_duration_ms)
+            {
+                orcrider.is_charging = false;
+                orcrider.has_hit_player = false;
+                motion.velocity = {0, 0};
+                
+                // Set a small cooldown to prevent instant hunting
+                orcrider.hunt_timer_ms = 300.0f; // Very short cooldown just for animation transition
+                
+                // Go back to idle state briefly
+                orcrider.current_state = OrcRider::State::IDLE;
+                
+                // Play idle animation briefly
+                AnimationSystem::update_animation(
+                    entity,
+                    ORCRIDER_IDLE_ANIMATION_DURATION,
+                    ORCRIDER_IDLE_ANIMATION,
+                    ORCRIDER_IDLE_ANIMATION_SIZE,
+                    true,  // loop
+                    false, // not locked
+                    false  // don't destroy
+                );
+            }
+        }
+        // Handle hunting state (preparing to charge)
+        else if (orcrider.is_hunting)
+        {
+            // Keep orc still during hunt animation
+            motion.velocity = {0, 0};
+
+            // Update hunt timer
+            orcrider.hunt_timer_ms -= elapsed_ms;
+
+            // When hunt animation finishes, start charging
+            if (orcrider.hunt_timer_ms <= 0)
+            {
+                orcrider.is_hunting = false;
+                orcrider.is_charging = true;
+                orcrider.charge_timer_ms = 0;
+
+                // Calculate and store charge direction
+                orcrider.charge_direction = normalize(direction);
+
+                // Update animation to walking for charge
+                AnimationSystem::update_animation(
+                    entity,
+                    ORCRIDER_WALK_ANIMATION_DURATION,
+                    ORCRIDER_WALK_ANIMATION,
+                    ORCRIDER_WALK_ANIMATION_SIZE,
+                    true,  // loop
+                    false, // not locked
+                    false  // don't destroy
+                );
+            }
+        }
+        // Regular state management when not hunting/charging
+        else
+        {
+            // Simple cooldown without retreat
+            if (orcrider.hunt_timer_ms > 0)
+            {
+                // Just count down the timer without moving
+                orcrider.hunt_timer_ms -= elapsed_ms;
+                motion.velocity = {0, 0};
+            }
+            // Check if in hunt range
+            else if (dist <= orcrider.hunt_range)
+            {
+                orcrider.current_state = OrcRider::State::HUNT;
+
+                // Begin hunt animation if not already hunting
+                if (!orcrider.is_hunting)
+                {
+                    // Start hunt animation
+                    orcrider.is_hunting = true;
+                    orcrider.hunt_timer_ms = ORCRIDER_HUNT_ANIMATION_DURATION;
+
+                    // Play hunt animation
+                    AnimationSystem::update_animation(
+                        entity,
+                        ORCRIDER_HUNT_ANIMATION_DURATION,
+                        ORCRIDER_HUNT_ANIMATION,
+                        ORCRIDER_HUNT_ANIMATION_SIZE,
+                        false, // don't loop
+                        false, // not locked
+                        false  // don't destroy
+                    );
+                }
+            }
+            // If not in hunt range but within detection range, move towards player
+            else if (dist <= orcrider.detection_range)
+            {
+                orcrider.current_state = OrcRider::State::WALK;
+
+                // Move towards player
+                vec2 normalized_direction = normalize(direction);
+                motion.velocity = normalized_direction * orcrider.walk_speed;
+
+                // Update facing direction
+                if (direction.x != 0)
+                {
+                    motion.scale.x = (direction.x > 0) ? abs(motion.scale.x) : -abs(motion.scale.x);
+                }
+            }
+            // If too far away, idle
+            else
+            {
+                orcrider.current_state = OrcRider::State::IDLE;
+                motion.velocity = {0, 0};
+            }
+        }
+
+        // Handle animation changes when state changes
+        if (!orcrider.is_hunting && !orcrider.is_charging && prev_state != orcrider.current_state)
+        {
+            switch (orcrider.current_state)
+            {
+                case OrcRider::State::IDLE:
+                    // Apply idle animation
+                    AnimationSystem::update_animation(
+                        entity,
+                        ORCRIDER_IDLE_ANIMATION_DURATION,
+                        ORCRIDER_IDLE_ANIMATION,
+                        ORCRIDER_IDLE_ANIMATION_SIZE,
+                        true,  // loop
+                        false, // not locked
+                        false  // don't destroy
+                    );
+                    break;
+
+                case OrcRider::State::WALK:
+                    // Apply walk animation
+                    AnimationSystem::update_animation(
+                        entity,
+                        ORCRIDER_WALK_ANIMATION_DURATION,
+                        ORCRIDER_WALK_ANIMATION,
+                        ORCRIDER_WALK_ANIMATION_SIZE,
+                        true,  // loop
+                        false, // not locked
+                        false  // don't destroy
+                    );
+                    break;
+
+                default:
+                    break;
             }
         }
     }

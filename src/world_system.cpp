@@ -1111,6 +1111,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		case GLFW_KEY_7:
 			createSlime(renderer, position);
 			break;
+		case GLFW_KEY_8:
+			createOrcRider(renderer, position);
+			break;
 		}
 	}
 	if (action == GLFW_PRESS && key == GLFW_KEY_9)

@@ -26,6 +26,7 @@ private:
 	void update_enemy_behaviors(float elapsed_ms);
 	void update_zombie_movement(Entity entity, float elapsed_ms);
 	void update_skeletons(float elapsed_ms);
+	void update_orcriders(float elapsed_ms);
 	
 
 	// Movement calculation helpers

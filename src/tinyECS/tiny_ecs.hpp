@@ -90,7 +90,23 @@ public:
 
 	// A wrapper to return the component of an entity
 	Component& get(Entity e) {
-		assert(has(e) && "Entity not contained in ECS registry");
+		if (!has(e)) {
+			// Print debug info about the entity that's causing problems
+			std::cerr << "ERROR: Entity not found in registry!" << std::endl;
+			std::cerr << "  Entity ID: " << e.id() << std::endl;
+			std::cerr << "  Container type: " << typeid(Component).name() << std::endl;
+			std::cerr << "  Registry has " << components.size() << " components" << std::endl;
+			
+			// Print all entities in this container for debugging
+			std::cerr << "  Entities in container: ";
+			for (const auto& entity : entities) {
+				std::cerr << entity.id() << " ";
+			}
+			std::cerr << std::endl;
+			
+			// Now trigger the assertion
+			assert(false && "Entity not contained in ECS registry");
+		}
 		return components[map_entity_componentID[e]];
 	}
 

@@ -214,6 +214,54 @@ struct Skeleton
     }
 };
 
+struct OrcRider {
+    enum class State {
+        IDLE,
+        WALK,
+        HUNT
+    };
+    
+    State current_state = State::IDLE;
+    Entity target = {};
+    
+    float detection_range = 10000.0f;    // Range to start walking towards player
+    float hunt_range = 500.0f;         // Range to start hunting behavior
+    float charge_speed = 400.0f;       // Speed during charge
+    float walk_speed = 150.0f;         // Speed when walking
+    float charge_distance = 400.0f;    // How far to charge
+    int damage = 20;                   // Damage on successful charge hit
+    
+    // Hunting control variables
+    bool is_hunting = false;
+    bool is_charging = false;
+    float hunt_timer_ms = 0.0f;        // Timer for the hunt animation
+    float charge_timer_ms = 0.0f;      // Timer for the charge
+    vec2 charge_direction = {0.0f, 0.0f}; // Direction of charge
+    
+    // For collision detection during charge
+    bool has_hit_player = false;
+
+    json toJSON() const
+    {
+        return json{
+            {"current_state", static_cast<int>(current_state)},
+            {"target", target.id()},
+            {"detection_range", detection_range},
+            {"hunt_range", hunt_range},
+            {"charge_speed", charge_speed},
+            {"walk_speed", walk_speed},
+            {"charge_distance", charge_distance},
+            {"damage", damage},
+            {"is_hunting", is_hunting},
+            {"is_charging", is_charging},
+            {"hunt_timer_ms", hunt_timer_ms},
+            {"charge_timer_ms", charge_timer_ms},
+            {"charge_direction", {charge_direction.x, charge_direction.y}},
+            {"has_hit_player", has_hit_player}
+        };
+    }
+};
+
 struct Arrow
 {
     Entity source = {};          // Source entity that fired the arrow
