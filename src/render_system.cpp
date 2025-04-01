@@ -531,6 +531,7 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 	}
 	else
 	{
+		
 		// draw all entities with a render request to the frame buffer
 		for (Entity entity : registry.renderRequests.entities)
 		{

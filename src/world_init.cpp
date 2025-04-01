@@ -51,7 +51,8 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 	button.type = type;
 	
 	button.position = toDeduct;
-	std::cout<<button.position.x<<" "<<button.position.y<<std::endl;
+	// std::cout<<button.position.x<<" "<<button.position.y<<std::endl;
+	button.position = toDeduct;
 	
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
@@ -672,7 +673,7 @@ Entity createPause(vec2 position)
 	Entity pause_entity = Entity();
 
 	// Create the associated component.
-	Pause &pause_component = registry.pauses.emplace(pause_entity);
+	// Pause &pause_component = registry.pauses.emplace(pause_entity);
 
 	// Create a component to simplify movement.
 	MoveWithCamera &mwc = registry.moveWithCameras.emplace(pause_entity);

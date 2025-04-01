@@ -178,9 +178,9 @@ void WorldSystem::restart_splash_screen() {
 	game_screen = GAME_SCREEN_ID::SPLASH;
 	createScreen(renderer, TEXTURE_ASSET_ID::BACKGROUND);
 	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5));
-	createButton(renderer, BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5));
-	createButton(renderer, BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5));
-	createButton(renderer, BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5));
+	createButton(renderer, BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200));
+	createButton(renderer, BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2));
+	createButton(renderer, BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
 }
 
 // Update our game world
@@ -1197,26 +1197,25 @@ bool WorldSystem::detectButtons() {
 				mouse_pos_y >= b.position.y - 30 && mouse_pos_y <= b.position.y + 30) {
 				if (game_screen == GAME_SCREEN_ID::PLAYING && b.type == BUTTON_ID::PAUSE) {
 					game_screen = GAME_SCREEN_ID::PAUSE;
-					std::cout<<"huh"<<std::endl;
-					// createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5));
 					Entity& player = registry.players.entities[0];
 					vec2 player_pos = registry.motions.get(player).position;
 					createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
-					createButton(renderer, BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4), vec2(CAMERA_VIEW_WIDTH/2, CAMERA_VIEW_HEIGHT/4));
-					createButton(renderer, BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4 + 100), vec2(CAMERA_VIEW_WIDTH/2, CAMERA_VIEW_HEIGHT/4+100));
-					createButton(renderer, BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4 + 200), vec2(CAMERA_VIEW_WIDTH/2, CAMERA_VIEW_HEIGHT/4+200));
+					createButton(renderer, BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4+50), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+50+BUTTON_SPLASH_HEIGHT/2));
+					createButton(renderer, BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4 + 200), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+200+BUTTON_SPLASH_HEIGHT/2));
+					createButton(renderer, BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4 + 350), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+350+BUTTON_SPLASH_HEIGHT/2));
+					return true;
 				} else if (game_screen == GAME_SCREEN_ID::PAUSE && b.type == BUTTON_ID::PAUSE) {
 					game_screen = GAME_SCREEN_ID::PLAYING;
 					Entity& player_entity = registry.players.entities[0];
 					vec2 player_pos = registry.motions.get(player_entity).position;
 					clearButtons();
 					createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30));
+					return true;
 				}
-				return true;
 			}
 		}
-		std::cout<<"x "<<b.position.x - BUTTON_SPLASH_WIDTH / 2<<" "<<b.position.x + BUTTON_SPLASH_WIDTH / 2<<std::endl;
-		std::cout<<"y "<<b.position.y - BUTTON_SPLASH_HEIGHT / 2<<" "<<b.position.y + BUTTON_SPLASH_HEIGHT / 2<<std::endl;
+		// std::cout<<"x "<<b.position.x - BUTTON_SPLASH_WIDTH / 2<<" "<<b.position.x + BUTTON_SPLASH_WIDTH / 2<<std::endl;
+		// std::cout<<"y "<<b.position.y - BUTTON_SPLASH_HEIGHT / 2<<" "<<b.position.y + BUTTON_SPLASH_HEIGHT / 2<<std::endl;
 		if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
 			mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT / 2)
 		{
@@ -1225,14 +1224,28 @@ bool WorldSystem::detectButtons() {
 				registry.screenStates.components[0].cg_index = 0;
 				start_cg(renderer);
 			}
-			if (b.type == BUTTON_ID::LOAD)
+			if (b.type == BUTTON_ID::LOAD) {
+				std::cout<<"load"<<std::endl;
 				loadGame();
+				game_screen = GAME_SCREEN_ID::PLAYING;
+			}
 			else if (b.type == BUTTON_ID::TUTORIAL)
 				restart_tutorial();
-			else if (b.type == BUTTON_ID::QUIT)
-				(game_screen == GAME_SCREEN_ID::SPLASH ? restart_splash_screen():close_window());
-			else if (b.type == BUTTON_ID::SAVE)
+			else if (b.type == BUTTON_ID::QUIT) {
+				std::cout<<"quit"<<std::endl;
+				
+				(game_screen == GAME_SCREEN_ID::SPLASH ? close_window():restart_splash_screen());
+
+				std::cout<<(int)game_screen<<std::endl;
+			}
+			else if (b.type == BUTTON_ID::SAVE) {
+				std::cout<<"save"<<std::endl;
+				game_screen == GAME_SCREEN_ID::PLAYING;
+				clearButtons();
 				saveGame();
+				createPause(vec2(30, 30));
+
+			}
 			return true;
 		}
 	}

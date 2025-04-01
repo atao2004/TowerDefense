@@ -5,15 +5,15 @@
             "cutscene": 1,
             "darken_screen_factor": -1.0,
             "entity": 1,
-            "exp_percentage": 0.0,
+            "exp_percentage": 0.10000000149011612,
             "game_over": false,
             "game_over_counter_ms": 0.0,
             "game_over_darken": -1.0,
-            "hp_percentage": 1.0,
+            "hp_percentage": 0.8999999761581421,
             "lerp_timer": 0.0,
             "seed_cg": true,
-            "shake_duration_ms": 0.0,
-            "shake_intensity": 0.0,
+            "shake_duration_ms": -10.859027862548828,
+            "shake_intensity": 10.0,
             "shake_offset": [
                 0.0,
                 0.0
@@ -30,6 +30,11 @@
             "damage": 5.0,
             "entity": 284,
             "range": 40
+        },
+        {
+            "damage": 5.0,
+            "entity": 1543,
+            "range": 40
         }
     ],
     "10": null,
@@ -37,7 +42,7 @@
     "12": [
         {
             "entity": 279,
-            "health": 100.0
+            "health": 90.0
         }
     ],
     "13": [
@@ -58,17 +63,45 @@
             "entity": 284,
             "lock": false,
             "loop": true,
-            "pose": 4,
+            "pose": 1,
             "pose_count": 8,
-            "runtime_ms": 483.3511962890625,
-            "timer_ms": 66.74099731445313,
+            "runtime_ms": 15577.5244140625,
+            "timer_ms": 48.21500015258789,
             "transition_ms": 100
+        },
+        {
+            "destroy": false,
+            "entity": 279,
+            "lock": false,
+            "loop": true,
+            "pose": 3,
+            "pose_count": 6,
+            "runtime_ms": 1680.510986328125,
+            "timer_ms": 144.9739990234375,
+            "transition_ms": 166
+        },
+        {
+            "destroy": false,
+            "entity": 1543,
+            "lock": false,
+            "loop": false,
+            "pose": 3,
+            "pose_count": 9,
+            "runtime_ms": 780.4230346679688,
+            "timer_ms": 155.44400024414063,
+            "transition_ms": 200
         }
     ],
     "16": null,
     "17": null,
     "18": null,
-    "19": null,
+    "19": [
+        {
+            "duration_ms": 200.0,
+            "entity": 279,
+            "is_white": true
+        }
+    ],
     "2": [
         {
             "angle": 0.0,
@@ -4362,8 +4395,8 @@
             "angle": 0.0,
             "entity": 279,
             "position": [
-                768.0,
-                432.0
+                1643.039794921875,
+                974.8622436523438
             ],
             "scale": [
                 -50.0,
@@ -4378,8 +4411,8 @@
             "angle": 0.0,
             "entity": 281,
             "position": [
-                30.0,
-                30.0
+                905.053955078125,
+                572.864501953125
             ],
             "scale": [
                 60.0,
@@ -4394,8 +4427,8 @@
             "angle": 0.0,
             "entity": 282,
             "position": [
-                768.0,
-                820.7999877929688
+                1643.039794921875,
+                1363.654541015625
             ],
             "scale": [
                 440.0,
@@ -4410,8 +4443,8 @@
             "angle": 0.0,
             "entity": 283,
             "position": [
-                575.5,
-                820.7999877929688
+                1450.54541015625,
+                1363.654541015625
             ],
             "scale": [
                 50.0,
@@ -4426,16 +4459,80 @@
             "angle": 0.0,
             "entity": 284,
             "position": [
-                2518.927978515625,
-                1422.42236328125
+                1327.537353515625,
+                1230.15087890625
+            ],
+            "scale": [
+                50.0,
+                50.0
+            ],
+            "velocity": [
+                58.304039001464844,
+                -47.17668151855469
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 13162,
+            "position": [
+                1985.7269287109375,
+                1023.6851806640625
             ],
             "scale": [
                 -50.0,
                 50.0
             ],
             "velocity": [
-                -65.27995300292969,
-                -36.92597961425781
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 1543,
+            "position": [
+                1534.47998046875,
+                1254.283447265625
+            ],
+            "scale": [
+                50.0,
+                50.0
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 2137,
+            "position": [
+                905.0555419921875,
+                572.8651123046875
+            ],
+            "scale": [
+                60.0,
+                60.0
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 13738,
+            "position": [
+                1985.7269287109375,
+                1023.6851806640625
+            ],
+            "scale": [
+                -50.0,
+                50.0
+            ],
+            "velocity": [
+                0.0,
+                0.0
             ]
         }
     ],
@@ -4447,8 +4544,8 @@
             "entity": 280,
             "lerp_factor": 0.10000000149011612,
             "position": [
-                768.0,
-                432.0
+                1643.039794921875,
+                974.8622436523438
             ]
         }
     ],
@@ -4463,6 +4560,19 @@
             "entity": 284,
             "health": 20.0,
             "is_attacking": false,
+            "stop_distance": 300.0,
+            "target": 279
+        },
+        {
+            "arrow_fired": false,
+            "attack_cooldown_ms": 1800.0,
+            "attack_range": 400.0,
+            "attack_timer_ms": 1019.4447021484375,
+            "cooldown_timer_ms": 1019.4447021484375,
+            "current_state": 2,
+            "entity": 1543,
+            "health": 20.0,
+            "is_attacking": true,
             "stop_distance": 300.0,
             "target": 279
         }
@@ -4482,11 +4592,23 @@
                 5.0,
                 5.0
             ]
+        },
+        {
+            "entity": 1543,
+            "scale": [
+                5.0,
+                5.0
+            ]
         }
     ],
     "25": [
         {
             "entity": 284,
+            "health": 20.0,
+            "speed": 0.0
+        },
+        {
+            "entity": 1543,
             "health": 20.0,
             "speed": 0.0
         }
@@ -4518,6 +4640,9 @@
         },
         {
             "entity": 283
+        },
+        {
+            "entity": 2137
         }
     ],
     "29": [
@@ -4896,12 +5021,19 @@
     ],
     "3": null,
     "30": null,
-    "31": null,
+    "31": [
+        {
+            "entity": 13162
+        },
+        {
+            "entity": 13738
+        }
+    ],
     "32": null,
     "33": null,
     "34": [
         {
-            "entity": 281
+            "entity": 2137
         }
     ],
     "4": null,
@@ -6519,7 +6651,7 @@
             "entity": 279,
             "used_effect": 6,
             "used_geometry": 1,
-            "used_texture": 121
+            "used_texture": 124
         },
         {
             "entity": 281,
@@ -6543,7 +6675,19 @@
             "entity": 284,
             "used_effect": 5,
             "used_geometry": 1,
-            "used_texture": 61
+            "used_texture": 64
+        },
+        {
+            "entity": 2137,
+            "used_effect": 2,
+            "used_geometry": 1,
+            "used_texture": 154
+        },
+        {
+            "entity": 1543,
+            "used_effect": 5,
+            "used_geometry": 1,
+            "used_texture": 68
         }
     ],
     "7": null,
@@ -6552,7 +6696,7 @@
     "current_day": 1,
     "current_seed": 0,
     "game_is_over": false,
-    "game_screen": 0,
-    "id_count": 561,
+    "game_screen": 5,
+    "id_count": 17068,
     "level": 1
 }
