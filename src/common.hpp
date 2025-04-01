@@ -325,7 +325,7 @@ const int TOOLBAR_WIDTH = 440;
 const int TOOLBAR_HEIGHT = 55;
 
 const int PLAYER_HEALTH = 100;
-const int NUM_SEED_TYPES = 1;
+const int NUM_SEED_TYPES = 8;
 const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
 // Health
