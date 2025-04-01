@@ -894,14 +894,7 @@ void RenderSystem::drawParticlesInstanced(const mat3 &projection)
     // Skip if no particles
     if (registry.particles.entities.empty())
         return;
-    // Skip if no particles
-    if (registry.particles.entities.empty())
-        return;
 
-    // Count active particles
-    int particleCount = (int)registry.particles.size();
-    if (particleCount == 0)
-        return;
     // Count active particles
     int particleCount = (int)registry.particles.size();
     if (particleCount == 0)
@@ -926,39 +919,12 @@ void RenderSystem::drawParticlesInstanced(const mat3 &projection)
     // Enable blending for particles
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // Check for instanced rendering support
-    GLint major = 0, minor = 0;
-    glGetIntegerv(GL_MAJOR_VERSION, &major);
-    glGetIntegerv(GL_MINOR_VERSION, &minor);
-    bool instancing_supported = (major > 3 || (major == 3 && minor >= 3));
-    
-    if (!instancing_supported) {
-        // Fallback to regular rendering
-        for (Entity entity : registry.particles.entities) {
-            if (registry.renderRequests.has(entity)) {
-                drawTexturedMesh(entity, projection);
-            }
-        }
-        return;
-    }
-
-    // Enable blending for particles
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Use particle shader
     GLuint program = effects[(GLuint)EFFECT_ASSET_ID::PARTICLE];
     glUseProgram(program);
     gl_has_errors();
-    // Use particle shader
-    GLuint program = effects[(GLuint)EFFECT_ASSET_ID::PARTICLE];
-    glUseProgram(program);
-    gl_has_errors();
 
-    // Prepare matrices
-    GLint proj_loc = glGetUniformLocation(program, "projection");
-    glUniformMatrix3fv(proj_loc, 1, GL_FALSE, (float *)&projection);
-    gl_has_errors();
     // Prepare matrices
     GLint proj_loc = glGetUniformLocation(program, "projection");
     glUniformMatrix3fv(proj_loc, 1, GL_FALSE, (float *)&projection);
@@ -969,22 +935,11 @@ void RenderSystem::drawParticlesInstanced(const mat3 &projection)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture_id);
     gl_has_errors();
-    // Bind default particle texture
-    GLuint texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::PARTICLE];
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-    gl_has_errors();
 
     // Bind mesh data
     const GLuint vbo = vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
     const GLuint ibo = index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
-    // Bind mesh data
-    const GLuint vbo = vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
-    const GLuint ibo = index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    gl_has_errors();
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     gl_has_errors();
@@ -998,7 +953,7 @@ void RenderSystem::drawParticlesInstanced(const mat3 &projection)
     
     // Verify all attributes exist
     if (in_position_loc < 0 || in_texcoord_loc < 0 || 
-        instance_pos_scale_loc < 0 || instance_color_loc < 0 || instance_life_loc < 0) {
+        instance_pos_scale_loc < 0 || instance_color_loc < 0 ) {
         std::cout << "Error: Missing shader attributes for instanced rendering" << std::endl;
         return;
     }
@@ -1013,20 +968,10 @@ void RenderSystem::drawParticlesInstanced(const mat3 &projection)
     glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE,
                           sizeof(TexturedVertex), (void *)sizeof(vec3));
     gl_has_errors();
-    glEnableVertexAttribArray(in_texcoord_loc);
-    glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE,
-                          sizeof(TexturedVertex), (void *)sizeof(vec3));
-    gl_has_errors();
 
     // Prepare instance data arrays (3 vec4s per instance: pos/scale, color, life data)
     std::vector<vec4> instance_data(particleCount * 3);
-    // Prepare instance data arrays (3 vec4s per instance: pos/scale, color, life data)
-    std::vector<vec4> instance_data(particleCount * 3);
 
-    // Fill instance data
-    int idx = 0;
-    for (Entity entity : registry.particles.entities) {
-        Particle &particle = registry.particles.get(entity);
     // Fill instance data
     int idx = 0;
     for (Entity entity : registry.particles.entities) {
@@ -1038,31 +983,13 @@ void RenderSystem::drawParticlesInstanced(const mat3 &projection)
         if (registry.motions.has(entity)) {
             scale = registry.motions.get(entity).scale;
         }
-        // Get position and scale
-        vec2 position = particle.Position;
-        vec2 scale = vec2(10.0f * (particle.Life / particle.MaxLife));
-        if (registry.motions.has(entity)) {
-            scale = registry.motions.get(entity).scale;
-        }
 
-        // Position(xy) and scale(zw)
-        instance_data[idx++] = vec4(position.x, position.y, scale.x, scale.y);
         // Position(xy) and scale(zw)
         instance_data[idx++] = vec4(position.x, position.y, scale.x, scale.y);
 
         // Color with alpha
         instance_data[idx++] = particle.Color;
-        // Color with alpha
-        instance_data[idx++] = particle.Color;
 
-        // Life ratio and other parameters
-        instance_data[idx++] = vec4(particle.Life / particle.MaxLife, 0.0f, 0.0f, 0.0f);
-    }
-    
-    // Upload instance data
-    glBindBuffer(GL_ARRAY_BUFFER, particle_instance_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, instance_data.size() * sizeof(vec4), instance_data.data());
-    gl_has_errors();
         // Life ratio and other parameters
         instance_data[idx++] = vec4(particle.Life / particle.MaxLife, 0.0f, 0.0f, 0.0f);
     }
@@ -1079,13 +1006,6 @@ void RenderSystem::drawParticlesInstanced(const mat3 &projection)
                           sizeof(vec4) * 3, (void *)0);
     glVertexAttribDivisor(instance_pos_scale_loc, 1); // Once per instance
     gl_has_errors();
-    // Set up instance attributes
-    // 1. Position and scale (vec4)
-    glEnableVertexAttribArray(instance_pos_scale_loc);
-    glVertexAttribPointer(instance_pos_scale_loc, 4, GL_FLOAT, GL_FALSE,
-                          sizeof(vec4) * 3, (void *)0);
-    glVertexAttribDivisor(instance_pos_scale_loc, 1); // Once per instance
-    gl_has_errors();
 
     // 2. Color (vec4)
     glEnableVertexAttribArray(instance_color_loc);
@@ -1093,24 +1013,22 @@ void RenderSystem::drawParticlesInstanced(const mat3 &projection)
                           sizeof(vec4) * 3, (void *)(sizeof(vec4)));
     glVertexAttribDivisor(instance_color_loc, 1);
     gl_has_errors();
-    // 2. Color (vec4)
-    glEnableVertexAttribArray(instance_color_loc);
-    glVertexAttribPointer(instance_color_loc, 4, GL_FLOAT, GL_FALSE,
-                          sizeof(vec4) * 3, (void *)(sizeof(vec4)));
-    glVertexAttribDivisor(instance_color_loc, 1);
-    gl_has_errors();
 
-    // 3. Life data (vec4)
-    glEnableVertexAttribArray(instance_life_loc);
-    glVertexAttribPointer(instance_life_loc, 4, GL_FLOAT, GL_FALSE,
-                          sizeof(vec4) * 3, (void *)(sizeof(vec4) * 2));
-    glVertexAttribDivisor(instance_life_loc, 1);
-    gl_has_errors();
+    // // 3. Life data (vec4)
+    // glEnableVertexAttribArray(instance_life_loc);
+    // glVertexAttribPointer(instance_life_loc, 4, GL_FLOAT, GL_FALSE,
+    //                       sizeof(vec4) * 3, (void *)(sizeof(vec4) * 2));
+    // glVertexAttribDivisor(instance_life_loc, 1);
+    // gl_has_errors();
 
-    // Count indices
-    GLint size = 0;
-    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-    GLsizei num_indices = size / sizeof(uint16_t);
+	if (instance_life_loc >= 0) {
+        glEnableVertexAttribArray(instance_life_loc);
+        glVertexAttribPointer(instance_life_loc, 4, GL_FLOAT, GL_FALSE,
+                              sizeof(vec4) * 3, (void *)(sizeof(vec4) * 2));
+        glVertexAttribDivisor(instance_life_loc, 1);
+        gl_has_errors();
+    }
+
     // Count indices
     GLint size = 0;
     glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
@@ -1123,12 +1041,17 @@ void RenderSystem::drawParticlesInstanced(const mat3 &projection)
     // Reset attribute divisors to avoid affecting other rendering
     glVertexAttribDivisor(instance_pos_scale_loc, 0);
     glVertexAttribDivisor(instance_color_loc, 0);
-    glVertexAttribDivisor(instance_life_loc, 0);
+    //glVertexAttribDivisor(instance_life_loc, 0);
     gl_has_errors();
     
     // Disable attributes we enabled
     glDisableVertexAttribArray(instance_pos_scale_loc);
     glDisableVertexAttribArray(instance_color_loc);
-    glDisableVertexAttribArray(instance_life_loc);
+    //glDisableVertexAttribArray(instance_life_loc);
+
+	if (instance_life_loc >= 0) {
+        glVertexAttribDivisor(instance_life_loc, 0);
+        glDisableVertexAttribArray(instance_life_loc);
+    }
     gl_has_errors();
 }
