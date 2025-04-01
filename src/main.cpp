@@ -33,10 +33,12 @@ int main()
 	AISystem ai_system;
 	WorldSystem world_system;
 	RenderSystem renderer_system;
-
+	AISystem ai_system;
+	WorldSystem world_system;
+	RenderSystem renderer_system;
 	PhysicsSystem physics_system;
 	StatusSystem status_system;
-
+	StatusSystem status_system;
 	AnimationSystem animation_system;
 	TowerSystem tower_system;
 	SeedSystem seed_system;
@@ -47,28 +49,38 @@ int main()
 	GLFWwindow *window = world_system.create_window();
 	if (!window)
 	{
+	GLFWwindow *window = world_system.create_window();
+	if (!window)
+	{
 		// Time to read the error message
 		std::cerr << "ERROR: Failed to create window.  Press any key to exit" << std::endl;
 		getchar();
 		return EXIT_FAILURE;
 	}
+
+	if (!world_system.start_and_load_sounds())
+	{
 	if (!world_system.start_and_load_sounds())
 	{
 		std::cerr << "ERROR: Failed to start or load sounds in world_system." << std::endl;
 	}
 
-
+	if (!ai_system.start_and_load_sounds())
+	{
 	if (!ai_system.start_and_load_sounds())
 	{
 		std::cerr << "ERROR: Failed to start or load sounds in ai_system." << std::endl;
 	}
 
-
+	if (!status_system.start_and_load_sounds())
+	{
 	if (!status_system.start_and_load_sounds())
 	{
 		std::cerr << "ERROR: Failed to start or load sounds in status_system." << std::endl;
 	}
 
+	if (!physics_system.start_and_load_sounds())
+	{
 	if (!physics_system.start_and_load_sounds())
 	{
 		std::cerr << "ERROR: Failed to start or load sounds in status_system." << std::endl;
@@ -88,6 +100,7 @@ int main()
 	int record_times = 0;
 	int max_fps = 0;
 	int min_fps = 50000; // impossible number technically, lazy implementation sorry!
+	int min_fps = 50000; // impossible number technically, lazy implementation sorry!
 	int cooldown = 1000;
 
 	// frame intervals
@@ -102,7 +115,8 @@ int main()
 	FrameManager fm_seed = FrameManager(5);
 	FrameManager fm_render = FrameManager(5);
 
-
+	while (!world_system.is_over())
+	{
 	while (!world_system.is_over())
 	{
 
@@ -117,6 +131,16 @@ int main()
 		t = now;
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
+		// when level up, we want the screen to be frozen
+		if (PlayerSystem::get_state() != STATE::LEVEL_UP)
+		{
+			if (fm_world.can_update())
+				world_system.step(fm_world.get_time());
+			if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH && game_screen != GAME_SCREEN_ID::CG)
+			{
+				// M2: FPS
+				FrameManager::tick(elapsed_ms); // moved here so when doing cg the game will pause
+				float current_fps = (1 / (elapsed_ms / 1000));
 		// when level up, we want the screen to be frozen
 		if (PlayerSystem::get_state() != STATE::LEVEL_UP)
 		{
@@ -225,8 +249,6 @@ int main()
 				}
 			}
 		}
-				}
-			}
 
 		// DO NOT DELETE, OTHERWISE TEXT WON'T RENDER
 
@@ -239,5 +261,4 @@ int main()
     
 	}
 	return EXIT_SUCCESS;
-}
 }
