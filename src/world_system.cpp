@@ -985,224 +985,191 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG)
 	{
 		// implement
-		if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG)
-		{
-			// implement
-			return;
-		}
+		return;
+	}
 
-		// when player is in the level up menu, disable some game inputs
-		if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
-			game_is_over)
-			return;
+	// when player is in the level up menu, disable some game inputs
+	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
+		game_is_over)
 		return;
 
-		// Player movement
-		Entity player = registry.players.entities[0];
-		Motion &motion = registry.motions.get(player);
+	// Player movement
+	Entity player = registry.players.entities[0];
+	Motion &motion = registry.motions.get(player);
 
-		// Manual wave generation with 'g'
-		if (action == GLFW_PRESS && key == GLFW_KEY_G)
-		{
-			spawn_manager.generate_wave(renderer);
-			return;
-		}
+	// Manual wave generation with 'g'
+	if (action == GLFW_PRESS && key == GLFW_KEY_G)
+	{
+		spawn_manager.generate_wave(renderer);
+		return;
+	}
 
-		// test mode with '/'
-		if (action == GLFW_PRESS && key == GLFW_KEY_SLASH)
+	// test mode with '/'
+	if (action == GLFW_PRESS && key == GLFW_KEY_SLASH)
+	{
+		// Disable in tutorial mode
+		if (game_screen == GAME_SCREEN_ID::PLAYING || game_screen == GAME_SCREEN_ID::TEST)
 		{
-			// Disable in tutorial mode
-			if (game_screen == GAME_SCREEN_ID::PLAYING || game_screen == GAME_SCREEN_ID::TEST)
+			test_mode = !test_mode;
+			spawn_manager.set_test_mode(test_mode);
+			if (game_screen == GAME_SCREEN_ID::PLAYING)
 			{
-				test_mode = !test_mode;
-				spawn_manager.set_test_mode(test_mode);
-				if (game_screen == GAME_SCREEN_ID::PLAYING)
-				{
-					game_screen = GAME_SCREEN_ID::TEST;
-				}
-				else
-					game_screen = GAME_SCREEN_ID::PLAYING;
-				std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
-			}
-			return;
-		}
-
-		// tutorial mode with 't'
-		if (action == GLFW_PRESS && key == GLFW_KEY_T)
-		{
-			tutorial_mode = !tutorial_mode;
-			spawn_manager.set_test_mode(tutorial_mode);
-
-			if (game_screen != GAME_SCREEN_ID::TUTORIAL)
-			{
-				restart_tutorial();
+				game_screen = GAME_SCREEN_ID::TEST;
 			}
 			else
-			{
-				restart_game();
-			}
-			std::cout << "Game " << (tutorial_mode ? "entered" : "exited") << " tutorial mode" << std::endl;
-			return;
+				game_screen = GAME_SCREEN_ID::PLAYING;
+			std::cout << "Game " << (test_mode ? "entered" : "exited") << " test mode" << std::endl;
 		}
+		return;
+	}
 
-		// Calculate cell indices
-		int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
-		int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
+	// tutorial mode with 't'
+	if (action == GLFW_PRESS && key == GLFW_KEY_T)
+	{
+		tutorial_mode = !tutorial_mode;
+		spawn_manager.set_test_mode(tutorial_mode);
 
-		// Plant seed
-		if (action == GLFW_PRESS && key == GLFW_KEY_F)
+		if (game_screen != GAME_SCREEN_ID::TUTORIAL)
 		{
-			plant_seed();
-		}
-
-		// Kung: Helper function for player movement (see above for description)
-		if (game_screen == GAME_SCREEN_ID::TUTORIAL)
-		{
-			player_movement_tutorial(key, action, motion);
+			restart_tutorial();
 		}
 		else
 		{
-			player_movement(key, action, motion);
+			restart_game();
 		}
+		std::cout << "Game " << (tutorial_mode ? "entered" : "exited") << " tutorial mode" << std::endl;
+		return;
+	}
 
-		// Update state if player is moving
-		if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
+	// Calculate cell indices
+	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
+	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
+
+	// Plant seed
+	if (action == GLFW_PRESS && key == GLFW_KEY_F)
+	{
+		plant_seed();
+	}
+
+	// Kung: Helper function for player movement (see above for description)
+	if (game_screen == GAME_SCREEN_ID::TUTORIAL)
+	{
+		player_movement_tutorial(key, action, motion);
+	}
+	else
+	{
+		player_movement(key, action, motion);
+	}
+
+	// Update state if player is moving
+	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
+	{
+		if (motion.velocity == vec2(0, 0))
 		{
-			if (motion.velocity == vec2(0, 0))
+			PlayerSystem::update_state(STATE::IDLE);
+		}
+		else
+		{
+			PlayerSystem::update_state(STATE::MOVE);
+		}
+	}
+
+	// Player movement sound
+	if (!WorldSystem::game_is_over)
+	{
+
+		if ((action == GLFW_PRESS || action == GLFW_REPEAT) &&
+			(key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D))
+		{
+			if (!is_movement_sound_playing && movement_sound_timer <= 0)
 			{
-				PlayerSystem::update_state(STATE::IDLE);
+				Mix_PlayChannel(0, running_on_grass_sound, 0);
+				is_movement_sound_playing = true;
+				movement_sound_timer = 1000.f;
+			}
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			if (motion.velocity.x == 0 && motion.velocity.y == 0)
+			{
+				if (is_movement_sound_playing)
+				{
+					Mix_HaltChannel(0);
+					is_movement_sound_playing = false;
+					movement_sound_timer = 0.f;
+				}
+			}
+		}
+	}
+
+	// Chicken
+	if (action == GLFW_PRESS && key == GLFW_KEY_C)
+		createChicken(renderer);
+
+	// Debug
+	if (action == GLFW_PRESS)
+	{
+		vec2 position = vec2(motion.position.x + CAMERA_VIEW_WIDTH / 2, motion.position.y);
+		switch (key)
+		{
+		case GLFW_KEY_1:
+			createOrc(renderer, position);
+			// if()
+			// current_seed = registry.inventorys.components[0].seedAtToolbar[0];
+			break;
+		case GLFW_KEY_2:
+			createOrcElite(renderer, position);
+			break;
+		case GLFW_KEY_3:
+			createSkeleton(renderer, position);
+			break;
+		case GLFW_KEY_4:
+			createSkeletonArcher(renderer, position);
+			break;
+		case GLFW_KEY_5:
+			createWerewolf(renderer, position);
+			break;
+		case GLFW_KEY_6:
+			createWerebear(renderer, position);
+			break;
+		case GLFW_KEY_7:
+			createSlime(renderer, position);
+			break;
+		}
+		if (registry.screenStates.size() != 0)
+		{
+			if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
+			{
+				// StateSystem::update_state(STATE::LEVEL_UP);
+				// come back later!
+				if (registry.inventorys.components[0].seedCount[current_seed] == 0)
+				{
+					createSeedInventory(vec2(motion.position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed, 0);
+				}
+				registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
+				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
+				level++;
+
+				// Get player entity and size
+				Entity player = registry.players.entities[0];
+				vec2 player_pos = registry.motions.get(player).position;
+				vec2 player_size = registry.motions.get(player).scale;
+				ParticleSystem::createLevelUpEffect(player_pos, player_size);
+				if (level == 2)
+				{
+					std::cout << "hihi" << std::endl;
+					registry.screenStates.components[0].cutscene = 3;
+					registry.screenStates.components[0].cg_index = 0;
+					return start_cg(renderer);
+				}
+
+				std::cout << "==== LEVEL " << level << " ====" << std::endl;
 			}
 			else
 			{
-				PlayerSystem::update_state(STATE::MOVE);
+				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += 0.1;
 			}
 		}
-
-		// Player movement sound
-		if (!WorldSystem::game_is_over)
-		{
-
-			if ((action == GLFW_PRESS || action == GLFW_REPEAT) &&
-				(key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D))
-			{
-				if (!is_movement_sound_playing && movement_sound_timer <= 0)
-				{
-					Mix_PlayChannel(0, running_on_grass_sound, 0);
-					is_movement_sound_playing = true;
-					movement_sound_timer = 1000.f;
-				}
-			}
-			else if (action == GLFW_RELEASE)
-			{
-				if (motion.velocity.x == 0 && motion.velocity.y == 0)
-				{
-					if (is_movement_sound_playing)
-					{
-						Mix_HaltChannel(0);
-						is_movement_sound_playing = false;
-						movement_sound_timer = 0.f;
-					}
-				}
-			}
-		}
-
-		// Chicken
-		if (action == GLFW_PRESS && key == GLFW_KEY_C)
-			createChicken(renderer);
-
-		// Debug
-		if (action == GLFW_PRESS)
-		{
-			vec2 position = vec2(motion.position.x + CAMERA_VIEW_WIDTH / 2, motion.position.y);
-			switch (key)
-			{
-			case GLFW_KEY_1:
-				createOrc(renderer, position);
-				// if()
-				// current_seed = registry.inventorys.components[0].seedAtToolbar[0];
-				break;
-			case GLFW_KEY_2:
-				createOrcElite(renderer, position);
-				break;
-			case GLFW_KEY_3:
-				createSkeleton(renderer, position);
-				break;
-			case GLFW_KEY_4:
-				createSkeletonArcher(renderer, position);
-				break;
-			case GLFW_KEY_5:
-				createWerewolf(renderer, position);
-				break;
-			case GLFW_KEY_6:
-				createWerebear(renderer, position);
-				break;
-			case GLFW_KEY_7:
-				createSlime(renderer, position);
-				break;
-				switch (key)
-				{
-				case GLFW_KEY_1:
-					createOrc(renderer, position);
-					break;
-				case GLFW_KEY_2:
-					createOrcElite(renderer, position);
-					break;
-				case GLFW_KEY_3:
-					createSkeleton(renderer, position);
-					break;
-				case GLFW_KEY_4:
-					createSkeletonArcher(renderer, position);
-					break;
-				case GLFW_KEY_5:
-					createWerewolf(renderer, position);
-					break;
-				case GLFW_KEY_6:
-					createWerebear(renderer, position);
-					break;
-				case GLFW_KEY_7:
-					createSlime(renderer, position);
-					break;
-				}
-			}
-			if (registry.screenStates.size() != 0)
-			{
-				if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
-				{
-					// StateSystem::update_state(STATE::LEVEL_UP);
-					// come back later!
-					if (registry.inventorys.components[0].seedCount[current_seed] == 0)
-					{
-						createSeedInventory(vec2(motion.position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed, 0);
-					}
-					registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
-					registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
-					level++;
-
-					// Get player entity and size
-					Entity player = registry.players.entities[0];
-					vec2 player_pos = registry.motions.get(player).position;
-					vec2 player_size = registry.motions.get(player).scale;
-					ParticleSystem::createLevelUpEffect(player_pos, player_size);
-					if (level == 2)
-					{
-						std::cout << "hihi" << std::endl;
-						registry.screenStates.components[0].cutscene = 3;
-						registry.screenStates.components[0].cg_index = 0;
-						return start_cg(renderer);
-					}
-
-					std::cout << "==== LEVEL " << level << " ====" << std::endl;
-				}
-				else
-				{
-					registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += 0.1;
-				}
-			}
-		}
-
-		// if (action == GLFW_PRESS && key == GLFW_KEY_1) {
-
-		// }
 	}
 }
 
