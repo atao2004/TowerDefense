@@ -359,9 +359,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	// createPause();
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
 	for(int i = 0; i < NUM_SEED_TYPES; i++) {
-		if(registry.inventorys.components[0].seedCount[i] > 0) {
-			createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (i + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, i, i);
-		}
+		createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (i + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, i, i);
 	}
 	//createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
 
@@ -422,6 +420,7 @@ void WorldSystem::start_cg(RenderSystem *renderer)
 	else {
 		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
 	}
+	std::cout << "what hello hello?" << std::endl;
 }
 
 // Reset the world state to its initial state
@@ -576,9 +575,8 @@ void WorldSystem::increase_exp_player()
 	else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 	{
 		// StateSystem::update_state(STATE::LEVEL_UP);
-		//if count is 0
+		//come back later!
 		if (registry.inventorys.components[0].seedCount[current_seed] == 0) {
-			registry.inventorys.components[0].seedAtToolbar[current_seed] == -1;
 			createSeedInventory(vec2(registry.motions.get(player_entity).position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed, 0);
 		}
 		registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
@@ -590,6 +588,7 @@ void WorldSystem::increase_exp_player()
 		ParticleSystem::createLevelUpEffect(player_pos, player_size);
 
 		if (level == 2) {
+			std::cout<<"hihi"<<std::endl;
 			registry.screenStates.components[0].cutscene = 3;
 			registry.screenStates.components[0].cg_index = 0;
 			return start_cg(renderer);
@@ -1116,8 +1115,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		{
 		case GLFW_KEY_1:
 			createOrc(renderer, position);
-			// if()
-			// current_seed = registry.inventorys.components[0].seedAtToolbar[0];
 			break;
 		case GLFW_KEY_2:
 			createOrcElite(renderer, position);
@@ -1162,6 +1159,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			break;
 		}
 	}
+	if (action == GLFW_PRESS && key == GLFW_KEY_9)
+	{
 		if (registry.screenStates.size() != 0)
 		{
 			if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
@@ -1194,10 +1193,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += 0.1;
 			}
 		}
-	
-	// if (action == GLFW_PRESS && key == GLFW_KEY_1) {
-
-	// }
+	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
@@ -1277,10 +1273,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 					// int selectedIndex = current_seed;
 					// selectedIndex = (selectedIndex + 1) % 8;
 					// current_seed = registry.inventorys.components[0].seedPosition[selectedIndex];
-					Entity player = registry.players.entities[0];
-					Motion &motion = registry.motions.get(player);
-					vec2 position = vec2(motion.position.x + CAMERA_VIEW_WIDTH / 2, motion.position.y);
-					float item_center_x = position.x - TOOLBAR_WIDTH / 2.0f + TOOLBAR_HEIGHT * ((int)i.used_texture + 0.5f);
+					float item_center_x = WINDOW_WIDTH_PX / 2 - 27.5f - TOOLBAR_WIDTH / 2.0f + TOOLBAR_HEIGHT * ((int)i.used_texture + 0.5f);
 					float item_left_x   = item_center_x - TOOLBAR_HEIGHT / 2.0f;
 					float item_right_x  = item_center_x + TOOLBAR_HEIGHT / 2.0f;
 					std::cout << "Mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
@@ -1289,6 +1282,16 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 					if (mouse_pos_x >= item_left_x && mouse_pos_x <= item_right_x) {
 						current_seed = (int)(i.used_texture);
 					}
+
+					// 			std::cout << "Clicked on seed: " << static_cast<int>(registry.seeds.get(s).type) << std::endl;
+								
+					// 			current_seed = (int))(i.used_texture)
+
+		// //createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (i + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, i);
+
+		// 					}
+		// 				}
+		// 			}
 		 		}
 		 	}
 		 }
@@ -1296,7 +1299,6 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 	}
 
 	if (game_screen == GAME_SCREEN_ID::CG) {
-	int cutscene = registry.screenStates.components[0].cutscene;
 		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT) {
 			int cg_index = ++registry.screenStates.components[0].cg_index;
 			std::cout << cg_index << std::endl;

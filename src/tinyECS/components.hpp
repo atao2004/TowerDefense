@@ -34,7 +34,7 @@ struct Death
 struct Inventory
 {
     int seedCount[NUM_SEED_TYPES]; // count of seeds indexed by their type, could also use map for this
-    int seedAtToolbar[8];
+    int seedPosition[8];
     json toJSON() const
     {
         nlohmann::json seedJson;

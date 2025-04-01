@@ -684,8 +684,8 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 	for(int i = 0; i < NUM_SEED_TYPES; i++)
 	{
 		registry.inventorys.components[0].seedCount[i] = 1; // one each of the 8 seed types
-		registry.inventorys.components[0].seedAtToolbar[i] = i;
 	}
+	//registry.inventorys.components[0].seedCount[0] = 5; // 5 starter seeds
 
 	MoveWithCamera &mwc = registry.moveWithCameras.emplace(entity);
 	Motion &motion = registry.motions.emplace(entity);
@@ -786,7 +786,7 @@ Entity createSeedInventory(vec2 pos, vec2 velocity, int type, int toolbar_pos)
 	seed_component.type = type;
 	seed_component.timer = 5000;
 
-	registry.inventorys.components[0].seedAtToolbar[toolbar_pos] = type;
+	registry.inventorys.components[0].seedPosition[toolbar_pos] = type;
 
 	// Create a component to simplify movement.
 	MoveWithCamera &mwc = registry.moveWithCameras.emplace(seed_entity);
