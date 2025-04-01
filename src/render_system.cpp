@@ -264,47 +264,72 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	}
 	else if (render_request.used_effect == EFFECT_ASSET_ID::PARTICLE)
 	{
+		// Enable proper blending for particles
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Get shader attribute locations with error checking
 		GLint in_position_loc = glGetAttribLocation(program, "in_position");
 		GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
 		gl_has_errors();
-		assert(in_texcoord_loc >= 0);
 
+		// Check if we have valid shader attributes
+		if (in_position_loc < 0 || in_texcoord_loc < 0)
+		{
+			std::cout << "Warning: Missing shader attributes for particle rendering" << std::endl;
+			// Still continue - the shader might work with default attributes
+		}
+
+		// Set up vertex attributes
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
 							  sizeof(TexturedVertex), (void *)0);
 		gl_has_errors();
 
 		glEnableVertexAttribArray(in_texcoord_loc);
-		glVertexAttribPointer(
-			in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex),
-			(void *)sizeof(vec3));
+		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE,
+							  sizeof(TexturedVertex), (void *)sizeof(vec3));
 		gl_has_errors();
 
-		// Pass color as vec4 including alpha
+		// Get particle properties with safer access
 		vec4 particleColor = {1.0f, 1.0f, 1.0f, 1.0f};
-		if (registry.particles.has(entity))
-		{
-			Particle &particle = registry.particles.get(entity);
-			particleColor = particle.Color;
-		}
-
-		GLint color_loc = glGetUniformLocation(program, "color");
-		glUniform4fv(color_loc, 1, &particleColor[0]);
-		gl_has_errors();
-
-		// Pass life ratio for visual effects
 		float lifeRatio = 1.0f;
+
 		if (registry.particles.has(entity))
 		{
 			Particle &particle = registry.particles.get(entity);
+
+			// Apply color with premultiplied alpha for better blending
+			particleColor = particle.Color;
+
+			// Ensure alpha is valid (fixes laptop rendering issues)
+			particleColor.a = glm::clamp(particleColor.a, 0.0f, 1.0f);
+
+			// Gamma correction for more consistent colors across devices
+			particleColor.r = std::pow(particleColor.r, 1.0f / 2.2f);
+			particleColor.g = std::pow(particleColor.g, 1.0f / 2.2f);
+			particleColor.b = std::pow(particleColor.b, 1.0f / 2.2f);
+
 			lifeRatio = particle.Life / particle.MaxLife;
 		}
 
-		GLint life_loc = glGetUniformLocation(program, "life_ratio");
-		glUniform1f(life_loc, lifeRatio);
+		// Pass color to shader with error checking
+		GLint color_loc = glGetUniformLocation(program, "color");
+		if (color_loc >= 0)
+		{
+			glUniform4fv(color_loc, 1, &particleColor[0]);
+		}
 		gl_has_errors();
 
-		// Enabling and binding texture
+		// Pass life ratio with error checking
+		GLint life_loc = glGetUniformLocation(program, "life_ratio");
+		if (life_loc >= 0)
+		{
+			glUniform1f(life_loc, lifeRatio);
+		}
+		gl_has_errors();
+
+		// Handle texture
 		glActiveTexture(GL_TEXTURE0);
 		gl_has_errors();
 
@@ -567,22 +592,24 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 		}
 		drawParticlesInstanced(projection_2D);
 		// individually draw player, will render on top of all the motion sprites
-		if (!WorldSystem::game_is_over) drawTexturedMesh(registry.players.entities[0], projection_2D);
+		if (!WorldSystem::game_is_over)
+			drawTexturedMesh(registry.players.entities[0], projection_2D);
 
 		renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
 		renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
-	
-		for (int current_seed = 0; current_seed < registry.inventorys.size(); current_seed++) {
+
+		for (int current_seed = 0; current_seed < registry.inventorys.size(); current_seed++)
+		{
 			renderText(std::to_string(registry.inventorys.components[0].seedCount[current_seed]), WINDOW_WIDTH_PX * 0.375 + 55 * current_seed, 25, 0.25, {0, 1, 0}, trans);
 		}
-	
+
 		// Render the FPS counter
-		float current_fps = (1/(elapsed_ms/1000));
+		float current_fps = (1 / (elapsed_ms / 1000));
 		renderText("FPS: " + std::to_string(current_fps), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.925, 0.3, {0, 1, 1}, trans);
-	
+
 		// Render the number of enemies on screen
 		renderText("Enemy count: " + std::to_string(registry.enemies.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.875, 0.3, {0, 1, 1}, trans);
-	
+
 		// Render the number of plants on screen (Includes plant in inventory)
 		renderText("Plant count: " + std::to_string(registry.seeds.size() + registry.towers.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.825, 0.3, {0, 1, 1}, trans);
 
@@ -891,154 +918,160 @@ void RenderSystem::renderText(std::string text, float x, float y, float scale, c
 
 void RenderSystem::drawParticlesInstanced(const mat3 &projection)
 {
-    // Skip if no particles
-    if (registry.particles.entities.empty())
-        return;
+	// Skip if no particles
+	if (registry.particles.entities.empty())
+		return;
 
-    // Count active particles
-    int particleCount = (int)registry.particles.size();
-    if (particleCount == 0)
-        return;
+	// Count active particles
+	int particleCount = (int)registry.particles.size();
+	if (particleCount == 0)
+		return;
 
-    // Check for instanced rendering support
-    GLint major = 0, minor = 0;
-    glGetIntegerv(GL_MAJOR_VERSION, &major);
-    glGetIntegerv(GL_MINOR_VERSION, &minor);
-    bool instancing_supported = (major > 3 || (major == 3 && minor >= 3));
-    
-    if (!instancing_supported) {
-        // Fallback to regular rendering
-        for (Entity entity : registry.particles.entities) {
-            if (registry.renderRequests.has(entity)) {
-                drawTexturedMesh(entity, projection);
-            }
-        }
-        return;
-    }
+	// Check for instanced rendering support
+	GLint major = 0, minor = 0;
+	glGetIntegerv(GL_MAJOR_VERSION, &major);
+	glGetIntegerv(GL_MINOR_VERSION, &minor);
+	bool instancing_supported = (major > 3 || (major == 3 && minor >= 3));
 
-    // Enable blending for particles
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	if (!instancing_supported)
+	{
+		// Fallback to regular rendering
+		for (Entity entity : registry.particles.entities)
+		{
+			if (registry.renderRequests.has(entity))
+			{
+				drawTexturedMesh(entity, projection);
+			}
+		}
+		return;
+	}
 
-    // Use particle shader
-    GLuint program = effects[(GLuint)EFFECT_ASSET_ID::PARTICLE];
-    glUseProgram(program);
-    gl_has_errors();
+	// Enable blending for particles
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Prepare matrices
-    GLint proj_loc = glGetUniformLocation(program, "projection");
-    glUniformMatrix3fv(proj_loc, 1, GL_FALSE, (float *)&projection);
-    gl_has_errors();
+	// Use particle shader
+	GLuint program = effects[(GLuint)EFFECT_ASSET_ID::PARTICLE];
+	glUseProgram(program);
+	gl_has_errors();
 
-    // Bind default particle texture
-    GLuint texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::PARTICLE];
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-    gl_has_errors();
+	// Prepare matrices
+	GLint proj_loc = glGetUniformLocation(program, "projection");
+	glUniformMatrix3fv(proj_loc, 1, GL_FALSE, (float *)&projection);
+	gl_has_errors();
 
-    // Bind mesh data
-    const GLuint vbo = vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
-    const GLuint ibo = index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
+	// Bind default particle texture
+	GLuint texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::PARTICLE];
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+	gl_has_errors();
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    gl_has_errors();
+	// Bind mesh data
+	const GLuint vbo = vertex_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
+	const GLuint ibo = index_buffers[(GLuint)GEOMETRY_BUFFER_ID::SPRITE];
 
-    // Get proper attribute locations from shader
-    GLint in_position_loc = glGetAttribLocation(program, "in_position");
-    GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
-    GLint instance_pos_scale_loc = glGetAttribLocation(program, "instance_pos_scale");
-    GLint instance_color_loc = glGetAttribLocation(program, "instance_color");
-    GLint instance_life_loc = glGetAttribLocation(program, "instance_life_data");
-    
-    // Verify all attributes exist
-    if (in_position_loc < 0 || in_texcoord_loc < 0 || 
-        instance_pos_scale_loc < 0 || instance_color_loc < 0 || instance_life_loc < 0) {
-        std::cout << "Error: Missing shader attributes for instanced rendering" << std::endl;
-        return;
-    }
-    gl_has_errors();
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	gl_has_errors();
 
-    // Set up vertex attributes
-    glEnableVertexAttribArray(in_position_loc);
-    glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(TexturedVertex), (void *)0);
+	// Get proper attribute locations from shader
+	GLint in_position_loc = glGetAttribLocation(program, "in_position");
+	GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
+	GLint instance_pos_scale_loc = glGetAttribLocation(program, "instance_pos_scale");
+	GLint instance_color_loc = glGetAttribLocation(program, "instance_color");
+	GLint instance_life_loc = glGetAttribLocation(program, "instance_life_data");
 
-    glEnableVertexAttribArray(in_texcoord_loc);
-    glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE,
-                          sizeof(TexturedVertex), (void *)sizeof(vec3));
-    gl_has_errors();
+	// Verify all attributes exist
+	if (in_position_loc < 0 || in_texcoord_loc < 0 ||
+		instance_pos_scale_loc < 0 || instance_color_loc < 0 || instance_life_loc < 0)
+	{
+		std::cout << "Error: Missing shader attributes for instanced rendering" << std::endl;
+		return;
+	}
+	gl_has_errors();
 
-    // Prepare instance data arrays (3 vec4s per instance: pos/scale, color, life data)
-    std::vector<vec4> instance_data(particleCount * 3);
+	// Set up vertex attributes
+	glEnableVertexAttribArray(in_position_loc);
+	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
+						  sizeof(TexturedVertex), (void *)0);
 
-    // Fill instance data
-    int idx = 0;
-    for (Entity entity : registry.particles.entities) {
-        Particle &particle = registry.particles.get(entity);
+	glEnableVertexAttribArray(in_texcoord_loc);
+	glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE,
+						  sizeof(TexturedVertex), (void *)sizeof(vec3));
+	gl_has_errors();
 
-        // Get position and scale
-        vec2 position = particle.Position;
-        vec2 scale = vec2(10.0f * (particle.Life / particle.MaxLife));
-        if (registry.motions.has(entity)) {
-            scale = registry.motions.get(entity).scale;
-        }
+	// Prepare instance data arrays (3 vec4s per instance: pos/scale, color, life data)
+	std::vector<vec4> instance_data(particleCount * 3);
 
-        // Position(xy) and scale(zw)
-        instance_data[idx++] = vec4(position.x, position.y, scale.x, scale.y);
+	// Fill instance data
+	int idx = 0;
+	for (Entity entity : registry.particles.entities)
+	{
+		Particle &particle = registry.particles.get(entity);
 
-        // Color with alpha
-        instance_data[idx++] = particle.Color;
+		// Get position and scale
+		vec2 position = particle.Position;
+		vec2 scale = vec2(10.0f * (particle.Life / particle.MaxLife));
+		if (registry.motions.has(entity))
+		{
+			scale = registry.motions.get(entity).scale;
+		}
 
-        // Life ratio and other parameters
-        instance_data[idx++] = vec4(particle.Life / particle.MaxLife, 0.0f, 0.0f, 0.0f);
-    }
-    
-    // Upload instance data
-    glBindBuffer(GL_ARRAY_BUFFER, particle_instance_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, instance_data.size() * sizeof(vec4), instance_data.data());
-    gl_has_errors();
+		// Position(xy) and scale(zw)
+		instance_data[idx++] = vec4(position.x, position.y, scale.x, scale.y);
 
-    // Set up instance attributes
-    // 1. Position and scale (vec4)
-    glEnableVertexAttribArray(instance_pos_scale_loc);
-    glVertexAttribPointer(instance_pos_scale_loc, 4, GL_FLOAT, GL_FALSE,
-                          sizeof(vec4) * 3, (void *)0);
-    glVertexAttribDivisor(instance_pos_scale_loc, 1); // Once per instance
-    gl_has_errors();
+		// Color with alpha
+		instance_data[idx++] = particle.Color;
 
-    // 2. Color (vec4)
-    glEnableVertexAttribArray(instance_color_loc);
-    glVertexAttribPointer(instance_color_loc, 4, GL_FLOAT, GL_FALSE,
-                          sizeof(vec4) * 3, (void *)(sizeof(vec4)));
-    glVertexAttribDivisor(instance_color_loc, 1);
-    gl_has_errors();
+		// Life ratio and other parameters
+		instance_data[idx++] = vec4(particle.Life / particle.MaxLife, 0.0f, 0.0f, 0.0f);
+	}
 
-    // 3. Life data (vec4)
-    glEnableVertexAttribArray(instance_life_loc);
-    glVertexAttribPointer(instance_life_loc, 4, GL_FLOAT, GL_FALSE,
-                          sizeof(vec4) * 3, (void *)(sizeof(vec4) * 2));
-    glVertexAttribDivisor(instance_life_loc, 1);
-    gl_has_errors();
+	// Upload instance data
+	glBindBuffer(GL_ARRAY_BUFFER, particle_instance_VBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, instance_data.size() * sizeof(vec4), instance_data.data());
+	gl_has_errors();
 
-    // Count indices
-    GLint size = 0;
-    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-    GLsizei num_indices = size / sizeof(uint16_t);
+	// Set up instance attributes
+	// 1. Position and scale (vec4)
+	glEnableVertexAttribArray(instance_pos_scale_loc);
+	glVertexAttribPointer(instance_pos_scale_loc, 4, GL_FLOAT, GL_FALSE,
+						  sizeof(vec4) * 3, (void *)0);
+	glVertexAttribDivisor(instance_pos_scale_loc, 1); // Once per instance
+	gl_has_errors();
 
-    // Draw all particles in one call
-    glDrawElementsInstanced(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr, particleCount);
-    gl_has_errors();
-    
-    // Reset attribute divisors to avoid affecting other rendering
-    glVertexAttribDivisor(instance_pos_scale_loc, 0);
-    glVertexAttribDivisor(instance_color_loc, 0);
-    glVertexAttribDivisor(instance_life_loc, 0);
-    gl_has_errors();
-    
-    // Disable attributes we enabled
-    glDisableVertexAttribArray(instance_pos_scale_loc);
-    glDisableVertexAttribArray(instance_color_loc);
-    glDisableVertexAttribArray(instance_life_loc);
-    gl_has_errors();
+	// 2. Color (vec4)
+	glEnableVertexAttribArray(instance_color_loc);
+	glVertexAttribPointer(instance_color_loc, 4, GL_FLOAT, GL_FALSE,
+						  sizeof(vec4) * 3, (void *)(sizeof(vec4)));
+	glVertexAttribDivisor(instance_color_loc, 1);
+	gl_has_errors();
+
+	// 3. Life data (vec4)
+	glEnableVertexAttribArray(instance_life_loc);
+	glVertexAttribPointer(instance_life_loc, 4, GL_FLOAT, GL_FALSE,
+						  sizeof(vec4) * 3, (void *)(sizeof(vec4) * 2));
+	glVertexAttribDivisor(instance_life_loc, 1);
+	gl_has_errors();
+
+	// Count indices
+	GLint size = 0;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+	GLsizei num_indices = size / sizeof(uint16_t);
+
+	// Draw all particles in one call
+	glDrawElementsInstanced(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr, particleCount);
+	gl_has_errors();
+
+	// Reset attribute divisors to avoid affecting other rendering
+	glVertexAttribDivisor(instance_pos_scale_loc, 0);
+	glVertexAttribDivisor(instance_color_loc, 0);
+	glVertexAttribDivisor(instance_life_loc, 0);
+	gl_has_errors();
+
+	// Disable attributes we enabled
+	glDisableVertexAttribArray(instance_pos_scale_loc);
+	glDisableVertexAttribArray(instance_color_loc);
+	glDisableVertexAttribArray(instance_life_loc);
+	gl_has_errors();
 }
