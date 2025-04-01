@@ -1,19 +1,19 @@
 {
     "0": [
         {
-            "cg_index": 11,
-            "cutscene": 1,
+            "cg_index": 7,
+            "cutscene": 2,
             "darken_screen_factor": -1.0,
             "entity": 1,
-            "exp_percentage": 0.10000000149011612,
+            "exp_percentage": 0.0,
             "game_over": false,
             "game_over_counter_ms": 0.0,
             "game_over_darken": -1.0,
-            "hp_percentage": 0.8999999761581421,
+            "hp_percentage": 1.0,
             "lerp_timer": 0.0,
-            "seed_cg": true,
-            "shake_duration_ms": -10.859027862548828,
-            "shake_intensity": 10.0,
+            "seed_cg": false,
+            "shake_duration_ms": 0.0,
+            "shake_intensity": 0.0,
             "shake_offset": [
                 0.0,
                 0.0
@@ -33,22 +33,54 @@
         },
         {
             "damage": 5.0,
-            "entity": 1543,
+            "entity": 696,
+            "range": 40
+        },
+        {
+            "damage": 5.0,
+            "entity": 1515,
+            "range": 40
+        },
+        {
+            "damage": 5.0,
+            "entity": 2374,
+            "range": 40
+        },
+        {
+            "damage": 5.0,
+            "entity": 3222,
             "range": 40
         }
     ],
-    "10": null,
+    "10": [
+        {
+            "entity": 1515,
+            "health": 0.0
+        },
+        {
+            "entity": 2374,
+            "health": 0.0
+        },
+        {
+            "entity": 3222,
+            "health": 0.0
+        }
+    ],
     "11": null,
     "12": [
         {
             "entity": 279,
-            "health": 90.0
+            "health": 100.0
         }
     ],
     "13": [
         {
             "active_statuses": [],
             "entity": 279
+        },
+        {
+            "active_statuses": [],
+            "entity": 284
         }
     ],
     "14": [
@@ -60,48 +92,86 @@
     "15": [
         {
             "destroy": false,
+            "entity": 696,
+            "lock": false,
+            "loop": true,
+            "pose": 7,
+            "pose_count": 8,
+            "runtime_ms": 9367.1845703125,
+            "timer_ms": 60.2239990234375,
+            "transition_ms": 100
+        },
+        {
+            "destroy": false,
             "entity": 284,
             "lock": false,
             "loop": true,
             "pose": 1,
             "pose_count": 8,
-            "runtime_ms": 15577.5244140625,
-            "timer_ms": 48.21500015258789,
+            "runtime_ms": 10376.001953125,
+            "timer_ms": 36.896995544433594,
             "transition_ms": 100
+        },
+        {
+            "destroy": false,
+            "entity": 2374,
+            "lock": false,
+            "loop": true,
+            "pose": 0,
+            "pose_count": 6,
+            "runtime_ms": 7354.9775390625,
+            "timer_ms": 132.5740203857422,
+            "transition_ms": 166
+        },
+        {
+            "destroy": false,
+            "entity": 1515,
+            "lock": false,
+            "loop": true,
+            "pose": 7,
+            "pose_count": 8,
+            "runtime_ms": 8370.1552734375,
+            "timer_ms": 94.59600830078125,
+            "transition_ms": 125
         },
         {
             "destroy": false,
             "entity": 279,
             "lock": false,
             "loop": true,
-            "pose": 3,
+            "pose": 4,
             "pose_count": 6,
-            "runtime_ms": 1680.510986328125,
-            "timer_ms": 144.9739990234375,
+            "runtime_ms": 1739.3848876953125,
+            "timer_ms": 47.17499923706055,
             "transition_ms": 166
         },
         {
             "destroy": false,
-            "entity": 1543,
+            "entity": 3222,
+            "lock": false,
+            "loop": true,
+            "pose": 0,
+            "pose_count": 8,
+            "runtime_ms": 6335.17138671875,
+            "timer_ms": 36.896995544433594,
+            "transition_ms": 125
+        },
+        {
+            "destroy": false,
+            "entity": 5556,
             "lock": false,
             "loop": false,
-            "pose": 3,
-            "pose_count": 9,
-            "runtime_ms": 780.4230346679688,
-            "timer_ms": 155.44400024414063,
-            "transition_ms": 200
+            "pose": 2,
+            "pose_count": 3,
+            "runtime_ms": 1522.919189453125,
+            "timer_ms": 180.9459991455078,
+            "transition_ms": 666
         }
     ],
     "16": null,
     "17": null,
     "18": null,
-    "19": [
-        {
-            "duration_ms": 200.0,
-            "entity": 279,
-            "is_white": true
-        }
-    ],
+    "19": null,
     "2": [
         {
             "angle": 0.0,
@@ -4395,8 +4465,8 @@
             "angle": 0.0,
             "entity": 279,
             "position": [
-                1643.039794921875,
-                974.8622436523438
+                1277.7838134765625,
+                994.0362548828125
             ],
             "scale": [
                 -50.0,
@@ -4411,8 +4481,8 @@
             "angle": 0.0,
             "entity": 281,
             "position": [
-                905.053955078125,
-                572.864501953125
+                539.7804565429688,
+                592.0355224609375
             ],
             "scale": [
                 60.0,
@@ -4427,8 +4497,8 @@
             "angle": 0.0,
             "entity": 282,
             "position": [
-                1643.039794921875,
-                1363.654541015625
+                1277.7838134765625,
+                1382.8370361328125
             ],
             "scale": [
                 440.0,
@@ -4443,8 +4513,8 @@
             "angle": 0.0,
             "entity": 283,
             "position": [
-                1450.54541015625,
-                1363.654541015625
+                1085.28466796875,
+                1382.8370361328125
             ],
             "scale": [
                 50.0,
@@ -4459,40 +4529,56 @@
             "angle": 0.0,
             "entity": 284,
             "position": [
-                1327.537353515625,
-                1230.15087890625
+                1044.337646484375,
+                1178.6044921875
             ],
             "scale": [
                 50.0,
                 50.0
             ],
             "velocity": [
-                58.304039001464844,
-                -47.17668151855469
+                5.814659118652344,
+                -74.77425384521484
             ]
         },
         {
             "angle": 0.0,
-            "entity": 13162,
+            "entity": 696,
             "position": [
-                1985.7269287109375,
-                1023.6851806640625
+                528.5492553710938,
+                904.2638549804688
+            ],
+            "scale": [
+                50.0,
+                50.0
+            ],
+            "velocity": [
+                71.1339340209961,
+                -23.768962860107422
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 3222,
+            "position": [
+                1737.4659423828125,
+                1683.1368408203125
             ],
             "scale": [
                 -50.0,
                 50.0
             ],
             "velocity": [
-                0.0,
-                0.0
+                -26.081186294555664,
+                -39.09779357910156
             ]
         },
         {
             "angle": 0.0,
-            "entity": 1543,
+            "entity": 1367,
             "position": [
-                1534.47998046875,
-                1254.283447265625
+                1080.0,
+                720.0
             ],
             "scale": [
                 50.0,
@@ -4505,10 +4591,42 @@
         },
         {
             "angle": 0.0,
-            "entity": 2137,
+            "entity": 2374,
             "position": [
-                905.0555419921875,
-                572.8651123046875
+                2376.2890625,
+                1369.588623046875
+            ],
+            "scale": [
+                -50.0,
+                50.0
+            ],
+            "velocity": [
+                -22.235740661621094,
+                -7.601860046386719
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 7234,
+            "position": [
+                1056.385986328125,
+                1023.655517578125
+            ],
+            "scale": [
+                10.0,
+                10.0
+            ],
+            "velocity": [
+                -15.506990432739258,
+                199.39791870117188
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 5556,
+            "position": [
+                1080.0,
+                720.0
             ],
             "scale": [
                 60.0,
@@ -4521,22 +4639,35 @@
         },
         {
             "angle": 0.0,
-            "entity": 13738,
+            "entity": 1515,
             "position": [
-                1985.7269287109375,
-                1023.6851806640625
+                272.0465087890625,
+                770.4644165039063
             ],
             "scale": [
-                -50.0,
+                50.0,
                 50.0
             ],
             "velocity": [
-                0.0,
-                0.0
+                45.8786735534668,
+                10.1986665725708
             ]
         }
     ],
-    "20": null,
+    "20": [
+        {
+            "damage": 10.0,
+            "direction": [
+                0.0,
+                0.0
+            ],
+            "entity": 7234,
+            "invincible": false,
+            "lifetime_ms": 2000.0,
+            "source": 5556,
+            "speed": 200.0
+        }
+    ],
     "21": [
         {
             "camera_height": 864.0,
@@ -4544,8 +4675,8 @@
             "entity": 280,
             "lerp_factor": 0.10000000149011612,
             "position": [
-                1643.039794921875,
-                974.8622436523438
+                1277.7838134765625,
+                994.0362548828125
             ]
         }
     ],
@@ -4561,20 +4692,20 @@
             "health": 20.0,
             "is_attacking": false,
             "stop_distance": 300.0,
-            "target": 279
+            "target": 5556
         },
         {
             "arrow_fired": false,
             "attack_cooldown_ms": 1800.0,
             "attack_range": 400.0,
-            "attack_timer_ms": 1019.4447021484375,
-            "cooldown_timer_ms": 1019.4447021484375,
-            "current_state": 2,
-            "entity": 1543,
+            "attack_timer_ms": 0.0,
+            "cooldown_timer_ms": 0.0,
+            "current_state": 1,
+            "entity": 696,
             "health": 20.0,
-            "is_attacking": true,
+            "is_attacking": false,
             "stop_distance": 300.0,
-            "target": 279
+            "target": 5556
         }
     ],
     "23": null,
@@ -4594,7 +4725,28 @@
             ]
         },
         {
-            "entity": 1543,
+            "entity": 696,
+            "scale": [
+                5.0,
+                5.0
+            ]
+        },
+        {
+            "entity": 1515,
+            "scale": [
+                5.0,
+                5.0
+            ]
+        },
+        {
+            "entity": 2374,
+            "scale": [
+                5.0,
+                5.0
+            ]
+        },
+        {
+            "entity": 3222,
             "scale": [
                 5.0,
                 5.0
@@ -4604,20 +4756,35 @@
     "25": [
         {
             "entity": 284,
+            "health": 10.0,
+            "speed": 0.0
+        },
+        {
+            "entity": 696,
             "health": 20.0,
             "speed": 0.0
         },
         {
-            "entity": 1543,
-            "health": 20.0,
-            "speed": 0.0
+            "entity": 1515,
+            "health": 80.0,
+            "speed": 2.0
+        },
+        {
+            "entity": 2374,
+            "health": 80.0,
+            "speed": 1.0
+        },
+        {
+            "entity": 3222,
+            "health": 80.0,
+            "speed": 2.0
         }
     ],
     "26": [
         {
             "entity": 279,
             "seedCount": {
-                "0": 5
+                "0": 4
             }
         }
     ],
@@ -4640,9 +4807,6 @@
         },
         {
             "entity": 283
-        },
-        {
-            "entity": 2137
         }
     ],
     "29": [
@@ -5023,21 +5187,34 @@
     "30": null,
     "31": [
         {
-            "entity": 13162
-        },
-        {
-            "entity": 13738
+            "entity": 1367
         }
     ],
     "32": null,
     "33": null,
     "34": [
         {
-            "entity": 2137
+            "entity": 281
         }
     ],
-    "4": null,
-    "5": null,
+    "4": [
+        {
+            "entity": 5556,
+            "original_size": [
+                1.0,
+                1.0
+            ],
+            "vertex_indices": [],
+            "vertices": []
+        }
+    ],
+    "5": [
+        {
+            "entity": 5556,
+            "height": 60,
+            "width": 60
+        }
+    ],
     "6": [
         {
             "entity": 11,
@@ -6651,7 +6828,7 @@
             "entity": 279,
             "used_effect": 6,
             "used_geometry": 1,
-            "used_texture": 124
+            "used_texture": 125
         },
         {
             "entity": 281,
@@ -6675,28 +6852,61 @@
             "entity": 284,
             "used_effect": 5,
             "used_geometry": 1,
+            "used_texture": 58
+        },
+        {
+            "entity": 696,
+            "used_effect": 5,
+            "used_geometry": 1,
             "used_texture": 64
         },
         {
-            "entity": 2137,
-            "used_effect": 2,
-            "used_geometry": 1,
-            "used_texture": 154
-        },
-        {
-            "entity": 1543,
+            "entity": 3222,
             "used_effect": 5,
             "used_geometry": 1,
-            "used_texture": 68
+            "used_texture": 83
+        },
+        {
+            "entity": 2374,
+            "used_effect": 5,
+            "used_geometry": 1,
+            "used_texture": 99
+        },
+        {
+            "entity": 7234,
+            "used_effect": 2,
+            "used_geometry": 1,
+            "used_texture": 41
+        },
+        {
+            "entity": 5556,
+            "used_effect": 5,
+            "used_geometry": 1,
+            "used_texture": 141
+        },
+        {
+            "entity": 1515,
+            "used_effect": 5,
+            "used_geometry": 1,
+            "used_texture": 90
         }
     ],
     "7": null,
-    "8": null,
+    "8": [
+        {
+            "damage": 10.0,
+            "entity": 5556,
+            "health": 100.0,
+            "range": 2000.0,
+            "state": true,
+            "timer_ms": 2000
+        }
+    ],
     "9": null,
     "current_day": 1,
     "current_seed": 0,
     "game_is_over": false,
     "game_screen": 5,
-    "id_count": 17068,
+    "id_count": 8484,
     "level": 1
 }

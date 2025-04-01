@@ -404,7 +404,6 @@ void WorldSystem::start_cg(RenderSystem *renderer)
 	else {
 		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
 	}
-	std::cout << "what hello hello?" << std::endl;
 }
 
 // Reset the world state to its initial state
@@ -1133,7 +1132,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				vec2 player_size = registry.motions.get(player).scale;
 				ParticleSystem::createLevelUpEffect(player_pos, player_size);
 				if (level == 2) {
-					std::cout<<"hihi"<<std::endl;
 					registry.screenStates.components[0].cutscene = 3;
 					registry.screenStates.components[0].cg_index = 0;
 					return start_cg(renderer);
@@ -1225,21 +1223,21 @@ bool WorldSystem::detectButtons() {
 				start_cg(renderer);
 			}
 			if (b.type == BUTTON_ID::LOAD) {
-				std::cout<<"load"<<std::endl;
 				loadGame();
 				game_screen = GAME_SCREEN_ID::PLAYING;
 			}
-			else if (b.type == BUTTON_ID::TUTORIAL)
+			else if (b.type == BUTTON_ID::TUTORIAL) {
 				restart_tutorial();
-			else if (b.type == BUTTON_ID::QUIT) {
-				std::cout<<"quit"<<std::endl;
+			} else if (b.type == BUTTON_ID::QUIT) {
 				
-				(game_screen == GAME_SCREEN_ID::SPLASH ? close_window():restart_splash_screen());
-
-				std::cout<<(int)game_screen<<std::endl;
+				if (game_screen == GAME_SCREEN_ID::SPLASH) {
+					close_window();
+				} else {
+					game_screen = GAME_SCREEN_ID::SPLASH;
+					restart_splash_screen();
+				}
 			}
 			else if (b.type == BUTTON_ID::SAVE) {
-				std::cout<<"save"<<std::endl;
 				game_screen == GAME_SCREEN_ID::PLAYING;
 				clearButtons();
 				saveGame();
@@ -1643,7 +1641,6 @@ void WorldSystem::loadGame()
 		json death_json = death_arr[i];
 		Entity e = Entity(death_json["entity"]);
 		Death &death = registry.deaths.emplace(e);
-		std::cout << e.id() << std::endl;
 	}
 
 	json cooldown_arr = jsonFile["17"];

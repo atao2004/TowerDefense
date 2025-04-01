@@ -469,7 +469,6 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 			drawTexturedMesh(entity, projection_2D);
 		}
 
-		drawToScreen();
 		if (game_screen == GAME_SCREEN_ID::SPLASH)
 			renderText("Farmer Defense", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100, OS_RES, {0, 0, 0}, trans);
 		else
@@ -528,10 +527,11 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 					renderText("Alright...", 60, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 			}
 		}
+		
+		drawToScreen();
 	}
 	else
 	{
-		
 		// draw all entities with a render request to the frame buffer
 		for (Entity entity : registry.renderRequests.entities)
 		{
