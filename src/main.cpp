@@ -40,6 +40,7 @@ int main()
 	SeedSystem seed_system;
 	MovementSystem movement_system;
 	ParticleSystem particle_system;
+	PlayerSystem player_system;
 
 	// initialize window
 	GLFWwindow *window = world_system.create_window();
@@ -98,6 +99,7 @@ int main()
 	FrameManager fm_particle = FrameManager(1);
 	FrameManager fm_seed = FrameManager(5);
 	FrameManager fm_render = FrameManager(5);
+	FrameManager fm_player = FrameManager(5);
 
 	while (!world_system.is_over())
 	{
@@ -156,6 +158,8 @@ int main()
 				if (world_system.get_game_screen() == GAME_SCREEN_ID::CG)
 					continue;
 
+				if (fm_player.can_update())
+					player_system.step(fm_player.get_time());
 				if (fm_tower.can_update())
 					tower_system.step(fm_tower.get_time());
 				if (fm_movement.can_update())

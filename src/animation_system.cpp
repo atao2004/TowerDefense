@@ -2,7 +2,6 @@
 #include "animation_system.hpp"
 #include "world_init.hpp"
 #include <iostream>
-#include "player_system.hpp"
 
 RenderSystem *AnimationSystem::renderer;
 
@@ -89,12 +88,6 @@ void AnimationSystem::handle_animation_end(Entity entity)
     {
         Motion &motion = registry.motions.get(entity);
         createOrc(renderer, motion.position);
-    }
-
-    // Handle player state change
-    if (registry.states.has(entity))
-    {
-        PlayerSystem::update_state(STATE::IDLE);
     }
 
     // If animation was set to destroy entity when done
