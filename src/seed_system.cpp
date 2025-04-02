@@ -24,7 +24,7 @@ void SeedSystem::step(float elapsed_ms)
 				pos.y = registry.motions.get(i).position.y;
 				registry.remove_all_components_of(i);
 				registry.seeds.remove(i);
-				createTower(renderer, { pos.x - GRID_CELL_WIDTH_PX / 2, pos.y - GRID_CELL_HEIGHT_PX / 2 });
+				createPlant1(renderer, { pos.x - GRID_CELL_WIDTH_PX / 2, pos.y - GRID_CELL_HEIGHT_PX / 2 });
 				
 				if (registry.screenStates.components[0].seed_cg) {
 					registry.screenStates.components[0].seed_cg = false;

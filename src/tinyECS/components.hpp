@@ -3,6 +3,7 @@
 #include <vector>
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
+#include "plants.hpp"
 
 #ifdef Status
 #undef Status
@@ -318,6 +319,17 @@ struct Animation
             {"loop", loop},
             {"lock", lock},
             {"destroy", destroy}};
+    }
+};
+
+struct PlantAnimation
+{
+    PLANT_ID id;
+
+    json toJSON() const
+    {
+        return json{
+            {"id", id}};
     }
 };
 
