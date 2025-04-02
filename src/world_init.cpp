@@ -162,15 +162,15 @@ Entity createSlime(RenderSystem* renderer, vec2 position)
 }
 
 
-Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage, int range, PLANT_ID id)
+Entity createPlant(RenderSystem* renderer, vec2 position, PLANT_ID id)
 {
 	Entity entity = Entity();
 
 	// Basic tower stats
 	Tower &tower = registry.towers.emplace(entity);
-	tower.health = health;
-	tower.damage = damage;
-	tower.range = range; // Detection range in pixels
+	tower.health = PLANT_STATS_MAP.at(id).health;
+	tower.damage = PLANT_STATS_MAP.at(id).damage;
+	tower.range = PLANT_STATS_MAP.at(id).range; // Detection range in pixels
 	tower.timer_ms = 2000.0f; // Attack every 2 second (unused ?)
 	tower.state = false;
 
@@ -206,21 +206,6 @@ Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage
 	AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(id).idle.duration, PLANT_ANIMATION_MAP.at(id).idle.textures, PLANT_ANIMATION_MAP.at(id).idle.size, true, false, false);
 
 	return entity;
-}
-
-Entity createPlant1(RenderSystem* renderer, vec2 position)
-{
-	return createTower(renderer, position, PLANT_1_HEALTH, PLANT_1_DAMAGE, PLANT_1_RANGE, PLANT_ID::PLANT_1);
-}
-
-Entity createPlant2(RenderSystem* renderer, vec2 position)
-{
-	return createTower(renderer, position, PLANT_2_HEALTH, PLANT_2_DAMAGE, PLANT_2_RANGE, PLANT_ID::PLANT_2);
-}
-
-Entity createPlant3(RenderSystem* renderer, vec2 position)
-{
-	return createTower(renderer, position, PLANT_3_HEALTH, PLANT_3_DAMAGE, PLANT_3_RANGE, PLANT_ID::PLANT_3);
 }
 
 // Kung: Create the grass texture that will be used as part of the texture map.
@@ -773,7 +758,7 @@ Entity createSeed(vec2 pos, int type)
 	// Render the object.
 	registry.renderRequests.insert(
 		seed_entity,
-		{SEED_TEXTURE_MAP.at(type),
+		{SEED_MAP.at(type).texture,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
@@ -806,7 +791,7 @@ Entity createSeedInventory(vec2 pos, vec2 velocity, int type, int toolbar_pos)
 	registry.renderRequests.insert(
 		seed_entity,
 		{
-			SEED_TEXTURE_MAP.at(type),
+			SEED_MAP.at(type).texture,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}

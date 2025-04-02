@@ -21,10 +21,7 @@ Entity createWerewolf(RenderSystem* renderer, vec2 position);
 Entity createSlime(RenderSystem* renderer, vec2 position);
 
 // towers
-Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage, int range, PLANT_ID id);
-Entity createPlant1(RenderSystem* renderer, vec2 position);
-Entity createPlant2(RenderSystem* renderer, vec2 position);
-Entity createPlant3(RenderSystem* renderer, vec2 position);
+Entity createPlant(RenderSystem* renderer, vec2 position, PLANT_ID id);
 
 // chicken
 Entity createChicken(RenderSystem* renderer);
