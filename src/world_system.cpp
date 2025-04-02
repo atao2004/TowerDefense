@@ -26,6 +26,7 @@ bool WorldSystem::game_is_over = false;
 Mix_Chunk *WorldSystem::game_over_sound = nullptr;
 GAME_SCREEN_ID WorldSystem::game_screen = GAME_SCREEN_ID::SPLASH;
 int WorldSystem::current_day = 1;
+bool WorldSystem::player_is_dashing = false;
 
 // create the world
 WorldSystem::WorldSystem() : points(0), level(1), current_seed(0)
@@ -174,7 +175,8 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 	restart_splash_screen();
 }
 
-void WorldSystem::restart_splash_screen() {
+void WorldSystem::restart_splash_screen()
+{
 	game_screen = GAME_SCREEN_ID::SPLASH;
 	createScreen(renderer, TEXTURE_ASSET_ID::BACKGROUND);
 	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5));
@@ -243,6 +245,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		update_enemy_death_animations(elapsed_ms_since_last_update);
 		update_movement_sound(elapsed_ms_since_last_update);
 		update_screen_shake(elapsed_ms_since_last_update);
+
+		update_dash(elapsed_ms_since_last_update);
 
 		// Summon the chicken when in low health
 		ScreenState &screen = registry.screenStates.components[0];
@@ -400,10 +404,12 @@ void WorldSystem::start_cg(RenderSystem *renderer)
 	game_screen = GAME_SCREEN_ID::CG;
 	int cg_idx = registry.screenStates.components[0].cg_index;
 	int cutscene = registry.screenStates.components[0].cutscene;
-	if (cutscene == 1) {
+	if (cutscene == 1)
+	{
 		createScreen(renderer, TEXTURE_ASSET_ID::NIGHT_BG);
 	}
-	else {
+	else
+	{
 		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
 	}
 	std::cout << "what hello hello?" << std::endl;
@@ -572,13 +578,14 @@ void WorldSystem::increase_exp_player()
 		vec2 player_size = registry.motions.get(player_entity).scale;
 		ParticleSystem::createLevelUpEffect(player_pos, player_size);
 
-		if (level == 2) {
-			std::cout<<"hihi"<<std::endl;
+		if (level == 2)
+		{
+			std::cout << "hihi" << std::endl;
 			registry.screenStates.components[0].cutscene = 3;
 			registry.screenStates.components[0].cg_index = 0;
 			return start_cg(renderer);
 		}
-		
+
 		std::cout << "==== LEVEL " << level << " ====" << std::endl;
 	}
 }
@@ -1025,7 +1032,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
 
 	// Kung: Plant seed with the right click button (F button retained for debugging)
-	if ((action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_RIGHT) || (action == GLFW_PRESS && key == GLFW_KEY_F)|| (key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT))
+	if ((action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_RIGHT) || (action == GLFW_PRESS && key == GLFW_KEY_F) || (key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT))
 	{
 		plant_seed();
 	}
@@ -1038,6 +1045,57 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	else
 	{
 		player_movement(key, action, motion);
+	}
+
+	// Add this case in the on_key function where other key inputs are handled
+	if (action == GLFW_PRESS && key == GLFW_KEY_SPACE && !player_is_dashing && dash_cooldown_ms <= 0.0f)
+	{
+		// Get player entity and motion
+		Entity player = registry.players.entities[0];
+		Motion &motion = registry.motions.get(player);
+
+		// Determine dash direction - use current movement direction or facing direction if not moving
+		dash_direction = motion.velocity;
+		if (length(dash_direction) < 0.1f) // Not moving, use facing direction
+		{
+			dash_direction.x = motion.scale.x > 0 ? 1.0f : -1.0f;
+			dash_direction.y = 0.0f;
+		}
+		else
+		{
+			// Normalize the direction vector
+			dash_direction = normalize(dash_direction);
+		}
+
+		// Start the dash
+		player_is_dashing = true;
+		dash_timer_ms = PLAYER_DASH_DURATION_MS;
+
+		// Apply the dash velocity to all moveWithCamera entities
+		for (Entity mwc_entity : registry.moveWithCameras.entities)
+		{
+			if (registry.motions.has(mwc_entity))
+			{
+				Motion &mwc_motion = registry.motions.get(mwc_entity);
+
+				// Calculate dash velocity based on direction and speed
+				vec2 dash_velocity = dash_direction * PLAYER_DASH_SPEED_MULTIPLIER;
+
+				// Apply dash velocity (accounting for normal movement limits)
+				if (dash_direction.x > 0)
+					mwc_motion.velocity.x = PLAYER_MOVE_RIGHT_SPEED * PLAYER_DASH_SPEED_MULTIPLIER;
+				else if (dash_direction.x < 0)
+					mwc_motion.velocity.x = PLAYER_MOVE_LEFT_SPEED * PLAYER_DASH_SPEED_MULTIPLIER;
+
+				if (dash_direction.y > 0)
+					mwc_motion.velocity.y = PLAYER_MOVE_DOWN_SPEED * PLAYER_DASH_SPEED_MULTIPLIER;
+				else if (dash_direction.y < 0)
+					mwc_motion.velocity.y = PLAYER_MOVE_UP_SPEED * PLAYER_DASH_SPEED_MULTIPLIER;
+			}
+		}
+
+		// Play dash sound effect if you have one
+		// Mix_PlayChannel(1, dash_sound, 0);
 	}
 
 	// Update state if player is moving
@@ -1118,7 +1176,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		}
 	}
 
-	if (action == GLFW_PRESS && key == GLFW_KEY_H) {
+	if (action == GLFW_PRESS && key == GLFW_KEY_H)
+	{
 		// Get player entity
 		Entity player = registry.players.entities[0];
 		// Set player health to a very high value
@@ -1129,7 +1188,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	// key to start challenge
-	if (action == GLFW_PRESS && key == GLFW_KEY_B) {
+	if (action == GLFW_PRESS && key == GLFW_KEY_B)
+	{
 		// Debug key to start challenge
 		current_day = 5;
 	}
@@ -1155,8 +1215,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				vec2 player_pos = registry.motions.get(player).position;
 				vec2 player_size = registry.motions.get(player).scale;
 				ParticleSystem::createLevelUpEffect(player_pos, player_size);
-				if (level == 2) {
-					std::cout<<"hihi"<<std::endl;
+				if (level == 2)
+				{
+					std::cout << "hihi" << std::endl;
 					registry.screenStates.components[0].cutscene = 3;
 					registry.screenStates.components[0].cg_index = 0;
 					return start_cg(renderer);
@@ -1216,7 +1277,8 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 				if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
 					mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT / 2)
 				{
-					if (b.type == BUTTON_ID::START) {
+					if (b.type == BUTTON_ID::START)
+					{
 						registry.screenStates.components[0].cutscene = 1;
 						registry.screenStates.components[0].cg_index = 0;
 						return start_cg(renderer);
@@ -1239,8 +1301,9 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 		{
 			int cg_index = registry.screenStates.components[0].cg_index++;
 			int cutscene = registry.screenStates.components[0].cutscene;
-			std::cout <<cutscene<<" "<< cg_index << std::endl;
-			if (cutscene == 1 && cg_index == 6) {
+			std::cout << cutscene << " " << cg_index << std::endl;
+			if (cutscene == 1 && cg_index == 6)
+			{
 				for (int i = registry.cgs.entities.size() - 1; i >= 0; i--)
 					registry.remove_all_components_of(registry.cgs.entities[i]);
 				createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
@@ -1264,8 +1327,8 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			}
 			else if (cutscene == 3 && cg_index == 0)
 			{
-				std::cout<<"cutscene == 3 wowowo"<<std::endl;
-				std::cout<<(int)game_screen<<std::endl;
+				std::cout << "cutscene == 3 wowowo" << std::endl;
+				std::cout << (int)game_screen << std::endl;
 				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 300, WINDOW_HEIGHT_PX - 250), vec2(200, 200), TEXTURE_ASSET_ID::CHICKEN_CG);
 				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX - 250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
 			}
@@ -1770,12 +1833,14 @@ void WorldSystem::loadGame()
 
 void WorldSystem::saveGame()
 {
-	if (chicken_summoned) {
-		std::cout<<"Chicken summoned, cannot save, please give it some time to fly."<<std::endl;
+	if (chicken_summoned)
+	{
+		std::cout << "Chicken summoned, cannot save, please give it some time to fly." << std::endl;
 		return;
 	}
-	if (game_screen == GAME_SCREEN_ID::CG) {
-		std::cout<<"Finish the cutscene before trying to save."<<std::endl;
+	if (game_screen == GAME_SCREEN_ID::CG)
+	{
+		std::cout << "Finish the cutscene before trying to save." << std::endl;
 		return;
 	}
 	json jsonFile;
@@ -1808,7 +1873,7 @@ void WorldSystem::plant_seed()
 {
 	// Get player's motion component
 	Entity player = registry.players.entities[0];
-	Motion& motion = registry.motions.get(player);
+	Motion &motion = registry.motions.get(player);
 
 	// Calculate player's current cell for proximity checking
 	int cell_x = static_cast<int>((motion.position.x + GRID_CELL_WIDTH_PX / 2) / GRID_CELL_WIDTH_PX);
@@ -1891,4 +1956,56 @@ void WorldSystem::plant_seed()
 		// No valid farmland found
 		std::cout << "No available farmland nearby. Move closer to farmland." << std::endl;
 	}
+}
+
+void WorldSystem::update_dash(float elapsed_ms_since_last_update)
+{
+    if (player_is_dashing)
+    {
+        dash_timer_ms -= elapsed_ms_since_last_update;
+
+        if (dash_timer_ms <= 0)
+        {
+            // End the dash
+            player_is_dashing = false;
+            dash_timer_ms = 0.0f;
+            dash_cooldown_ms = PLAYER_DASH_COOLDOWN_MS;
+
+            // Reset velocities to zero
+            for (Entity mwc_entity : registry.moveWithCameras.entities)
+            {
+                if (registry.motions.has(mwc_entity))
+                {
+                    Motion &mwc_motion = registry.motions.get(mwc_entity);
+                    mwc_motion.velocity = vec2(0.0f, 0.0f);
+                    
+                    // Re-apply velocity for any keys that are still being pressed
+                    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+                        mwc_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
+                    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+                        mwc_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
+                    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+                        mwc_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+                    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+                        mwc_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+                }
+            }
+            
+            // Update player state based on resulting velocity
+            Entity player = registry.players.entities[0];
+            Motion &motion = registry.motions.get(player);
+            if (motion.velocity == vec2(0, 0))
+                PlayerSystem::update_state(STATE::IDLE);
+            else
+                PlayerSystem::update_state(STATE::MOVE);
+        }
+    }
+
+    // Handle dash cooldown
+    if (dash_cooldown_ms > 0)
+    {
+        dash_cooldown_ms -= elapsed_ms_since_last_update;
+        if (dash_cooldown_ms < 0)
+            dash_cooldown_ms = 0;
+    }
 }

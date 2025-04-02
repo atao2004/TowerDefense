@@ -68,6 +68,8 @@ public:
 
 	static int get_current_day() { return current_day; }
 
+	static bool player_is_dashing;
+
 private:
 	static int current_day;
 
@@ -149,4 +151,11 @@ private:
 	void saveGame();
 
 	void plant_seed();
+
+	// Player dash
+	void update_dash(float elapsed_ms_since_last_update);
+	
+    float dash_timer_ms = 0.0f;
+    float dash_cooldown_ms = 0.0f;
+    vec2 dash_direction = {0.0f, 0.0f};
 };

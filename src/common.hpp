@@ -690,6 +690,11 @@ const int ZOMBIE_SPAWN_DURATION = 3000;
 const int SLASH_DURATION = PLAYER_ATTACK_DURATION;
 const int PLANT_ATTACK_DURATION = 2000;
 
+/// player dash
+const float PLAYER_DASH_SPEED_MULTIPLIER = 2.5f; // Dash is 2.5x faster than normal movement
+const float PLAYER_DASH_DURATION_MS = 200.0f;    // Dash lasts 200ms
+const float PLAYER_DASH_COOLDOWN_MS = 1000.0f;   // Can dash once per second
+
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)
 // We recommend making all components non-copyable by derving from ComponentNonCopyable
@@ -702,3 +707,5 @@ struct Transform
 };
 
 bool gl_has_errors();
+
+
