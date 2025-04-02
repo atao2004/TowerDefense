@@ -686,6 +686,11 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 
 	Inventory &inventory = registry.inventorys.emplace(entity);
 	registry.inventorys.components[0].seedCount[0] = 5; // 5 starter seeds
+	for(int i = 0; i < NUM_SEED_TYPES; i++)
+	{
+		registry.inventorys.components[0].seedCount[i] = 1; // one each of the 8 seed types
+		registry.inventorys.components[0].seedAtToolbar[i] = i;
+	}
 
 	MoveWithCamera &mwc = registry.moveWithCameras.emplace(entity);
 	Motion &motion = registry.motions.emplace(entity);
@@ -775,7 +780,7 @@ Entity createSeed(vec2 pos, int type)
 }
 
 // Kung: Create the seed that appears within the toolbar.
-Entity createSeedInventory(vec2 pos, vec2 velocity, int type)
+Entity createSeedInventory(vec2 pos, vec2 velocity, int type, int toolbar_pos)
 {
 	// Create the associated entity.
 	Entity seed_entity = Entity();
