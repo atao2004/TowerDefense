@@ -81,23 +81,23 @@ void TowerSystem::fire_projectile(Entity tower, Entity target)
          GEOMETRY_BUFFER_ID::SPRITE});
 }
 
-bool TowerSystem::find_nearest_enemy(Entity entity, Entity& target)
+bool TowerSystem::find_nearest_enemy(Entity entity, Entity &target)
 {
     if (registry.towers.has(entity) && registry.motions.has(entity))
     {
-        Tower& tower = registry.towers.get(entity);
-        Motion& motion = registry.motions.get(entity);
+        Tower &tower = registry.towers.get(entity);
+        Motion &motion = registry.motions.get(entity);
 
         float min_dist = tower.range;
 
-    for (Entity enemy : registry.enemies.entities)
-    {
-        if (!registry.motions.has(enemy))
+        for (Entity enemy : registry.enemies.entities)
         {
-            continue;
-        }
+            if (!registry.motions.has(enemy))
+            {
+                continue;
+            }
 
-            Motion& enemy_motion = registry.motions.get(enemy);
+            Motion &enemy_motion = registry.motions.get(enemy);
             vec2 diff = enemy_motion.position - motion.position;
             float dist = sqrt(dot(diff, diff));
 
@@ -109,6 +109,6 @@ bool TowerSystem::find_nearest_enemy(Entity entity, Entity& target)
             }
         }
     }
-    
+
     return false;
 }

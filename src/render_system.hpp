@@ -163,6 +163,27 @@ class RenderSystem
 		textures_path("enemies/werewolf/Werewolf_Walk_7.png"),
 		textures_path("enemies/werewolf/Werewolf_Walk_8.png"),
 
+		textures_path("enemies/orc_rider/Orcrider_Idle1.png"),
+		textures_path("enemies/orc_rider/Orcrider_Idle2.png"),
+		textures_path("enemies/orc_rider/Orcrider_Idle3.png"),
+		textures_path("enemies/orc_rider/Orcrider_Idle4.png"),
+		textures_path("enemies/orc_rider/Orcrider_Idle5.png"),
+		textures_path("enemies/orc_rider/Orcrider_Idle6.png"),
+
+		textures_path("enemies/orc_rider/Orcrider_Walk1.png"),
+		textures_path("enemies/orc_rider/Orcrider_Walk2.png"),
+		textures_path("enemies/orc_rider/Orcrider_Walk3.png"),
+		textures_path("enemies/orc_rider/Orcrider_Walk4.png"),
+		textures_path("enemies/orc_rider/Orcrider_Walk5.png"),
+		textures_path("enemies/orc_rider/Orcrider_Walk6.png"),
+		textures_path("enemies/orc_rider/Orcrider_Walk7.png"),
+		textures_path("enemies/orc_rider/Orcrider_Walk8.png"),
+
+		textures_path("enemies/orc_rider/Orcrider_Hunt1.png"),
+		textures_path("enemies/orc_rider/Orcrider_Hunt2.png"),
+		textures_path("enemies/orc_rider/Orcrider_Hunt3.png"),
+		textures_path("enemies/orc_rider/Orcrider_Hunt4.png"),
+
 		textures_path("player/playerIdle(100)/Player-Idle1.png"),
 		textures_path("player/playerIdle(100)/Player-Idle2.png"),
 		textures_path("player/playerIdle(100)/Player-Idle3.png"),

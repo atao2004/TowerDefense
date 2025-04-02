@@ -167,14 +167,15 @@ struct Zombie
     }
 };
 
-struct Enemy {
-	float health;
+struct Enemy
+{
+    float health;
     float speed;
-	json toJSON() const {
+    json toJSON() const
+    {
         return json{
             {"health", health},
-            {"speed", speed}
-        };
+            {"speed", speed}};
     }
 };
 
@@ -214,6 +215,55 @@ struct Skeleton
             {"arrow_fired", arrow_fired},
             {"current_state", static_cast<int>(current_state)} // Enum to int
         };
+    }
+};
+
+struct OrcRider
+{
+    enum class State
+    {
+        IDLE,
+        WALK,
+        HUNT
+    };
+
+    State current_state = State::IDLE;
+    Entity target = {};
+
+    float detection_range = 100000.0f; // Range to start walking towards player
+    float hunt_range = 500.0f;        // Range to start hunting behavior
+    float charge_speed = 400.0f;      // Speed during charge
+    float walk_speed = 150.0f;        // Speed when walking
+    float charge_distance = 400.0f;   // How far to charge
+    int damage = 20;                  // Damage on successful charge hit
+
+    // Hunting control variables
+    bool is_hunting = false;
+    bool is_charging = false;
+    float hunt_timer_ms = 0.0f;           // Timer for the hunt animation
+    float charge_timer_ms = 0.0f;         // Timer for the charge
+    vec2 charge_direction = {0.0f, 0.0f}; // Direction of charge
+
+    // For collision detection during charge
+    bool has_hit_player = false;
+
+    json toJSON() const
+    {
+        return json{
+            {"current_state", static_cast<int>(current_state)},
+            {"target", target.id()},
+            {"detection_range", detection_range},
+            {"hunt_range", hunt_range},
+            {"charge_speed", charge_speed},
+            {"walk_speed", walk_speed},
+            {"charge_distance", charge_distance},
+            {"damage", damage},
+            {"is_hunting", is_hunting},
+            {"is_charging", is_charging},
+            {"hunt_timer_ms", hunt_timer_ms},
+            {"charge_timer_ms", charge_timer_ms},
+            {"charge_direction", {charge_direction.x, charge_direction.y}},
+            {"has_hit_player", has_hit_player}};
     }
 };
 
@@ -279,10 +329,10 @@ struct Seed
 
 enum class STATE
 {
-	IDLE = 0,
-	MOVE = 1,
-	ATTACK = 2,
-	LEVEL_UP = 3,
+    IDLE = 0,
+    MOVE = 1,
+    ATTACK = 2,
+    LEVEL_UP = 3,
     STATE_COUNT = LEVEL_UP + 1
 };
 
@@ -437,16 +487,17 @@ struct ScreenState
     bool game_over = false;
     float lerp_timer = 0.0;
 
-	// Screen shake parameters
-	float shake_duration_ms = 0.f;
-	float shake_intensity = 0.f;
-	vec2 shake_offset = {0.f, 0.f};
+    // Screen shake parameters
+    float shake_duration_ms = 0.f;
+    float shake_intensity = 0.f;
+    vec2 shake_offset = {0.f, 0.f};
 
     int cutscene = 0;
     int cg_index = 0;
     bool seed_cg = true;
 
-	json toJSON() const {
+    json toJSON() const
+    {
         return json{
             {"darken_screen_factor", darken_screen_factor},
             {"game_over_darken", game_over_darken},
@@ -527,10 +578,11 @@ struct Mesh
 // Animation related components
 struct DeathAnimation
 {
-	vec2 slide_direction; // Direction to slide
-	float alpha = 1.0f;	  // Transparency (1.0 = solid, 0.0 = invisible)
-	float duration_ms = 500.0f;	  // How long the animation lasts (Animation lasts 0.5 seconds)
-	json toJSON() const {
+    vec2 slide_direction;       // Direction to slide
+    float alpha = 1.0f;         // Transparency (1.0 = solid, 0.0 = invisible)
+    float duration_ms = 500.0f; // How long the animation lasts (Animation lasts 0.5 seconds)
+    json toJSON() const
+    {
         return json{
             {"slide_direction", {slide_direction.x, slide_direction.y}},
             {"alpha", alpha},
@@ -566,11 +618,13 @@ struct Camera
     }
 };
 
-struct CustomButton {
+struct CustomButton
+{
     BUTTON_ID type;
     vec2 position;
-    json toJSON() const {
-        return json{}; //don't use it, just for compile purpose
+    json toJSON() const
+    {
+        return json{}; // don't use it, just for compile purpose
     }
 };
 // Update your existing Particle struct
@@ -595,14 +649,14 @@ struct Particle
 // Add a ParticleGenerator component
 struct ParticleGenerator
 {
-    std::string type;                      // Type of effect (blood, fire, etc.)
-    unsigned int amount;                   // Maximum number of particles
-    float spawnInterval;                   // Time between spawning particles
-    float timer;                           // Current timer
-    std::vector<Entity> particles;         // List of particle entities
-    bool isActive;                         // Whether generator is active
-    float duration_ms;                     // How long this generator remains active (-1 for infinite)
-    Entity follow_entity = NULL; // Entity to follow (if any)
+    std::string type;              // Type of effect (blood, fire, etc.)
+    unsigned int amount;           // Maximum number of particles
+    float spawnInterval;           // Time between spawning particles
+    float timer;                   // Current timer
+    std::vector<Entity> particles; // List of particle entities
+    bool isActive;                 // Whether generator is active
+    float duration_ms;             // How long this generator remains active (-1 for infinite)
+    Entity follow_entity = NULL;   // Entity to follow (if any)
 
     ParticleGenerator()
         : type("default"), amount(100), spawnInterval(0.1f), timer(0.0f),
@@ -613,21 +667,51 @@ struct ParticleGenerator
     }
 };
 
-struct Text {
+struct Text
+{
     glm::vec2 position;
     glm::vec3 color;
     std::string text;
     float scale;
 
-    //compile purpose, not gonna save it
-    json toJSON() const {
+    // compile purpose, not gonna save it
+    json toJSON() const
+    {
         return json{};
     }
 };
 
-struct CG {
-    //compile purpose, not gonna save it
-    json toJSON() const {
+struct CG
+{
+    // compile purpose, not gonna save it
+    json toJSON() const
+    {
+        return json{};
+    }
+};
+
+struct Squad
+{
+    int squad_id;
+    std::vector<Entity> archers;
+    std::vector<Entity> orcs;
+    std::vector<Entity> knights;
+    vec2 formation_center;
+    vec2 last_player_pos = {0, 0}; // Used to track player movement
+    float coordination_timer = 0.f;
+    bool is_active = true;
+
+    enum class Formation
+    {
+        LINE,
+        DEFENSIVE,
+        FLANKING
+    };
+
+    Formation current_formation = Formation::DEFENSIVE;
+
+    json toJSON() const
+    {
         return json{};
     }
 };

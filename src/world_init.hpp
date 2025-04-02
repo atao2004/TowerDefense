@@ -18,6 +18,7 @@ Entity createCharacter(RenderSystem* renderer, vec2 position, vec2 scale, TEXTUR
 Entity createWerebear(RenderSystem* renderer, vec2 position);
 Entity createWerewolf(RenderSystem* renderer, vec2 position);
 Entity createSlime(RenderSystem* renderer, vec2 position);
+Entity createOrcRider(RenderSystem* renderer, vec2 position);
 
 // towers
 Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage, int range, PLANT_ID id);
