@@ -9,6 +9,7 @@
         "unordered_map": "cpp",
         "vector": "cpp",
         "optional": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "iostream": "cpp"
     }
 }

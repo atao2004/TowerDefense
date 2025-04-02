@@ -2,6 +2,8 @@
 
 #include "common.hpp"
 #include "render_system.hpp"
+#include "tinyECS/tiny_ecs.hpp"
+#include "tinyECS/registry.hpp"
 #include <vector>
 #include <random>
 
@@ -19,7 +21,7 @@ public:
 
     void spawn_enemy(RenderSystem* renderer);
     Entity spawnEnemyByDay(RenderSystem* renderer, vec2 spawn_pos, int current_day);
-
+    bool squad_spawned;
 private:
     struct SpawnPoint {
         vec2 position;
@@ -49,4 +51,6 @@ private:
 
     // Test mode for manual wave generation
     bool test_mode = false;
+
+    Entity start_challenge_day(RenderSystem* renderer, vec2 spawn_pos);
 };

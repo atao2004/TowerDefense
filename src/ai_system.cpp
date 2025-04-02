@@ -44,6 +44,7 @@ void AISystem::update_enemy_behaviors(float elapsed_ms)
     }
     update_skeletons(elapsed_ms);
     update_orcriders(elapsed_ms);
+    update_squads(elapsed_ms);
 }
 
 void AISystem::update_zombie_movement(Entity entity, float elapsed_ms)
@@ -444,12 +445,14 @@ void AISystem::update_skeletons(float elapsed_ms)
 void AISystem::update_orcriders(float elapsed_ms)
 {
     // Skip if no player exists
-    if (registry.players.entities.empty()) {
+    if (registry.players.entities.empty())
+    {
         return;
     }
 
     Entity player = registry.players.entities[0];
-    if (!registry.motions.has(player)) {
+    if (!registry.motions.has(player))
+    {
         return;
     }
 
@@ -457,7 +460,8 @@ void AISystem::update_orcriders(float elapsed_ms)
 
     for (auto entity : registry.orcRiders.entities)
     {
-        if (!registry.motions.has(entity)) {
+        if (!registry.motions.has(entity))
+        {
             continue;
         }
 
@@ -493,8 +497,7 @@ void AISystem::update_orcriders(float elapsed_ms)
                     Status attack_status{
                         "attack",
                         0.0f,
-                        static_cast<float>(orcrider.damage)
-                    };
+                        static_cast<float>(orcrider.damage)};
                     registry.statuses.get(player).active_statuses.push_back(attack_status);
 
                     // Play hit sound
@@ -508,13 +511,13 @@ void AISystem::update_orcriders(float elapsed_ms)
                 orcrider.is_charging = false;
                 orcrider.has_hit_player = false;
                 motion.velocity = {0, 0};
-                
+
                 // Set a small cooldown to prevent instant hunting
                 orcrider.hunt_timer_ms = 300.0f; // Very short cooldown just for animation transition
-                
+
                 // Go back to idle state briefly
                 orcrider.current_state = OrcRider::State::IDLE;
-                
+
                 // Play idle animation briefly
                 AnimationSystem::update_animation(
                     entity,
@@ -620,34 +623,514 @@ void AISystem::update_orcriders(float elapsed_ms)
         {
             switch (orcrider.current_state)
             {
-                case OrcRider::State::IDLE:
-                    // Apply idle animation
+            case OrcRider::State::IDLE:
+                // Apply idle animation
+                AnimationSystem::update_animation(
+                    entity,
+                    ORCRIDER_IDLE_ANIMATION_DURATION,
+                    ORCRIDER_IDLE_ANIMATION,
+                    ORCRIDER_IDLE_ANIMATION_SIZE,
+                    true,  // loop
+                    false, // not locked
+                    false  // don't destroy
+                );
+                break;
+
+            case OrcRider::State::WALK:
+                // Apply walk animation
+                AnimationSystem::update_animation(
+                    entity,
+                    ORCRIDER_WALK_ANIMATION_DURATION,
+                    ORCRIDER_WALK_ANIMATION,
+                    ORCRIDER_WALK_ANIMATION_SIZE,
+                    true,  // loop
+                    false, // not locked
+                    false  // don't destroy
+                );
+                break;
+
+            default:
+                break;
+            }
+        }
+    }
+}
+
+void AISystem::update_squads(float elapsed_ms)
+{
+    // Skip if no player exists
+    if (registry.players.entities.empty())
+        return;
+
+    Entity player = registry.players.entities[0];
+    if (!registry.motions.has(player))
+        return;
+
+    // Process each squad
+    for (auto &squad_entity : registry.squads.entities)
+    {
+        Squad &squad = registry.squads.get(squad_entity);
+
+        if (!squad.is_active)
+            continue;
+
+        // Clean up fallen squad members
+        for (auto it = squad.archers.begin(); it != squad.archers.end();)
+        {
+            if (!registry.motions.has(*it))
+                it = squad.archers.erase(it);
+            else
+                ++it;
+        }
+
+        for (auto it = squad.orcs.begin(); it != squad.orcs.end();)
+        {
+            if (!registry.motions.has(*it))
+                it = squad.orcs.erase(it);
+            else
+                ++it;
+        }
+
+        for (auto it = squad.knights.begin(); it != squad.knights.end();)
+        {
+            if (!registry.motions.has(*it))
+                it = squad.knights.erase(it);
+            else
+                ++it;
+        }
+
+        // If all squad members are dead, deactivate squad
+        if (squad.archers.empty() && squad.orcs.empty() && squad.knights.empty())
+        {
+            squad.is_active = false;
+            continue;
+        }
+
+        // Update the circular formation of archers surrounding the player
+        update_archer_circle_formation(squad, elapsed_ms, player);
+
+        // Update orcs to protect their assigned archers
+        update_orc_protection(squad, elapsed_ms, player);
+
+        // Update the knight to force player away from archers
+        update_knight_herding(squad, elapsed_ms, player);
+    }
+}
+
+void AISystem::update_archer_circle_formation(Squad &squad, float elapsed_ms, Entity player)
+{
+    vec2 player_pos = registry.motions.get(player).position;
+
+    // Store the previous player position if not yet stored
+    if (length(squad.last_player_pos) < 0.1f)
+    {
+        squad.last_player_pos = player_pos;
+        // Force initial positioning when squad is first created
+        squad.coordination_timer = 0.f; // Reset coordination timer
+    }
+
+    // Calculate how much the player has moved since last position check
+    float player_movement = length(player_pos - squad.last_player_pos);
+
+    // Update coordination timer
+    squad.coordination_timer += elapsed_ms;
+
+    // Reposition under three conditions:
+    // 1. Player moved significantly
+    // 2. Initial positioning (first 3 seconds)
+    // 3. Periodic repositioning (every 8 seconds)
+    const float REPOSITION_THRESHOLD = 150.0f;
+    const float INITIAL_POSITIONING_TIME = 3000.0f; // 3 seconds
+    const float PERIODIC_REPOSITION_TIME = 8000.0f; // 8 seconds
+
+    bool should_reposition = player_movement > REPOSITION_THRESHOLD ||
+                             squad.coordination_timer < INITIAL_POSITIONING_TIME ||
+                             (squad.coordination_timer >= PERIODIC_REPOSITION_TIME &&
+                              fmod(squad.coordination_timer, PERIODIC_REPOSITION_TIME) < elapsed_ms);
+
+    // If we're repositioning, update the recorded position
+    if (should_reposition)
+    {
+        squad.last_player_pos = player_pos;
+    }
+
+    // Optimal distance from player for archers
+    const float OPTIMAL_DISTANCE = 400.0f;
+
+    // Process each archer
+    for (size_t i = 0; i < squad.archers.size(); i++)
+    {
+        Entity archer = squad.archers[i];
+        if (!registry.motions.has(archer) || !registry.skeletons.has(archer))
+            continue;
+
+        Skeleton &skeleton = registry.skeletons.get(archer);
+        Motion &motion = registry.motions.get(archer);
+
+        // Previous state for detecting state changes
+        Skeleton::State prev_state = skeleton.current_state;
+
+        // Calculate position in circle around player
+        // Distribute evenly around a full circle (2π radians)
+        float angle = (2.0f * 3.14159f * i) / squad.archers.size();
+
+        // Create a point on the circle at the optimal distance
+        vec2 target_pos = player_pos + vec2(cos(angle), sin(angle)) * OPTIMAL_DISTANCE;
+
+        // Current distance to player
+        vec2 dir_to_player = player_pos - motion.position;
+        float dist_to_player = length(dir_to_player);
+
+        // Distance to target position
+        vec2 to_target = target_pos - motion.position;
+        float dist_to_target = length(to_target);
+
+        // Update cooldown timer for attacks
+        if (skeleton.cooldown_timer_ms > 0)
+        {
+            skeleton.cooldown_timer_ms -= elapsed_ms;
+
+            if (skeleton.is_attacking)
+            {
+                skeleton.attack_timer_ms -= elapsed_ms;
+
+                // Create arrow when attack timer reaches the firing point
+                if (skeleton.attack_timer_ms <= 300 && !skeleton.arrow_fired)
+                {
+                    // Face player before firing
+                    if (dir_to_player.x != 0)
+                        motion.scale.x = (dir_to_player.x > 0) ? abs(motion.scale.x) : -abs(motion.scale.x);
+
+                    // Calculate arrow spawn position
+                    vec2 normalized_dir = normalize(dir_to_player);
+                    vec2 arrow_pos = motion.position + normalized_dir * 30.f;
+
+                    // Create arrow
+                    createArrow(arrow_pos, dir_to_player, archer);
+
+                    // Mark that arrow was fired
+                    skeleton.arrow_fired = true;
+                }
+            }
+        }
+
+        // Reset attack state when cooldown is complete
+        if (skeleton.cooldown_timer_ms <= 0 && skeleton.is_attacking)
+        {
+            skeleton.is_attacking = false;
+            skeleton.arrow_fired = false;
+        }
+
+        // Determine whether to move or attack
+        bool need_to_move = false;
+        bool is_far_from_final_position = dist_to_target > 100.0f;
+
+        // Need to move if:
+        // 1. Far from formation position OR
+        // 2. Player is too close/far AND we should reposition OR
+        // 3. Not in attack range while not attacking
+        if (is_far_from_final_position ||
+            (should_reposition && (dist_to_player < OPTIMAL_DISTANCE - 100.0f ||
+                                   dist_to_player > OPTIMAL_DISTANCE + 100.0f)) ||
+            (!skeleton.is_attacking && dist_to_player > skeleton.attack_range))
+        {
+            need_to_move = true;
+        }
+
+        // Can't move while attacking
+        if (skeleton.is_attacking)
+            need_to_move = false;
+
+        // If we need to move, prioritize movement
+        if (need_to_move)
+        {
+            // Use walking animation and move toward target position
+            motion.velocity = normalize(to_target) * 100.0f;
+            skeleton.current_state = Skeleton::State::WALK;
+
+            // Face movement direction
+            if (to_target.x != 0)
+                motion.scale.x = (to_target.x > 0) ? abs(motion.scale.x) : -abs(motion.scale.x);
+        }
+        else
+        {
+            // In position, stop and handle attack
+            motion.velocity = vec2(0, 0);
+
+            // Set target to player
+            skeleton.target = player;
+
+            // Face player
+            if (dir_to_player.x != 0)
+                motion.scale.x = (dir_to_player.x > 0) ? abs(motion.scale.x) : -abs(motion.scale.x);
+
+            // If cooldown complete and not attacking, start attack
+            // ENSURE we're in attack range here
+            if (skeleton.cooldown_timer_ms <= 0 && !skeleton.is_attacking &&
+                dist_to_player <= skeleton.attack_range)
+            {
+                skeleton.current_state = Skeleton::State::ATTACK;
+                skeleton.is_attacking = true;
+                skeleton.cooldown_timer_ms = skeleton.attack_cooldown_ms;
+                skeleton.attack_timer_ms = skeleton.attack_cooldown_ms;
+                skeleton.arrow_fired = false;
+
+                // Start attack animation
+                AnimationSystem::update_animation(
+                    archer,
+                    SKELETON_ATTACK_DURATION,
+                    SKELETON_ATTACK_ANIMATION,
+                    SKELETON_ATTACK_FRAMES,
+                    false, // don't loop
+                    false, // don't lock
+                    false  // don't destroy
+                );
+            }
+            else if (!skeleton.is_attacking)
+            {
+                // Between attacks, use WALK state with zero velocity
+                skeleton.current_state = Skeleton::State::WALK;
+
+                // Make sure we have the proper walking animation
+                if (!registry.animations.has(archer) ||
+                    registry.animations.get(archer).textures != SKELETON_WALK_ANIMATION)
+                {
                     AnimationSystem::update_animation(
-                        entity,
-                        ORCRIDER_IDLE_ANIMATION_DURATION,
-                        ORCRIDER_IDLE_ANIMATION,
-                        ORCRIDER_IDLE_ANIMATION_SIZE,
+                        archer,
+                        SKELETON_WALK_DURATION,
+                        SKELETON_WALK_ANIMATION,
+                        SKELETON_WALK_FRAMES,
                         true,  // loop
                         false, // not locked
                         false  // don't destroy
                     );
-                    break;
+                }
+            }
+        }
 
-                case OrcRider::State::WALK:
-                    // Apply walk animation
-                    AnimationSystem::update_animation(
-                        entity,
-                        ORCRIDER_WALK_ANIMATION_DURATION,
-                        ORCRIDER_WALK_ANIMATION,
-                        ORCRIDER_WALK_ANIMATION_SIZE,
-                        true,  // loop
-                        false, // not locked
-                        false  // don't destroy
-                    );
-                    break;
+        // Handle animation changes
+        if (prev_state != skeleton.current_state &&
+            !(skeleton.current_state == Skeleton::State::ATTACK &&
+              skeleton.is_attacking && registry.animations.has(archer)))
+        {
+            switch (skeleton.current_state)
+            {
+            case Skeleton::State::IDLE:
+                // We should never reach this - convert IDLE to WALK
+                skeleton.current_state = Skeleton::State::WALK;
+                // Fall through to WALK case
 
-                default:
-                    break;
+            case Skeleton::State::WALK:
+                // Apply walk animation
+                AnimationSystem::update_animation(
+                    archer,
+                    SKELETON_WALK_DURATION,
+                    SKELETON_WALK_ANIMATION,
+                    SKELETON_WALK_FRAMES,
+                    true,  // loop
+                    false, // not locked
+                    false  // don't destroy
+                );
+                break;
+
+            case Skeleton::State::ATTACK:
+                // Attack animation is handled above
+                break;
+            }
+        }
+    }
+}
+
+void AISystem::update_orc_protection(Squad &squad, float elapsed_ms, Entity player)
+{
+    vec2 player_pos = registry.motions.get(player).position;
+
+    // Each orc protects a specific archer (1:1 relationship)
+    for (size_t i = 0; i < squad.orcs.size() && i < squad.archers.size(); i++)
+    {
+        Entity orc = squad.orcs[i];
+        Entity archer = squad.archers[i];
+
+        if (!registry.motions.has(orc) || !registry.motions.has(archer))
+            continue;
+
+        Motion &orc_motion = registry.motions.get(orc);
+        Motion &archer_motion = registry.motions.get(archer);
+
+        // Calculate vector from archer to player
+        vec2 archer_to_player = player_pos - archer_motion.position;
+        float archer_to_player_dist = length(archer_to_player);
+
+        // Normalized direction from archer to player
+        vec2 direction = normalize(archer_to_player);
+
+        // Position orc between archer and player, but closer to archer
+        float protection_distance = min(120.0f, archer_to_player_dist * 0.7f);
+        vec2 target_pos = archer_motion.position + direction * protection_distance;
+
+        // Move towards target position
+        vec2 to_target = target_pos - orc_motion.position;
+        float dist_to_target = length(to_target);
+
+        if (dist_to_target > 10.0f)
+        {
+            // Move to protection position
+            orc_motion.velocity = normalize(to_target) * 150.0f;
+        }
+        else
+        {
+            // At protection position
+            orc_motion.velocity = vec2(0, 0);
+
+            // If player gets too close to the protected archer, charge at player
+            float dist_to_player = length(player_pos - orc_motion.position);
+            if (dist_to_player < 150.0f)
+            {
+                orc_motion.velocity = normalize(player_pos - orc_motion.position) * 180.0f;
+            }
+        }
+
+        // Face player
+        if (archer_to_player.x != 0)
+            orc_motion.scale.x = (archer_to_player.x > 0) ? abs(orc_motion.scale.x) : -abs(orc_motion.scale.x);
+    }
+}
+
+void AISystem::update_knight_herding(Squad &squad, float elapsed_ms, Entity player)
+{
+    if (squad.knights.empty())
+        return;
+
+    // Get the first (and only) knight
+    Entity knight = squad.knights[0];
+    if (!registry.motions.has(knight) || !registry.orcRiders.has(knight))
+        return;
+
+    OrcRider &rider = registry.orcRiders.get(knight);
+    Motion &motion = registry.motions.get(knight);
+
+    vec2 player_pos = registry.motions.get(player).position;
+
+    // If already hunting or charging, let normal OrcRider behavior handle it
+    if (rider.is_hunting || rider.is_charging)
+        return;
+
+    // Determine if player is threatening archers
+    bool player_threatening = false;
+    vec2 closest_archer_pos;
+    float closest_distance = 1000000.0f; // Large initial value
+
+    for (auto archer : squad.archers)
+    {
+        if (!registry.motions.has(archer))
+            continue;
+
+        vec2 archer_pos = registry.motions.get(archer).position;
+        float dist = length(player_pos - archer_pos);
+
+        if (dist < closest_distance)
+        {
+            closest_distance = dist;
+            closest_archer_pos = archer_pos;
+        }
+
+        // Player is threatening if within 250 pixels of any archer
+        if (dist < 250.0f)
+        {
+            player_threatening = true;
+            break;
+        }
+    }
+
+    // If player is threatening archers, position for charge
+    if (player_threatening)
+    {
+        // Calculate vector from player to closest archer
+        vec2 player_to_archer = closest_archer_pos - player_pos;
+        vec2 normalized_dir = normalize(player_to_archer);
+
+        // Position perpendicular to the player-archer line to force player away
+        vec2 perpendicular = vec2(-normalized_dir.y, normalized_dir.x);
+
+        // Pick the side from which to approach (alternate based on time)
+        float side = sin(elapsed_ms / 1000.0f) > 0 ? 1.0f : -1.0f;
+
+        // Set flank position to approach from the side
+        vec2 flank_pos = player_pos + perpendicular * side * 300.0f;
+
+        // Move toward flank position
+        vec2 to_flank = flank_pos - motion.position;
+        float dist_to_flank = length(to_flank);
+
+        if (dist_to_flank > 30.0f)
+        {
+            motion.velocity = normalize(to_flank) * rider.walk_speed;
+
+            // Update facing direction
+            if (to_flank.x != 0)
+                motion.scale.x = (to_flank.x > 0) ? abs(motion.scale.x) : -abs(motion.scale.x);
+        }
+        else
+        {
+            // In position, prepare to hunt and charge
+            rider.is_hunting = true;
+            rider.hunt_timer_ms = ORCRIDER_HUNT_ANIMATION_DURATION;
+            rider.current_state = OrcRider::State::HUNT;
+
+            // Play hunt animation
+            AnimationSystem::update_animation(
+                knight,
+                ORCRIDER_HUNT_ANIMATION_DURATION,
+                ORCRIDER_HUNT_ANIMATION,
+                ORCRIDER_HUNT_ANIMATION_SIZE,
+                false, // don't loop
+                false, // not locked
+                false  // don't destroy
+            );
+        }
+    }
+    else
+    {
+        // If player isn't threatening archers, patrol between player and archers
+        vec2 center_point = vec2(0, 0);
+        int valid_archers = 0;
+
+        for (auto archer : squad.archers)
+        {
+            if (registry.motions.has(archer))
+            {
+                center_point += registry.motions.get(archer).position;
+                valid_archers++;
+            }
+        }
+
+        if (valid_archers > 0)
+        {
+            center_point /= valid_archers;
+
+            // Position halfway between player and archer center
+            vec2 patrol_pos = (player_pos + center_point) * 0.5f;
+
+            // Move toward patrol position
+            vec2 to_patrol = patrol_pos - motion.position;
+            float dist_to_patrol = length(to_patrol);
+
+            if (dist_to_patrol > 20.0f)
+            {
+                motion.velocity = normalize(to_patrol) * rider.walk_speed;
+
+                // Update facing direction
+                if (to_patrol.x != 0)
+                    motion.scale.x = (to_patrol.x > 0) ? abs(motion.scale.x) : -abs(motion.scale.x);
+            }
+            else
+            {
+                // At patrol position, stay still but face player
+                motion.velocity = vec2(0, 0);
+
+                vec2 to_player = player_pos - motion.position;
+                if (to_player.x != 0)
+                    motion.scale.x = (to_player.x > 0) ? abs(motion.scale.x) : -abs(motion.scale.x);
             }
         }
     }

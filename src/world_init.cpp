@@ -178,7 +178,7 @@ Entity createOrcRider(RenderSystem *renderer, vec2 position)
     
     // Rest of your existing code...
     VisualScale &vscale = registry.visualScales.emplace(entity);
-    vscale.scale = {5.f, 5.f}; // Scale visuals 5x
+    vscale.scale = {4.f, 4.f}; // Scale visuals 5x
     
     OrcRider &orcrider = registry.orcRiders.emplace(entity);
     orcrider.damage = 25; // Damage when charging into player

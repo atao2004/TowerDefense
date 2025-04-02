@@ -291,6 +291,7 @@ void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 
 	// Reset the spawn manager
 	spawn_manager.reset();
+	spawn_manager.squad_spawned = false;
 
 	// Reset the game speed
 	current_speed = 1.f;
@@ -1116,6 +1117,23 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			break;
 		}
 	}
+
+	if (action == GLFW_PRESS && key == GLFW_KEY_H) {
+		// Get player entity
+		Entity player = registry.players.entities[0];
+		// Set player health to a very high value
+		registry.players.get(player).health = 999999999;
+		// Also set health bar to 100%
+		registry.screenStates.get(registry.screenStates.entities[0]).hp_percentage = 1.0;
+		std::cout << "CHEAT ACTIVATED: Player health set to 999999999" << std::endl;
+	}
+
+	// key to start challenge
+	if (action == GLFW_PRESS && key == GLFW_KEY_B) {
+		// Debug key to start challenge
+		current_day = 5;
+	}
+
 	if (action == GLFW_PRESS && key == GLFW_KEY_9)
 	{
 		if (registry.screenStates.size() != 0)

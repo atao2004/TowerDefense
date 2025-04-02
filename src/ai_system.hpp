@@ -13,7 +13,6 @@
 class AISystem
 {
 public:
-
 	AISystem();
 	~AISystem();
 
@@ -27,7 +26,6 @@ private:
 	void update_zombie_movement(Entity entity, float elapsed_ms);
 	void update_skeletons(float elapsed_ms);
 	void update_orcriders(float elapsed_ms);
-	
 
 	// Movement calculation helpers
 	vec2 calculate_direction_to_target(vec2 start_pos, vec2 target_pos);
@@ -42,4 +40,8 @@ private:
 
 	Mix_Chunk *injured_sound;
 
+	void update_squads(float elapsed_ms);
+	void update_archer_circle_formation(Squad &squad, float elapsed_ms, Entity player);
+	void update_orc_protection(Squad &squad, float elapsed_ms, Entity player);
+	void update_knight_herding(Squad &squad, float elapsed_ms, Entity player);
 };
