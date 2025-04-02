@@ -687,22 +687,24 @@ Entity createGameOver()
 
 // Kung: Create the pause button that will eventually pause the game.
 // As of now, it is purely cosmetic.
-Entity createPause()
+Entity createPauseButton(vec2 position)
 {
 	// Create the associated entity.
 	Entity pause_entity = Entity();
-
-	// Create the associated component.
-	Pause &pause_component = registry.pauses.emplace(pause_entity);
 
 	// Create a component to simplify movement.
 	MoveWithCamera &mwc = registry.moveWithCameras.emplace(pause_entity);
 
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(pause_entity);
-	motion_component.position = vec2(-150, -50);
-	motion_component.scale = vec2(120, 120);
+	motion_component.position = vec2(300, 50);
+	motion_component.scale = vec2(60, 60);
 	motion_component.velocity = vec2(0, 0);
+
+	// // Create a component to represent the button.
+	CustomButton& button = registry.buttons.emplace(pause_entity);
+	button.type = BUTTON_ID::PAUSE;
+	button.position = motion_component.position;
 
 	// Render the object.
 	registry.renderRequests.insert(
@@ -714,7 +716,7 @@ Entity createPause()
 	return pause_entity;
 }
 
-Entity createPlayer(RenderSystem *renderer, vec2 position)
+Entity createPlayer(RenderSystem *renderer, vec2 position, int seed_type)
 {
 	Entity entity = Entity();
 
@@ -725,7 +727,7 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 	player.health = PLAYER_HEALTH;
 
 	Inventory &inventory = registry.inventorys.emplace(entity);
-	registry.inventorys.components[0].seedCount[0] = 5; // 5 starter seeds
+	registry.inventorys.components[0].seedCount[seed_type] = 5; // 5 starter seeds
 	for(int i = 0; i < NUM_SEED_TYPES; i++)
 	{
 		registry.inventorys.components[0].seedCount[i] = 1; // one each of the 8 seed types
@@ -810,9 +812,12 @@ Entity createSeed(vec2 pos, int type)
 	// Render the object.
 	registry.renderRequests.insert(
 		seed_entity,
-		{TEXTURE_ASSET_ID::SEED_0,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE});
+		{
+			(TEXTURE_ASSET_ID) ((int) TEXTURE_ASSET_ID::SEED_0 + type),
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
 
 	ParticleSystem::createSeedGrowthEffect(pos, motion_component.scale);
 
@@ -945,19 +950,15 @@ Entity createArrow(vec2 position, vec2 direction, Entity source)
 	return entity;
 }
 
-Entity createText(std::string text)
-{
+Entity createText(std::string text, vec2 pos, float size, vec3 color) {
 	Entity text_entity = Entity();
 
 	Text &text_component = registry.texts.emplace(text_entity);
 	text_component.text = text;
-
-	registry.renderRequests.insert(
-		text_entity,
-		{TEXTURE_ASSET_ID::TEXTURE_COUNT,
-		 EFFECT_ASSET_ID::EGG,
-		 GEOMETRY_BUFFER_ID::DEBUG_LINE});
-
+	text_component.pos = pos;
+	text_component.size = size;
+	text_component.color = color;
+	
 	return text_entity;
 }
 

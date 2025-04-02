@@ -152,6 +152,8 @@ private:
 
 	void plant_seed();
 
+	void print_level();
+  
 	// Player dash
 	void update_dash(float elapsed_ms_since_last_update);
 	

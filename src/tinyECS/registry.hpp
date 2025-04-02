@@ -28,7 +28,6 @@ public:
 	ComponentContainer<Inventory> inventorys;
 	
 	ComponentContainer<Toolbar> toolbars;
-	ComponentContainer<Pause> pauses;
 	ComponentContainer<MoveWithCamera> moveWithCameras;
 
 	ComponentContainer<Zombie> zombies;

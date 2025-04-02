@@ -456,14 +456,6 @@ struct Toolbar
     };
 };
 
-struct Pause
-{
-    json toJSON() const
-    {
-        return json{};
-    };
-};
-
 struct MoveWithCamera
 {
     json toJSON() const
@@ -667,12 +659,12 @@ struct ParticleGenerator
     }
 };
 
-struct Text
-{
-    glm::vec2 position;
-    glm::vec3 color;
-    std::string text;
-    float scale;
+// Text
+struct Text {
+	std::string text;
+	vec2 pos;
+	float size;
+	vec3 color = vec3(0.0f, 0.0f, 0.0f);
 
     // compile purpose, not gonna save it
     json toJSON() const
