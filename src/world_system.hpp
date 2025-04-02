@@ -147,4 +147,6 @@ private:
 	void saveGame();
 
 	void plant_seed();
+
+	void print_level();
 };

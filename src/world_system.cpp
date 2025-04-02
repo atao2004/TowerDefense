@@ -258,6 +258,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	return true;
 }
 
+void WorldSystem::print_level() {
+	registry.texts.clear();
+	createText("Level: " + std::to_string(level), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX - 75.0f), 0.75f, vec3(0.9f, 0.9f, 0.9f));
+}
+
 // Shared elements between restarting a game and a tutorial
 void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 {
@@ -338,7 +343,7 @@ void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 void WorldSystem::restart_overlay_renders(vec2 player_pos)
 {
 	// reset player and spawn player in the middle of the screen
-	Entity player = createPlayer(renderer, player_pos);
+	Entity player = createPlayer(renderer, player_pos, current_seed);
 
 	// reset camera position
 	createCamera(renderer, player_pos);
@@ -443,7 +448,7 @@ void WorldSystem::restart_game()
 	spawn_manager.start_game();
 
 	// Print the starting level (Level 1)
-	std::cout << "==== LEVEL " << level << " ====" << std::endl;
+	print_level();
 }
 
 // Reset the world state to the tutorial mode state
@@ -490,7 +495,7 @@ void WorldSystem::restart_tutorial()
 	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX * 0.05, TUTORIAL_HEIGHT_PX * 0.4});
 
 	// Print the starting level (Level 0)
-	std::cout << "==== LEVEL " << level << " ====" << std::endl;
+	print_level();
 }
 
 // Create tutorial enemies at specific locations that respawn when killed
@@ -570,14 +575,14 @@ void WorldSystem::increase_exp_player()
 		vec2 player_size = registry.motions.get(player_entity).scale;
 		ParticleSystem::createLevelUpEffect(player_pos, player_size);
 
+		print_level();
+
 		if (level == 2) {
 			std::cout<<"hihi"<<std::endl;
 			registry.screenStates.components[0].cutscene = 3;
 			registry.screenStates.components[0].cg_index = 0;
 			return start_cg(renderer);
 		}
-		
-		std::cout << "==== LEVEL " << level << " ====" << std::endl;
 	}
 }
 
@@ -1140,7 +1145,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 					return start_cg(renderer);
 				}
 
-				std::cout << "==== LEVEL " << level << " ====" << std::endl;
+				print_level();
 			}
 			else
 			{

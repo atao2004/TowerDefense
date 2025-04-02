@@ -54,7 +54,7 @@ Entity createToolbar(vec2 position);
 Entity createGridLine(vec2 start_pos, vec2 end_pos);
 
 // the player
-Entity createPlayer(RenderSystem* renderer, vec2 position);
+Entity createPlayer(RenderSystem* renderer, vec2 position, int seed_type);
 Entity createEffect(RenderSystem* renderer, vec2 position, vec2 scale);
 // create seed (for milestone #2)
 Entity createSeed(vec2 pos, int type);
@@ -66,3 +66,4 @@ Entity createGameOver();
 Entity createSkeletonArcher(RenderSystem* renderer, vec2 position);
 Entity createArrow(vec2 position, vec2 direction, Entity source);
 
+Entity createText(std::string text, vec2 pos, float size, vec3 color);

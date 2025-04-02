@@ -672,7 +672,7 @@ Entity createPauseButton(vec2 position)
 	return pause_entity;
 }
 
-Entity createPlayer(RenderSystem *renderer, vec2 position)
+Entity createPlayer(RenderSystem *renderer, vec2 position, int seed_type)
 {
 	Entity entity = Entity();
 
@@ -683,7 +683,7 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 	player.health = PLAYER_HEALTH;
 
 	Inventory &inventory = registry.inventorys.emplace(entity);
-	registry.inventorys.components[0].seedCount[0] = 5; // 5 starter seeds
+	registry.inventorys.components[0].seedCount[seed_type] = 5; // 5 starter seeds
 
 	MoveWithCamera &mwc = registry.moveWithCameras.emplace(entity);
 	Motion &motion = registry.motions.emplace(entity);
@@ -763,9 +763,12 @@ Entity createSeed(vec2 pos, int type)
 	// Render the object.
 	registry.renderRequests.insert(
 		seed_entity,
-		{TEXTURE_ASSET_ID::SEED_0,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE});
+		{
+			(TEXTURE_ASSET_ID) ((int) TEXTURE_ASSET_ID::SEED_0 + type),
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
 
 	ParticleSystem::createSeedGrowthEffect(pos, motion_component.scale);
 
