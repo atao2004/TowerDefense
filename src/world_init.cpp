@@ -185,6 +185,9 @@ Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage
 	dimension.width = TOWER_BB_WIDTH;
 	dimension.height = TOWER_BB_HEIGHT;
 
+	VisualScale& vscale = registry.visualScales.emplace(entity);
+	vscale.scale = { 1.5f, 1.5f };
+
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh &mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
