@@ -1960,52 +1960,52 @@ void WorldSystem::plant_seed()
 
 void WorldSystem::update_dash(float elapsed_ms_since_last_update)
 {
-    if (player_is_dashing)
-    {
-        dash_timer_ms -= elapsed_ms_since_last_update;
+	if (player_is_dashing)
+	{
+		dash_timer_ms -= elapsed_ms_since_last_update;
 
-        if (dash_timer_ms <= 0)
-        {
-            // End the dash
-            player_is_dashing = false;
-            dash_timer_ms = 0.0f;
-            dash_cooldown_ms = PLAYER_DASH_COOLDOWN_MS;
+		if (dash_timer_ms <= 0)
+		{
+			// End the dash
+			player_is_dashing = false;
+			dash_timer_ms = 0.0f;
+			dash_cooldown_ms = PLAYER_DASH_COOLDOWN_MS;
 
-            // Reset velocities to zero
-            for (Entity mwc_entity : registry.moveWithCameras.entities)
-            {
-                if (registry.motions.has(mwc_entity))
-                {
-                    Motion &mwc_motion = registry.motions.get(mwc_entity);
-                    mwc_motion.velocity = vec2(0.0f, 0.0f);
-                    
-                    // Re-apply velocity for any keys that are still being pressed
-                    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-                        mwc_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
-                    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-                        mwc_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
-                    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-                        mwc_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
-                    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-                        mwc_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
-                }
-            }
-            
-            // Update player state based on resulting velocity
-            Entity player = registry.players.entities[0];
-            Motion &motion = registry.motions.get(player);
-            if (motion.velocity == vec2(0, 0))
-                PlayerSystem::update_state(STATE::IDLE);
-            else
-                PlayerSystem::update_state(STATE::MOVE);
-        }
-    }
+			// Reset velocities to zero
+			for (Entity mwc_entity : registry.moveWithCameras.entities)
+			{
+				if (registry.motions.has(mwc_entity))
+				{
+					Motion &mwc_motion = registry.motions.get(mwc_entity);
+					mwc_motion.velocity = vec2(0.0f, 0.0f);
 
-    // Handle dash cooldown
-    if (dash_cooldown_ms > 0)
-    {
-        dash_cooldown_ms -= elapsed_ms_since_last_update;
-        if (dash_cooldown_ms < 0)
-            dash_cooldown_ms = 0;
-    }
+					// Re-apply velocity for any keys that are still being pressed
+					if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+						mwc_motion.velocity.y += PLAYER_MOVE_UP_SPEED;
+					if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+						mwc_motion.velocity.y += PLAYER_MOVE_DOWN_SPEED;
+					if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+						mwc_motion.velocity.x += PLAYER_MOVE_LEFT_SPEED;
+					if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+						mwc_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
+				}
+			}
+
+			// Update player state based on resulting velocity
+			Entity player = registry.players.entities[0];
+			Motion &motion = registry.motions.get(player);
+			if (motion.velocity == vec2(0, 0))
+				PlayerSystem::update_state(STATE::IDLE);
+			else
+				PlayerSystem::update_state(STATE::MOVE);
+		}
+	}
+
+	// Handle dash cooldown
+	if (dash_cooldown_ms > 0)
+	{
+		dash_cooldown_ms -= elapsed_ms_since_last_update;
+		if (dash_cooldown_ms < 0)
+			dash_cooldown_ms = 0;
+	}
 }

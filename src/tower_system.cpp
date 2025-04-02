@@ -15,7 +15,7 @@ void TowerSystem::step(float elapsed_ms)
 {
     for (int i = 0; i < registry.towers.entities.size(); i++)
     {
-        Tower& tower = registry.towers.components[i];
+        Tower &tower = registry.towers.components[i];
         if (!tower.state)
         {
             Entity entity = registry.towers.entities[i];
@@ -26,7 +26,9 @@ void TowerSystem::step(float elapsed_ms)
                 tower.state = true;
                 AnimationSystem::update_animation(entity, PLANT_ATTACK_DURATION, PLANT_ATTACK_ANIMATION, PLANT_ATTACK_SIZE, false, false, false);
             }
-            else {}
+            else
+            {
+            }
         }
     }
 }
@@ -71,23 +73,23 @@ void TowerSystem::fire_projectile(Entity tower, Entity target)
          GEOMETRY_BUFFER_ID::SPRITE});
 }
 
-bool TowerSystem::find_nearest_enemy(Entity entity, Entity& target)
+bool TowerSystem::find_nearest_enemy(Entity entity, Entity &target)
 {
     if (registry.towers.has(entity) && registry.motions.has(entity))
     {
-        Tower& tower = registry.towers.get(entity);
-        Motion& motion = registry.motions.get(entity);
+        Tower &tower = registry.towers.get(entity);
+        Motion &motion = registry.motions.get(entity);
 
         float min_dist = tower.range;
 
-    for (Entity enemy : registry.enemies.entities)
-    {
-        if (!registry.motions.has(enemy))
+        for (Entity enemy : registry.enemies.entities)
         {
-            continue;
-        }
+            if (!registry.motions.has(enemy))
+            {
+                continue;
+            }
 
-            Motion& enemy_motion = registry.motions.get(enemy);
+            Motion &enemy_motion = registry.motions.get(enemy);
             vec2 diff = enemy_motion.position - motion.position;
             float dist = sqrt(dot(diff, diff));
 
@@ -99,6 +101,6 @@ bool TowerSystem::find_nearest_enemy(Entity entity, Entity& target)
             }
         }
     }
-    
+
     return false;
 }
