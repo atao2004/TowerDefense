@@ -29,8 +29,8 @@ public:
 
 	// call to close the window
 	void close_window();
-	
-	static void start_cg(RenderSystem* renderer);
+
+	static void start_cg(RenderSystem *renderer);
 
 	// starts the game
 	void init(RenderSystem *renderer);
@@ -66,9 +66,13 @@ public:
 	void increase_exp_player();
 	static void increase_exp_plant();
 
-	static int current_day;
-	
+	static int get_current_day() { return current_day; }
+
+	static bool player_is_dashing;
+
 private:
+	static int current_day;
+
 	float mouse_pos_x = 0.0f;
 	float mouse_pos_y = 0.0f;
 
@@ -149,4 +153,11 @@ private:
 	void plant_seed();
 
 	void print_level();
+  
+	// Player dash
+	void update_dash(float elapsed_ms_since_last_update);
+	
+    float dash_timer_ms = 0.0f;
+    float dash_cooldown_ms = 0.0f;
+    vec2 dash_direction = {0.0f, 0.0f};
 };

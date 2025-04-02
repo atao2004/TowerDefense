@@ -16,17 +16,27 @@ void TowerSystem::step(float elapsed_ms)
     for (int i = 0; i < registry.towers.entities.size(); i++)
     {
         Tower& tower = registry.towers.components[i];
+        Entity entity = registry.towers.entities[i];
+        PlantAnimation& plant_anim = registry.plantAnimations.get(entity);
         if (!tower.state)
         {
-            Entity entity = registry.towers.entities[i];
             Entity target;
             if (find_nearest_enemy(entity, target))
             {
-                fire_projectile(entity, target);
                 tower.state = true;
-                AnimationSystem::update_animation(entity, PLANT_ATTACK_DURATION, PLANT_ATTACK_ANIMATION, PLANT_ATTACK_SIZE, false, false, false);
+                AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.size, false, false, false);
             }
-            else {}
+        }
+        else
+        {
+            if (!registry.animations.has(entity))
+            {
+                Entity target;
+                if (find_nearest_enemy(entity, target))
+                    fire_projectile(entity, target);
+                tower.state = false;
+                AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.size, true, false, false);
+            }
         }
     }
 }
@@ -71,23 +81,23 @@ void TowerSystem::fire_projectile(Entity tower, Entity target)
          GEOMETRY_BUFFER_ID::SPRITE});
 }
 
-bool TowerSystem::find_nearest_enemy(Entity entity, Entity& target)
+bool TowerSystem::find_nearest_enemy(Entity entity, Entity &target)
 {
     if (registry.towers.has(entity) && registry.motions.has(entity))
     {
-        Tower& tower = registry.towers.get(entity);
-        Motion& motion = registry.motions.get(entity);
+        Tower &tower = registry.towers.get(entity);
+        Motion &motion = registry.motions.get(entity);
 
         float min_dist = tower.range;
 
-    for (Entity enemy : registry.enemies.entities)
-    {
-        if (!registry.motions.has(enemy))
+        for (Entity enemy : registry.enemies.entities)
         {
-            continue;
-        }
+            if (!registry.motions.has(enemy))
+            {
+                continue;
+            }
 
-            Motion& enemy_motion = registry.motions.get(enemy);
+            Motion &enemy_motion = registry.motions.get(enemy);
             vec2 diff = enemy_motion.position - motion.position;
             float dist = sqrt(dot(diff, diff));
 
@@ -99,6 +109,6 @@ bool TowerSystem::find_nearest_enemy(Entity entity, Entity& target)
             }
         }
     }
-    
+
     return false;
 }

@@ -56,6 +56,11 @@ public:
 	ComponentContainer<Text> texts;
 	ComponentContainer<CG> cgs;
 
+	ComponentContainer<PlantAnimation> plantAnimations;
+
+	ComponentContainer<OrcRider> orcRiders;
+	ComponentContainer<Squad> squads;
+
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
 		registry_list.push_back(&screenStates); //0
@@ -92,6 +97,9 @@ public:
 		registry_list.push_back(&particleGenerators);//31
 		registry_list.push_back(&texts);
 		registry_list.push_back(&cgs);
+		registry_list.push_back(&plantAnimations);
+		registry_list.push_back(&orcRiders);
+		registry_list.push_back(&squads);
 	}
 
 	void clear_all_components() {
