@@ -227,7 +227,7 @@ struct OrcRider
     State current_state = State::IDLE;
     Entity target = {};
 
-    float detection_range = 10000.0f; // Range to start walking towards player
+    float detection_range = 100000.0f; // Range to start walking towards player
     float hunt_range = 500.0f;        // Range to start hunting behavior
     float charge_speed = 400.0f;      // Speed during charge
     float walk_speed = 150.0f;        // Speed when walking
