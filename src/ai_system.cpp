@@ -515,10 +515,10 @@ void AISystem::update_orcriders(float elapsed_ms)
                 // Set a small cooldown to prevent instant hunting
                 orcrider.hunt_timer_ms = 300.0f; // Very short cooldown just for animation transition
 
-                // Go back to idle state briefly
+                // Go back to idle state shortly
                 orcrider.current_state = OrcRider::State::IDLE;
 
-                // Play idle animation briefly
+                // Play idle animation shortly
                 AnimationSystem::update_animation(
                     entity,
                     ORCRIDER_IDLE_ANIMATION_DURATION,
