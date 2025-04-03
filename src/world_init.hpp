@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "tinyECS/tiny_ecs.hpp"
 #include "render_system.hpp"
+#include "seeds.hpp"
 
 //splash screen
 Entity createScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background);
@@ -10,7 +11,7 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 
 // enemies
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position);
-Entity createEnemy(RenderSystem* renderer, vec2 position);
+Entity createEnemy(RenderSystem* renderer, vec2 position, int health, int damage, int speed, int anim_duration, const TEXTURE_ASSET_ID* anim_textures, int anim_size);
 Entity createOrc(RenderSystem* renderer, vec2 position);
 Entity createOrcElite(RenderSystem* renderer, vec2 position);
 Entity createSkeleton(RenderSystem* renderer, vec2 position);
@@ -18,10 +19,10 @@ Entity createCharacter(RenderSystem* renderer, vec2 position, vec2 scale, TEXTUR
 Entity createWerebear(RenderSystem* renderer, vec2 position);
 Entity createWerewolf(RenderSystem* renderer, vec2 position);
 Entity createSlime(RenderSystem* renderer, vec2 position);
+Entity createOrcRider(RenderSystem* renderer, vec2 position);
 
 // towers
-Entity createTower(RenderSystem* renderer, vec2 position);
-void removeTower(vec2 position);
+Entity createPlant(RenderSystem* renderer, vec2 position, PLANT_ID id);
 
 // chicken
 Entity createChicken(RenderSystem* renderer);
@@ -55,15 +56,17 @@ Entity createToolbar(vec2 position);
 Entity createGridLine(vec2 start_pos, vec2 end_pos);
 
 // the player
-Entity createPlayer(RenderSystem* renderer, vec2 position);
+Entity createPlayer(RenderSystem* renderer, vec2 position, int seed_type);
 Entity createEffect(RenderSystem* renderer, vec2 position, vec2 scale);
 // create seed (for milestone #2)
 Entity createSeed(vec2 pos, int type);
-Entity createSeedInventory(vec2 pos, vec2 velocity, int type);
+Entity createSeedInventory(vec2 pos, vec2 velocity, int type, int toolbar_pos);
 Entity createCamera(RenderSystem* renderer, vec2 position);
 
 Entity createGameOver();
 
 Entity createSkeletonArcher(RenderSystem* renderer, vec2 position);
 Entity createArrow(vec2 position, vec2 direction, Entity source);
+
+Entity createText(std::string text, vec2 pos, float size, vec3 color);
 

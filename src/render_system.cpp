@@ -469,10 +469,12 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 			drawTexturedMesh(entity, projection_2D);
 		}
 
-		if (game_screen == GAME_SCREEN_ID::SPLASH)
+		if (game_screen == GAME_SCREEN_ID::SPLASH) {
 			renderText("Farmer Defense", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100, OS_RES, {0, 0, 0}, trans);
-		else
-		{
+		} else if (WorldSystem::game_is_over) {
+			// Create the Game Over text
+			renderText("GAME OVER", WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2, 3.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::mat4(1.0f));
+		} else {
 			int cg_idx = registry.screenStates.components[0].cg_index;
 			int cutscene = registry.screenStates.components[0].cutscene;
 			if (cutscene == 1) {
@@ -567,13 +569,24 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 		}
 		drawParticlesInstanced(projection_2D);
 		// individually draw player, will render on top of all the motion sprites
-		if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::PAUSE) {
+		if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::PAUSE) 
 			drawTexturedMesh(registry.players.entities[0], projection_2D);
-			renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
-			renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
+
+		renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
+		renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
+	
+		for (Entity seed_entity : registry.seeds.entities) {
+			if (registry.motions.has(seed_entity) && registry.moveWithCameras.has(seed_entity)) {
+				if (registry.inventorys.size() != 0) {
+					int seed_type = registry.seeds.get(seed_entity).type;
+					int seed_count = registry.inventorys.components[0].seedCount[seed_type];
+					renderText(std::to_string(seed_count), WINDOW_WIDTH_PX * 0.385 + 55 * seed_type, 25, 0.25, {0.25, 0.25, 0.25}, trans);
+				}
+			}
 		}
-		for (int current_seed = 0; current_seed < registry.inventorys.size(); current_seed++) {
-			renderText(std::to_string(registry.inventorys.components[0].seedCount[current_seed]), WINDOW_WIDTH_PX * 0.375 + 55 * current_seed, 25, 0.25, {0, 1, 0}, trans);
+
+		for (Entity text_entity : registry.texts.entities) {
+			renderText(registry.texts.get(text_entity).text, registry.texts.get(text_entity).pos.x, registry.texts.get(text_entity).pos.y, registry.texts.get(text_entity).size, registry.texts.get(text_entity).color, trans);
 		}
 	
 		// Render the FPS counter

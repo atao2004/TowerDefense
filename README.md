@@ -12,6 +12,7 @@
 
 - https://youtu.be/HwS0V2wAJzY
 - https://youtu.be/OYWhfxRYuS4
+- https://www.youtube.com/watch?v=d-8PPzW4rto
 
 **Description**
 
@@ -34,11 +35,14 @@
 
 - **WASD** – Move the player  
 - **Left Click** – Attack
-- **F** - Plant seed
-- **G** – Spawn enemy  
+- **Right Click (or F)** - Plant seed
+- **C** - Summon chicken
+- **G** – Spawn enemy
 - **R** – Restart game
 - **T** - Enter/Exit tutorial  
 - **ESC** – Close game 
+- **"-"** – Load Game
+- **"="** – Save 
 
 ## M1 Features:
 
@@ -135,3 +139,25 @@
 **[24] Quality & User Experience (UX): Basic integrated assets**
 * Refer to Sprite Animation and New Assets
 * The game map and tutorial map was redesigned using a tileset.
+
+
+## M3 Features:
+
+### Basic Improvement
+* The game now has a splash screen where players can choose to start a new game, load a saved game, play the tutorial, or exit(currently need to reopen the project to show the splash screen)
+* The game now displays FPS, current enemy count, and current plant count on the screen
+* The game now has a more logically arranged map
+* The game now has more types of enemies with different appearances, health values, speeds, and attacks
+* Inventory now shows the seed count
+* The game has been optimized to improve frame rate
+* Adjusted the difficulty curve for a better gaming experience
+
+### Creative Elements
+
+* **Basic [27] Story Elements**: The game now introduces background story when the game starts, and a cutscene appears when the player's first planted seed matures, and there is a cutscene when player first level up
+* **Basic [19] Reloadability**: Players can now save and load their game. Press button "-" to load the game(or click on "Load Game" in splash screen) and press "=" to save the game(cannot save the game when the chicken is summoned, or during the cutscene)
+* **Advanced [5] Particle System**: The game features an instanced rendering particle system that supports importing images as particle textures or using default shapes. Currently implemented particle effects include:
+  * Blood effects when player hits enemies
+  * Growth effects when seeds mature
+  * Level-up effects when player gains a level
+  *(Note: Particle effects may not work on all computers. If you find that particle effects are not rendering properly, please contact us)*

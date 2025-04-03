@@ -30,39 +30,45 @@ using Clock = std::chrono::high_resolution_clock;
 int main()
 {
 	// global systems
-	AISystem	  ai_system;
-	WorldSystem   world_system;
-	RenderSystem  renderer_system;
+	AISystem ai_system;
+	WorldSystem world_system;
+	RenderSystem renderer_system;
 	PhysicsSystem physics_system;
-	StatusSystem  status_system;
+	StatusSystem status_system;
 	AnimationSystem animation_system;
 	TowerSystem tower_system;
 	SeedSystem seed_system;
 	MovementSystem movement_system;
 	ParticleSystem particle_system;
+	PlayerSystem player_system;
 
 	// initialize window
-	GLFWwindow* window = world_system.create_window();
-	if (!window) {
+	GLFWwindow *window = world_system.create_window();
+	if (!window)
+	{
 		// Time to read the error message
 		std::cerr << "ERROR: Failed to create window.  Press any key to exit" << std::endl;
 		getchar();
 		return EXIT_FAILURE;
 	}
 
-	if (!world_system.start_and_load_sounds()) {
+	if (!world_system.start_and_load_sounds())
+	{
 		std::cerr << "ERROR: Failed to start or load sounds in world_system." << std::endl;
 	}
 
-	if (!ai_system.start_and_load_sounds()) {
+	if (!ai_system.start_and_load_sounds())
+	{
 		std::cerr << "ERROR: Failed to start or load sounds in ai_system." << std::endl;
 	}
 
-	if (!status_system.start_and_load_sounds()) {
+	if (!status_system.start_and_load_sounds())
+	{
 		std::cerr << "ERROR: Failed to start or load sounds in status_system." << std::endl;
 	}
 
-	if (!physics_system.start_and_load_sounds()) {
+	if (!physics_system.start_and_load_sounds())
+	{
 		std::cerr << "ERROR: Failed to start or load sounds in status_system." << std::endl;
 	}
 
@@ -79,7 +85,7 @@ int main()
 	float fps_sum = 0;
 	int record_times = 0;
 	int max_fps = 0;
-	int min_fps = 50000; //impossible number technically, lazy implementation sorry!
+	int min_fps = 50000; // impossible number technically, lazy implementation sorry!
 	int cooldown = 1000;
 
 	// frame intervals
@@ -93,8 +99,10 @@ int main()
 	FrameManager fm_particle = FrameManager(1);
 	FrameManager fm_seed = FrameManager(5);
 	FrameManager fm_render = FrameManager(5);
+	FrameManager fm_player = FrameManager(5);
 
-	while (!world_system.is_over()) {
+	while (!world_system.is_over())
+	{
 
 		GAME_SCREEN_ID game_screen = world_system.get_game_screen();
 		// processes system messages, if this wasn't present the window would become unresponsive
@@ -115,7 +123,8 @@ int main()
 				FrameManager::tick(elapsed_ms); //moved here so when doing cg the game will pause
 				float current_fps = (1/(elapsed_ms/1000));
 				cooldown -= elapsed_ms;
-				if (cooldown <= 0) {                             //used to prevent screen flickering
+				if (cooldown <= 0)
+				{ // used to prevent screen flickering
 					// std::cout<<"FPS: "<<current_fps<<std::endl;
 					std::stringstream title_ss;
 					title_ss <<"Farmer Defense: The Last Days";
@@ -126,37 +135,55 @@ int main()
 					glfwSetWindowTitle(window, title_ss.str().c_str());
 					cooldown = 1000;
 				}
-				if (record_times > 2) {     //ignore the first 2, outliers wow.. maximum 5000 and minimum 10-ish fps, crazy
-					max_fps = max_fps < current_fps ? current_fps: max_fps;
-					min_fps = min_fps > current_fps ? current_fps: min_fps;
-					fps_sum += (1/(elapsed_ms/1000));
+				if (record_times > 2)
+				{ // ignore the first 2, outliers wow.. maximum 5000 and minimum 10-ish fps, crazy
+					max_fps = max_fps < current_fps ? current_fps : max_fps;
+					min_fps = min_fps > current_fps ? current_fps : min_fps;
+					fps_sum += (1 / (elapsed_ms / 1000));
 				}
 				record_times++;
 
-				if (fm_ai.can_update()) ai_system.step(fm_ai.get_time());
-				if (fm_physics.can_update()) physics_system.step(fm_physics.get_time());
-				if (fm_status.can_update()) status_system.step(fm_status.get_time());
-				if (fm_seed.can_update()) seed_system.step(fm_seed.get_time());
-				
-				if (world_system.get_game_screen() == GAME_SCREEN_ID::CG) continue;
+				if (fm_ai.can_update())
+					ai_system.step(fm_ai.get_time());
+				if (fm_physics.can_update())
+					physics_system.step(fm_physics.get_time());
+				if (fm_status.can_update())
+					status_system.step(fm_status.get_time());
+				if (fm_seed.can_update())
+					seed_system.step(fm_seed.get_time());
 
-				if (fm_tower.can_update()) tower_system.step(fm_tower.get_time());
-				if (fm_movement.can_update()) movement_system.step(fm_movement.get_time(), game_screen);
-				if (fm_animation.can_update()) animation_system.step(fm_animation.get_time());
-				if (fm_particle.can_update()) particle_system.step(fm_particle.get_time());
+				if (world_system.get_game_screen() == GAME_SCREEN_ID::CG)
+					continue;
 
-			} else {
-				//M2: FPS. make sure we only print once, lazy implementation
-				if (record_times != 0) {
-					std::cout<<"maximum FPS: "<<max_fps<<std::endl;
-					std::cout<<"minimum FPS: "<<min_fps<<std::endl;
-					std::cout<<"average FPS: "<<(fps_sum/record_times-2)<<std::endl;
-					max_fps = 50000; min_fps = 0; fps_sum = 0; record_times = 0; record_times = 0;
+				if (fm_player.can_update())
+					player_system.step(fm_player.get_time());
+				if (fm_tower.can_update())
+					tower_system.step(fm_tower.get_time());
+				if (fm_movement.can_update())
+					movement_system.step(fm_movement.get_time(), game_screen);
+				if (fm_animation.can_update())
+					animation_system.step(fm_animation.get_time());
+				if (fm_particle.can_update())
+					particle_system.step(fm_particle.get_time());
+			}
+			else
+			{
+				// M2: FPS. make sure we only print once, lazy implementation
+				if (record_times != 0)
+				{
+					std::cout << "maximum FPS: " << max_fps << std::endl;
+					std::cout << "minimum FPS: " << min_fps << std::endl;
+					std::cout << "average FPS: " << (fps_sum / record_times - 2) << std::endl;
+					max_fps = 50000;
+					min_fps = 0;
+					fps_sum = 0;
+					record_times = 0;
+					record_times = 0;
 				}
 			}
 		}
-		
-		//DO NOT DELETE, OTHERWISE TEXT WON'T RENDER
+
+		// DO NOT DELETE, OTHERWISE TEXT WON'T RENDER
 		glm::mat4 trans = glm::mat4(1.0f);
 		renderer_system.renderText("hello", 100, 100, 1, {1, 1, 0}, trans);
     

@@ -28,7 +28,6 @@ public:
 	ComponentContainer<Inventory> inventorys;
 	
 	ComponentContainer<Toolbar> toolbars;
-	ComponentContainer<Pause> pauses;
 	ComponentContainer<MoveWithCamera> moveWithCameras;
 
 	ComponentContainer<Zombie> zombies;
@@ -56,6 +55,11 @@ public:
 	ComponentContainer<ParticleGenerator> particleGenerators;
 	ComponentContainer<Text> texts;
 	ComponentContainer<CG> cgs;
+
+	ComponentContainer<PlantAnimation> plantAnimations;
+
+	ComponentContainer<OrcRider> orcRiders;
+	ComponentContainer<Squad> squads;
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
@@ -94,6 +98,9 @@ public:
 		registry_list.push_back(&texts);
 		registry_list.push_back(&cgs);
 		registry_list.push_back(&buttons);
+		registry_list.push_back(&plantAnimations);
+		registry_list.push_back(&orcRiders);
+		registry_list.push_back(&squads);
 	}
 
 	void clear_all_components() {

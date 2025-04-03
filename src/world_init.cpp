@@ -47,47 +47,40 @@ Entity createPausePanel(RenderSystem* renderer, vec2 position) {
 
 Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct) {
 	Entity entity = Entity();
-	CustomButton& button = registry.buttons.emplace(entity);
+	CustomButton &button = registry.buttons.emplace(entity);
 	button.type = type;
-	
-	button.position = toDeduct;
 	// std::cout<<button.position.x<<" "<<button.position.y<<std::endl;
 	button.position = toDeduct;
 	
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, 0 };
+	motion.velocity = {0, 0};
 	motion.position = position;
-	motion.scale = vec2({ BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT });
+	motion.scale = vec2({BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT});
 	registry.renderRequests.insert(
 		entity,
-		{
-			(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::START_BUTTON + (int)type),
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		},
-		false
-	);
+		{(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::START_BUTTON + (int)type),
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE},
+		false);
 	registry.cgs.emplace(entity);
 	return entity;
 }
 
-Entity createScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background) {
+Entity createScreen(RenderSystem *renderer, TEXTURE_ASSET_ID background)
+{
 	Entity entity = Entity();
-	Motion& motion = registry.motions.emplace(entity);
+	Motion &motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, 0 };
-	motion.position = {WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2};
-	motion.scale = vec2({ WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX });
+	motion.velocity = {0, 0};
+	motion.position = {WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2};
+	motion.scale = vec2({WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX});
 	registry.renderRequests.insert(
 		entity,
-		{
-			background,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		},
-		false
-	);
+		{background,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE},
+		false);
 	registry.cgs.emplace(entity);
 	return entity;
 }
@@ -103,7 +96,7 @@ Entity createZombieSpawn(RenderSystem *renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = {0, 0};
 	motion.position = position;
-	motion.scale = vec2({ ENEMY_WIDTH, ENEMY_HEIGHT });
+	motion.scale = vec2({ENEMY_WIDTH, ENEMY_HEIGHT});
 
 	registry.renderRequests.insert(
 		entity,
@@ -117,17 +110,17 @@ Entity createZombieSpawn(RenderSystem *renderer, vec2 position)
 	return entity;
 }
 
-Entity createEnemy(RenderSystem* renderer, vec2 position, int health, int damage, int speed, int anim_duration, const TEXTURE_ASSET_ID* anim_textures, int anim_size)
+Entity createEnemy(RenderSystem *renderer, vec2 position, int health, int damage, int speed, int anim_duration, const TEXTURE_ASSET_ID *anim_textures, int anim_size)
 {
 	auto entity = Entity();
 
-	Zombie& zombie = registry.zombies.emplace(entity);
+	Zombie &zombie = registry.zombies.emplace(entity);
 
-	Attack& attack = registry.attacks.emplace(entity);
+	Attack &attack = registry.attacks.emplace(entity);
 	attack.range = 30.0f;
 	attack.damage = damage;
 
-	Enemy& enemy = registry.enemies.emplace(entity);
+	Enemy &enemy = registry.enemies.emplace(entity);
 	enemy.health = health;
 	enemy.speed = speed;
 
@@ -135,20 +128,17 @@ Entity createEnemy(RenderSystem* renderer, vec2 position, int health, int damage
 	motion.angle = 0.f;
 	motion.velocity = {0, 0};
 	motion.position = position;
-	motion.scale = vec2({ ENEMY_WIDTH, ENEMY_HEIGHT });
+	motion.scale = vec2({ENEMY_WIDTH, ENEMY_HEIGHT});
 
-	VisualScale& vscale = registry.visualScales.emplace(entity);
-	vscale.scale = { 5.f, 5.f }; // Scale visuals 3.1x
+	VisualScale &vscale = registry.visualScales.emplace(entity);
+	vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x
 
 	registry.renderRequests.insert(
 		entity,
-		{
-			anim_textures[0],
-			EFFECT_ASSET_ID::ZOMBIE,
-			GEOMETRY_BUFFER_ID::SPRITE
-		},
-		false
-	);
+		{anim_textures[0],
+		 EFFECT_ASSET_ID::ZOMBIE,
+		 GEOMETRY_BUFFER_ID::SPRITE},
+		false);
 
 	AnimationSystem::update_animation(entity, anim_duration, anim_textures, anim_size, true, false, false);
 
@@ -160,42 +150,89 @@ Entity createOrc(RenderSystem *renderer, vec2 position)
 	return createEnemy(renderer, position, ORC_HEALTH, ORC_DAMAGE, ORC_SPEED, ORC_ANIMATION_DURATION, ORC_ANIMATION, ORC_ANIMATION_SIZE);
 }
 
-Entity createOrcElite(RenderSystem* renderer, vec2 position)
+Entity createOrcElite(RenderSystem *renderer, vec2 position)
 {
 	return createEnemy(renderer, position, ORC_ELITE_HEALTH, ORC_ELITE_DAMAGE, ORC_ELITE_SPEED, ORC_ELITE_ANIMATION_DURATION, ORC_ELITE_ANIMATION, ORC_ELITE_ANIMATION_SIZE);
 }
 
-Entity createSkeleton(RenderSystem* renderer, vec2 position)
+Entity createSkeleton(RenderSystem *renderer, vec2 position)
 {
 	return createEnemy(renderer, position, SKELETON_HEALTH, SKELETON_DAMAGE, SKELETON_SPEED, SKELETON_ANIMATION_DURATION, SKELETON_ANIMATION, SKELETON_ANIMATION_SIZE);
 }
 
-Entity createWerebear(RenderSystem* renderer, vec2 position)
+Entity createWerebear(RenderSystem *renderer, vec2 position)
 {
 	return createEnemy(renderer, position, WEREBEAR_HEALTH, WEREBEAR_DAMAGE, WEREBEAR_SPEED, WEREBEAR_ANIMATION_DURATION, WEREBEAR_ANIMATION, WEREBEAR_ANIMATION_SIZE);
 }
 
-Entity createWerewolf(RenderSystem* renderer, vec2 position)
+Entity createWerewolf(RenderSystem *renderer, vec2 position)
 {
 	return createEnemy(renderer, position, WEREWOLF_HEALTH, WEREWOLF_DAMAGE, WEREWOLF_SPEED, WEREWOLF_ANIMATION_DURATION, WEREWOLF_ANIMATION, WEREWOLF_ANIMATION_SIZE);
 }
 
-Entity createSlime(RenderSystem* renderer, vec2 position)
+Entity createSlime(RenderSystem *renderer, vec2 position)
 {
 	return createEnemy(renderer, position, SLIME_HEALTH, SLIME_DAMAGE, SLIME_SPEED, SLIME_ANIMATION_DURATION, SLIME_ANIMATION, SLIME_ANIMATION_SIZE);
 }
 
+Entity createOrcRider(RenderSystem *renderer, vec2 position)
+{
+    Entity entity = Entity();
 
-Entity createTower(RenderSystem *renderer, vec2 position)
+    Motion &motion = registry.motions.emplace(entity);
+    motion.position = position;
+    motion.angle = 0.f;
+    motion.velocity = {0, 0};
+    motion.scale = vec2(60.0f, 60.0f);
+
+    // Add zombie component 
+    Zombie &zombie = registry.zombies.emplace(entity);
+
+    // Add enemy component
+    Enemy &enemy = registry.enemies.emplace(entity);
+    enemy.health = 150; // Higher health than basic enemies
+    enemy.speed = 100;  // Base speed same as walk speed
+    
+    Attack &attack = registry.attacks.emplace(entity);
+    attack.range = 60.0f;         // Melee range for charge attack
+    attack.damage = 25;           // Same as orcrider.damage
+    
+    VisualScale &vscale = registry.visualScales.emplace(entity);
+    vscale.scale = {4.f, 4.f}; // Scale visuals 4x
+    
+    OrcRider &orcrider = registry.orcRiders.emplace(entity);
+    orcrider.damage = 25; // Damage when charging into player
+
+	registry.renderRequests.insert(
+		entity,
+		{TEXTURE_ASSET_ID::ORC_RIDER_IDLE1,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
+
+	// Start with idle animation using the pre-defined constants
+	AnimationSystem::update_animation(
+		entity,
+		ORCRIDER_IDLE_ANIMATION_DURATION,
+		ORCRIDER_IDLE_ANIMATION,
+		ORCRIDER_IDLE_ANIMATION_SIZE,
+		true,  // loop
+		false, // not locked
+		false  // don't destroy
+	);
+
+	return entity;
+}
+
+Entity createPlant(RenderSystem* renderer, vec2 position, PLANT_ID id)
 {
 	Entity entity = Entity();
 
 	// Basic tower stats
 	Tower &tower = registry.towers.emplace(entity);
-	tower.health = 100.f;
-	tower.damage = 10.f;
-	tower.range = 2000.f;  // Detection range in pixels
-	tower.timer_ms = 2000; // Attack every 2 second
+	tower.health = PLANT_STATS_MAP.at(id).health;
+	tower.damage = PLANT_STATS_MAP.at(id).damage;
+	tower.range = PLANT_STATS_MAP.at(id).range; // Detection range in pixels
+	tower.timer_ms = 2000.0f; // Attack every 2 second (unused ?)
 	tower.state = false;
 
 	// Motion component for position and rotation
@@ -209,35 +246,27 @@ Entity createTower(RenderSystem *renderer, vec2 position)
 	dimension.width = TOWER_BB_WIDTH;
 	dimension.height = TOWER_BB_HEIGHT;
 
+	VisualScale& vscale = registry.visualScales.emplace(entity);
+	vscale.scale = { 1.5f, 1.5f };
+
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh &mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
+	// Plant animation id
+	PlantAnimation& plant_animation = registry.plantAnimations.emplace(entity);
+	plant_animation.id = id;
+
 	// Add render request for tower
 	registry.renderRequests.insert(
 		entity,
-		{TEXTURE_ASSET_ID::PLANT_2_IDLE_F,
+		{PLANT_ANIMATION_MAP.at(id).idle.textures[0],
 		 EFFECT_ASSET_ID::ZOMBIE,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
+	AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(id).idle.duration, PLANT_ANIMATION_MAP.at(id).idle.textures, PLANT_ANIMATION_MAP.at(id).idle.size, true, false, false);
+
 	return entity;
-}
-
-void removeTower(vec2 position)
-{
-	// remove any towers at this position
-	for (Entity &tower_entity : registry.towers.entities)
-	{
-		// get each tower's position to determine it's row
-		const Motion &tower_motion = registry.motions.get(tower_entity);
-
-		if (tower_motion.position.y == position.y)
-		{
-			// remove this tower
-			registry.remove_all_components_of(tower_entity);
-			std::cout << "tower removed" << std::endl;
-		}
-	}
 }
 
 // Kung: Create the grass texture that will be used as part of the texture map.
@@ -576,7 +605,7 @@ void parseMap(bool tutorial)
 	std::vector<int> decoration_layer = jsonFile["layers"][1]["data"];
 
 	//// create background
-	//for (int i = 0; i < numRow; i++)
+	// for (int i = 0; i < numRow; i++)
 	//{ // iterating row-by-row
 	//	for (int j = 0; j < numCol; j++)
 	//	{
@@ -592,7 +621,7 @@ void parseMap(bool tutorial)
 	//			}
 	//		}
 	//	}
-	//}
+	// }
 
 	// add decorations
 	for (int i = 0; i < numRow; i++)
@@ -672,9 +701,6 @@ Entity createPause(vec2 position)
 	// Create the associated entity.
 	Entity pause_entity = Entity();
 
-	// Create the associated component.
-	// Pause &pause_component = registry.pauses.emplace(pause_entity);
-
 	// Create a component to simplify movement.
 	MoveWithCamera &mwc = registry.moveWithCameras.emplace(pause_entity);
 
@@ -698,7 +724,7 @@ Entity createPause(vec2 position)
 	return pause_entity;
 }
 
-Entity createPlayer(RenderSystem *renderer, vec2 position)
+Entity createPlayer(RenderSystem *renderer, vec2 position, int seed_type)
 {
 	Entity entity = Entity();
 
@@ -709,7 +735,12 @@ Entity createPlayer(RenderSystem *renderer, vec2 position)
 	player.health = PLAYER_HEALTH;
 
 	Inventory &inventory = registry.inventorys.emplace(entity);
-	registry.inventorys.components[0].seedCount[0] = 5; // 5 starter seeds
+	registry.inventorys.components[0].seedCount[seed_type] = 5; // 5 starter seeds
+	for(int i = 0; i < NUM_SEED_TYPES; i++)
+	{
+		registry.inventorys.components[0].seedCount[i] = 1; // one each of the 8 seed types
+		registry.inventorys.components[0].seedAtToolbar[i] = i;
+	}
 
 	MoveWithCamera &mwc = registry.moveWithCameras.emplace(entity);
 	Motion &motion = registry.motions.emplace(entity);
@@ -789,7 +820,7 @@ Entity createSeed(vec2 pos, int type)
 	// Render the object.
 	registry.renderRequests.insert(
 		seed_entity,
-		{TEXTURE_ASSET_ID::SEED_0,
+		{SEED_MAP.at(type).texture,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
@@ -799,7 +830,7 @@ Entity createSeed(vec2 pos, int type)
 }
 
 // Kung: Create the seed that appears within the toolbar.
-Entity createSeedInventory(vec2 pos, vec2 velocity, int type)
+Entity createSeedInventory(vec2 pos, vec2 velocity, int type, int toolbar_pos)
 {
 	// Create the associated entity.
 	Entity seed_entity = Entity();
@@ -822,7 +853,7 @@ Entity createSeedInventory(vec2 pos, vec2 velocity, int type)
 	registry.renderRequests.insert(
 		seed_entity,
 		{
-			(TEXTURE_ASSET_ID) ((int) TEXTURE_ASSET_ID::SEED_0 + type),
+			SEED_MAP.at(type).texture,
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE
 		}
@@ -858,16 +889,16 @@ Entity createSkeletonArcher(RenderSystem *renderer, vec2 position)
 	Enemy &enemy = registry.enemies.emplace(entity);
 	enemy.health = SKELETON_ARCHER_HEALTH;
 
-    // Add attack component separate from zombies
-    Attack &attack = registry.attacks.emplace(entity);
-    attack.range = skeleton.attack_range; // Match the attack range
-	attack.damage = SKELETON_ARCHER_DAMAGE;       // Set the damage value
+	// Add attack component separate from zombies
+	Attack &attack = registry.attacks.emplace(entity);
+	attack.range = skeleton.attack_range;	// Match the attack range
+	attack.damage = SKELETON_ARCHER_DAMAGE; // Set the damage value
 
-    // Add motion component
-    Motion &motion = registry.motions.emplace(entity);
-    motion.position = position;
-    motion.velocity = {0, 0};
-    motion.scale = {ENEMY_WIDTH, ENEMY_HEIGHT};
+	// Add motion component
+	Motion &motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.velocity = {0, 0};
+	motion.scale = {ENEMY_WIDTH, ENEMY_HEIGHT};
 
 	VisualScale &vscale = registry.visualScales.emplace(entity);
 	vscale.scale = {5.f, 5.f}; // Scale visuals 3.1x
@@ -897,22 +928,22 @@ Entity createSkeletonArcher(RenderSystem *renderer, vec2 position)
 // Create an arrow projectile
 Entity createArrow(vec2 position, vec2 direction, Entity source)
 {
-    // Create entity
-    Entity entity = Entity();
-    
-    // Add arrow component
-    Arrow &arrow = registry.arrows.emplace(entity);
-    arrow.source = source;
-    arrow.direction = normalize(direction); // Ensure direction is normalized
-    arrow.damage = SKELETON_ARCHER_DAMAGE;
-    
-    // Add motion component
-    Motion &motion = registry.motions.emplace(entity);
-    motion.position = position;
-    motion.velocity = arrow.direction * arrow.speed;
-    // Set proper angle for the arrow based on direction
-    motion.angle = atan2(direction.y, direction.x) * 180.f / M_PI;
-    motion.scale = {10.f, 10.f}; // Arrow size
+	// Create entity
+	Entity entity = Entity();
+
+	// Add arrow component
+	Arrow &arrow = registry.arrows.emplace(entity);
+	arrow.source = source;
+	arrow.direction = normalize(direction); // Ensure direction is normalized
+	arrow.damage = SKELETON_ARCHER_DAMAGE;
+
+	// Add motion component
+	Motion &motion = registry.motions.emplace(entity);
+	motion.position = position;
+	motion.velocity = arrow.direction * arrow.speed;
+	// Set proper angle for the arrow based on direction
+	motion.angle = atan2(direction.y, direction.x) * 180.f / M_PI;
+	motion.scale = {10.f, 10.f}; // Arrow size
 
 	VisualScale &vscale = registry.visualScales.emplace(entity);
 	vscale.scale = {10.f, 10.f}; // Scale visuals 2.5x
@@ -927,21 +958,15 @@ Entity createArrow(vec2 position, vec2 direction, Entity source)
 	return entity;
 }
 
-Entity createText(std::string text) {
+Entity createText(std::string text, vec2 pos, float size, vec3 color) {
 	Entity text_entity = Entity();
 
-	Text& text_component = registry.texts.emplace(text_entity);
+	Text &text_component = registry.texts.emplace(text_entity);
 	text_component.text = text;
-
-	registry.renderRequests.insert(
-		text_entity,
-		{
-			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::EGG,
-			GEOMETRY_BUFFER_ID::DEBUG_LINE
-		}
-	);
-
+	text_component.pos = pos;
+	text_component.size = size;
+	text_component.color = color;
+	
 	return text_entity;
 }
 
