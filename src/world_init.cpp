@@ -676,12 +676,12 @@ Entity createGameOver()
 	motion.position = {WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2};
 	motion.scale = vec2({WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX});
 
-	registry.renderRequests.insert(
-		entity,
-		{TEXTURE_ASSET_ID::GAMEOVER,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE},
-		false);
+	// registry.renderRequests.insert(
+	// 	entity,
+	// 	{TEXTURE_ASSET_ID::GAMEOVER,
+	// 	 EFFECT_ASSET_ID::TEXTURED,
+	// 	 GEOMETRY_BUFFER_ID::SPRITE},
+	// 	false);
 	return entity;
 }
 

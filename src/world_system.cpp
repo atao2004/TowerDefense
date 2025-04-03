@@ -1220,6 +1220,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 				level++;
 
+				print_level();
+
 				// Get player entity and size
 				Entity player = registry.players.entities[0];
 				vec2 player_pos = registry.motions.get(player).position;
@@ -1231,9 +1233,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 					registry.screenStates.components[0].cutscene = 3;
 					registry.screenStates.components[0].cg_index = 0;
 					return start_cg(renderer);
-				}
-
-				print_level();
+				}				
 			}
 			else
 			{
