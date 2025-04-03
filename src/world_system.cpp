@@ -1108,19 +1108,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		// Mix_PlayChannel(1, dash_sound, 0);
 	}
 
-	// Update state if player is moving
-	if (key == GLFW_KEY_A || key == GLFW_KEY_D || key == GLFW_KEY_S || key == GLFW_KEY_W)
-	{
-		if (motion.velocity == vec2(0, 0))
-		{
-			PlayerSystem::update_state(STATE::IDLE);
-		}
-		else
-		{
-			PlayerSystem::update_state(STATE::MOVE);
-		}
-	}
-
 	// Player movement sound
 	if (!WorldSystem::game_is_over)
 	{
