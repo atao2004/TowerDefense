@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "tinyECS/tiny_ecs.hpp"
 #include "render_system.hpp"
+#include "seeds.hpp"
 
 //splash screen
 Entity createScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background);
@@ -21,10 +22,7 @@ Entity createSlime(RenderSystem* renderer, vec2 position);
 Entity createOrcRider(RenderSystem* renderer, vec2 position);
 
 // towers
-Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage, int range, PLANT_ID id);
-Entity createPlant1(RenderSystem* renderer, vec2 position);
-Entity createPlant2(RenderSystem* renderer, vec2 position);
-Entity createPlant3(RenderSystem* renderer, vec2 position);
+Entity createPlant(RenderSystem* renderer, vec2 position, PLANT_ID id);
 
 // chicken
 Entity createChicken(RenderSystem* renderer);
