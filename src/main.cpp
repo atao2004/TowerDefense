@@ -40,6 +40,7 @@ int main()
 	SeedSystem seed_system;
 	MovementSystem movement_system;
 	ParticleSystem particle_system;
+	PlayerSystem player_system;
 
 	// initialize window
 	GLFWwindow *window = world_system.create_window();
@@ -98,6 +99,7 @@ int main()
 	FrameManager fm_particle = FrameManager(1);
 	FrameManager fm_seed = FrameManager(5);
 	FrameManager fm_render = FrameManager(5);
+	FrameManager fm_player = FrameManager(5);
 
 	while (!world_system.is_over())
 	{
@@ -113,16 +115,13 @@ int main()
 		t = now;
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
-		// when level up, we want the screen to be frozen
-		if (PlayerSystem::get_state() != STATE::LEVEL_UP)
-		{
-			if (fm_world.can_update())
-				world_system.step(fm_world.get_time());
-			if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH && game_screen != GAME_SCREEN_ID::CG)
-			{
-				// M2: FPS
-				FrameManager::tick(elapsed_ms); // moved here so when doing cg the game will pause
-				float current_fps = (1 / (elapsed_ms / 1000));
+		//when level up, we want the screen to be frozen
+		if (PlayerSystem::get_state() != STATE::LEVEL_UP && game_screen != GAME_SCREEN_ID::PAUSE) {
+			if (fm_world.can_update()) world_system.step(fm_world.get_time());
+			if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH && game_screen != GAME_SCREEN_ID::CG ) {
+				//M2: FPS
+				FrameManager::tick(elapsed_ms); //moved here so when doing cg the game will pause
+				float current_fps = (1/(elapsed_ms/1000));
 				cooldown -= elapsed_ms;
 				if (cooldown <= 0)
 				{ // used to prevent screen flickering
@@ -156,6 +155,8 @@ int main()
 				if (world_system.get_game_screen() == GAME_SCREEN_ID::CG)
 					continue;
 
+				if (fm_player.can_update())
+					player_system.step(fm_player.get_time());
 				if (fm_tower.can_update())
 					tower_system.step(fm_tower.get_time());
 				if (fm_movement.can_update())
@@ -186,7 +187,8 @@ int main()
 		glm::mat4 trans = glm::mat4(1.0f);
 		renderer_system.renderText("hello", 100, 100, 1, {1, 1, 0}, trans);
     
-		if (fm_render.can_update() || WorldSystem::game_is_over || game_screen == GAME_SCREEN_ID::CG) 
+		if (fm_render.can_update() ||
+		WorldSystem::game_is_over || game_screen == GAME_SCREEN_ID::CG || game_screen == GAME_SCREEN_ID::PAUSE || game_screen == GAME_SCREEN_ID::SPLASH) 
 			renderer_system.step_and_draw(game_screen, fm_render.get_time());
     
 	}

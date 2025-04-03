@@ -95,11 +95,12 @@ public:
 		registry_list.push_back(&mapTiles);//29
 		registry_list.push_back(&particles);//30
 		registry_list.push_back(&particleGenerators);//31
-		registry_list.push_back(&texts);
-		registry_list.push_back(&cgs);
-		registry_list.push_back(&plantAnimations);
-		registry_list.push_back(&orcRiders);
-		registry_list.push_back(&squads);
+		registry_list.push_back(&texts); //32
+		registry_list.push_back(&cgs); //33
+		registry_list.push_back(&buttons); //34
+		registry_list.push_back(&plantAnimations); //35
+		registry_list.push_back(&orcRiders); //36
+		registry_list.push_back(&squads); //37
 	}
 
 	void clear_all_components() {

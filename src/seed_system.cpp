@@ -22,15 +22,16 @@ void SeedSystem::step(float elapsed_ms)
 				vec2 pos;
 				pos.x = registry.motions.get(i).position.x;
 				pos.y = registry.motions.get(i).position.y;
+				createPlant(renderer, { pos.x - GRID_CELL_WIDTH_PX / 2, pos.y - GRID_CELL_HEIGHT_PX / 2 }, SEED_MAP.at(registry.seeds.get(i).type).plant);
 				registry.remove_all_components_of(i);
 				registry.seeds.remove(i);
-				createPlant1(renderer, { pos.x - GRID_CELL_WIDTH_PX / 2, pos.y - GRID_CELL_HEIGHT_PX / 2 });
 				
 				if (registry.screenStates.components[0].seed_cg) {
 					registry.screenStates.components[0].seed_cg = false;
 					registry.screenStates.components[0].cutscene = 2;
 					registry.screenStates.components[0].cg_index = 0;
-					return WorldSystem::start_cg(renderer);
+					if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::PLAYING)
+						return WorldSystem::start_cg(renderer);
 				}
 			}
 			else

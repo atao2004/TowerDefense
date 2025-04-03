@@ -9,6 +9,13 @@ enum class PLANT_ID {
     PLANT_3 = PLANT_2 + 1
 };
 
+struct stats {
+    int health;
+    int damage;
+    int range;
+    stats(int health, int damage, int range) : health(health), damage(damage), range(range) {}
+};
+
 struct animation {
     const TEXTURE_ASSET_ID* textures;
     int size;
@@ -107,4 +114,11 @@ PLANT_ANIMATION_MAP = {
     {PLANT_ID::PLANT_1, animation_state(PLANT_1_IDLE_ANIM, PLANT_1_ATTACK_ANIM)},
     {PLANT_ID::PLANT_2, animation_state(PLANT_2_IDLE_ANIM, PLANT_2_ATTACK_ANIM)},
     {PLANT_ID::PLANT_3, animation_state(PLANT_3_IDLE_ANIM, PLANT_3_ATTACK_ANIM)}
+};
+
+const std::map<PLANT_ID, stats>
+PLANT_STATS_MAP = {
+    {PLANT_ID::PLANT_1, stats(PLANT_1_HEALTH, PLANT_1_DAMAGE, PLANT_1_RANGE)},
+    {PLANT_ID::PLANT_2, stats(PLANT_2_HEALTH, PLANT_2_DAMAGE, PLANT_2_RANGE)},
+    {PLANT_ID::PLANT_3, stats(PLANT_3_HEALTH, PLANT_3_DAMAGE, PLANT_3_RANGE)}
 };

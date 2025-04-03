@@ -388,8 +388,8 @@ void RenderSystem::drawToScreen()
 		GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
 
 		glUniform1f(game_continues_uloc, screen.game_over);
-		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) ? 0 : screen.hp_percentage);
-		glUniform1f(exp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) ? 0 :screen.exp_percentage);
+		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE) ? 0 : screen.hp_percentage);
+		glUniform1f(exp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE) ? 0 :screen.exp_percentage);
 		gl_has_errors();
 
 		// Set the vertex position and vertex texture coordinates (both stored in the
@@ -469,7 +469,6 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 			drawTexturedMesh(entity, projection_2D);
 		}
 
-		drawToScreen();
 		if (game_screen == GAME_SCREEN_ID::SPLASH) {
 			renderText("Farmer Defense", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100, OS_RES, {0, 0, 0}, trans);
 		} else if (WorldSystem::game_is_over) {
@@ -513,7 +512,6 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 					renderText("WTH you can talk??", 60, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 				if (cg_idx == 4)
 				{
-
 					renderText("The zombies can hold weapons,", WINDOW_WIDTH_PX - 700, 450, 0.6*OS_RES, {1, 1, 1}, trans);
 					renderText("so WHY NOT", WINDOW_WIDTH_PX - 700, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 				}
@@ -531,6 +529,8 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 					renderText("Alright...", 60, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 			}
 		}
+		
+		drawToScreen();
 	}
 	else
 	{
@@ -569,7 +569,8 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 		}
 		drawParticlesInstanced(projection_2D);
 		// individually draw player, will render on top of all the motion sprites
-		if (!WorldSystem::game_is_over) drawTexturedMesh(registry.players.entities[0], projection_2D);
+		if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::PAUSE) 
+			drawTexturedMesh(registry.players.entities[0], projection_2D);
 
 		renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
 		renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);

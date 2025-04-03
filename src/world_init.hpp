@@ -3,10 +3,11 @@
 #include "common.hpp"
 #include "tinyECS/tiny_ecs.hpp"
 #include "render_system.hpp"
+#include "seeds.hpp"
 
 //splash screen
 Entity createScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background);
-Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position);
+Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct);
 
 // enemies
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position);
@@ -21,10 +22,7 @@ Entity createSlime(RenderSystem* renderer, vec2 position);
 Entity createOrcRider(RenderSystem* renderer, vec2 position);
 
 // towers
-Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage, int range, PLANT_ID id);
-Entity createPlant1(RenderSystem* renderer, vec2 position);
-Entity createPlant2(RenderSystem* renderer, vec2 position);
-Entity createPlant3(RenderSystem* renderer, vec2 position);
+Entity createPlant(RenderSystem* renderer, vec2 position, PLANT_ID id);
 
 // chicken
 Entity createChicken(RenderSystem* renderer);
@@ -41,6 +39,7 @@ void removeSurfaces();
 
 // texture elements (new)
 void parseMap(bool tutorial);
+Entity createPausePanel(RenderSystem* renderer, vec2 position);
 
 // tutorial components
 Entity createTutorialMove(vec2 position);
@@ -50,7 +49,7 @@ Entity createTutorialRestart(vec2 position);
 Entity createTutorialArrow(vec2 position);
 
 // ui elements
-Entity createPauseButton(vec2 position);
+Entity createPause(vec2 position);
 Entity createToolbar(vec2 position);
 
 // grid lines to show tile positions

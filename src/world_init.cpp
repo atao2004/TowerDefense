@@ -25,13 +25,34 @@ using json = nlohmann::json;
 // 	return entity;
 // }
 
-Entity createButton(RenderSystem *renderer, BUTTON_ID type, vec2 position)
-{
+Entity createPausePanel(RenderSystem* renderer, vec2 position) {
+	Entity entity = Entity();
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = vec2({ 800, 700 });
+	registry.renderRequests.insert(
+		entity,
+		{
+			TEXTURE_ASSET_ID::PAUSE_PANEL,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		},
+		false
+	);
+	registry.cgs.emplace(entity);
+	return entity;
+}
+
+Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct) {
 	Entity entity = Entity();
 	CustomButton &button = registry.buttons.emplace(entity);
 	button.type = type;
-	button.position = position;
-	Motion &motion = registry.motions.emplace(entity);
+	// std::cout<<button.position.x<<" "<<button.position.y<<std::endl;
+	button.position = toDeduct;
+	
+	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = {0, 0};
 	motion.position = position;
@@ -202,15 +223,15 @@ Entity createOrcRider(RenderSystem *renderer, vec2 position)
 	return entity;
 }
 
-Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage, int range, PLANT_ID id)
+Entity createPlant(RenderSystem* renderer, vec2 position, PLANT_ID id)
 {
 	Entity entity = Entity();
 
 	// Basic tower stats
 	Tower &tower = registry.towers.emplace(entity);
-	tower.health = health;
-	tower.damage = damage;
-	tower.range = range; // Detection range in pixels
+	tower.health = PLANT_STATS_MAP.at(id).health;
+	tower.damage = PLANT_STATS_MAP.at(id).damage;
+	tower.range = PLANT_STATS_MAP.at(id).range; // Detection range in pixels
 	tower.timer_ms = 2000.0f; // Attack every 2 second (unused ?)
 	tower.state = false;
 
@@ -224,6 +245,9 @@ Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage
 	Dimension &dimension = registry.dimensions.emplace(entity);
 	dimension.width = TOWER_BB_WIDTH;
 	dimension.height = TOWER_BB_HEIGHT;
+
+	VisualScale& vscale = registry.visualScales.emplace(entity);
+	vscale.scale = { 1.5f, 1.5f };
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh &mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
@@ -243,21 +267,6 @@ Entity createTower(RenderSystem* renderer, vec2 position, int health, int damage
 	AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(id).idle.duration, PLANT_ANIMATION_MAP.at(id).idle.textures, PLANT_ANIMATION_MAP.at(id).idle.size, true, false, false);
 
 	return entity;
-}
-
-Entity createPlant1(RenderSystem* renderer, vec2 position)
-{
-	return createTower(renderer, position, PLANT_1_HEALTH, PLANT_1_DAMAGE, PLANT_1_RANGE, PLANT_ID::PLANT_1);
-}
-
-Entity createPlant2(RenderSystem* renderer, vec2 position)
-{
-	return createTower(renderer, position, PLANT_2_HEALTH, PLANT_2_DAMAGE, PLANT_2_RANGE, PLANT_ID::PLANT_2);
-}
-
-Entity createPlant3(RenderSystem* renderer, vec2 position)
-{
-	return createTower(renderer, position, PLANT_3_HEALTH, PLANT_3_DAMAGE, PLANT_3_RANGE, PLANT_ID::PLANT_3);
 }
 
 // Kung: Create the grass texture that will be used as part of the texture map.
@@ -687,7 +696,7 @@ Entity createGameOver()
 
 // Kung: Create the pause button that will eventually pause the game.
 // As of now, it is purely cosmetic.
-Entity createPauseButton(vec2 position)
+Entity createPause(vec2 position)
 {
 	// Create the associated entity.
 	Entity pause_entity = Entity();
@@ -697,19 +706,18 @@ Entity createPauseButton(vec2 position)
 
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(pause_entity);
-	motion_component.position = vec2(300, 50);
+	motion_component.position = position;
 	motion_component.scale = vec2(60, 60);
 	motion_component.velocity = vec2(0, 0);
 
-	// // Create a component to represent the button.
 	CustomButton& button = registry.buttons.emplace(pause_entity);
 	button.type = BUTTON_ID::PAUSE;
-	button.position = motion_component.position;
+	button.position = vec2(30, 30);
 
 	// Render the object.
 	registry.renderRequests.insert(
 		pause_entity,
-		{TEXTURE_ASSET_ID::PAUSE,
+		{TEXTURE_ASSET_ID::PAUSE_BUTTON,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
@@ -812,12 +820,9 @@ Entity createSeed(vec2 pos, int type)
 	// Render the object.
 	registry.renderRequests.insert(
 		seed_entity,
-		{
-			(TEXTURE_ASSET_ID) ((int) TEXTURE_ASSET_ID::SEED_0 + type),
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE
-		}
-	);
+		{SEED_MAP.at(type).texture,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
 
 	ParticleSystem::createSeedGrowthEffect(pos, motion_component.scale);
 
@@ -847,9 +852,12 @@ Entity createSeedInventory(vec2 pos, vec2 velocity, int type, int toolbar_pos)
 	// Render the object.
 	registry.renderRequests.insert(
 		seed_entity,
-		{(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::SEED_0 + type),
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE});
+		{
+			SEED_MAP.at(type).texture,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE
+		}
+	);
 
 	return seed_entity;
 }
