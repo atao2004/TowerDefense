@@ -617,36 +617,46 @@ void WorldSystem::player_attack()
 		// Play the sword attack sound
 		Mix_PlayChannel(3, sword_attack_sound, 0);
 
-		Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
-		if (less_f_ugly.scale.x < 0)
-		{ // face left = minus the range from position
-			less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
-		}
-		else
-		{ // face right = add the range from position
-			less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
-		}
-		Motion weapon_motion = Motion();
-		weapon_motion.position = less_f_ugly.position;
-		weapon_motion.angle = less_f_ugly.angle;
-		weapon_motion.velocity = less_f_ugly.velocity;
-		weapon_motion.scale = less_f_ugly.scale;
+		Motion &player_motion = registry.motions.get(registry.players.entities[0]);
 
+		// Calculate attack direction based on mouse position
+		// Convert mouse position to world coordinates
+		vec2 screen_center = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2);
+		vec2 mouse_world_offset = vec2(mouse_pos_x - screen_center.x, mouse_pos_y - screen_center.y);
+
+		// Normalize the direction vector
+		vec2 attack_direction = normalize(mouse_world_offset);
+
+		// Update player facing based on attack direction
+		if (attack_direction.x != 0)
+		{
+			player_motion.scale.x = (attack_direction.x > 0) ? abs(player_motion.scale.x) : -abs(player_motion.scale.x);
+		}
+
+		// Calculate attack position based on direction and range
+		vec2 attack_position = player_motion.position + attack_direction * static_cast<float>(registry.attacks.get(player).range);
+
+		// Create weapon motion at the attack position
+		Motion weapon_motion = Motion();
+		weapon_motion.position = attack_position;
+		weapon_motion.angle = atan2(attack_direction.y, attack_direction.x); // Set proper angle
+		weapon_motion.velocity = player_motion.velocity;
+		weapon_motion.scale = player_motion.scale;
+
+		// Check for collisions with enemies
 		for (int i = 0; i < registry.enemies.size(); i++)
 		{
 			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.enemies.entities[i])) // if enemy and weapon collide, decrease enemy health
-				|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.enemies.entities[i])))
+				|| PhysicsSystem::collides(player_motion, registry.motions.get(registry.enemies.entities[i])))
 			{
 				Entity enemy = registry.enemies.entities[i];
 				if (registry.enemies.has(enemy))
 				{
 					auto &enemy_comp = registry.enemies.get(enemy);
-					enemy_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
-					// std::cout << "wow u r attacking so nice cool cool" << std::endl;
+					enemy_comp.health -= registry.attacks.get(player).damage;
 
 					// Calculate knockback direction (from player to enemy)
 					Motion &enemy_motion = registry.motions.get(enemy);
-					Motion &player_motion = registry.motions.get(player);
 					vec2 direction = enemy_motion.position - player_motion.position;
 					float length = sqrt(dot(direction, direction));
 					if (length > 0)
@@ -667,12 +677,10 @@ void WorldSystem::player_attack()
 					ParticleSystem::createBloodEffect(registry.motions.get(enemy).position, sprite_size);
 
 					// This is what you do when you kill a enemy.
-					if (enemy_comp.health <= 0 && !registry.deathAnimations.has(enemy)) // check here added a guard
+					if (enemy_comp.health <= 0 && !registry.deathAnimations.has(enemy))
 					{
 						// Add death animation before removing
-						Entity player = registry.players.entities[0];
-						Motion &player_motion = registry.motions.get(player);
-						vec2 slide_direction = {player_motion.scale.x > 0 ? 1.0f : -1.0f, 0.0f};
+						vec2 slide_direction = attack_direction; // Use attack direction for death animation
 
 						// Add death animation component
 						DeathAnimation &death_anim = registry.deathAnimations.emplace(enemy);
@@ -682,7 +690,6 @@ void WorldSystem::player_attack()
 
 						// Increase the counter that represents the number of zombies killed.
 						points++;
-						// std::cout << "enemies killed: " << points << std::endl;
 
 						// Kung: Upon killing a enemy, increase the experience of the player or reset the experience bar when it becomes full.
 						increase_exp_player();
@@ -690,6 +697,7 @@ void WorldSystem::player_attack()
 				}
 			}
 		}
+
 		// Player State
 		PlayerSystem::update_state(STATE::ATTACK);
 
