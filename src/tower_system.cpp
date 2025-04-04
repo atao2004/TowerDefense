@@ -48,7 +48,6 @@ void TowerSystem::step(float elapsed_ms)
                     if (compute_delta_distance(entity, player) < tower.range) {
                         Player& player_component = registry.players.components[i];
                         player_component.health = std::min(player_component.health_max, player_component.health + tower.damage * elapsed_ms / 1000.0f);
-                        registry.screenStates.components[0].hp_percentage = player_component.health / player_component.health_max;
                     }
                 }
                 break;

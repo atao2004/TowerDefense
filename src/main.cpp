@@ -16,6 +16,7 @@
 #include "animation_system.hpp"
 #include "tower_system.hpp"
 #include "movement_system.hpp"
+#include "screen_system.hpp"
 // fonts
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -41,6 +42,7 @@ int main()
 	MovementSystem movement_system;
 	ParticleSystem particle_system;
 	PlayerSystem player_system;
+	ScreenSystem screen_system;
 
 	// initialize window
 	GLFWwindow *window = world_system.create_window();
@@ -100,6 +102,7 @@ int main()
 	FrameManager fm_seed = FrameManager(5);
 	FrameManager fm_render = FrameManager(5);
 	FrameManager fm_player = FrameManager(5);
+	FrameManager fm_screen = FrameManager(2);
 
 	while (!world_system.is_over())
 	{
@@ -165,6 +168,8 @@ int main()
 					animation_system.step(fm_animation.get_time());
 				if (fm_particle.can_update())
 					particle_system.step(fm_particle.get_time());
+				if (fm_screen.can_update())
+					screen_system.step(fm_screen.get_time());
 			}
 			else
 			{
