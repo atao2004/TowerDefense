@@ -42,26 +42,31 @@ void TowerSystem::step(float elapsed_ms)
                     }
                 }
                 break;
-            case PLANT_TYPE::HEAL:
+            case PLANT_TYPE::HEAL: {
+                bool next_state = false;
                 for (uint i = 0; i < registry.players.size(); i++) {
                     Entity player = registry.players.entities[i];
                     if (compute_delta_distance(entity, player) < tower.range) {
                         Player& player_component = registry.players.components[i];
                         player_component.health = std::min(player_component.health_max, player_component.health + tower.damage * elapsed_ms / 1000.0f);
-                        if (!tower.state) {
-                            tower.state = true;
-                            AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.size, true, false, false);
-                        }
+                        next_state = true;
                     }
-                    else {
-                        if (tower.state) {
-                            tower.state = false;
-                            AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.size, true, false, false);
-                        }
+                }
+                if (!tower.state) {
+                    if (next_state) {
+                        tower.state = true;
+                        AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.size, true, false, false);
+                    }
+                }
+                else {
+                    if (!next_state) {
+                        tower.state = false;
+                        AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.size, true, false, false);
                     }
                 }
                 break;
-            case PLANT_TYPE::POISON:
+            }
+            case PLANT_TYPE::POISON: {
                 bool next_state = false;
                 for (uint i = 0; i < registry.enemies.size(); i++) {
                     Entity enemy = registry.enemies.entities[i];
@@ -84,6 +89,7 @@ void TowerSystem::step(float elapsed_ms)
                     }
                 }
                 break;
+            }
         }
     }
 }
