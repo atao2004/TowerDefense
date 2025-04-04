@@ -1860,6 +1860,15 @@ void WorldSystem::loadGame()
 		registry.mapTiles.emplace(e);
 	}
 
+	json plant_animation_arr = jsonFile["35"];
+	for (long unsigned int i = 0; i < plant_animation_arr.size(); i++)
+	{
+		json plant_animation_json = plant_animation_arr[i];
+		Entity e = Entity(plant_animation_json["entity"]);
+		PlantAnimation& plant_animation = registry.plantAnimations.emplace(e);
+		plant_animation.id = plant_animation_json["id"];
+	}
+
 	Entity& player_entity = registry.players.entities[0];
 	vec2 player_pos = registry.motions.get(player_entity).position;
 	clearButtons();
