@@ -2040,14 +2040,6 @@ void WorldSystem::update_dash(float elapsed_ms_since_last_update)
 						mwc_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
 				}
 			}
-
-			// Update player state based on resulting velocity
-			Entity player = registry.players.entities[0];
-			Motion &motion = registry.motions.get(player);
-			if (motion.velocity == vec2(0, 0))
-				PlayerSystem::update_state(STATE::IDLE);
-			else
-				PlayerSystem::update_state(STATE::MOVE);
 		}
 	}
 
