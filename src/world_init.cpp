@@ -644,7 +644,6 @@ void parseMap(bool tutorial)
 }
 
 // Kung: Create the toolbar that in the future will store seeds, harvests, and other associated items.
-// As of now, it is purely cosmetic.
 Entity createToolbar(vec2 position)
 {
 	// Create the associated entity.

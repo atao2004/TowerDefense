@@ -359,8 +359,8 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
 	for(int i = 0; i < NUM_SEED_TYPES; i++) {
 		if(registry.inventorys.components[0].seedCount[i] > 0) {
-		createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (i + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, i, i);	
-		std::cout << "seed type: " << i << std::endl;	
+		createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (i * 0.995 + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, i, i);	
+		std::cout << "seed type: " << i << std::endl;
 		}
 	}
 	// createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
