@@ -48,6 +48,16 @@ void TowerSystem::step(float elapsed_ms)
                     if (compute_delta_distance(entity, player) < tower.range) {
                         Player& player_component = registry.players.components[i];
                         player_component.health = std::min(player_component.health_max, player_component.health + tower.damage * elapsed_ms / 1000.0f);
+                        if (!tower.state) {
+                            tower.state = true;
+                            AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.size, true, false, false);
+                        }
+                    }
+                    else {
+                        if (tower.state) {
+                            tower.state = false;
+                            AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.size, true, false, false);
+                        }
                     }
                 }
                 break;
