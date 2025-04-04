@@ -190,7 +190,7 @@ Entity createOrcRider(RenderSystem *renderer, vec2 position)
 
     // Add enemy component
     Enemy &enemy = registry.enemies.emplace(entity);
-    enemy.health = 150; // Higher health than basic enemies
+    enemy.health = 80; 
     enemy.speed = 100;  // Base speed same as walk speed
     
     Attack &attack = registry.attacks.emplace(entity);
@@ -206,7 +206,7 @@ Entity createOrcRider(RenderSystem *renderer, vec2 position)
 	registry.renderRequests.insert(
 		entity,
 		{TEXTURE_ASSET_ID::ORC_RIDER_IDLE1,
-		 EFFECT_ASSET_ID::TEXTURED,
+		 EFFECT_ASSET_ID::ZOMBIE,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
 	// Start with idle animation using the pre-defined constants

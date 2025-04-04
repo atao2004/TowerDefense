@@ -465,6 +465,34 @@ void AISystem::update_orcriders(float elapsed_ms)
             continue;
         }
 
+        // Skip OrcRiders that are part of a squad - they're handled separately
+        bool is_squad_knight = false;
+        for (auto squad_entity : registry.squads.entities)
+        {
+            Squad &squad = registry.squads.get(squad_entity);
+            if (squad.is_active)
+            {
+                // More robust check for squad knights
+                for (auto knight : squad.knights)
+                {
+                    if (knight == entity)
+                    {
+                        is_squad_knight = true;
+                        break;
+                    }
+                }
+                if (is_squad_knight)
+                    break;
+            }
+        }
+
+        if (is_squad_knight)
+        {
+            // Skip squad knights completely
+            continue;
+        }
+
+        // Rest of the normal OrcRider update code
         OrcRider &orcrider = registry.orcRiders.get(entity);
         Motion &motion = registry.motions.get(entity);
 
@@ -851,6 +879,21 @@ void AISystem::update_archer_circle_formation(Squad &squad, float elapsed_ms, En
             // Face movement direction
             if (to_target.x != 0)
                 motion.scale.x = (to_target.x > 0) ? abs(motion.scale.x) : -abs(motion.scale.x);
+
+            // Ensure walk animation is playing when moving
+            if (!registry.animations.has(archer) ||
+                registry.animations.get(archer).textures != SKELETON_WALK_ANIMATION)
+            {
+                AnimationSystem::update_animation(
+                    archer,
+                    SKELETON_WALK_DURATION,
+                    SKELETON_WALK_ANIMATION,
+                    SKELETON_WALK_FRAMES,
+                    true,  // loop
+                    false, // not locked
+                    false  // don't destroy
+                );
+            }
         }
         else
         {
@@ -1011,15 +1054,104 @@ void AISystem::update_knight_herding(Squad &squad, float elapsed_ms, Entity play
 
     vec2 player_pos = registry.motions.get(player).position;
 
-    // If already hunting or charging, let normal OrcRider behavior handle it
-    if (rider.is_hunting || rider.is_charging)
-        return;
+    // Handle hunting and charging states similar to update_orcriders
+    if (rider.is_charging)
+    {
+        // Continue charge for the specified distance/duration
+        rider.charge_timer_ms += elapsed_ms;
+        float charge_duration_ms = (rider.charge_distance / rider.charge_speed) * 1000.0f;
 
-    // Determine if player is threatening archers
+        // Move in charge direction (keep this movement logic)
+        motion.velocity = rider.charge_direction * rider.charge_speed;
+
+        // Check for player collision during charge
+        float dist_to_player = length(player_pos - motion.position);
+        if (!rider.has_hit_player && dist_to_player < 50.0f)
+        {
+            // Player was hit by charge
+            rider.has_hit_player = true;
+
+            // Apply damage to player
+            if (registry.statuses.has(player))
+            {
+                Status attack_status{
+                    "attack",
+                    0.0f,
+                    static_cast<float>(rider.damage)};
+                registry.statuses.get(player).active_statuses.push_back(attack_status);
+
+                // Play hit sound
+                Mix_PlayChannel(2, injured_sound, 0);
+            }
+        }
+
+        // When charge is complete
+        if (rider.charge_timer_ms >= charge_duration_ms)
+        {
+            rider.is_charging = false;
+            rider.has_hit_player = false;
+            motion.velocity = {0, 0};
+
+            // Set a small cooldown to prevent instant hunting
+            rider.hunt_timer_ms = 300.0f; // Short cooldown
+
+            // Go back to walk state
+            rider.current_state = OrcRider::State::WALK;
+
+            // Play walk animation for after charge
+            AnimationSystem::update_animation(
+                knight,
+                ORCRIDER_WALK_ANIMATION_DURATION,
+                ORCRIDER_WALK_ANIMATION,
+                ORCRIDER_WALK_ANIMATION_SIZE,
+                true,  // loop
+                false, // not locked
+                false  // don't destroy
+            );
+        }
+        return; // Return early when charging
+    }
+    else if (rider.is_hunting)
+    {
+        // Keep orc still during hunt animation
+        motion.velocity = {0, 0};
+
+        // Update hunt timer
+        rider.hunt_timer_ms -= elapsed_ms;
+
+        // When hunt animation finishes, start charging
+        if (rider.hunt_timer_ms <= 0)
+        {
+            rider.is_hunting = false;
+            rider.is_charging = true;
+            rider.charge_timer_ms = 0;
+
+            // Calculate and store charge direction toward player
+            vec2 direction = player_pos - motion.position;
+            rider.charge_direction = normalize(direction);
+
+            // Update animation to walking for charge
+            AnimationSystem::update_animation(
+                knight,
+                ORCRIDER_WALK_ANIMATION_DURATION,
+                ORCRIDER_WALK_ANIMATION,
+                ORCRIDER_WALK_ANIMATION_SIZE,
+                true,  // loop
+                false, // not locked
+                false  // don't destroy
+            );
+        }
+        return; // Return early when hunting
+    }
+
+    // REGULAR BEHAVIOR WHEN NOT HUNTING OR CHARGING
+
+    // Check if player is threatening any squad members (archers or orcs)
     bool player_threatening = false;
-    vec2 closest_archer_pos;
-    float closest_distance = 1000000.0f; // Large initial value
+    Entity threatened_ally;
+    float closest_ally_dist = 1000000.0f;
 
+    // Check archers first
     for (auto archer : squad.archers)
     {
         if (!registry.motions.has(archer))
@@ -1028,109 +1160,197 @@ void AISystem::update_knight_herding(Squad &squad, float elapsed_ms, Entity play
         vec2 archer_pos = registry.motions.get(archer).position;
         float dist = length(player_pos - archer_pos);
 
-        if (dist < closest_distance)
+        if (dist < closest_ally_dist)
         {
-            closest_distance = dist;
-            closest_archer_pos = archer_pos;
+            closest_ally_dist = dist;
+            threatened_ally = archer;
         }
 
         // Player is threatening if within 250 pixels of any archer
         if (dist < 250.0f)
         {
             player_threatening = true;
+            threatened_ally = archer;
             break;
         }
     }
 
-    // If player is threatening archers, position for charge
-    if (player_threatening)
+    // Check orcs too
+    if (!player_threatening)
     {
-        // Calculate vector from player to closest archer
-        vec2 player_to_archer = closest_archer_pos - player_pos;
-        vec2 normalized_dir = normalize(player_to_archer);
-
-        // Position perpendicular to the player-archer line to force player away
-        vec2 perpendicular = vec2(-normalized_dir.y, normalized_dir.x);
-
-        // Pick the side from which to approach (alternate based on time)
-        float side = sin(elapsed_ms / 1000.0f) > 0 ? 1.0f : -1.0f;
-
-        // Set flank position to approach from the side
-        vec2 flank_pos = player_pos + perpendicular * side * 300.0f;
-
-        // Move toward flank position
-        vec2 to_flank = flank_pos - motion.position;
-        float dist_to_flank = length(to_flank);
-
-        if (dist_to_flank > 30.0f)
+        for (auto orc : squad.orcs)
         {
-            motion.velocity = normalize(to_flank) * rider.walk_speed;
+            if (!registry.motions.has(orc) || orc == knight) // Skip self
+                continue;
 
-            // Update facing direction
-            if (to_flank.x != 0)
-                motion.scale.x = (to_flank.x > 0) ? abs(motion.scale.x) : -abs(motion.scale.x);
-        }
-        else
-        {
-            // In position, prepare to hunt and charge
-            rider.is_hunting = true;
-            rider.hunt_timer_ms = ORCRIDER_HUNT_ANIMATION_DURATION;
-            rider.current_state = OrcRider::State::HUNT;
+            vec2 orc_pos = registry.motions.get(orc).position;
+            float dist = length(player_pos - orc_pos);
 
-            // Play hunt animation
-            AnimationSystem::update_animation(
-                knight,
-                ORCRIDER_HUNT_ANIMATION_DURATION,
-                ORCRIDER_HUNT_ANIMATION,
-                ORCRIDER_HUNT_ANIMATION_SIZE,
-                false, // don't loop
-                false, // not locked
-                false  // don't destroy
-            );
+            if (dist < closest_ally_dist)
+            {
+                closest_ally_dist = dist;
+                threatened_ally = orc;
+            }
+
+            // Player is threatening if within 200 pixels of any orc
+            if (dist < 200.0f)
+            {
+                player_threatening = true;
+                threatened_ally = orc;
+                break;
+            }
         }
     }
+
+    // Handle cooldown after charging
+    if (rider.hunt_timer_ms > 0)
+    {
+        rider.hunt_timer_ms -= elapsed_ms;
+        // Continue patrolling during cooldown
+    }
+
+    // HUNTING & CHARGING: If player is threatening allies and cooldown is over
+    if (player_threatening && registry.motions.has(threatened_ally) && rider.hunt_timer_ms <= 0)
+    {
+        // Start hunting immediately (same as ordinary OrcRiders)
+        rider.current_state = OrcRider::State::HUNT;
+
+        // Begin hunt animation
+        rider.is_hunting = true;
+        rider.hunt_timer_ms = ORCRIDER_HUNT_ANIMATION_DURATION;
+
+        // Play hunt animation
+        AnimationSystem::update_animation(
+            knight,
+            ORCRIDER_HUNT_ANIMATION_DURATION,
+            ORCRIDER_HUNT_ANIMATION,
+            ORCRIDER_HUNT_ANIMATION_SIZE,
+            false, // don't loop
+            false, // not locked
+            false  // don't destroy
+        );
+
+        // Stop moving during hunt animation
+        motion.velocity = vec2(0, 0);
+
+        // Face toward player during hunt
+        vec2 to_player = player_pos - motion.position;
+        if (to_player.x != 0)
+            motion.scale.x = (to_player.x > 0) ? abs(motion.scale.x) : -abs(motion.scale.x);
+    }
+    // PATROLLING: If player isn't threatening allies, patrol around the squad
     else
     {
-        // If player isn't threatening archers, patrol between player and archers
-        vec2 center_point = vec2(0, 0);
-        int valid_archers = 0;
+        // Calculate squad center
+        vec2 squad_center = vec2(0, 0);
+        int valid_squad_members = 0;
 
         for (auto archer : squad.archers)
         {
             if (registry.motions.has(archer))
             {
-                center_point += registry.motions.get(archer).position;
-                valid_archers++;
+                squad_center += registry.motions.get(archer).position;
+                valid_squad_members++;
             }
         }
 
-        if (valid_archers > 0)
+        for (auto orc : squad.orcs)
         {
-            center_point /= valid_archers;
+            if (registry.motions.has(orc) && orc != knight) // Don't include self in calculation
+            {
+                squad_center += registry.motions.get(orc).position;
+                valid_squad_members++;
+            }
+        }
 
-            // Position halfway between player and archer center
-            vec2 patrol_pos = (player_pos + center_point) * 0.5f;
+        if (valid_squad_members > 0)
+        {
+            squad_center /= valid_squad_members;
 
-            // Move toward patrol position
+            // Create a continuous circular patrol path
+            float patrol_radius = 300.0f;             // Large radius to circle around the whole squad
+            float patrol_time = elapsed_ms / 8000.0f; // Controls patrol speed (8 seconds per full circle)
+
+            // Calculate patrol position on a circle around the squad center
+            vec2 patrol_pos = squad_center + vec2(
+                                                 cos(patrol_time * 2.0f * M_PI) * patrol_radius,
+                                                 sin(patrol_time * 2.0f * M_PI) * patrol_radius);
+
+            // Move toward the patrol position
             vec2 to_patrol = patrol_pos - motion.position;
             float dist_to_patrol = length(to_patrol);
 
-            if (dist_to_patrol > 20.0f)
-            {
-                motion.velocity = normalize(to_patrol) * rider.walk_speed;
+            // Always keep moving along the patrol path
+            motion.velocity = normalize(to_patrol) * rider.walk_speed;
 
-                // Update facing direction
-                if (to_patrol.x != 0)
-                    motion.scale.x = (to_patrol.x > 0) ? abs(motion.scale.x) : -abs(motion.scale.x);
+            // Minimum distance to maintain from any ally
+            const float MIN_ALLY_DISTANCE = 150.0f;
+
+            // Check if we're too close to any ally, and adjust position if needed
+            vec2 avoidance_force = vec2(0, 0);
+
+            for (auto archer : squad.archers)
+            {
+                if (registry.motions.has(archer))
+                {
+                    vec2 archer_pos = registry.motions.get(archer).position;
+                    vec2 to_archer = motion.position - archer_pos;
+                    float dist = length(to_archer);
+
+                    if (dist < MIN_ALLY_DISTANCE)
+                    {
+                        // Add force to push away from this ally
+                        avoidance_force += normalize(to_archer) * (MIN_ALLY_DISTANCE - dist) / MIN_ALLY_DISTANCE;
+                    }
+                }
             }
-            else
-            {
-                // At patrol position, stay still but face player
-                motion.velocity = vec2(0, 0);
 
-                vec2 to_player = player_pos - motion.position;
-                if (to_player.x != 0)
-                    motion.scale.x = (to_player.x > 0) ? abs(motion.scale.x) : -abs(motion.scale.x);
+            for (auto orc : squad.orcs)
+            {
+                if (registry.motions.has(orc) && orc != knight)
+                {
+                    vec2 orc_pos = registry.motions.get(orc).position;
+                    vec2 to_orc = motion.position - orc_pos;
+                    float dist = length(to_orc);
+
+                    if (dist < MIN_ALLY_DISTANCE)
+                    {
+                        // Add force to push away from this ally
+                        avoidance_force += normalize(to_orc) * (MIN_ALLY_DISTANCE - dist) / MIN_ALLY_DISTANCE;
+                    }
+                }
+            }
+
+            // Apply avoidance if needed
+            if (length(avoidance_force) > 0.1f)
+            {
+                // Blend the patrol velocity with the avoidance force
+                motion.velocity = normalize(motion.velocity + avoidance_force * 1.5f) * rider.walk_speed;
+            }
+
+            vec2 to_player = player_pos - motion.position;
+            if (to_player.x != 0)
+            {
+                // Just face player directly without any delay or conditions
+                motion.scale.x = (to_player.x > 0) ? abs(motion.scale.x) : -abs(motion.scale.x);
+            }
+
+            // Use WALK animation and state while patrolling
+            rider.current_state = OrcRider::State::WALK;
+
+            // Ensure walk animation is playing
+            if (!registry.animations.has(knight) ||
+                registry.animations.get(knight).textures != ORCRIDER_WALK_ANIMATION)
+            {
+                AnimationSystem::update_animation(
+                    knight,
+                    ORCRIDER_WALK_ANIMATION_DURATION,
+                    ORCRIDER_WALK_ANIMATION,
+                    ORCRIDER_WALK_ANIMATION_SIZE,
+                    true,  // loop
+                    false, // not locked
+                    false  // don't destroy
+                );
             }
         }
     }
