@@ -159,7 +159,7 @@ const int PLANT_1_DAMAGE = 10;
 const int PLANT_2_DAMAGE = 10;
 const int PLANT_3_DAMAGE = 10;
 const int PLANT_2_PURPLE_DAMAGE = 5; // hp/sec
-const int PLANT_2_CYAN_DAMAGE = 10;
+const int PLANT_2_CYAN_DAMAGE = 5; // hp/sec
 
 const int PLANT_1_RANGE = GRID_CELL_WIDTH_PX * 20;
 const int PLANT_2_RANGE = GRID_CELL_WIDTH_PX * 10;

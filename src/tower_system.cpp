@@ -61,6 +61,29 @@ void TowerSystem::step(float elapsed_ms)
                     }
                 }
                 break;
+            case PLANT_TYPE::POISON:
+                bool next_state = false;
+                for (uint i = 0; i < registry.enemies.size(); i++) {
+                    Entity enemy = registry.enemies.entities[i];
+                    if (compute_delta_distance(entity, enemy) < tower.range) {
+                        Enemy& enemy_component = registry.enemies.components[i];
+                        enemy_component.health -= tower.damage * elapsed_ms / 1000.0f;
+                        next_state = true;
+                    }
+                }
+                if (!tower.state) {
+                    if (next_state) {
+                        tower.state = true;
+                        AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.size, true, false, false);
+                    }
+                }
+                else {
+                    if (!next_state) {
+                        tower.state = false;
+                        AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.size, true, false, false);
+                    }
+                }
+                break;
         }
     }
 }
