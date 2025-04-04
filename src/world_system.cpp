@@ -27,9 +27,10 @@ Mix_Chunk *WorldSystem::game_over_sound = nullptr;
 GAME_SCREEN_ID WorldSystem::game_screen = GAME_SCREEN_ID::SPLASH;
 int WorldSystem::current_day = 1;
 bool WorldSystem::player_is_dashing = false;
+int WorldSystem::current_seed = 0;
 
 // create the world
-WorldSystem::WorldSystem() : points(0), level(1), current_seed(0)
+WorldSystem::WorldSystem() : points(0), level(1)
 {
 }
 
@@ -188,10 +189,11 @@ void WorldSystem::restart_splash_screen()
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
-	if (PlayerSystem::get_state() == STATE::LEVEL_UP)
-	{
-		registry.inventorys.components[0].seedCount[current_seed]++;
-	}
+	std::cout <<(int)game_screen << std::endl;
+	// if (PlayerSystem::get_state() == STATE::LEVEL_UP)
+	// {
+	// 	registry.inventorys.components[0].seedCount[current_seed]++;
+	// }
 	// Using the spawn manager to generate zombies
 	if (WorldSystem::game_is_over)
 	{
@@ -433,7 +435,7 @@ void WorldSystem::restart_game()
 
 	// Set the level to level 1 and the game_screen to PLAYING.
 	level = 1;
-	game_screen = GAME_SCREEN_ID::PLAYING;
+	game_screen = GAME_SCREEN_ID::LEVEL_UP;
 
 	// Kung: This is for Milestone #2. This creates the farmland.
 	parseMap(false);
@@ -574,7 +576,7 @@ void WorldSystem::increase_exp_player()
 	else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 	{
 		// StateSystem::update_state(STATE::LEVEL_UP);
-		// come back later!
+		// come back later
 		if (registry.inventorys.components[0].seedCount[current_seed] == 0)
 		{
 			registry.inventorys.components[0].seedAtToolbar[current_seed] == -1;
@@ -587,6 +589,7 @@ void WorldSystem::increase_exp_player()
 		vec2 player_pos = registry.motions.get(player_entity).position;
 		vec2 player_size = registry.motions.get(player_entity).scale;
 		ParticleSystem::createLevelUpEffect(player_pos, player_size);
+		set_game_screen(GAME_SCREEN_ID::LEVEL_UP);
 
 		print_level();
 
@@ -604,7 +607,7 @@ void WorldSystem::increase_exp_plant()
 	Entity player_entity = registry.players.entities[0];
 	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 	{
-		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(player_entity).damage / PLAYER_HEALTH;
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(player_entity).damage / 0.001;
 	} // Kung: Due to technical difficulties, plants cannot be used to level up.
 }
 
@@ -1195,7 +1198,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		{
 			if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 			{
-				// StateSystem::update_state(STATE::LEVEL_UP);
 				// come back later!
 				if (registry.inventorys.components[0].seedCount[current_seed] == 0)
 				{
@@ -1220,7 +1222,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			}
 			else
 			{
-				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += 0.1;
+				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += 1;
 			}
 		}
 	}
@@ -1237,7 +1239,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 		return;
 	}
 
-	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
+	if (game_screen == GAME_SCREEN_ID::LEVEL_UP ||
 		game_is_over)
 		return;
 

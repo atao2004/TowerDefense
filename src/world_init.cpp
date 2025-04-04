@@ -147,32 +147,32 @@ Entity createEnemy(RenderSystem *renderer, vec2 position, int health, int damage
 
 Entity createOrc(RenderSystem *renderer, vec2 position)
 {
-	return createEnemy(renderer, position, ORC_HEALTH, ORC_DAMAGE, ORC_SPEED, ORC_ANIMATION_DURATION, ORC_ANIMATION, ORC_ANIMATION_SIZE);
+	return createEnemy(renderer, position, 1, ORC_DAMAGE, ORC_SPEED, ORC_ANIMATION_DURATION, ORC_ANIMATION, ORC_ANIMATION_SIZE);
 }
 
 Entity createOrcElite(RenderSystem *renderer, vec2 position)
 {
-	return createEnemy(renderer, position, ORC_ELITE_HEALTH, ORC_ELITE_DAMAGE, ORC_ELITE_SPEED, ORC_ELITE_ANIMATION_DURATION, ORC_ELITE_ANIMATION, ORC_ELITE_ANIMATION_SIZE);
+	return createEnemy(renderer, position, 1, ORC_ELITE_DAMAGE, ORC_ELITE_SPEED, ORC_ELITE_ANIMATION_DURATION, ORC_ELITE_ANIMATION, ORC_ELITE_ANIMATION_SIZE);
 }
 
 Entity createSkeleton(RenderSystem *renderer, vec2 position)
 {
-	return createEnemy(renderer, position, SKELETON_HEALTH, SKELETON_DAMAGE, SKELETON_SPEED, SKELETON_ANIMATION_DURATION, SKELETON_ANIMATION, SKELETON_ANIMATION_SIZE);
+	return createEnemy(renderer, position, 1, SKELETON_DAMAGE, SKELETON_SPEED, SKELETON_ANIMATION_DURATION, SKELETON_ANIMATION, SKELETON_ANIMATION_SIZE);
 }
 
 Entity createWerebear(RenderSystem *renderer, vec2 position)
 {
-	return createEnemy(renderer, position, WEREBEAR_HEALTH, WEREBEAR_DAMAGE, WEREBEAR_SPEED, WEREBEAR_ANIMATION_DURATION, WEREBEAR_ANIMATION, WEREBEAR_ANIMATION_SIZE);
+	return createEnemy(renderer, position, 1, WEREBEAR_DAMAGE, WEREBEAR_SPEED, WEREBEAR_ANIMATION_DURATION, WEREBEAR_ANIMATION, WEREBEAR_ANIMATION_SIZE);
 }
 
 Entity createWerewolf(RenderSystem *renderer, vec2 position)
 {
-	return createEnemy(renderer, position, WEREWOLF_HEALTH, WEREWOLF_DAMAGE, WEREWOLF_SPEED, WEREWOLF_ANIMATION_DURATION, WEREWOLF_ANIMATION, WEREWOLF_ANIMATION_SIZE);
+	return createEnemy(renderer, position, 1, WEREWOLF_DAMAGE, WEREWOLF_SPEED, WEREWOLF_ANIMATION_DURATION, WEREWOLF_ANIMATION, WEREWOLF_ANIMATION_SIZE);
 }
 
 Entity createSlime(RenderSystem *renderer, vec2 position)
 {
-	return createEnemy(renderer, position, SLIME_HEALTH, SLIME_DAMAGE, SLIME_SPEED, SLIME_ANIMATION_DURATION, SLIME_ANIMATION, SLIME_ANIMATION_SIZE);
+	return createEnemy(renderer, position, 1, SLIME_DAMAGE, SLIME_SPEED, SLIME_ANIMATION_DURATION, SLIME_ANIMATION, SLIME_ANIMATION_SIZE);
 }
 
 Entity createOrcRider(RenderSystem *renderer, vec2 position)

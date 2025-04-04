@@ -60,7 +60,7 @@ public:
 
 	static void game_over();
 	static bool game_is_over;
-	unsigned int current_seed; // current type of seed the player has selected
+	static int current_seed; // current type of seed the player has selected
 	// Current experience level of the player
 	unsigned int level;
 

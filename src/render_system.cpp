@@ -359,7 +359,7 @@ void RenderSystem::drawToScreen()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, w, h);
 	glDepthRange(0, 10);
-	glClearColor(1.f, 0, 0, 1.0);
+	// glClearColor(1.f, 0, 0, 1.0);
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	gl_has_errors();
@@ -388,8 +388,8 @@ void RenderSystem::drawToScreen()
 		GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
 
 		glUniform1f(game_continues_uloc, screen.game_over);
-		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE) ? 0 : screen.hp_percentage);
-		glUniform1f(exp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE) ? 0 :screen.exp_percentage);
+		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE||  WorldSystem::get_game_screen() == GAME_SCREEN_ID::LEVEL_UP) ? 0 : screen.hp_percentage);
+		glUniform1f(exp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE||  WorldSystem::get_game_screen() == GAME_SCREEN_ID::LEVEL_UP) ? 0 :screen.exp_percentage);
 		gl_has_errors();
 
 		// Set the vertex position and vertex texture coordinates (both stored in the
@@ -449,7 +449,7 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 	glDepthRange(0.00001, 10);
 
 	// white background
-	glClearColor(GRASS_COLOR.x, GRASS_COLOR.y, GRASS_COLOR.z, 1.0f);
+	// glClearColor(GRASS_COLOR.x, GRASS_COLOR.y, GRASS_COLOR.z, 1.0f);
 
 	glClearDepth(10.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -461,8 +461,15 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 	gl_has_errors();
 	int cutscene = registry.screenStates.components[0].cutscene;
 	mat3 projection_2D = (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) ? createProjectionMatrix_splash() : createProjectionMatrix();
+	if(game_screen == GAME_SCREEN_ID::LEVEL_UP) {
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		projection_2D = createProjectionMatrix();
+		renderText("LEVEL UP!", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100 - 100, OS_RES, {1, 1, 1}, trans);
+		renderText("You earned a seed of type: " + std::to_string(WorldSystem::current_seed) , WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100 - 200, OS_RES, {0, 0, 0}, trans);
+		drawToScreen();
 
-	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG)
+	}
+	else if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG)
 	{
 		for (Entity entity : registry.cgs.entities)
 		{
