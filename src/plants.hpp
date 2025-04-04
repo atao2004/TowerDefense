@@ -11,11 +11,19 @@ enum class PLANT_ID {
     PLANT_2_CYAN = PLANT_2_PURPLE + 1
 };
 
+enum class PLANT_TYPE {
+    PROJECTILE,
+    HEAL,
+    POISON,
+    SLOW
+};
+
 struct stats {
     int health;
     int damage;
     int range;
-    stats(int health, int damage, int range) : health(health), damage(damage), range(range) {}
+    PLANT_TYPE type;
+    stats(int health, int damage, int range, PLANT_TYPE type) : health(health), damage(damage), range(range), type(type) {}
 };
 
 struct animation {
@@ -150,7 +158,7 @@ const int PLANT_2_CYAN_HEALTH = 15;
 const int PLANT_1_DAMAGE = 10;
 const int PLANT_2_DAMAGE = 10;
 const int PLANT_3_DAMAGE = 10;
-const int PLANT_2_PURPLE_DAMAGE = 10;
+const int PLANT_2_PURPLE_DAMAGE = 5; // hp/sec
 const int PLANT_2_CYAN_DAMAGE = 10;
 
 const int PLANT_1_RANGE = GRID_CELL_WIDTH_PX * 20;
@@ -170,9 +178,9 @@ PLANT_ANIMATION_MAP = {
 
 const std::map<PLANT_ID, stats>
 PLANT_STATS_MAP = {
-    {PLANT_ID::PLANT_1, stats(PLANT_1_HEALTH, PLANT_1_DAMAGE, PLANT_1_RANGE)},
-    {PLANT_ID::PLANT_2, stats(PLANT_2_HEALTH, PLANT_2_DAMAGE, PLANT_2_RANGE)},
-    {PLANT_ID::PLANT_3, stats(PLANT_3_HEALTH, PLANT_3_DAMAGE, PLANT_3_RANGE)},
-    {PLANT_ID::PLANT_2_PURPLE, stats(PLANT_2_PURPLE_HEALTH, PLANT_2_PURPLE_DAMAGE, PLANT_2_PURPLE_RANGE)},
-    {PLANT_ID::PLANT_2_CYAN, stats(PLANT_2_CYAN_HEALTH, PLANT_2_CYAN_DAMAGE, PLANT_2_CYAN_RANGE)}
+    {PLANT_ID::PLANT_1, stats(PLANT_1_HEALTH, PLANT_1_DAMAGE, PLANT_1_RANGE, PLANT_TYPE::PROJECTILE)},
+    {PLANT_ID::PLANT_2, stats(PLANT_2_HEALTH, PLANT_2_DAMAGE, PLANT_2_RANGE, PLANT_TYPE::PROJECTILE)},
+    {PLANT_ID::PLANT_3, stats(PLANT_3_HEALTH, PLANT_3_DAMAGE, PLANT_3_RANGE, PLANT_TYPE::PROJECTILE)},
+    {PLANT_ID::PLANT_2_PURPLE, stats(PLANT_2_PURPLE_HEALTH, PLANT_2_PURPLE_DAMAGE, PLANT_2_PURPLE_RANGE, PLANT_TYPE::HEAL)},
+    {PLANT_ID::PLANT_2_CYAN, stats(PLANT_2_CYAN_HEALTH, PLANT_2_CYAN_DAMAGE, PLANT_2_CYAN_RANGE, PLANT_TYPE::POISON)}
 };
