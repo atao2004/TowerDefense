@@ -266,9 +266,10 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	return true;
 }
 
-void WorldSystem::print_level() {
+void WorldSystem::print_level_and_day() {
 	registry.texts.clear();
-	createText("Level: " + std::to_string(level), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX - 75.0f), 0.75f, vec3(0.9f, 0.9f, 0.9f));
+	createText("Level: " + std::to_string(level), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX - 75.0f), 0.6f, vec3(0.9f, 0.9f, 0.9f));
+	createText("Day: " + std::to_string(current_day), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX - 125.0f), 0.6f, vec3(0.9f, 0.9f, 0.9f));
 }
 
 // Shared elements between restarting a game and a tutorial
@@ -464,7 +465,7 @@ void WorldSystem::restart_game()
 	spawn_manager.start_game();
 
 	// Print the starting level (Level 1)
-	print_level();
+	print_level_and_day();
 }
 
 // Reset the world state to the tutorial mode state
@@ -511,7 +512,7 @@ void WorldSystem::restart_tutorial()
 	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX * 0.05, TUTORIAL_ARROW_HEIGHT_PX});
 
 	// Print the starting level (Level 0)
-	print_level();
+	print_level_and_day();
 }
 
 // Create tutorial enemies at specific locations that respawn when killed
@@ -587,7 +588,7 @@ void WorldSystem::increase_level() {
 		vec2 player_size = registry.motions.get(player_entity).scale;
 		ParticleSystem::createLevelUpEffect(player_pos, player_size);
 
-		print_level();
+		print_level_and_day();
 
 		if (level == 2) {
 			registry.screenStates.components[0].cutscene = 3;
@@ -1204,7 +1205,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 				level++;
 
-				print_level();
+				print_level_and_day();
 
 				// Get player entity and size
 				Entity player = registry.players.entities[0];
