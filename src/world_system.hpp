@@ -72,6 +72,8 @@ public:
 
 	static bool player_is_dashing;
 
+	void increment_points();
+
 private:
 	static int current_day;
 

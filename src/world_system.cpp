@@ -608,6 +608,11 @@ void WorldSystem::increase_exp_plant()
 	} // Kung: Due to technical difficulties, plants cannot be used to level up.
 }
 
+void WorldSystem::increment_points()
+{
+	points++;
+}
+
 // Helper function to handle what happens when the player does a mouse click
 void WorldSystem::player_attack()
 {
