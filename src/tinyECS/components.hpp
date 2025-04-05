@@ -709,3 +709,13 @@ struct Squad
         return json{};
     }
 };
+
+struct Slow
+{
+    float value;
+    int timer_ms;
+    json toJSON() const
+    {
+        return json{};
+    }
+};

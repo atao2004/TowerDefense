@@ -43,7 +43,8 @@ void TowerSystem::step(float elapsed_ms)
                 }
                 break;
             case PLANT_TYPE::HEAL:
-            case PLANT_TYPE::POISON: {
+            case PLANT_TYPE::POISON:
+            case PLANT_TYPE::SLOW: {
                 bool next_state = false;
                 if (tower.type == PLANT_TYPE::HEAL) {
                     for (uint i = 0; i < registry.players.size(); i++) {
@@ -55,12 +56,20 @@ void TowerSystem::step(float elapsed_ms)
                         }
                     }
                 }
-                else if (tower.type == PLANT_TYPE::POISON) {
+                else if (tower.type == PLANT_TYPE::POISON || tower.type == PLANT_TYPE::SLOW) {
                     for (uint i = 0; i < registry.enemies.size(); i++) {
                         Entity enemy = registry.enemies.entities[i];
                         if (compute_delta_distance(entity, enemy) < tower.range) {
                             Enemy& enemy_component = registry.enemies.components[i];
-                            enemy_component.health -= tower.damage * elapsed_ms / 1000.0f;
+                            if (tower.type == PLANT_TYPE::POISON)
+                                enemy_component.health -= tower.damage * elapsed_ms / 1000.0f;
+                            else if (tower.type == PLANT_TYPE::SLOW) {
+                                if (!registry.slowEffects.has(enemy))
+                                    registry.slowEffects.emplace(enemy);
+                                Slow& slow = registry.slowEffects.get(enemy);
+                                slow.value = 1.0f - tower.damage / 100.0f;
+                                slow.timer_ms = 100;
+                            }
                             next_state = true;
                         }
                     }

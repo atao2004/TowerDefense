@@ -60,6 +60,7 @@ public:
 
 	ComponentContainer<OrcRider> orcRiders;
 	ComponentContainer<Squad> squads;
+	ComponentContainer<Slow> slowEffects;
 
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
@@ -101,6 +102,7 @@ public:
 		registry_list.push_back(&plantAnimations); //35
 		registry_list.push_back(&orcRiders); //36
 		registry_list.push_back(&squads); //37
+		registry_list.push_back(&slowEffects); //38
 	}
 
 	void clear_all_components() {
