@@ -332,8 +332,7 @@ enum class STATE
     IDLE = 0,
     MOVE = 1,
     ATTACK = 2,
-    LEVEL_UP = 3,
-    STATE_COUNT = LEVEL_UP + 1
+    STATE_COUNT = ATTACK + 1
 };
 
 struct State
