@@ -19,7 +19,7 @@ void DeathSystem::step(float elapsed_ms, WorldSystem& world_system)
 			world_system.increment_points();
 
 			// Kung: Upon killing a enemy, increase the experience of the player or reset the experience bar when it becomes full.
-			world_system.increase_exp_player();
+			world_system.increase_exp();
 		}
 	}
 }
