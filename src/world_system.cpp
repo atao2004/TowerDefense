@@ -601,6 +601,11 @@ void WorldSystem::increase_exp()
 	}
 }
 
+void WorldSystem::increment_points()
+{
+	points++;
+}
+
 // Helper function to handle what happens when the player does a mouse click
 void WorldSystem::player_attack()
 {
