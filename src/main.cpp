@@ -103,7 +103,6 @@ int main()
 
 	while (!world_system.is_over())
 	{
-
 		GAME_SCREEN_ID game_screen = world_system.get_game_screen();
 		// processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
@@ -192,5 +191,10 @@ int main()
 			renderer_system.step_and_draw(game_screen, fm_render.get_time());
     
 	}
+
+	renderer_system.drawGameOver();
+
+	std::cout << "GAME OVER!" << std::endl;
+
 	return EXIT_SUCCESS;
 }
