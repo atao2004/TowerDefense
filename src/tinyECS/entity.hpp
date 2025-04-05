@@ -4,17 +4,17 @@
 class Entity
 {
     unsigned int m_id;
-    static unsigned int id_count;   // defaults to 0 (invalid), need to init 1
+    static unsigned int id_count; // defaults to 0 (invalid), need to init 1
 
 public:
-
     Entity()
     {
         // ensure that each entity gets a unique ID
         m_id = id_count++; // assign and increment
     }
 
-    Entity(int id) {
+    Entity(int id)
+    {
         m_id = id;
     }
 
@@ -26,6 +26,7 @@ public:
 
     unsigned int id() const { return m_id; }
 
-    static void overrideIDCount(int count) {id_count = count; }
-    static int get_id_count() {return id_count; }
+    static void overrideIDCount(int count) { id_count = count; }
+    static int get_id_count() { return id_count; }
+
 };
