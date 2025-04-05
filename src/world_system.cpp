@@ -192,10 +192,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		increase_level();
 	}
 
-	if (PlayerSystem::get_state() == STATE::LEVEL_UP)
-	{
-		registry.inventorys.components[0].seedCount[current_seed]++;
-	}
 	// Using the spawn manager to generate zombies
 	if (WorldSystem::game_is_over)
 	{
@@ -572,8 +568,6 @@ void WorldSystem::increase_level() {
 	Entity player_entity = registry.players.entities[0];
 	// Kung: If the bar is full, reset the player experience bar and upgrade the user level.
 	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0) {
-		// StateSystem::update_state(STATE::LEVEL_UP);
-		// come back later!
 		if (registry.inventorys.components[0].seedCount[current_seed] == 0)
 		{
 			registry.inventorys.components[0].seedAtToolbar[current_seed] == -1;
@@ -990,8 +984,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	// when player is in the level up menu, disable some game inputs
-	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
-		game_is_over)
+	if (game_is_over)
 		return;
 
 	// Player movement
@@ -1202,7 +1195,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		{
 			if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 			{
-				// StateSystem::update_state(STATE::LEVEL_UP);
 				// come back later!
 				if (registry.inventorys.components[0].seedCount[current_seed] == 0)
 				{
@@ -1244,8 +1236,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 		return;
 	}
 
-	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
-		game_is_over)
+	if (game_is_over)
 		return;
 
 	// change player facing direction
@@ -1408,9 +1399,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 		if (action == GLFW_RELEASE)
 		{
 			if (!detectButtons()) {
-				if (PlayerSystem::get_state() == STATE::LEVEL_UP)
-					return;
-				else if (button == GLFW_MOUSE_BUTTON_LEFT)
+				if (button == GLFW_MOUSE_BUTTON_LEFT)
 					player_attack();
 				else if (button == GLFW_MOUSE_BUTTON_RIGHT)
 					plant_seed();
@@ -1877,6 +1866,15 @@ void WorldSystem::loadGame()
 		registry.mapTiles.emplace(e);
 	}
 
+	json plant_animation_arr = jsonFile["35"];
+	for (long unsigned int i = 0; i < plant_animation_arr.size(); i++)
+	{
+		json plant_animation_json = plant_animation_arr[i];
+		Entity e = Entity(plant_animation_json["entity"]);
+		PlantAnimation& plant_animation = registry.plantAnimations.emplace(e);
+		plant_animation.id = plant_animation_json["id"];
+	}
+
 	Entity& player_entity = registry.players.entities[0];
 	vec2 player_pos = registry.motions.get(player_entity).position;
 	clearButtons();
@@ -2047,14 +2045,6 @@ void WorldSystem::update_dash(float elapsed_ms_since_last_update)
 						mwc_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
 				}
 			}
-
-			// Update player state based on resulting velocity
-			Entity player = registry.players.entities[0];
-			Motion &motion = registry.motions.get(player);
-			if (motion.velocity == vec2(0, 0))
-				PlayerSystem::update_state(STATE::IDLE);
-			else
-				PlayerSystem::update_state(STATE::MOVE);
 		}
 	}
 

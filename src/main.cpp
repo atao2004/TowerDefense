@@ -116,7 +116,7 @@ int main()
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
 		//when level up, we want the screen to be frozen
-		if (PlayerSystem::get_state() != STATE::LEVEL_UP && game_screen != GAME_SCREEN_ID::PAUSE) {
+		if (game_screen != GAME_SCREEN_ID::PAUSE) {
 			if (fm_world.can_update()) world_system.step(fm_world.get_time());
 			if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH && game_screen != GAME_SCREEN_ID::CG ) {
 				//M2: FPS
