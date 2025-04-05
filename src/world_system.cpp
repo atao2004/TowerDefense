@@ -188,6 +188,10 @@ void WorldSystem::restart_splash_screen()
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
+	if (registry.players.size() != 0 && registry.screenStates.size() != 0 && registry.inventorys.size() != 0) {
+		increase_level();
+	}
+
 	if (PlayerSystem::get_state() == STATE::LEVEL_UP)
 	{
 		registry.inventorys.components[0].seedCount[current_seed]++;
@@ -359,8 +363,8 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
 	for(int i = 0; i < NUM_SEED_TYPES; i++) {
 		if(registry.inventorys.components[0].seedCount[i] > 0) {
-		createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (i + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, i, i);	
-		std::cout << "seed type: " << i << std::endl;	
+		createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (i * 0.995 + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, i, i);	
+		std::cout << "seed type: " << i << std::endl;
 		}
 	}
 	// createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
@@ -494,17 +498,17 @@ void WorldSystem::restart_tutorial()
 	// }
 
 	// create the tutorial assets
-	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_HEIGHT_PX * -0.5));
-	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, TUTORIAL_HEIGHT_PX * -0.5));
-	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, TUTORIAL_HEIGHT_PX * -0.5));
-	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_HEIGHT_PX * -0.5));
+	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_SIGN_HEIGHT_PX));
 
 	// create the arrows for the tutorial
-	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 4 - 15, TUTORIAL_HEIGHT_PX * 0.4));
-	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 2 - 15, TUTORIAL_HEIGHT_PX * 0.4));
-	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75 - 15, TUTORIAL_HEIGHT_PX * 0.4));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 4 - 15, TUTORIAL_ARROW_HEIGHT_PX));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 2 - 15, TUTORIAL_ARROW_HEIGHT_PX));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75 - 15, TUTORIAL_ARROW_HEIGHT_PX));
 	create_tutorial_enemies();
-	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX * 0.05, TUTORIAL_HEIGHT_PX * 0.4});
+	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX * 0.05, TUTORIAL_ARROW_HEIGHT_PX});
 
 	// Print the starting level (Level 0)
 	print_level();
@@ -514,11 +518,11 @@ void WorldSystem::restart_tutorial()
 void WorldSystem::create_tutorial_enemies()
 {
 	// Create a zombie under the "Attack" tutorial board
-	vec2 zombie_pos = vec2(TUTORIAL_WIDTH_PX * 0.4, TUTORIAL_HEIGHT_PX * 0.4);
+	vec2 zombie_pos = vec2(TUTORIAL_WIDTH_PX * 0.4, TUTORIAL_ARROW_HEIGHT_PX);
 	createOrc(renderer, zombie_pos);
 
 	// Create a skeleton under the "Plant" tutorial board
-	vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.65, TUTORIAL_HEIGHT_PX * 0.4);
+	vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.65, TUTORIAL_ARROW_HEIGHT_PX);
 	createSkeletonArcher(renderer, skeleton_pos);
 
 	// std::cout << "Tutorial enemies created" << std::endl;
@@ -563,16 +567,11 @@ bool WorldSystem::is_over() const
 	return bool(glfwWindowShouldClose(window));
 }
 
-// Helper function to make it easier to increase experience
-void WorldSystem::increase_exp_player()
-{
+// Helper function to increase the level automatically if the conditions are met.
+void WorldSystem::increase_level() {
 	Entity player_entity = registry.players.entities[0];
-	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
-	{
-		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(player_entity).damage / PLAYER_HEALTH;
-	} // Kung: If the bar is full, reset the player experience bar and upgrade the user level.
-	else if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
-	{
+	// Kung: If the bar is full, reset the player experience bar and upgrade the user level.
+	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0) {
 		// StateSystem::update_state(STATE::LEVEL_UP);
 		// come back later!
 		if (registry.inventorys.components[0].seedCount[current_seed] == 0)
@@ -599,13 +598,13 @@ void WorldSystem::increase_exp_player()
 }
 
 // Helper function to make it easier to increase experience
-void WorldSystem::increase_exp_plant()
+void WorldSystem::increase_exp()
 {
 	Entity player_entity = registry.players.entities[0];
 	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 	{
 		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(player_entity).damage / PLAYER_HEALTH;
-	} // Kung: Due to technical difficulties, plants cannot be used to level up.
+	}
 }
 
 // Helper function to handle what happens when the player does a mouse click
@@ -692,7 +691,7 @@ void WorldSystem::player_attack()
 						points++;
 
 						// Kung: Upon killing a enemy, increase the experience of the player or reset the experience bar when it becomes full.
-						increase_exp_player();
+						increase_exp();
 					}
 				}
 			}
@@ -1213,6 +1212,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 				level++;
 
+				print_level();
+
 				// Get player entity and size
 				Entity player = registry.players.entities[0];
 				vec2 player_pos = registry.motions.get(player).position;
@@ -1222,9 +1223,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 					registry.screenStates.components[0].cutscene = 3;
 					registry.screenStates.components[0].cg_index = 0;
 					return start_cg(renderer);
-				}
-
-				print_level();
+				}				
 			}
 			else
 			{
@@ -1605,7 +1604,7 @@ void WorldSystem::loadGame()
 		Motion &m = registry.motions.emplace(e);
 		m.position = vec2(motion["position"][0], motion["position"][1]);
 		m.angle = motion["angle"];
-		m.velocity = vec2(motion["velocity"][0], motion["velocity"][1]);
+		m.velocity = vec2(0.0, 0.0);
 		m.scale = vec2(motion["scale"][0], motion["scale"][1]);
 	}
 
