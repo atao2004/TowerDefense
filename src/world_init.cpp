@@ -234,6 +234,7 @@ Entity createPlant(RenderSystem* renderer, vec2 position, PLANT_ID id)
 	tower.range = PLANT_STATS_MAP.at(id).range; // Detection range in pixels
 	tower.timer_ms = 2000.0f; // Attack every 2 second (unused ?)
 	tower.state = false;
+	tower.type = PLANT_STATS_MAP.at(id).type;
 
 	// Motion component for position and rotation
 	Motion &motion = registry.motions.emplace(entity);
@@ -732,6 +733,7 @@ Entity createPlayer(RenderSystem *renderer, vec2 position, int seed_type)
 
 	Player &player = registry.players.emplace(entity);
 	player.health = PLAYER_HEALTH;
+	player.health_max = PLAYER_HEALTH;
 
 	Inventory &inventory = registry.inventorys.emplace(entity);
 	registry.inventorys.components[0].seedCount[seed_type] = 5; // 5 starter seeds

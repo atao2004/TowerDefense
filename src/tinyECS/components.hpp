@@ -150,6 +150,7 @@ struct Texture
 struct Player
 {
     float health;
+    float health_max;
     json toJSON() const
     {
         return json{
@@ -390,6 +391,7 @@ struct Tower
     float range;  // for vision / detection
     int timer_ms; // how often the tower attacks
     bool state;   // false (IDLE), true (ATTACK)
+    PLANT_TYPE type;
 
     json toJSON() const
     {
@@ -701,6 +703,16 @@ struct Squad
 
     Formation current_formation = Formation::DEFENSIVE;
 
+    json toJSON() const
+    {
+        return json{};
+    }
+};
+
+struct Slow
+{
+    float value;
+    int timer_ms;
     json toJSON() const
     {
         return json{};
