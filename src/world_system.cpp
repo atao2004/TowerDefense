@@ -1596,7 +1596,7 @@ void WorldSystem::loadGame()
 		Motion &m = registry.motions.emplace(e);
 		m.position = vec2(motion["position"][0], motion["position"][1]);
 		m.angle = motion["angle"];
-		m.velocity = vec2(motion["velocity"][0], motion["velocity"][1]);
+		m.velocity = vec2(0.0, 0.0);
 		m.scale = vec2(motion["scale"][0], motion["scale"][1]);
 	}
 
