@@ -333,6 +333,8 @@ public:
 	bool fontInit(const std::string &font_filename, unsigned int font_default_size);
 	void renderText(std::string text, float x, float y, float scale, const glm::vec3 &color, const glm::mat4 &trans);
 
+	void drawGameOver();
+
 private:
 	// Internal drawing functions for each entity type
 	void drawGridLine(Entity entity, const mat3 &projection);

@@ -528,11 +528,6 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 		}
 		
 		drawToScreen();
-	} else if (WorldSystem::game_is_over) {
-		renderText("GAME OVER", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 4, 3.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
-		renderText("Zombies Killed: ", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 4, 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
-		renderText("Days survived: ", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 4, 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
-		drawToScreen();
 	} else {
 		// draw all entities with a render request to the frame buffer
 		for (Entity entity : registry.renderRequests.entities)
@@ -575,7 +570,6 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 				if (registry.renderRequests.has(entity)) drawTexturedMesh(entity, projection_2D);
 			}
 		}
-
 
 		renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
 		renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
@@ -623,6 +617,14 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
 	gl_has_errors();
+}
+
+void RenderSystem::drawGameOver() {
+	renderText("GAME OVER", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 4, 5.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
+	renderText("Zombies Killed: ", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 2, 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
+	renderText("Days survived: ", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 8, 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
+	
+	drawToScreen();
 }
 
 mat3 RenderSystem::createProjectionMatrix_splash()
