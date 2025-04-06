@@ -1228,6 +1228,47 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			}
 		}
 	}
+	if (action == GLFW_PRESS && key == GLFW_KEY_1)
+	{
+		// Debug key to start challenge
+		current_seed = 0;
+	}
+		if (action == GLFW_PRESS && key == GLFW_KEY_2)
+	{
+		// Debug key to start challenge
+		current_seed = 1;
+	}
+		if (action == GLFW_PRESS && key == GLFW_KEY_3)
+	{
+		// Debug key to start challenge
+		current_seed = 2;
+	}
+		if (action == GLFW_PRESS && key == GLFW_KEY_4)
+	{
+		// Debug key to start challenge
+		current_seed = 3;
+	}
+		if (action == GLFW_PRESS && key == GLFW_KEY_5)
+	{
+		// Debug key to start challenge
+		current_seed = 4;
+	}
+		if (action == GLFW_PRESS && key == GLFW_KEY_6)
+	{
+		// Debug key to start challenge
+		current_seed = 5;
+	}
+		if (action == GLFW_PRESS && key == GLFW_KEY_7)
+	{
+		// Debug key to start challenge
+		current_seed = 6;
+	}
+		if (action == GLFW_PRESS && key == GLFW_KEY_8)
+	{
+		// Debug key to start challenge
+		current_seed = 7;
+	}
+
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
