@@ -638,7 +638,6 @@ struct Particle
     }
 };
 
-// Add a ParticleGenerator component
 struct ParticleGenerator
 {
     std::string type;              // Type of effect (blood, fire, etc.)
@@ -648,11 +647,13 @@ struct ParticleGenerator
     std::vector<Entity> particles; // List of particle entities
     bool isActive;                 // Whether generator is active
     float duration_ms;             // How long this generator remains active (-1 for infinite)
-    Entity follow_entity = NULL;   // Entity to follow (if any)
-
+    Entity follow_entity = Entity(); // Entity to follow (if any) - Fixed NULL to Entity()
+    float max_visible_distance = 800.0f; // Maximum distance from player to be visible
+    
     ParticleGenerator()
         : type("default"), amount(100), spawnInterval(0.1f), timer(0.0f),
           particles(), isActive(true), duration_ms(-1.0f) {}
+    
     json toJSON() const
     {
         return json{};
@@ -705,5 +706,24 @@ struct Squad
     json toJSON() const
     {
         return json{};
+    }
+};
+
+
+struct ElectricityData
+{
+    float noise_seed;
+    vec2 curve_ctrl1;
+    vec2 curve_ctrl2;
+    
+    // Additional fields can be added as needed
+    
+    json toJSON() const
+    {
+        return json{
+            {"noise_seed", noise_seed},
+            {"curve_ctrl1", {curve_ctrl1.x, curve_ctrl1.y}},
+            {"curve_ctrl2", {curve_ctrl2.x, curve_ctrl2.y}}
+        };
     }
 };

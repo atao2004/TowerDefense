@@ -61,6 +61,8 @@ public:
 	ComponentContainer<OrcRider> orcRiders;
 	ComponentContainer<Squad> squads;
 
+	ComponentContainer<ElectricityData> customData;
+
 	// constructor that adds all containers for looping over them
 	ECSRegistry() {
 		registry_list.push_back(&screenStates); //0
@@ -101,6 +103,7 @@ public:
 		registry_list.push_back(&plantAnimations); //35
 		registry_list.push_back(&orcRiders); //36
 		registry_list.push_back(&squads); //37
+		registry_list.push_back(&customData);
 	}
 
 	void clear_all_components() {
