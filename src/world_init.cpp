@@ -67,25 +67,6 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 	return entity;
 }
 
-Entity createToolbarSelection(RenderSystem* renderer, vec2 position, int seed_type) {
-	Entity projectile = Entity();
-
-    Motion &proj_motion = registry.motions.emplace(projectile);
-    proj_motion.position = position;
-    proj_motion.scale = vec2(80, 80);
-
-     proj_motion.velocity = {0,0};
-
-    registry.renderRequests.insert(
-        projectile,
-        {TEXTURE_ASSET_ID::PROJECTILE,
-         EFFECT_ASSET_ID::TEXTURED,
-         GEOMETRY_BUFFER_ID::SPRITE},
-		false);
-		return projectile;
-
-}
-
 Entity createScreen(RenderSystem *renderer, TEXTURE_ASSET_ID background)
 {
 	Entity entity = Entity();
