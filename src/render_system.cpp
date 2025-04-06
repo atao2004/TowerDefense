@@ -466,7 +466,7 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 	{
 		for (Entity entity : registry.cgs.entities)
 		{
-			if (!WorldSystem::game_is_over) drawTexturedMesh(entity, projection_2D);
+			drawTexturedMesh(entity, projection_2D);
 		}
 
 		if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH) {
@@ -526,6 +526,10 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 					renderText("Alright...", 60, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 			}
 		} else if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::GAME_OVER) {
+			for (Entity text_entity : registry.texts.entities) {
+				renderText(registry.texts.get(text_entity).text, registry.texts.get(text_entity).pos.x, registry.texts.get(text_entity).pos.y, registry.texts.get(text_entity).size, registry.texts.get(text_entity).color, trans);
+			}
+
 			renderText("GAME OVER", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.6, 1.5f, glm::vec3(1.0f, 1.0f, 1.0f), trans);
 		}
 		

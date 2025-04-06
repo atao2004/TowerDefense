@@ -1414,13 +1414,9 @@ void WorldSystem::game_over()
 	game_screen = GAME_SCREEN_ID::GAME_OVER;
 	
 	createScreen(TEXTURE_ASSET_ID::DAY_BG);
-
-	std::cout << "Screen created" << std::endl;
-
 	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
 	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
-
-	std::cout << "Buttons created" << std::endl;
+	std::cout << "Screen and buttons created" << std::endl;
 
 	registry.texts.clear();
 	createText("Enemies Killed: " + std::to_string(points), vec2(WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.5), 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
