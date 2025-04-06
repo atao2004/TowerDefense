@@ -159,6 +159,8 @@ Entity SpawnManager::spawnEnemyByDay(RenderSystem *renderer, vec2 spawn_pos, int
                 return createOrc(renderer, spawn_pos);
             case ENEMY_ID::ORC_ELITE:
                 return createOrcElite(renderer, spawn_pos);
+            case ENEMY_ID::ORC_RIDER:
+                return createOrcRider(renderer, spawn_pos);
             case ENEMY_ID::SKELETON:
                 return createSkeleton(renderer, spawn_pos);
             case ENEMY_ID::SKELETON_ARCHER:
