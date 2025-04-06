@@ -10,6 +10,7 @@
         "vector": "cpp",
         "optional": "cpp",
         "variant": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "cmath": "cpp"
     }
 }

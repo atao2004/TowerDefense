@@ -16,6 +16,8 @@
 #include "animation_system.hpp"
 #include "tower_system.hpp"
 #include "movement_system.hpp"
+#include "screen_system.hpp"
+#include "death_system.hpp"
 // fonts
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -41,6 +43,8 @@ int main()
 	MovementSystem movement_system;
 	ParticleSystem particle_system;
 	PlayerSystem player_system;
+	ScreenSystem screen_system;
+	DeathSystem death_system;
 
 	// initialize window
 	GLFWwindow *window = world_system.create_window();
@@ -100,6 +104,8 @@ int main()
 	FrameManager fm_seed = FrameManager(5);
 	FrameManager fm_render = FrameManager(5);
 	FrameManager fm_player = FrameManager(5);
+	FrameManager fm_screen = FrameManager(2);
+	FrameManager fm_death = FrameManager(2);
 
 	while (!world_system.is_over())
 	{
@@ -115,7 +121,7 @@ int main()
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
 		//when level up, we want the screen to be frozen
-		if (PlayerSystem::get_state() != STATE::LEVEL_UP && game_screen != GAME_SCREEN_ID::PAUSE) {
+		if (game_screen != GAME_SCREEN_ID::PAUSE) {
 			if (fm_world.can_update()) world_system.step(fm_world.get_time());
 			if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH && game_screen != GAME_SCREEN_ID::CG ) {
 				//M2: FPS
@@ -164,6 +170,10 @@ int main()
 					animation_system.step(fm_animation.get_time());
 				if (fm_particle.can_update())
 					particle_system.step(fm_particle.get_time());
+				if (fm_screen.can_update())
+					screen_system.step(fm_screen.get_time());
+				if (fm_death.can_update())
+					death_system.step(fm_death.get_time(), world_system);
 			}
 			else
 			{

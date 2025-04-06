@@ -192,10 +192,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		increase_level();
 	}
 
-	if (PlayerSystem::get_state() == STATE::LEVEL_UP)
-	{
-		registry.inventorys.components[0].seedCount[current_seed]++;
-	}
 	// Using the spawn manager to generate zombies
 	if (WorldSystem::game_is_over)
 	{
@@ -573,8 +569,6 @@ void WorldSystem::increase_level() {
 	Entity player_entity = registry.players.entities[0];
 	// Kung: If the bar is full, reset the player experience bar and upgrade the user level.
 	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0) {
-		// StateSystem::update_state(STATE::LEVEL_UP);
-		// come back later!
 		if (registry.inventorys.components[0].seedCount[current_seed] == 0)
 		{
 			registry.inventorys.components[0].seedAtToolbar[current_seed] == -1;
@@ -608,6 +602,11 @@ void WorldSystem::increase_exp()
 	}
 }
 
+void WorldSystem::increment_points()
+{
+	points++;
+}
+
 // Helper function to handle what happens when the player does a mouse click
 void WorldSystem::player_attack()
 {
@@ -617,36 +616,46 @@ void WorldSystem::player_attack()
 		// Play the sword attack sound
 		Mix_PlayChannel(3, sword_attack_sound, 0);
 
-		Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
-		if (less_f_ugly.scale.x < 0)
-		{ // face left = minus the range from position
-			less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
-		}
-		else
-		{ // face right = add the range from position
-			less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
-		}
-		Motion weapon_motion = Motion();
-		weapon_motion.position = less_f_ugly.position;
-		weapon_motion.angle = less_f_ugly.angle;
-		weapon_motion.velocity = less_f_ugly.velocity;
-		weapon_motion.scale = less_f_ugly.scale;
+		Motion &player_motion = registry.motions.get(registry.players.entities[0]);
 
+		// Calculate attack direction based on mouse position
+		// Convert mouse position to world coordinates
+		vec2 screen_center = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2);
+		vec2 mouse_world_offset = vec2(mouse_pos_x - screen_center.x, mouse_pos_y - screen_center.y);
+
+		// Normalize the direction vector
+		vec2 attack_direction = normalize(mouse_world_offset);
+
+		// Update player facing based on attack direction
+		if (attack_direction.x != 0)
+		{
+			player_motion.scale.x = (attack_direction.x > 0) ? abs(player_motion.scale.x) : -abs(player_motion.scale.x);
+		}
+
+		// Calculate attack position based on direction and range
+		vec2 attack_position = player_motion.position + attack_direction * static_cast<float>(registry.attacks.get(player).range);
+
+		// Create weapon motion at the attack position
+		Motion weapon_motion = Motion();
+		weapon_motion.position = attack_position;
+		weapon_motion.angle = atan2(attack_direction.y, attack_direction.x); // Set proper angle
+		weapon_motion.velocity = player_motion.velocity;
+		weapon_motion.scale = player_motion.scale;
+
+		// Check for collisions with enemies
 		for (int i = 0; i < registry.enemies.size(); i++)
 		{
 			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.enemies.entities[i])) // if enemy and weapon collide, decrease enemy health
-				|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.enemies.entities[i])))
+				|| PhysicsSystem::collides(player_motion, registry.motions.get(registry.enemies.entities[i])))
 			{
 				Entity enemy = registry.enemies.entities[i];
 				if (registry.enemies.has(enemy))
 				{
 					auto &enemy_comp = registry.enemies.get(enemy);
-					enemy_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
-					// std::cout << "wow u r attacking so nice cool cool" << std::endl;
+					enemy_comp.health -= registry.attacks.get(player).damage;
 
 					// Calculate knockback direction (from player to enemy)
 					Motion &enemy_motion = registry.motions.get(enemy);
-					Motion &player_motion = registry.motions.get(player);
 					vec2 direction = enemy_motion.position - player_motion.position;
 					float length = sqrt(dot(direction, direction));
 					if (length > 0)
@@ -667,12 +676,10 @@ void WorldSystem::player_attack()
 					ParticleSystem::createBloodEffect(registry.motions.get(enemy).position, sprite_size);
 
 					// This is what you do when you kill a enemy.
-					if (enemy_comp.health <= 0 && !registry.deathAnimations.has(enemy)) // check here added a guard
+					if (enemy_comp.health <= 0 && !registry.deathAnimations.has(enemy))
 					{
 						// Add death animation before removing
-						Entity player = registry.players.entities[0];
-						Motion &player_motion = registry.motions.get(player);
-						vec2 slide_direction = {player_motion.scale.x > 0 ? 1.0f : -1.0f, 0.0f};
+						vec2 slide_direction = attack_direction; // Use attack direction for death animation
 
 						// Add death animation component
 						DeathAnimation &death_anim = registry.deathAnimations.emplace(enemy);
@@ -682,7 +689,6 @@ void WorldSystem::player_attack()
 
 						// Increase the counter that represents the number of zombies killed.
 						points++;
-						// std::cout << "enemies killed: " << points << std::endl;
 
 						// Kung: Upon killing a enemy, increase the experience of the player or reset the experience bar when it becomes full.
 						increase_exp();
@@ -690,6 +696,7 @@ void WorldSystem::player_attack()
 				}
 			}
 		}
+
 		// Player State
 		PlayerSystem::update_state(STATE::ATTACK);
 
@@ -983,8 +990,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	// when player is in the level up menu, disable some game inputs
-	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
-		game_is_over)
+	if (game_is_over)
 		return;
 
 	// Player movement
@@ -1195,7 +1201,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		{
 			if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage >= 1.0)
 			{
-				// StateSystem::update_state(STATE::LEVEL_UP);
 				// come back later!
 				if (registry.inventorys.components[0].seedCount[current_seed] == 0)
 				{
@@ -1237,8 +1242,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 		return;
 	}
 
-	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
-		game_is_over)
+	if (game_is_over)
 		return;
 
 	// change player facing direction
@@ -1401,9 +1405,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 		if (action == GLFW_RELEASE)
 		{
 			if (!detectButtons()) {
-				if (PlayerSystem::get_state() == STATE::LEVEL_UP)
-					return;
-				else if (button == GLFW_MOUSE_BUTTON_LEFT)
+				if (button == GLFW_MOUSE_BUTTON_LEFT)
 					player_attack();
 				else if (button == GLFW_MOUSE_BUTTON_RIGHT)
 					plant_seed();
@@ -1870,6 +1872,15 @@ void WorldSystem::loadGame()
 		registry.mapTiles.emplace(e);
 	}
 
+	json plant_animation_arr = jsonFile["35"];
+	for (long unsigned int i = 0; i < plant_animation_arr.size(); i++)
+	{
+		json plant_animation_json = plant_animation_arr[i];
+		Entity e = Entity(plant_animation_json["entity"]);
+		PlantAnimation& plant_animation = registry.plantAnimations.emplace(e);
+		plant_animation.id = plant_animation_json["id"];
+	}
+
 	Entity& player_entity = registry.players.entities[0];
 	vec2 player_pos = registry.motions.get(player_entity).position;
 	clearButtons();
@@ -2040,14 +2051,6 @@ void WorldSystem::update_dash(float elapsed_ms_since_last_update)
 						mwc_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
 				}
 			}
-
-			// Update player state based on resulting velocity
-			Entity player = registry.players.entities[0];
-			Motion &motion = registry.motions.get(player);
-			if (motion.velocity == vec2(0, 0))
-				PlayerSystem::update_state(STATE::IDLE);
-			else
-				PlayerSystem::update_state(STATE::MOVE);
 		}
 	}
 
