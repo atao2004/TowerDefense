@@ -445,6 +445,7 @@ const int TOOLBAR_WIDTH = 440;
 const int TOOLBAR_HEIGHT = 55;
 
 const int PLAYER_HEALTH = 100;
+const int PLAYER_DAMAGE = 10;
 const int NUM_SEED_TYPES = 8;
 const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
@@ -553,10 +554,11 @@ const int SKELETON_ATTACK_DURATION = 1800;
 const int PROJECTILE_DAMAGE = 10;
 
 // control player movement
-const int PLAYER_MOVE_UP_SPEED = -150;
-const int PLAYER_MOVE_DOWN_SPEED = -PLAYER_MOVE_UP_SPEED;
-const int PLAYER_MOVE_LEFT_SPEED = -150;
-const int PLAYER_MOVE_RIGHT_SPEED = -PLAYER_MOVE_LEFT_SPEED;
+const int PLAYER_SPEED = 100;
+const int PLAYER_MOVE_UP_SPEED = -PLAYER_SPEED;
+const int PLAYER_MOVE_DOWN_SPEED = PLAYER_SPEED;
+const int PLAYER_MOVE_LEFT_SPEED = -PLAYER_SPEED;
+const int PLAYER_MOVE_RIGHT_SPEED = PLAYER_SPEED;
 
 // These are hard coded to the dimensions of the entity's texture
 

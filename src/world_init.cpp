@@ -756,6 +756,7 @@ Entity createPlayer(RenderSystem *renderer, vec2 position, int seed_type)
 
 	Attack &attack = registry.attacks.emplace(entity);
 	attack.range = 60;
+	attack.damage = PLAYER_DAMAGE;
 
 	registry.statuses.emplace(entity);
 
