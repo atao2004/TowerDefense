@@ -276,7 +276,7 @@ Entity ParticleSystem::createParticle(const ParticleGenerator &generator, vec2 p
 
         particle.MaxLife = randomFloat(0.5f, 1.2f);
     }
-    else if (generator.type == "heal")
+    else if (generator.type == "heal" || generator.type == "poison" || generator.type == "slow")
     {
         // Get sprite dimensions from the generator entity
         vec2 sprite_size = { 50.0f, 50.0f }; // Default size in case motion isn't available
@@ -304,13 +304,14 @@ Entity ParticleSystem::createParticle(const ParticleGenerator &generator, vec2 p
         float speed = randomFloat(30.0f, -100.0f);
         particle.Velocity = { cos(angle) * speed, sin(angle) * speed };
 
-        // Light green color with varying opacity
-        particle.Color = {
-            randomFloat(0.0f, 0.0f), // Dark red
-            randomFloat(0.7f, 0.9f), // Almost no green
-            randomFloat(0.0f, 0.0f), // Almost no blue
-            randomFloat(0.7f, 1.0f)  // Varying opacity
-        };
+        vec4 colorAdd = vec4(0, 0, 0, 0);
+        if (generator.type == "heal")
+            colorAdd = vec4(0, randomFloat(0.7f, 1.0f), 0, 0);
+        else if (generator.type == "poison")
+            colorAdd = vec4(randomFloat(0.3f, 0.6f), 0, randomFloat(0.3f, 0.6f), 0);
+        else if (generator.type == "slow")
+            colorAdd = vec4(0.3f, 0.3f, randomFloat(0.3f, 0.4f), 0);
+        particle.Color = vec4(0, 0, 0, randomFloat(0.7f, 1.0f)) + colorAdd;
 
         // Varying lifetimes for more natural effect
         particle.MaxLife = randomFloat(0.6f, 1.2f);
@@ -432,7 +433,7 @@ Entity ParticleSystem::createLevelUpEffect(vec2 position, vec2 sprite_size)
     return entity;
 }
 
-Entity ParticleSystem::createHealEffect(vec2 position, vec2 sprite_size, int duration, Entity target)
+Entity ParticleSystem::createAOEEffect(vec2 position, vec2 sprite_size, int duration, Entity target, std::string type)
 {
     Entity entity = Entity();
 
@@ -441,13 +442,13 @@ Entity ParticleSystem::createHealEffect(vec2 position, vec2 sprite_size, int dur
     motion.scale = sprite_size;
 
     ParticleGenerator& generator = registry.particleGenerators.emplace(entity);
-    generator.type = "heal";
+    generator.type = type;
     generator.amount = 15;
     generator.spawnInterval = 0.1f;
     generator.timer = 0.0f;
     generator.isActive = true;
     generator.duration_ms = duration;
-    generator.follow_entity = target;
+    if (target != NULL) generator.follow_entity = target;
 
     return entity;
 }

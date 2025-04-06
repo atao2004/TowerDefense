@@ -62,7 +62,7 @@ void TowerSystem::step(float elapsed_ms)
                             Player& player_component = registry.players.components[0];
                             player_component.health = std::min(player_component.health_max, player_component.health + tower.damage);
                             Motion& player_motion = registry.motions.get(player);
-                            ParticleSystem::createHealEffect(player_motion.position, player_motion.scale, PLANT_STATS_MAP.at(plant_anim.id).cooldown, player);
+                            ParticleSystem::createAOEEffect(player_motion.position, player_motion.scale, PLANT_STATS_MAP.at(plant_anim.id).cooldown, player, "heal");
                         }
                         else {
                             tower.state = false;
@@ -95,14 +95,18 @@ void TowerSystem::step(float elapsed_ms)
                             if (compute_delta_distance(entity, enemy) < tower.range) {
                                 enemy_detected = true;
                                 Enemy& enemy_component = registry.enemies.components[i];
-                                if (tower.type == PLANT_TYPE::POISON)
+                                Motion& enemy_motion = registry.motions.get(enemy);
+                                if (tower.type == PLANT_TYPE::POISON) {
                                     enemy_component.health -= tower.damage;
+                                    ParticleSystem::createAOEEffect(enemy_motion.position, enemy_motion.scale, PLANT_STATS_MAP.at(plant_anim.id).cooldown, enemy, "poison");
+                                }
                                 else if (tower.type == PLANT_TYPE::SLOW) {
                                     if (!registry.slowEffects.has(enemy))
                                         registry.slowEffects.emplace(enemy);
                                     Slow& slow = registry.slowEffects.get(enemy);
                                     slow.value = 1.0f - tower.damage / 100.0f;
                                     slow.timer_ms = PLANT_STATS_MAP.at(plant_anim.id).cooldown + 100;
+                                    ParticleSystem::createAOEEffect(enemy_motion.position, enemy_motion.scale, PLANT_STATS_MAP.at(plant_anim.id).cooldown, enemy, "slow");
                                 }
                             }
                         }

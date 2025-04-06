@@ -22,7 +22,7 @@ public:
     static Entity createFireEffect(vec2 position);
     static Entity createSeedGrowthEffect(vec2 position, vec2 sprite_size); 
     static Entity createLevelUpEffect(vec2 position, vec2 sprite_size);
-    static Entity createHealEffect(vec2 position, vec2 sprite_size, int duration, Entity target);
+    static Entity createAOEEffect(vec2 position, vec2 sprite_size, int duration, Entity target, std::string type);
 
 private:
     // Random number generator
