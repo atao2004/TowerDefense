@@ -460,13 +460,13 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 							  // sprites back to front
 	gl_has_errors();
 	int cutscene = registry.screenStates.components[0].cutscene;
-	mat3 projection_2D = (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) ? createProjectionMatrix_splash() : createProjectionMatrix();
+	mat3 projection_2D = (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::GAME_OVER) ? createProjectionMatrix_splash() : createProjectionMatrix();
 
-	if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG)
+	if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::GAME_OVER)
 	{
 		for (Entity entity : registry.cgs.entities)
 		{
-			drawTexturedMesh(entity, projection_2D);
+			if (!WorldSystem::game_is_over) drawTexturedMesh(entity, projection_2D);
 		}
 
 		if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH) {
@@ -525,6 +525,8 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 				if (cg_idx == 4)
 					renderText("Alright...", 60, 350, 0.6*OS_RES, {1, 1, 1}, trans);
 			}
+		} else if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::GAME_OVER) {
+			renderText("GAME OVER", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.6, 1.5f, glm::vec3(1.0f, 1.0f, 1.0f), trans);
 		}
 		
 		drawToScreen();
@@ -600,8 +602,6 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 				if (!registry.moveWithCameras.has(entity)) seed_count++;
 			}
 			renderText("Plant count: " + std::to_string(seed_count + registry.towers.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.825, 0.3, {0, 1, 1}, trans);
-		} else {
-			renderText("GAME OVER", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.6, 1.5f, glm::vec3(1.0f, 1.0f, 1.0f), trans);
 		}
 
 		for (Entity text_entity : registry.texts.entities) {

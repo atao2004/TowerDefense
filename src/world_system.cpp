@@ -1411,9 +1411,16 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 
 void WorldSystem::game_over()
 {
-	// game_screen = GAME_SCREEN_ID::GAME_OVER;
+	game_screen = GAME_SCREEN_ID::GAME_OVER;
 	
 	createScreen(TEXTURE_ASSET_ID::DAY_BG);
+
+	std::cout << "Screen created" << std::endl;
+
+	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
+	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
+
+	std::cout << "Buttons created" << std::endl;
 
 	registry.texts.clear();
 	createText("Enemies Killed: " + std::to_string(points), vec2(WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.5), 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -1424,10 +1431,7 @@ void WorldSystem::game_over()
 	registry.screenStates.get(registry.screenStates.entities[0]).game_over = true;
 	Mix_HaltMusic();
 	Mix_PlayChannel(0, WorldSystem::game_over_sound, 0);
-	createGameOver();
-
-	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
-	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
+	createGameOver();	
 }
 
 void WorldSystem::update_movement_sound(float elapsed_ms)
