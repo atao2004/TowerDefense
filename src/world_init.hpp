@@ -36,6 +36,7 @@ Entity createTutorialTile(vec2 position);
 Entity createTutorialTileDecoration(int i, vec2 position);
 Entity createScorchedEarth(vec2 position);
 void removeSurfaces();
+Entity createToolbarSelection(RenderSystem* renderer, vec2 position, int seed_type);
 
 // texture elements (new)
 void parseMap(bool tutorial);

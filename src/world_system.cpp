@@ -1232,41 +1232,56 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	{
 		// Debug key to start challenge
 		current_seed = 0;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x - 4*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
 	}
 		if (action == GLFW_PRESS && key == GLFW_KEY_2)
 	{
 		// Debug key to start challenge
 		current_seed = 1;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x - 3*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+
 	}
 		if (action == GLFW_PRESS && key == GLFW_KEY_3)
 	{
 		// Debug key to start challenge
 		current_seed = 2;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x - 2*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+
 	}
 		if (action == GLFW_PRESS && key == GLFW_KEY_4)
 	{
 		// Debug key to start challenge
 		current_seed = 3;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x - 1*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+
 	}
 		if (action == GLFW_PRESS && key == GLFW_KEY_5)
 	{
 		// Debug key to start challenge
 		current_seed = 4;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x - 0*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+
 	}
 		if (action == GLFW_PRESS && key == GLFW_KEY_6)
 	{
 		// Debug key to start challenge
 		current_seed = 5;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x + 1*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+
 	}
 		if (action == GLFW_PRESS && key == GLFW_KEY_7)
 	{
 		// Debug key to start challenge
 		current_seed = 6;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x + 2*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+
 	}
 		if (action == GLFW_PRESS && key == GLFW_KEY_8)
 	{
 		// Debug key to start challenge
 		current_seed = 7;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x  + 3*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+
 	}
 
 }
