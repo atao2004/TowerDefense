@@ -347,7 +347,7 @@ public:
 	~RenderSystem();
 
 	// Draw all entities
-	void step_and_draw(WorldSystem world_system, float elapsed_ms);
+	void step_and_draw(float elapsed_ms);
 
 	mat3 createProjectionMatrix();
 	mat3 createProjectionMatrix_splash();

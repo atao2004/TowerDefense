@@ -435,7 +435,7 @@ void RenderSystem::drawToScreen()
 
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-void RenderSystem::step_and_draw(WorldSystem world_system, float elapsed_ms)
+void RenderSystem::step_and_draw(float elapsed_ms)
 {
 	// Getting size of window
 	int w, h;
@@ -604,7 +604,7 @@ void RenderSystem::step_and_draw(WorldSystem world_system, float elapsed_ms)
 			for (Entity entity : registry.buttons.entities) {
 				if (registry.renderRequests.has(entity)) drawTexturedMesh(entity, projection_2D);
 			}
-			renderText(std::to_string(world_system.points), WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.6, 1.5f, glm::vec3(1.0f, 1.0f, 1.0f), trans);
+			//renderText(std::to_string(world_system.points), WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.6, 1.5f, glm::vec3(1.0f, 1.0f, 1.0f), trans);
 		}
 
 		for (Entity text_entity : registry.texts.entities) {
