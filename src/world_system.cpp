@@ -1044,6 +1044,25 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
+	if (action == GLFW_PRESS && key == GLFW_KEY_E)
+	{
+		// Get player position for start point
+		Entity player = registry.players.entities[0];
+		Motion &motion = registry.motions.get(player);
+		vec2 start_point = motion.position;
+
+		// Calculate end point in direction of mouse cursor
+		vec2 screen_center = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2);
+		vec2 mouse_world_offset = vec2(mouse_pos_x - screen_center.x, mouse_pos_y - screen_center.y);
+		vec2 direction = normalize(mouse_world_offset);
+		vec2 end_point = start_point + direction * 300.0f; // 300 pixels range
+
+		// Create the electricity effect between these points
+		ParticleSystem::createElectricityEffect(start_point, end_point);
+
+		std::cout << "Created electricity effect!" << std::endl;
+	}
+
 	// Calculate cell indices
 	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
@@ -1998,12 +2017,13 @@ void WorldSystem::loadGame()
 		}
 	}
 
-	if (!registry.players.entities.empty()) {
-        Entity& player_entity = registry.players.entities[0];
-        vec2 player_pos = registry.motions.get(player_entity).position;
-        clearButtons();
-        createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30));
-    }
+	if (!registry.players.entities.empty())
+	{
+		Entity &player_entity = registry.players.entities[0];
+		vec2 player_pos = registry.motions.get(player_entity).position;
+		clearButtons();
+		createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH / 2 + 30, player_pos.y - CAMERA_VIEW_HEIGHT / 2 + 30));
+	}
 	std::cout << "Game loaded successfully." << std::endl;
 }
 

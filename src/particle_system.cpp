@@ -94,24 +94,26 @@ void ParticleSystem::updateParticles(float elapsed_ms)
     for (Entity entity : registry.particles.entities)
     {
         Particle &particle = registry.particles.get(entity);
-        
+
         // Update life
         particle.Life -= delta_s;
-        
+
         // Remove dead particles
         if (particle.Life <= 0.0f)
         {
             registry.remove_all_components_of(entity);
             continue;
         }
+
+
         
         // Update position based on velocity
         particle.Position += particle.Velocity * delta_s;
-        
+
         // Update color based on life ratio
         float life_ratio = particle.Life / particle.MaxLife;
         particle.Color.a = life_ratio; // Fade out
-        
+
         // Update motion component for rendering
         if (registry.motions.has(entity))
         {
@@ -276,6 +278,82 @@ Entity ParticleSystem::createParticle(const ParticleGenerator &generator, vec2 p
 
         particle.MaxLife = randomFloat(0.5f, 1.2f);
     }
+    // In createParticle function, add this case:
+    else if (generator.type == "electricity_line")
+    {
+        // Get start and end points
+        vec2 start_pos = position;
+        vec2 end_pos = start_pos;
+
+        // Find generator entity
+        Entity generator_entity = Entity();
+        for (Entity e : registry.particleGenerators.entities)
+        {
+            if (&registry.particleGenerators.get(e) == &generator)
+            {
+                generator_entity = e;
+                break;
+            }
+        }
+
+        // Find the end position
+        if (registry.motions.has(generator_entity))
+        {
+            for (int i = 0; i < registry.motions.size(); i++)
+            {
+                if (registry.motions.entities[i] == generator_entity && i > 0)
+                {
+                    end_pos = registry.motions.components[i].position;
+                    break;
+                }
+            }
+        }
+
+        // Get the main path vector
+        vec2 path = end_pos - start_pos;
+        float path_length = length(path);
+        vec2 path_dir = normalize(path);
+        vec2 perpendicular = vec2(-path_dir.y, path_dir.x);
+
+        // Create particles along the entire path (assign them segments)
+        int segment_id = rand() % 5;       // Create multiple bolt segments
+        float t = randomFloat(0.0f, 1.0f); // Position along path
+
+        // Generate a bezier control point for curve
+        vec2 control_point = start_pos + path * 0.5f +
+                             perpendicular * randomFloat(-50.0f, 50.0f);
+
+        // Calculate position using quadratic bezier
+        float u = 1.0f - t;
+        particle.Position = u * u * start_pos + 2 * u * t * control_point + t * t * end_pos;
+
+        // Apply perlin noise to the position for more natural jaggedness
+        // Using glm's simplex noise if available, otherwise use our own noise
+        float noise_scale = 0.1f;
+        float noise_strength = 20.0f;
+        float noise_offset = randomFloat(0.0f, 100.0f); // Different for each bolt
+
+        // Apply noise perpendicular to the path
+        float noise_value = sin(t * 10.0f + noise_offset) * noise_strength;
+        particle.Position += perpendicular * noise_value;
+
+        // Velocity along the path
+        particle.Velocity = path_dir * randomFloat(200.0f, 400.0f);
+
+        // Electric blue color with variation
+        float brightness = randomFloat(0.8f, 1.0f);
+        float blue_tint = randomFloat(0.9f, 1.0f);
+        particle.Color = {
+            randomFloat(0.6f, 0.9f) * brightness, // Blue-white
+            randomFloat(0.7f, 1.0f) * brightness, // with slight variation
+            1.0f * brightness * blue_tint,        // Full blue
+            randomFloat(0.7f, 1.0f)               // Varying opacity
+        };
+
+        // Store the segment ID and t-value for connected rendering
+        particle.Life = randomFloat(0.05f, 0.15f);
+        particle.MaxLife = particle.Life;
+    }
     else
     {
         // Default
@@ -393,6 +471,35 @@ Entity ParticleSystem::createLevelUpEffect(vec2 position, vec2 sprite_size)
     return entity;
 }
 
+Entity ParticleSystem::createElectricityEffect(vec2 start_point, vec2 end_point, float width, float duration_ms)
+{
+    Entity entity = Entity();
+
+    // Add motion component (parent controller)
+    Motion &motion = registry.motions.emplace(entity);
+    motion.position = start_point;
+    motion.scale = vec2(length(end_point - start_point), width);
+    motion.angle = atan2(end_point.y - start_point.y, end_point.x - start_point.x) * 180.0f / M_PI;
+
+    // Add particle generator component
+    ParticleGenerator &generator = registry.particleGenerators.emplace(entity);
+    generator.type = "electricity_line"; // New type for continuous lightning
+    generator.amount = 50;               // Fewer particles, but they'll form a continuous line
+    generator.spawnInterval = 0.02f;     // Faster spawn rate for smoother animation
+    generator.timer = 0.0f;
+    generator.isActive = true;
+    generator.duration_ms = duration_ms;
+
+    // Store end point for path calculation
+    generator.follow_entity = Entity(); // Using default constructor
+
+    // Store end_point in duplicate motion
+    Motion temp;
+    temp.position = end_point;
+    registry.motions.emplace_with_duplicates(entity, temp);
+
+    return entity;
+}
 float ParticleSystem::randomFloat(float min, float max)
 {
     return min + dist(gen) * (max - min);

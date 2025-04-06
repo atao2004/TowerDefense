@@ -22,6 +22,7 @@ public:
     static Entity createFireEffect(vec2 position);
     static Entity createSeedGrowthEffect(vec2 position, vec2 sprite_size); 
     static Entity createLevelUpEffect(vec2 position, vec2 sprite_size);   
+    static Entity createElectricityEffect(vec2 start_point, vec2 end_point, float width = 50.0f, float duration_ms = 500.0f);
 
 private:
     // Random number generator
