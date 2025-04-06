@@ -232,7 +232,7 @@ Entity createPlant(RenderSystem* renderer, vec2 position, PLANT_ID id)
 	tower.health = PLANT_STATS_MAP.at(id).health;
 	tower.damage = PLANT_STATS_MAP.at(id).damage;
 	tower.range = PLANT_STATS_MAP.at(id).range; // Detection range in pixels
-	tower.timer_ms = 2000.0f; // Attack every 2 second (unused ?)
+	tower.timer_ms = PLANT_STATS_MAP.at(id).cooldown;
 	tower.state = false;
 	tower.type = PLANT_STATS_MAP.at(id).type;
 
@@ -810,7 +810,7 @@ Entity createSeed(vec2 pos, int type)
 	// Create the associated component.
 	Seed &seed_component = registry.seeds.emplace(seed_entity);
 	seed_component.type = type;
-	seed_component.timer = 5000;
+	seed_component.timer = 1000;
 
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(seed_entity);

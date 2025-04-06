@@ -1,6 +1,7 @@
 #include "common.hpp"
 #include "tower_system.hpp"
 #include "animation_system.hpp"
+#include "particle_system.hpp"
 #include <iostream>
 #include <algorithm>
 
@@ -19,6 +20,7 @@ void TowerSystem::step(float elapsed_ms)
         Tower& tower = registry.towers.components[i];
         Entity entity = registry.towers.entities[i];
         PlantAnimation& plant_anim = registry.plantAnimations.get(entity);
+        tower.timer_ms -= elapsed_ms;
         switch (tower.type) {
             case PLANT_TYPE::PROJECTILE:
                 if (!tower.state)
@@ -43,47 +45,70 @@ void TowerSystem::step(float elapsed_ms)
                 }
                 break;
             case PLANT_TYPE::HEAL:
-            case PLANT_TYPE::POISON:
-            case PLANT_TYPE::SLOW: {
-                bool next_state = false;
-                if (tower.type == PLANT_TYPE::HEAL) {
-                    for (uint i = 0; i < registry.players.size(); i++) {
-                        Entity player = registry.players.entities[i];
-                        if (compute_delta_distance(entity, player) < tower.range) {
-                            Player& player_component = registry.players.components[i];
-                            player_component.health = std::min(player_component.health_max, player_component.health + tower.damage * elapsed_ms / 1000.0f);
-                            next_state = true;
-                        }
-                    }
-                }
-                else if (tower.type == PLANT_TYPE::POISON || tower.type == PLANT_TYPE::SLOW) {
-                    for (uint i = 0; i < registry.enemies.size(); i++) {
-                        Entity enemy = registry.enemies.entities[i];
-                        if (compute_delta_distance(entity, enemy) < tower.range) {
-                            Enemy& enemy_component = registry.enemies.components[i];
-                            if (tower.type == PLANT_TYPE::POISON)
-                                enemy_component.health -= tower.damage * elapsed_ms / 1000.0f;
-                            else if (tower.type == PLANT_TYPE::SLOW) {
-                                if (!registry.slowEffects.has(enemy))
-                                    registry.slowEffects.emplace(enemy);
-                                Slow& slow = registry.slowEffects.get(enemy);
-                                slow.value = 1.0f - tower.damage / 100.0f;
-                                slow.timer_ms = 100;
-                            }
-                            next_state = true;
-                        }
-                    }
-                }
-                if (!tower.state) {
-                    if (next_state) {
+                if (!tower.state)
+                {
+                    Entity player = registry.players.entities[0];
+                    if (compute_delta_distance(entity, player) < tower.range) {
                         tower.state = true;
                         AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.size, true, false, false);
                     }
                 }
-                else {
-                    if (!next_state) {
-                        tower.state = false;
-                        AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.size, true, false, false);
+                else
+                {
+                    if (tower.timer_ms <= 0)
+                    {
+                        Entity player = registry.players.entities[0];
+                        if (compute_delta_distance(entity, player) < tower.range) {
+                            Player& player_component = registry.players.components[0];
+                            player_component.health = std::min(player_component.health_max, player_component.health + tower.damage);
+                        }
+                        else {
+                            tower.state = false;
+                            AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.size, true, false, false);
+                        }
+                        tower.timer_ms = PLANT_STATS_MAP.at(plant_anim.id).cooldown;
+                    }
+                }
+                break;
+            case PLANT_TYPE::POISON:
+            case PLANT_TYPE::SLOW: {
+                if (!tower.state)
+                {
+                    for (uint i = 0; i < registry.enemies.size(); i++) {
+                        Entity enemy = registry.enemies.entities[i];
+                        if (compute_delta_distance(entity, enemy) < tower.range) {
+                            tower.state = true;
+                            AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.size, true, false, false);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    if (tower.timer_ms <= 0)
+                    {
+                        bool enemy_detected = false;
+                        for (uint i = 0; i < registry.enemies.size(); i++) {
+                            Entity enemy = registry.enemies.entities[i];
+                            if (compute_delta_distance(entity, enemy) < tower.range) {
+                                enemy_detected = true;
+                                Enemy& enemy_component = registry.enemies.components[i];
+                                if (tower.type == PLANT_TYPE::POISON)
+                                    enemy_component.health -= tower.damage;
+                                else if (tower.type == PLANT_TYPE::SLOW) {
+                                    if (!registry.slowEffects.has(enemy))
+                                        registry.slowEffects.emplace(enemy);
+                                    Slow& slow = registry.slowEffects.get(enemy);
+                                    slow.value = 1.0f - tower.damage / 100.0f;
+                                    slow.timer_ms = PLANT_STATS_MAP.at(plant_anim.id).cooldown + 100;
+                                }
+                            }
+                        }
+                        if (!enemy_detected) {
+                            tower.state = false;
+                            AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.size, true, false, false);
+                        }
+                        tower.timer_ms = PLANT_STATS_MAP.at(plant_anim.id).cooldown;
                     }
                 }
                 break;
