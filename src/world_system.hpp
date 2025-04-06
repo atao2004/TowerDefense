@@ -14,6 +14,10 @@
 
 #include "render_system.hpp"
 
+// forward declaration for the renderer private variable.
+class SpawnManager;
+class RenderSystem;
+
 // Container for all our entities and game logic.
 // Individual rendering / updates are deferred to the update() methods.
 class WorldSystem

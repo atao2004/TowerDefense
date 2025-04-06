@@ -179,7 +179,7 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 void WorldSystem::restart_splash_screen()
 {
 	game_screen = GAME_SCREEN_ID::SPLASH;
-	createScreen(renderer, TEXTURE_ASSET_ID::BACKGROUND);
+	createScreen(TEXTURE_ASSET_ID::BACKGROUND);
 	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5));
 	createButton(BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200));
 	createButton(BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2));
@@ -422,11 +422,11 @@ void WorldSystem::start_cg(RenderSystem *renderer)
 	int cutscene = registry.screenStates.components[0].cutscene;
 	if (cutscene == 1)
 	{
-		createScreen(renderer, TEXTURE_ASSET_ID::NIGHT_BG);
+		createScreen(TEXTURE_ASSET_ID::NIGHT_BG);
 	}
 	else
 	{
-		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+		createScreen(TEXTURE_ASSET_ID::DAY_BG);
 	}
 }
 
@@ -1360,7 +1360,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			if (cutscene == 1 && cg_index == 6) {
 				for (int i = registry.cgs.entities.size() - 1; i >= 0; i--)
 					registry.remove_all_components_of(registry.cgs.entities[i]);
-				createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+				createScreen(TEXTURE_ASSET_ID::DAY_BG);
 				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 300, WINDOW_HEIGHT_PX - 250), vec2(-500, 500), TEXTURE_ASSET_ID::ORC_WALK2);
 				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX - 250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
 			}

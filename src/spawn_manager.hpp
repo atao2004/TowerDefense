@@ -7,6 +7,11 @@
 #include <vector>
 #include <random>
 
+#include "world_system.hpp"
+
+// Forward declaration
+class RenderSystem;
+
 class SpawnManager {
 public:
     SpawnManager();
