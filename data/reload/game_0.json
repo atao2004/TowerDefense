@@ -30,11 +30,29 @@
             "damage": 5.0,
             "entity": 292,
             "range": 40
+        },
+        {
+            "damage": 5.0,
+            "entity": 298,
+            "range": 40
+        },
+        {
+            "damage": 5.0,
+            "entity": 304,
+            "range": 40
         }
     ],
     "10": [
         {
             "entity": 292,
+            "health": 0.0
+        },
+        {
+            "entity": 298,
+            "health": 0.0
+        },
+        {
+            "entity": 304,
             "health": 0.0
         }
     ],
@@ -63,10 +81,10 @@
             "entity": 279,
             "lock": false,
             "loop": true,
-            "pose": 5,
+            "pose": 1,
             "pose_count": 6,
-            "runtime_ms": 984.0432739257813,
-            "timer_ms": 112.72899627685547,
+            "runtime_ms": 3382.992431640625,
+            "timer_ms": 101.53001403808594,
             "transition_ms": 166
         },
         {
@@ -74,10 +92,32 @@
             "entity": 292,
             "lock": false,
             "loop": true,
-            "pose": 4,
+            "pose": 6,
             "pose_count": 8,
-            "runtime_ms": 548.1949462890625,
-            "timer_ms": 38.56999969482422,
+            "runtime_ms": 2920.9794921875,
+            "timer_ms": 88.12799835205078,
+            "transition_ms": 125
+        },
+        {
+            "destroy": false,
+            "entity": 298,
+            "lock": false,
+            "loop": true,
+            "pose": 6,
+            "pose_count": 8,
+            "runtime_ms": 1906.8018798828125,
+            "timer_ms": 88.12799835205078,
+            "transition_ms": 125
+        },
+        {
+            "destroy": false,
+            "entity": 304,
+            "lock": false,
+            "loop": true,
+            "pose": 6,
+            "pose_count": 8,
+            "runtime_ms": 891.7789916992188,
+            "timer_ms": 101.53001403808594,
             "transition_ms": 125
         }
     ],
@@ -4382,7 +4422,7 @@
                 432.0
             ],
             "scale": [
-                -50.0,
+                50.0,
                 50.0
             ],
             "velocity": [
@@ -4554,16 +4594,80 @@
             "angle": 0.0,
             "entity": 292,
             "position": [
-                956.5667724609375,
-                1922.8599853515625
+                1325.0010986328125,
+                -50.40077209472656
             ],
             "scale": [
                 -50.0,
                 50.0
             ],
             "velocity": [
-                -6.2095112800598145,
-                -49.09407043457031
+                -39.22792434692383,
+                33.974037170410156
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 297,
+            "position": [
+                30.0,
+                30.0
+            ],
+            "scale": [
+                60.0,
+                60.0
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 298,
+            "position": [
+                1365.0689697265625,
+                -85.10308837890625
+            ],
+            "scale": [
+                -50.0,
+                50.0
+            ],
+            "velocity": [
+                -39.2278938293457,
+                33.97406768798828
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 303,
+            "position": [
+                30.0,
+                30.0
+            ],
+            "scale": [
+                60.0,
+                60.0
+            ],
+            "velocity": [
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "angle": 0.0,
+            "entity": 304,
+            "position": [
+                954.2921752929688,
+                1904.8775634765625
+            ],
+            "scale": [
+                -50.0,
+                50.0
+            ],
+            "velocity": [
+                -6.511858940124512,
+                -51.48456573486328
             ]
         }
     ],
@@ -4596,11 +4700,35 @@
                 5.0,
                 5.0
             ]
+        },
+        {
+            "entity": 298,
+            "scale": [
+                5.0,
+                5.0
+            ]
+        },
+        {
+            "entity": 304,
+            "scale": [
+                5.0,
+                5.0
+            ]
         }
     ],
     "25": [
         {
             "entity": 292,
+            "health": 40.0,
+            "speed": 2.0
+        },
+        {
+            "entity": 298,
+            "health": 40.0,
+            "speed": 2.0
+        },
+        {
+            "entity": 304,
             "health": 40.0,
             "speed": 2.0
         }
@@ -4695,6 +4823,12 @@
         },
         {
             "entity": 290
+        },
+        {
+            "entity": 297
+        },
+        {
+            "entity": 303
         }
     ],
     "29": [
@@ -5083,6 +5217,12 @@
     "34": [
         {
             "entity": 281
+        },
+        {
+            "entity": 297
+        },
+        {
+            "entity": 303
         }
     ],
     "35": null,
@@ -6704,7 +6844,7 @@
             "entity": 279,
             "used_effect": 6,
             "used_geometry": 1,
-            "used_texture": 144
+            "used_texture": 140
         },
         {
             "entity": 281,
@@ -6770,7 +6910,31 @@
             "entity": 292,
             "used_effect": 5,
             "used_geometry": 1,
-            "used_texture": 79
+            "used_texture": 81
+        },
+        {
+            "entity": 297,
+            "used_effect": 2,
+            "used_geometry": 1,
+            "used_texture": 227
+        },
+        {
+            "entity": 298,
+            "used_effect": 5,
+            "used_geometry": 1,
+            "used_texture": 81
+        },
+        {
+            "entity": 303,
+            "used_effect": 2,
+            "used_geometry": 1,
+            "used_texture": 227
+        },
+        {
+            "entity": 304,
+            "used_effect": 5,
+            "used_geometry": 1,
+            "used_texture": 81
         }
     ],
     "7": null,
@@ -6780,6 +6944,6 @@
     "current_seed": 0,
     "game_is_over": false,
     "game_screen": 5,
-    "id_count": 297,
+    "id_count": 309,
     "level": 1
 }
