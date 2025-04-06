@@ -276,6 +276,45 @@ Entity ParticleSystem::createParticle(const ParticleGenerator &generator, vec2 p
 
         particle.MaxLife = randomFloat(0.5f, 1.2f);
     }
+    else if (generator.type == "heal")
+    {
+        // Get sprite dimensions from the generator entity
+        vec2 sprite_size = { 50.0f, 50.0f }; // Default size in case motion isn't available
+
+        for (Entity gen_entity : registry.particleGenerators.entities)
+        {
+            if (registry.particleGenerators.has(gen_entity) &&
+                &registry.particleGenerators.get(gen_entity) == &generator &&
+                registry.motions.has(gen_entity))
+            {
+                sprite_size = registry.motions.get(gen_entity).scale;
+                break;
+            }
+        }
+
+        // Generate position across the whole sprite area
+        // Offset position to be within the sprite bounds
+        float x_offset = randomFloat(-sprite_size.x / 2, sprite_size.x / 2);
+        float y_offset = randomFloat(-sprite_size.y / 2, sprite_size.y / 2);
+        particle.Position.x += x_offset;
+        particle.Position.y += y_offset;
+
+        // Heal particles fall upward with slight horizontal variation
+        float angle = randomFloat(M_PI / 2 - 0.3f, M_PI / 2 + 0.3f); // Mostly upward
+        float speed = randomFloat(30.0f, -100.0f);
+        particle.Velocity = { cos(angle) * speed, sin(angle) * speed };
+
+        // Light green color with varying opacity
+        particle.Color = {
+            randomFloat(0.0f, 0.0f), // Dark red
+            randomFloat(0.7f, 0.9f), // Almost no green
+            randomFloat(0.0f, 0.0f), // Almost no blue
+            randomFloat(0.7f, 1.0f)  // Varying opacity
+        };
+
+        // Varying lifetimes for more natural effect
+        particle.MaxLife = randomFloat(0.6f, 1.2f);
+    }
     else
     {
         // Default
@@ -389,6 +428,26 @@ Entity ParticleSystem::createLevelUpEffect(vec2 position, vec2 sprite_size)
 
     // Store the player entity for following
     generator.follow_entity = registry.players.entities[0];
+
+    return entity;
+}
+
+Entity ParticleSystem::createHealEffect(vec2 position, vec2 sprite_size, int duration, Entity target)
+{
+    Entity entity = Entity();
+
+    Motion& motion = registry.motions.emplace(entity);
+    motion.position = position;
+    motion.scale = sprite_size;
+
+    ParticleGenerator& generator = registry.particleGenerators.emplace(entity);
+    generator.type = "heal";
+    generator.amount = 15;
+    generator.spawnInterval = 0.1f;
+    generator.timer = 0.0f;
+    generator.isActive = true;
+    generator.duration_ms = duration;
+    generator.follow_entity = target;
 
     return entity;
 }

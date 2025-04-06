@@ -21,7 +21,8 @@ public:
     static Entity createBloodEffect(vec2 position, vec2 sprite_size);
     static Entity createFireEffect(vec2 position);
     static Entity createSeedGrowthEffect(vec2 position, vec2 sprite_size); 
-    static Entity createLevelUpEffect(vec2 position, vec2 sprite_size);   
+    static Entity createLevelUpEffect(vec2 position, vec2 sprite_size);
+    static Entity createHealEffect(vec2 position, vec2 sprite_size, int duration, Entity target);
 
 private:
     // Random number generator

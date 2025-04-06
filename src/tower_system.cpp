@@ -61,6 +61,8 @@ void TowerSystem::step(float elapsed_ms)
                         if (compute_delta_distance(entity, player) < tower.range) {
                             Player& player_component = registry.players.components[0];
                             player_component.health = std::min(player_component.health_max, player_component.health + tower.damage);
+                            Motion& player_motion = registry.motions.get(player);
+                            ParticleSystem::createHealEffect(player_motion.position, player_motion.scale, PLANT_STATS_MAP.at(plant_anim.id).cooldown, player);
                         }
                         else {
                             tower.state = false;
