@@ -7,7 +7,6 @@
 #include "tinyECS/components.hpp"
 #include "tinyECS/tiny_ecs.hpp"
 
-#include "world_system.hpp"
 
 // fonts
 #include <ft2build.h>

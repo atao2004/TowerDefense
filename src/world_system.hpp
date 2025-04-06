@@ -1,29 +1,25 @@
-#pragma once
+	#pragma once
 
-// internal
-#include "common.hpp"
-#include "spawn_manager.hpp"
+	// internal
+	#include "common.hpp"
+	#include "spawn_manager.hpp"
 
-// stlib
-#include <vector>
-#include <random>
+	// stlib
+	#include <vector>
+	#include <random>
 
-#define SDL_MAIN_HANDLED
-#include <SDL.h>
-#include <SDL_mixer.h>
+	#define SDL_MAIN_HANDLED
+	#include <SDL.h>
+	#include <SDL_mixer.h>
 
-#include "render_system.hpp"
+	#include "render_system.hpp"
 
-// forward declaration for the renderer private variable.
-class SpawnManager;
-class RenderSystem;
-
-// Container for all our entities and game logic.
-// Individual rendering / updates are deferred to the update() methods.
-class WorldSystem
-{
-public:
-	WorldSystem();
+	// Container for all our entities and game logic.
+	// Individual rendering / updates are deferred to the update() methods.
+	class WorldSystem
+	{
+	public:
+		WorldSystem();
 
 	// creates main window
 	GLFWwindow *create_window();
