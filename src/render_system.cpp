@@ -388,8 +388,8 @@ void RenderSystem::drawToScreen()
 		GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
 
 		glUniform1f(game_continues_uloc, screen.game_over);
-		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE) ? 0 : screen.hp_percentage);
-		glUniform1f(exp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE) ? 0 :screen.exp_percentage);
+		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE || WorldSystem::get_game_screen() == GAME_SCREEN_ID::GAME_OVER) ? 0 : screen.hp_percentage);
+		glUniform1f(exp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE || WorldSystem::get_game_screen() == GAME_SCREEN_ID::GAME_OVER) ? 0 :screen.exp_percentage);
 		gl_has_errors();
 
 		// Set the vertex position and vertex texture coordinates (both stored in the
@@ -466,7 +466,7 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 	{
 		for (Entity entity : registry.cgs.entities)
 		{
-			drawTexturedMesh(entity, projection_2D);
+			if (registry.renderRequests.has(entity)) drawTexturedMesh(entity, projection_2D);
 		}
 
 		if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH) {

@@ -684,8 +684,6 @@ Entity createGameOver()
 	motion.velocity = {0, 0};
 	motion.position = {WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2};
 	motion.scale = vec2({WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX});
-
-	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
 	
 	return entity;
 }
