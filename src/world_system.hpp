@@ -58,7 +58,7 @@
 	// should the game be over ?
 	bool is_over() const;
 
-	static void game_over();
+	void game_over();
 	static bool game_is_over;
 	unsigned int current_seed; // current type of seed the player has selected
 	// Current experience level of the player
@@ -154,8 +154,6 @@ private:
 	void saveGame();
 
 	void plant_seed();
-
-	void print_level_and_day();
   
 	// Player dash
 	void update_dash(float elapsed_ms_since_last_update);

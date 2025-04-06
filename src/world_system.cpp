@@ -257,16 +257,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			chicken_summoned = true;
 		}
 
+		// Print level, day, and enemies killed.
+		registry.texts.clear();
+		createText("Enemies Killed: " + std::to_string(points), vec2(WINDOW_WIDTH_PX * 0.2, WINDOW_HEIGHT_PX - 50.0f), 0.5f, vec3(0.9f, 0.9f, 0.9f));
+		createText("Level: " + std::to_string(level), vec2(WINDOW_WIDTH_PX * 0.475, WINDOW_HEIGHT_PX - 50.0f), 0.5f, vec3(0.9f, 0.9f, 0.9f));
+		createText("Day: " + std::to_string(current_day), vec2(WINDOW_WIDTH_PX * 0.475, WINDOW_HEIGHT_PX - 100.0f), 0.5f, vec3(0.9f, 0.9f, 0.9f));
+
 		return true;
 	}
 
 	return true;
-}
-
-void WorldSystem::print_level_and_day() {
-	registry.texts.clear();
-	createText("Level: " + std::to_string(level), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX - 75.0f), 0.6f, vec3(0.9f, 0.9f, 0.9f));
-	createText("Day: " + std::to_string(current_day), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX - 125.0f), 0.6f, vec3(0.9f, 0.9f, 0.9f));
 }
 
 // Shared elements between restarting a game and a tutorial
@@ -464,9 +464,6 @@ void WorldSystem::restart_game()
 
 	// start the spawn manager
 	spawn_manager.start_game();
-
-	// Print the starting level (Level 1)
-	print_level_and_day();
 }
 
 // Reset the world state to the tutorial mode state
@@ -511,9 +508,6 @@ void WorldSystem::restart_tutorial()
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75 - 15, TUTORIAL_ARROW_HEIGHT_PX));
 	create_tutorial_enemies();
 	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX * 0.05, TUTORIAL_ARROW_HEIGHT_PX});
-
-	// Print the starting level (Level 0)
-	print_level_and_day();
 }
 
 // Create tutorial enemies at specific locations that respawn when killed
@@ -586,8 +580,6 @@ void WorldSystem::increase_level() {
 		vec2 player_pos = registry.motions.get(player_entity).position;
 		vec2 player_size = registry.motions.get(player_entity).scale;
 		ParticleSystem::createLevelUpEffect(player_pos, player_size);
-
-		print_level_and_day();
 
 		if (level == 2) {
 			registry.screenStates.components[0].cutscene = 3;
@@ -1215,8 +1207,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 				level++;
 
-				print_level_and_day();
-
 				// Get player entity and size
 				Entity player = registry.players.entities[0];
 				vec2 player_pos = registry.motions.get(player).position;
@@ -1421,8 +1411,12 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 
 void WorldSystem::game_over()
 {
+	// game_screen = GAME_SCREEN_ID::GAME_OVER;
+	
+	createScreen(TEXTURE_ASSET_ID::DAY_BG);
+
 	registry.texts.clear();
-	// createText("Zombies Killed: " + std::to_string(points), vec2(WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.5), 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+	createText("Enemies Killed: " + std::to_string(points), vec2(WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.5), 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 	createText("Days survived: " + std::to_string(current_day), vec2(WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.4), 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 
 	std::cout << "Game Over!" << std::endl;
@@ -1431,6 +1425,9 @@ void WorldSystem::game_over()
 	Mix_HaltMusic();
 	Mix_PlayChannel(0, WorldSystem::game_over_sound, 0);
 	createGameOver();
+
+	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
+	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
 }
 
 void WorldSystem::update_movement_sound(float elapsed_ms)

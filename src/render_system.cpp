@@ -471,7 +471,7 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 
 		if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH) {
 			renderText("Farmer Defense", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100, OS_RES, {0, 0, 0}, trans);
-		} else {
+		} else if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) {
 			int cg_idx = registry.screenStates.components[0].cg_index;
 			int cutscene = registry.screenStates.components[0].cutscene;
 			if (cutscene == 1) {
@@ -572,8 +572,8 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 		}
 
 		if (!WorldSystem::game_is_over) {
-			renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
-			renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
+			renderText("HP", WINDOW_WIDTH_PX * 0.65, WINDOW_HEIGHT_PX * 0.925, 0.7, {1, 1, 1}, trans);
+			renderText("EXP", WINDOW_WIDTH_PX * 0.65, WINDOW_HEIGHT_PX * 0.85, 0.7, {1, 1, 1}, trans);
 		
 			for (Entity seed_entity : registry.seeds.entities) {
 				if (registry.motions.has(seed_entity) && registry.moveWithCameras.has(seed_entity)) {
@@ -595,16 +595,13 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 			renderText("Enemy count: " + std::to_string(registry.enemies.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.875, 0.3, {0, 1, 1}, trans);
 		
 			// Render the number of plants on screen (Includes plant in inventory)
-			renderText("Plant count: " + std::to_string(registry.seeds.size() + registry.towers.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.825, 0.3, {0, 1, 1}, trans);
+			int seed_count = 0;
+			for (Entity entity : registry.seeds.entities) {
+				if (!registry.moveWithCameras.has(entity)) seed_count++;
+			}
+			renderText("Plant count: " + std::to_string(seed_count + registry.towers.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.825, 0.3, {0, 1, 1}, trans);
 		} else {
 			renderText("GAME OVER", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.6, 1.5f, glm::vec3(1.0f, 1.0f, 1.0f), trans);
-		}
-
-		if (WorldSystem::game_is_over) {
-			for (Entity entity : registry.buttons.entities) {
-				if (registry.renderRequests.has(entity)) drawTexturedMesh(entity, projection_2D);
-			}
-			//renderText(std::to_string(world_system.points), WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.6, 1.5f, glm::vec3(1.0f, 1.0f, 1.0f), trans);
 		}
 
 		for (Entity text_entity : registry.texts.entities) {

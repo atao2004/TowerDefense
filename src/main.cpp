@@ -153,7 +153,7 @@ int main()
 				if (fm_physics.can_update())
 					physics_system.step(fm_physics.get_time());
 				if (fm_status.can_update())
-					status_system.step(fm_status.get_time());
+					status_system.step(fm_status.get_time(), world_system);
 				if (fm_seed.can_update())
 					seed_system.step(fm_seed.get_time());
 
