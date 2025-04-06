@@ -1280,9 +1280,9 @@ bool WorldSystem::detectButtons() {
 					Entity& player = registry.players.entities[0];
 					vec2 player_pos = registry.motions.get(player).position;
 					createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
-					createButton(renderer, BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4+50), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+50+BUTTON_SPLASH_HEIGHT/2));
-					createButton(renderer, BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4 + 200), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+200+BUTTON_SPLASH_HEIGHT/2));
-					createButton(renderer, BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4 + 350), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+350+BUTTON_SPLASH_HEIGHT/2));
+					createButton(renderer, BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4+50), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+50+BUTTON_SPLASH_HEIGHT/2));
+					createButton(renderer, BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4 + 200), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200+BUTTON_SPLASH_HEIGHT/2));
+					createButton(renderer, BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4 + 350), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+350+BUTTON_SPLASH_HEIGHT/2));
 					return true;
 				} else if (game_screen == GAME_SCREEN_ID::PAUSE && b.type == BUTTON_ID::PAUSE) {
 					game_screen = GAME_SCREEN_ID::PLAYING;
