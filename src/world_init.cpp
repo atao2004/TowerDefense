@@ -30,7 +30,7 @@ Entity createPausePanel(RenderSystem* renderer, vec2 position) {
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
-	motion.position = position;
+	motion.position = position*OS_RES;
 	motion.scale = vec2({ 800, 700 });
 	registry.renderRequests.insert(
 		entity,
@@ -50,12 +50,12 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 	CustomButton &button = registry.buttons.emplace(entity);
 	button.type = type;
 	// std::cout<<button.position.x<<" "<<button.position.y<<std::endl;
-	button.position = toDeduct;
+	button.position = toDeduct*OS_RES;
 	
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = {0, 0};
-	motion.position = position;
+	motion.position = position*OS_RES;
 	motion.scale = vec2(BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT)*scale;
 	registry.renderRequests.insert(
 		entity,
