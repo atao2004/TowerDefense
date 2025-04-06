@@ -45,7 +45,7 @@ Entity createPausePanel(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct) {
+Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct, float scale) {
 	Entity entity = Entity();
 	CustomButton &button = registry.buttons.emplace(entity);
 	button.type = type;
@@ -56,7 +56,7 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 	motion.angle = 0.f;
 	motion.velocity = {0, 0};
 	motion.position = position;
-	motion.scale = vec2({BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT});
+	motion.scale = vec2(BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT)*scale;
 	registry.renderRequests.insert(
 		entity,
 		{(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::START_BUTTON + (int)type),
