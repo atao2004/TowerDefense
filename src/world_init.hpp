@@ -49,6 +49,7 @@ Entity createTutorialRestart(vec2 position);
 Entity createTutorialArrow(vec2 position);
 
 // ui elements
+void createLevelUp(RenderSystem* renderer);
 Entity createPause(vec2 position);
 Entity createToolbar(vec2 position);
 

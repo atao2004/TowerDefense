@@ -461,15 +461,15 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 	gl_has_errors();
 	int cutscene = registry.screenStates.components[0].cutscene;
 	mat3 projection_2D = (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) ? createProjectionMatrix_splash() : createProjectionMatrix();
-	if(game_screen == GAME_SCREEN_ID::LEVEL_UP) {
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		projection_2D = createProjectionMatrix();
-		renderText("LEVEL UP!", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100 - 100, OS_RES, {1, 1, 1}, trans);
-		renderText("You earned a seed of type: " + std::to_string(WorldSystem::current_seed) , WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100 - 200, OS_RES, {0, 0, 0}, trans);
-		drawToScreen();
+	// if(game_screen == GAME_SCREEN_ID::LEVEL_UP) {
+	// 	// glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	// 	// projection_2D = createProjectionMatrix();
+	// 	// renderText("LEVEL UP!", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100 - 100, OS_RES, {1, 1, 1}, trans);
+	// 	// renderText("You earned a seed of type: " + std::to_string(WorldSystem::current_seed) , WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100 - 200, OS_RES, {0, 0, 0}, trans);
+	// 	// drawToScreen();
 
-	}
-	else if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG)
+	// }
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG)
 	{
 		for (Entity entity : registry.cgs.entities)
 		{

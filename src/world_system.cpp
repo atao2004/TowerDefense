@@ -189,11 +189,7 @@ void WorldSystem::restart_splash_screen()
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
-	std::cout <<(int)game_screen << std::endl;
-	// if (PlayerSystem::get_state() == STATE::LEVEL_UP)
-	// {
-	// 	registry.inventorys.components[0].seedCount[current_seed]++;
-	// }
+	//std::cout <<(int)game_screen << std::endl;
 	// Using the spawn manager to generate zombies
 	if (WorldSystem::game_is_over)
 	{
@@ -1292,9 +1288,17 @@ bool WorldSystem::detectButtons() {
 					return true;
 				}
 			}
+		} else if (game_screen == GAME_SCREEN_ID::PLAYING || game_screen == GAME_SCREEN_ID::LEVEL_UP) {
+			clearButtons();
+			Entity& player = registry.players.entities[0];
+			vec2 player_pos = registry.motions.get(player).position;
+			createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
+			createButton(renderer, BUTTON_ID::LEVEL_UP_SEED1, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4+50), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+50+BUTTON_SPLASH_HEIGHT/2));
+			createButton(renderer, BUTTON_ID::LEVEL_UP_SEED2, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4 + 200), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+200+BUTTON_SPLASH_HEIGHT/2));
+			createButton(renderer, BUTTON_ID::LEVEL_UP_SEED3, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4 + 350), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+350+BUTTON_SPLASH_HEIGHT/2));
+
 		}
-		// std::cout<<"x "<<b.position.x - BUTTON_SPLASH_WIDTH / 2<<" "<<b.position.x + BUTTON_SPLASH_WIDTH / 2<<std::endl;
-		// std::cout<<"y "<<b.position.y - BUTTON_SPLASH_HEIGHT / 2<<" "<<b.position.y + BUTTON_SPLASH_HEIGHT / 2<<std::endl;
+		std::cout<<"button position"<<b.position.x<<","<<b.position.y<<std::endl;
 		if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
 			mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT / 2)
 		{
@@ -1318,6 +1322,23 @@ bool WorldSystem::detectButtons() {
 					restart_splash_screen();
 				}
 			}
+			else if(b.type == BUTTON_ID::LEVEL_UP_SEED1) {
+				std::cout<<"seed1"<<std::endl;
+				registry.inventorys.components[0].seedCount[0]++; // increment the seed count of 0
+				game_screen == GAME_SCREEN_ID::PLAYING;
+				clearButtons();
+			} else if(b.type == BUTTON_ID::LEVEL_UP_SEED2) {
+				std::cout<<"seed2"<<std::endl;
+				registry.inventorys.components[0].seedCount[1]++; // increment the seed count of 1
+				game_screen == GAME_SCREEN_ID::PLAYING;
+				clearButtons();
+			}
+			else if(b.type == BUTTON_ID::LEVEL_UP_SEED3) {
+				std::cout<<"seed3"<<std::endl;
+				registry.inventorys.components[0].seedCount[2]++; // increment the seed count of 2
+				game_screen == GAME_SCREEN_ID::PLAYING;
+				clearButtons();
+			}
 			else if (b.type == BUTTON_ID::SAVE) {
 				game_screen == GAME_SCREEN_ID::PLAYING;
 				clearButtons();
@@ -1333,7 +1354,7 @@ bool WorldSystem::detectButtons() {
 
 void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 {
-	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::PAUSE)
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::PAUSE || game_screen == GAME_SCREEN_ID::LEVEL_UP)
 	{
 		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
 		{

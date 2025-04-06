@@ -1,4 +1,5 @@
 #include "world_init.hpp"
+#include "world_system.hpp"
 #include "tinyECS/registry.hpp"
 #include <iostream>
 #include "animation_system.hpp"
@@ -44,7 +45,16 @@ Entity createPausePanel(RenderSystem* renderer, vec2 position) {
 	registry.cgs.emplace(entity);
 	return entity;
 }
+void createLevelUp(RenderSystem* renderer) {
+	WorldSystem::clearButtons();
+	Entity& player = registry.players.entities[0];
+	vec2 player_pos = registry.motions.get(player).position;
+	createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
+	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED1, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4+50), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+50+BUTTON_SPLASH_HEIGHT/2));
+	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED2, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4 + 200), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+200+BUTTON_SPLASH_HEIGHT/2));
+	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED3, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4 + 350), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+350+BUTTON_SPLASH_HEIGHT/2));
 
+}
 Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct) {
 	Entity entity = Entity();
 	CustomButton &button = registry.buttons.emplace(entity);
