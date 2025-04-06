@@ -49,8 +49,10 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 	Entity entity = Entity();
 	CustomButton &button = registry.buttons.emplace(entity);
 	button.type = type;
-	// std::cout<<button.position.x<<" "<<button.position.y<<std::endl;
-	button.position = toDeduct*OS_RES;
+	if (scale == 1) //splash screen don't change
+		button.position = toDeduct;
+	else
+		button.position = toDeduct*OS_RES;
 	
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
