@@ -276,7 +276,7 @@ void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 	// }
 
 	// Reset day counter and related variables
-	current_day = 1;
+	current_day = 1; spawn_manager.set_day(current_day);
 	rest_timer_ms = 0.f;
 	enemy_spawn_timer_ms = 0.f;
 	enemies_spawned_today = 0;
@@ -1465,7 +1465,7 @@ void WorldSystem::update_camera()
 
 void WorldSystem::advance_to_next_day()
 {
-	current_day++;
+	current_day++; spawn_manager.set_day(current_day);
 	std::cout << "===== ADVANCING TO DAY " << current_day << " =====" << std::endl;
 
 	// Calculate number of enemies for the new day with a reasonable progression curve
@@ -1487,22 +1487,10 @@ void WorldSystem::advance_to_next_day()
 // Helper function to calculate number of enemies per day
 int WorldSystem::calculate_enemies_for_day(int day)
 {
-	// Base enemies for day 1
-	const int BASE_ENEMIES = 5;
-
-	// Progressive difficulty scaling:
-	// - Days 1-3: Linear increase (+2 enemies per day)
-	// - Days 4-7: Slightly faster increase (+3 enemies per day)
-	// - Days 8+: Challenging increase (+4 enemies per day)
-
-	if (day <= 1)
-		return BASE_ENEMIES;
-	else if (day <= 3)
-		return BASE_ENEMIES + (day - 1) * 2;
-	else if (day <= 7)
-		return BASE_ENEMIES + 4 + (day - 3) * 3;
-	else
-		return BASE_ENEMIES + 16 + (day - 7) * 4;
+	int total = 0;
+	for (const auto& [enemy, count] : DAY_MAP.at(day))
+		total += count;
+	return total;
 }
 
 void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)

@@ -127,6 +127,11 @@ void SpawnManager::set_test_mode(bool enabled)
     std::cout << "Test mode " << (enabled ? "enabled" : "disabled") << std::endl;
 }
 
+void SpawnManager::set_day(int day)
+{
+    this->day = DAY_MAP.at(day);
+}
+
 void SpawnManager::spawn_enemy(RenderSystem *renderer)
 {
     // Get a random spawn point
@@ -142,112 +147,29 @@ void SpawnManager::spawn_enemy(RenderSystem *renderer)
 
 Entity SpawnManager::spawnEnemyByDay(RenderSystem *renderer, vec2 spawn_pos, int current_day)
 {
-    // Progressive enemy introduction based on day number
-    std::vector<std::function<Entity()>> available_enemies;
-    float elite_chance = 0.0f;
-
-    // Always have Orc as the basic enemy from day 1
-    available_enemies.push_back([&]()
-                                { return createOrc(renderer, spawn_pos); });
-
-    // Day 2: Add Skeleton
-    if (current_day >= 2)
-    {
-        available_enemies.push_back([&]()
-                                    { return createSkeleton(renderer, spawn_pos); });
-    }
-
-    // Day 3: Add OrcElite
-    if (current_day >= 3)
-    {
-        available_enemies.push_back([&]()
-                                    { return createOrcElite(renderer, spawn_pos); });
-        elite_chance = 0.1f; // 10% chance for elite versions
-    }
-
-    // Day 4: Add Werewolf
-    if (current_day >= 4)
-    {
-        available_enemies.push_back([&]()
-                                    { return createWerewolf(renderer, spawn_pos); });
-    }
-
-    // Day 5: Add SkeletonArcher
-    if (current_day >= 4)
-    {
-        available_enemies.push_back([&]()
-                                    { return createSkeletonArcher(renderer, spawn_pos); });
-        elite_chance = 0.15f; // 15% chance for elite versions
-    }
-
-    if (current_day == 5)
-    {
-        // It's challenge day!
-        return start_challenge_day(renderer, spawn_pos);
-    }
-
-    // Day 6: Add Werebear
-    if (current_day >= 6)
-    {
-        available_enemies.push_back([&]()
-                                    { return createWerebear(renderer, spawn_pos); });
-    }
-
-    // Day 7: Add Slime
-    if (current_day >= 7)
-    {
-        available_enemies.push_back([&]()
-                                    { return createSlime(renderer, spawn_pos); });
-        elite_chance = 0.2f; // 20% chance for elite versions
-    }
-
-    // Day 8: Add OrcRider
-    if (current_day >= 8)
-    {
-        available_enemies.push_back([&]()
-                                    { return createOrcRider(renderer, spawn_pos); });
-        elite_chance = 0.25f; // 25% chance for elite versions
-    }
-
-    // Once all enemies are introduced, use a weighted random distribution
-    if (current_day >= 9)
-    {
-        // After day 9, use the original random distribution but with adjusted rates
-        float prob = uniform_dist(rng);
-
-        if (prob < 0.25f)
-        {
-            return createSkeletonArcher(renderer, spawn_pos);
-        }
-        else if (prob < 0.35f)
-        {
-            return createOrcElite(renderer, spawn_pos);
-        }
-        else if (prob < 0.45f)
-        {
-            return createSkeleton(renderer, spawn_pos);
-        }
-        else if (prob < 0.55f)
-        {
-            return createWerewolf(renderer, spawn_pos);
-        }
-        else if (prob < 0.65f)
-        {
-            return createWerebear(renderer, spawn_pos);
-        }
-        else if (prob < 0.75f)
-        {
-            return createSlime(renderer, spawn_pos);
-        }
-        else
-        {
-            return createOrc(renderer, spawn_pos);
+    if (!day.empty()) {
+        ENEMY_ID enemy_id = day[0].first;
+        std::cout << "Enemy: " << static_cast<int>(enemy_id) << ", " << "Count: " << day[0].second << std::endl;
+        day[0].second--;
+        if (day[0].second <= 0) day.erase(day.begin());
+        switch (enemy_id) {
+            case ENEMY_ID::ORC:
+                return createOrc(renderer, spawn_pos);
+            case ENEMY_ID::ORC_ELITE:
+                return createOrcElite(renderer, spawn_pos);
+            case ENEMY_ID::SKELETON:
+                return createSkeleton(renderer, spawn_pos);
+            case ENEMY_ID::SKELETON_ARCHER:
+                return createSkeletonArcher(renderer, spawn_pos);
+            case ENEMY_ID::WEREWOLF:
+                return createWerewolf(renderer, spawn_pos);
+            case ENEMY_ID::WEREBEAR:
+                return createWerebear(renderer, spawn_pos);
+            case ENEMY_ID::SLIME:
+                return createSlime(renderer, spawn_pos);
         }
     }
-
-    // For days 1-7, select from available enemies list
-    int enemy_idx = (int)(uniform_dist(rng) * available_enemies.size());
-    return available_enemies[enemy_idx]();
+    return createOrc(renderer, spawn_pos);
 }
 
 Entity SpawnManager::start_challenge_day(RenderSystem *renderer, vec2 spawn_pos)

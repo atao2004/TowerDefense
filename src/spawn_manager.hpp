@@ -6,6 +6,7 @@
 #include "tinyECS/registry.hpp"
 #include <vector>
 #include <random>
+#include "days.hpp"
 
 class SpawnManager {
 public:
@@ -19,6 +20,7 @@ public:
     bool is_test_mode() const { return test_mode; }
     int current_wave;
 
+    void set_day(int day);
     void spawn_enemy(RenderSystem* renderer);
     Entity spawnEnemyByDay(RenderSystem* renderer, vec2 spawn_pos, int current_day);
     bool squad_spawned;
@@ -53,4 +55,6 @@ private:
     bool test_mode = false;
 
     Entity start_challenge_day(RenderSystem* renderer, vec2 spawn_pos);
+
+    std::vector<std::pair<ENEMY_ID, int>> day;
 };
