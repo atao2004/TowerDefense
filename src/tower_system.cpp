@@ -156,9 +156,10 @@ void TowerSystem::fire_projectile(Entity tower, Entity target)
 
     proj_motion.velocity = direction * proj.speed;
 
+    PlantAnimation& plant_anim = registry.plantAnimations.get(tower);
     registry.renderRequests.insert(
         projectile,
-        {TEXTURE_ASSET_ID::PROJECTILE,
+        {PLANT_PROJECTILE_MAP.at(plant_anim.id),
          EFFECT_ASSET_ID::TEXTURED,
          GEOMETRY_BUFFER_ID::SPRITE});
 }
