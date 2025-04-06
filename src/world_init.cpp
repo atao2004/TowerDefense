@@ -739,7 +739,7 @@ Entity createPlayer(RenderSystem *renderer, vec2 position, int seed_type)
 	registry.inventorys.components[0].seedCount[seed_type] = 5; // 5 starter seeds
 	for(int i = 0; i < NUM_SEED_TYPES; i++)
 	{
-		registry.inventorys.components[0].seedCount[i] = 1; // one each of the 8 seed types
+		registry.inventorys.components[0].seedCount[i] = 4; // one each of the 8 seed types
 		registry.inventorys.components[0].seedAtToolbar[i] = i;
 	}
 

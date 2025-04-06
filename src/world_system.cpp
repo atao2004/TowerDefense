@@ -1212,6 +1212,13 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		current_day = 5;
 	}
 
+	if (action == GLFW_PRESS) {
+		if (key == GLFW_KEY_RIGHT)
+			current_seed++;
+		else if (key == GLFW_KEY_LEFT)
+			current_seed--;
+	}
+	
 	if (action == GLFW_PRESS && key == GLFW_KEY_9)
 	{
 		if (registry.screenStates.size() != 0)
