@@ -7,6 +7,8 @@
 #include "tinyECS/components.hpp"
 #include "tinyECS/tiny_ecs.hpp"
 
+#include "world_system.hpp"
+
 // fonts
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -345,18 +347,15 @@ public:
 	~RenderSystem();
 
 	// Draw all entities
-	void step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms);
+	void step_and_draw(WorldSystem world_system, float elapsed_ms);
 
 	mat3 createProjectionMatrix();
 	mat3 createProjectionMatrix_splash();
 	
-
 	Entity get_screen_state_entity() { return screen_state_entity; }
 
 	bool fontInit(const std::string &font_filename, unsigned int font_default_size);
 	void renderText(std::string text, float x, float y, float scale, const glm::vec3 &color, const glm::mat4 &trans);
-
-	void drawGameOver();
 
 private:
 	// Internal drawing functions for each entity type

@@ -198,13 +198,8 @@ int main()
     
 		if (fm_render.can_update() ||
 		WorldSystem::game_is_over || game_screen == GAME_SCREEN_ID::CG || game_screen == GAME_SCREEN_ID::PAUSE || game_screen == GAME_SCREEN_ID::SPLASH) 
-			renderer_system.step_and_draw(game_screen, fm_render.get_time());
+			renderer_system.step_and_draw(world_system, fm_render.get_time());
     
 	}
-
-	renderer_system.drawGameOver();
-
-	std::cout << "GAME OVER!" << std::endl;
-
 	return EXIT_SUCCESS;
 }

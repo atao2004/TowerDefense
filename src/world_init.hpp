@@ -6,8 +6,8 @@
 #include "seeds.hpp"
 
 //splash screen
-Entity createScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background);
-Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct);
+Entity createScreen(TEXTURE_ASSET_ID background);
+Entity createButton(BUTTON_ID type, vec2 position, vec2 toDeduct);
 
 // enemies
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position);

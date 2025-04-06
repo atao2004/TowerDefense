@@ -63,6 +63,8 @@ public:
 	unsigned int current_seed; // current type of seed the player has selected
 	// Current experience level of the player
 	unsigned int level;
+	// Number of players stopped by the towers, displayed in the window title
+	unsigned int points;
 
 	// increases player experience
 	static void increase_exp();
@@ -103,9 +105,6 @@ private:
 
 	// OpenGL window handle
 	GLFWwindow *window;
-
-	// Number of players stopped by the towers, displayed in the window title
-	unsigned int points;
 
 	// game_screen (inspired by Assignment #2)
 	static GAME_SCREEN_ID game_screen;

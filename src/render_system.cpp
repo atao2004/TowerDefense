@@ -377,8 +377,8 @@ void RenderSystem::drawToScreen()
 	gl_has_errors();
 
 	ScreenState &screen = registry.screenStates.get(screen_state_entity);
-	if (!WorldSystem::game_is_over)
-	{
+	// if (!WorldSystem::game_is_over) {
+	if (1) {
 		// add the "UI" effect
 		const GLuint ui_program = effects[(GLuint)EFFECT_ASSET_ID::UI];
 		glUseProgram(ui_program);
@@ -435,7 +435,7 @@ void RenderSystem::drawToScreen()
 
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
+void RenderSystem::step_and_draw(WorldSystem world_system, float elapsed_ms)
 {
 	// Getting size of window
 	int w, h;
@@ -460,16 +460,16 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 							  // sprites back to front
 	gl_has_errors();
 	int cutscene = registry.screenStates.components[0].cutscene;
-	mat3 projection_2D = (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) ? createProjectionMatrix_splash() : createProjectionMatrix();
+	mat3 projection_2D = (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) ? createProjectionMatrix_splash() : createProjectionMatrix();
 
-	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG)
+	if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG)
 	{
 		for (Entity entity : registry.cgs.entities)
 		{
 			drawTexturedMesh(entity, projection_2D);
 		}
 
-		if (game_screen == GAME_SCREEN_ID::SPLASH) {
+		if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH) {
 			renderText("Farmer Defense", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100, OS_RES, {0, 0, 0}, trans);
 		} else {
 			int cg_idx = registry.screenStates.components[0].cg_index;
@@ -537,7 +537,7 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 			{
 				// Note, its not very efficient to access elements indirectly via the entity
 				// albeit iterating through all Sprites in sequence. A good point to optimize
-				if (game_screen == GAME_SCREEN_ID::TUTORIAL)
+				if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::TUTORIAL)
 				{
 					if (registry.mapTiles.has(entity))
 					{
@@ -565,41 +565,52 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 		drawParticlesInstanced(projection_2D);
 
 		// individually draw player, toolbar, inventory seeds, pause button; will render on top of all the motion sprites
-		if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::PAUSE) {
+		if (!WorldSystem::game_is_over && WorldSystem::get_game_screen() != GAME_SCREEN_ID::PAUSE) {
 			for (Entity entity : registry.moveWithCameras.entities){
 				if (registry.renderRequests.has(entity)) drawTexturedMesh(entity, projection_2D);
 			}
 		}
 
-		renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
-		renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
-	
-		for (Entity seed_entity : registry.seeds.entities) {
-			if (registry.motions.has(seed_entity) && registry.moveWithCameras.has(seed_entity)) {
-				if (registry.inventorys.size() != 0) {
-					int seed_type = registry.seeds.get(seed_entity).type;
-					int seed_count = registry.inventorys.components[0].seedCount[seed_type];
-					vec2 seed_pos = registry.motions.get(seed_entity).position;
+		if (!WorldSystem::game_is_over) {
+			renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
+			renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
+		
+			for (Entity seed_entity : registry.seeds.entities) {
+				if (registry.motions.has(seed_entity) && registry.moveWithCameras.has(seed_entity)) {
+					if (registry.inventorys.size() != 0) {
+						int seed_type = registry.seeds.get(seed_entity).type;
+						int seed_count = registry.inventorys.components[0].seedCount[seed_type];
+						vec2 seed_pos = registry.motions.get(seed_entity).position;
 
-					renderText(std::to_string(seed_count), WINDOW_WIDTH_PX / 2 - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (seed_type * 0.95 + 0.95), 25, 0.25, {0.6, 0.25, 0.25}, trans);
+						renderText(std::to_string(seed_count), WINDOW_WIDTH_PX / 2 - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (seed_type * 0.95 + 0.95), 25, 0.25, {0.6, 0.25, 0.25}, trans);
+					}
 				}
 			}
+
+			// Render the FPS counter
+			float current_fps = (1/(elapsed_ms/1000));
+			renderText("FPS: " + std::to_string(current_fps), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.925, 0.3, {0, 1, 1}, trans);
+		
+			// Render the number of enemies on screen
+			renderText("Enemy count: " + std::to_string(registry.enemies.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.875, 0.3, {0, 1, 1}, trans);
+		
+			// Render the number of plants on screen (Includes plant in inventory)
+			renderText("Plant count: " + std::to_string(registry.seeds.size() + registry.towers.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.825, 0.3, {0, 1, 1}, trans);
+		} else {
+			renderText("GAME OVER", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.6, 1.5f, glm::vec3(1.0f, 1.0f, 1.0f), trans);
+		}
+
+		if (WorldSystem::game_is_over) {
+			for (Entity entity : registry.buttons.entities) {
+				if (registry.renderRequests.has(entity)) drawTexturedMesh(entity, projection_2D);
+			}
+			renderText(std::to_string(world_system.points), WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.6, 1.5f, glm::vec3(1.0f, 1.0f, 1.0f), trans);
 		}
 
 		for (Entity text_entity : registry.texts.entities) {
 			renderText(registry.texts.get(text_entity).text, registry.texts.get(text_entity).pos.x, registry.texts.get(text_entity).pos.y, registry.texts.get(text_entity).size, registry.texts.get(text_entity).color, trans);
 		}
 	
-		// Render the FPS counter
-		float current_fps = (1/(elapsed_ms/1000));
-		renderText("FPS: " + std::to_string(current_fps), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.925, 0.3, {0, 1, 1}, trans);
-	
-		// Render the number of enemies on screen
-		renderText("Enemy count: " + std::to_string(registry.enemies.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.875, 0.3, {0, 1, 1}, trans);
-	
-		// Render the number of plants on screen (Includes plant in inventory)
-		renderText("Plant count: " + std::to_string(registry.seeds.size() + registry.towers.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.825, 0.3, {0, 1, 1}, trans);
-
 		//  draw framebuffer to screen
 		//  adding "UI" effect when applied
 		drawToScreen();
@@ -617,14 +628,6 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(window);
 	gl_has_errors();
-}
-
-void RenderSystem::drawGameOver() {
-	renderText("GAME OVER", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 4, 5.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
-	renderText("Zombies Killed: ", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 2, 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
-	renderText("Days survived: ", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 8, 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
-	
-	drawToScreen();
 }
 
 mat3 RenderSystem::createProjectionMatrix_splash()

@@ -45,7 +45,7 @@ Entity createPausePanel(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct) {
+Entity createButton(BUTTON_ID type, vec2 position, vec2 toDeduct) {
 	Entity entity = Entity();
 	CustomButton &button = registry.buttons.emplace(entity);
 	button.type = type;
@@ -67,7 +67,7 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 	return entity;
 }
 
-Entity createScreen(RenderSystem *renderer, TEXTURE_ASSET_ID background)
+Entity createScreen(TEXTURE_ASSET_ID background)
 {
 	Entity entity = Entity();
 	Motion &motion = registry.motions.emplace(entity);
@@ -685,12 +685,8 @@ Entity createGameOver()
 	motion.position = {WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2};
 	motion.scale = vec2({WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX});
 
-	// registry.renderRequests.insert(
-	// 	entity,
-	// 	{TEXTURE_ASSET_ID::GAMEOVER,
-	// 	 EFFECT_ASSET_ID::TEXTURED,
-	// 	 GEOMETRY_BUFFER_ID::SPRITE},
-	// 	false);
+	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
+	
 	return entity;
 }
 
