@@ -1487,10 +1487,29 @@ void WorldSystem::advance_to_next_day()
 // Helper function to calculate number of enemies per day
 int WorldSystem::calculate_enemies_for_day(int day)
 {
-	int total = 0;
-	for (const auto& [enemy, count] : DAY_MAP.at(day))
-		total += count;
-	return total;
+	if (DAY_MAP.find(day) != DAY_MAP.end()) {
+		int total = 0;
+		for (const auto& [enemy, count] : DAY_MAP.at(day))
+			total += count;
+		return total;
+	}
+
+	// Base enemies for day 1
+	const int BASE_ENEMIES = 5;
+
+	// Progressive difficulty scaling:
+	// - Days 1-3: Linear increase (+2 enemies per day)
+	// - Days 4-7: Slightly faster increase (+3 enemies per day)
+	// - Days 8+: Challenging increase (+4 enemies per day)
+
+	if (day <= 1)
+		return BASE_ENEMIES;
+	else if (day <= 3)
+		return BASE_ENEMIES + (day - 1) * 2;
+	else if (day <= 7)
+		return BASE_ENEMIES + 4 + (day - 3) * 3;
+	else
+		return BASE_ENEMIES + 16 + (day - 7) * 4;
 }
 
 void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)
