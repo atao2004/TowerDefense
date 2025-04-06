@@ -2,6 +2,7 @@
 #include "tower_system.hpp"
 #include "animation_system.hpp"
 #include <iostream>
+#include <algorithm>
 
 TowerSystem::TowerSystem()
 {
@@ -18,24 +19,74 @@ void TowerSystem::step(float elapsed_ms)
         Tower& tower = registry.towers.components[i];
         Entity entity = registry.towers.entities[i];
         PlantAnimation& plant_anim = registry.plantAnimations.get(entity);
-        if (!tower.state)
-        {
-            Entity target;
-            if (find_nearest_enemy(entity, target))
-            {
-                tower.state = true;
-                AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.size, false, false, false);
-            }
-        }
-        else
-        {
-            if (!registry.animations.has(entity))
-            {
-                Entity target;
-                if (find_nearest_enemy(entity, target))
-                    fire_projectile(entity, target);
-                tower.state = false;
-                AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.size, true, false, false);
+        switch (tower.type) {
+            case PLANT_TYPE::PROJECTILE:
+                if (!tower.state)
+                {
+                    Entity target;
+                    if (find_nearest_enemy(entity, target))
+                    {
+                        tower.state = true;
+                        AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.size, false, false, false);
+                    }
+                }
+                else
+                {
+                    if (!registry.animations.has(entity))
+                    {
+                        Entity target;
+                        if (find_nearest_enemy(entity, target))
+                            fire_projectile(entity, target);
+                        tower.state = false;
+                        AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.size, true, false, false);
+                    }
+                }
+                break;
+            case PLANT_TYPE::HEAL:
+            case PLANT_TYPE::POISON:
+            case PLANT_TYPE::SLOW: {
+                bool next_state = false;
+                if (tower.type == PLANT_TYPE::HEAL) {
+                    for (uint i = 0; i < registry.players.size(); i++) {
+                        Entity player = registry.players.entities[i];
+                        if (compute_delta_distance(entity, player) < tower.range) {
+                            Player& player_component = registry.players.components[i];
+                            player_component.health = std::min(player_component.health_max, player_component.health + tower.damage * elapsed_ms / 1000.0f);
+                            next_state = true;
+                        }
+                    }
+                }
+                else if (tower.type == PLANT_TYPE::POISON || tower.type == PLANT_TYPE::SLOW) {
+                    for (uint i = 0; i < registry.enemies.size(); i++) {
+                        Entity enemy = registry.enemies.entities[i];
+                        if (compute_delta_distance(entity, enemy) < tower.range) {
+                            Enemy& enemy_component = registry.enemies.components[i];
+                            if (tower.type == PLANT_TYPE::POISON)
+                                enemy_component.health -= tower.damage * elapsed_ms / 1000.0f;
+                            else if (tower.type == PLANT_TYPE::SLOW) {
+                                if (!registry.slowEffects.has(enemy))
+                                    registry.slowEffects.emplace(enemy);
+                                Slow& slow = registry.slowEffects.get(enemy);
+                                slow.value = 1.0f - tower.damage / 100.0f;
+                                slow.timer_ms = 100;
+                            }
+                            next_state = true;
+                        }
+                    }
+                }
+                if (!tower.state) {
+                    if (next_state) {
+                        tower.state = true;
+                        AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).attack.size, true, false, false);
+                    }
+                }
+                else {
+                    if (!next_state) {
+                        tower.state = false;
+                        AnimationSystem::update_animation(entity, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.duration, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.textures, PLANT_ANIMATION_MAP.at(plant_anim.id).idle.size, true, false, false);
+                    }
+                }
+                break;
             }
         }
     }
@@ -79,6 +130,13 @@ void TowerSystem::fire_projectile(Entity tower, Entity target)
         {TEXTURE_ASSET_ID::PROJECTILE,
          EFFECT_ASSET_ID::TEXTURED,
          GEOMETRY_BUFFER_ID::SPRITE});
+}
+
+float TowerSystem::compute_delta_distance(Entity tower, Entity target)
+{
+    Motion& motion_tower = registry.motions.get(tower);
+    Motion& motion_target = registry.motions.get(target);
+    return std::sqrt(std::pow(motion_tower.position.x - motion_target.position.x, 2) + std::pow(motion_tower.position.y - motion_target.position.y, 2));
 }
 
 bool TowerSystem::find_nearest_enemy(Entity entity, Entity &target)

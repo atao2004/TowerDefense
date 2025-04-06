@@ -403,3 +403,6 @@ build/
 
 # Ignore project_path
 ext/project_path.hpp
+
+# Ignore saved json file
+data/reload/game_0.json

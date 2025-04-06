@@ -65,12 +65,14 @@ public:
 	unsigned int level;
 
 	// increases player experience
-	void increase_exp_player();
-	static void increase_exp_plant();
+	static void increase_exp();
+	void increase_level();
 
 	static int get_current_day() { return current_day; }
 
 	static bool player_is_dashing;
+
+	void increment_points();
 
 private:
 	static int current_day;

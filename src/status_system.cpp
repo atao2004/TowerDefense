@@ -199,7 +199,7 @@ void StatusSystem::handle_projectile_attack(Entity entity, float elapsed_ms)
                 registry.deathAnimations.emplace(entity);
 
                 // Increase player experience
-                WorldSystem::increase_exp_plant();
+                WorldSystem::increase_exp();
             }
         }
         else

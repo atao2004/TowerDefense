@@ -200,7 +200,7 @@ Entity createOrcRider(RenderSystem *renderer, vec2 position)
 
     // Add enemy component
     Enemy &enemy = registry.enemies.emplace(entity);
-    enemy.health = 150; // Higher health than basic enemies
+    enemy.health = 80; 
     enemy.speed = 100;  // Base speed same as walk speed
     
     Attack &attack = registry.attacks.emplace(entity);
@@ -216,7 +216,7 @@ Entity createOrcRider(RenderSystem *renderer, vec2 position)
 	registry.renderRequests.insert(
 		entity,
 		{TEXTURE_ASSET_ID::ORC_RIDER_IDLE1,
-		 EFFECT_ASSET_ID::TEXTURED,
+		 EFFECT_ASSET_ID::ZOMBIE,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
 	// Start with idle animation using the pre-defined constants
@@ -244,6 +244,7 @@ Entity createPlant(RenderSystem* renderer, vec2 position, PLANT_ID id)
 	tower.range = PLANT_STATS_MAP.at(id).range; // Detection range in pixels
 	tower.timer_ms = 2000.0f; // Attack every 2 second (unused ?)
 	tower.state = false;
+	tower.type = PLANT_STATS_MAP.at(id).type;
 
 	// Motion component for position and rotation
 	Motion &motion = registry.motions.emplace(entity);
@@ -654,7 +655,6 @@ void parseMap(bool tutorial)
 }
 
 // Kung: Create the toolbar that in the future will store seeds, harvests, and other associated items.
-// As of now, it is purely cosmetic.
 Entity createToolbar(vec2 position)
 {
 	// Create the associated entity.
@@ -695,12 +695,12 @@ Entity createGameOver()
 	motion.position = {WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2};
 	motion.scale = vec2({WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX});
 
-	registry.renderRequests.insert(
-		entity,
-		{TEXTURE_ASSET_ID::GAMEOVER,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE},
-		false);
+	// registry.renderRequests.insert(
+	// 	entity,
+	// 	{TEXTURE_ASSET_ID::GAMEOVER,
+	// 	 EFFECT_ASSET_ID::TEXTURED,
+	// 	 GEOMETRY_BUFFER_ID::SPRITE},
+	// 	false);
 	return entity;
 }
 
@@ -743,6 +743,7 @@ Entity createPlayer(RenderSystem *renderer, vec2 position, int seed_type)
 
 	Player &player = registry.players.emplace(entity);
 	player.health = PLAYER_HEALTH;
+	player.health_max = PLAYER_HEALTH;
 
 	Inventory &inventory = registry.inventorys.emplace(entity);
 	registry.inventorys.components[0].seedCount[seed_type] = 5; // 5 starter seeds

@@ -189,7 +189,10 @@ void WorldSystem::restart_splash_screen()
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
-	//std::cout <<(int)game_screen << std::endl;
+	if (registry.players.size() != 0 && registry.screenStates.size() != 0 && registry.inventorys.size() != 0) {
+		increase_level();
+	}
+
 	// Using the spawn manager to generate zombies
 	if(game_screen == GAME_SCREEN_ID::LEVEL_UP) {
 		detectButtons();
@@ -360,8 +363,8 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
 	for(int i = 0; i < NUM_SEED_TYPES; i++) {
 		if(registry.inventorys.components[0].seedCount[i] > 0) {
-		createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (i + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, i, i);	
-		std::cout << "seed type: " << i << std::endl;	
+		createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (i * 0.995 + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, i, i);	
+		std::cout << "seed type: " << i << std::endl;
 		}
 	}
 	// createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
@@ -495,17 +498,17 @@ void WorldSystem::restart_tutorial()
 	// }
 
 	// create the tutorial assets
-	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_HEIGHT_PX * -0.5));
-	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, TUTORIAL_HEIGHT_PX * -0.5));
-	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, TUTORIAL_HEIGHT_PX * -0.5));
-	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_HEIGHT_PX * -0.5));
+	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_SIGN_HEIGHT_PX));
 
 	// create the arrows for the tutorial
-	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 4 - 15, TUTORIAL_HEIGHT_PX * 0.4));
-	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 2 - 15, TUTORIAL_HEIGHT_PX * 0.4));
-	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75 - 15, TUTORIAL_HEIGHT_PX * 0.4));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 4 - 15, TUTORIAL_ARROW_HEIGHT_PX));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 2 - 15, TUTORIAL_ARROW_HEIGHT_PX));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75 - 15, TUTORIAL_ARROW_HEIGHT_PX));
 	create_tutorial_enemies();
-	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX * 0.05, TUTORIAL_HEIGHT_PX * 0.4});
+	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX * 0.05, TUTORIAL_ARROW_HEIGHT_PX});
 
 	// Print the starting level (Level 0)
 	print_level();
@@ -515,11 +518,11 @@ void WorldSystem::restart_tutorial()
 void WorldSystem::create_tutorial_enemies()
 {
 	// Create a zombie under the "Attack" tutorial board
-	vec2 zombie_pos = vec2(TUTORIAL_WIDTH_PX * 0.4, TUTORIAL_HEIGHT_PX * 0.4);
+	vec2 zombie_pos = vec2(TUTORIAL_WIDTH_PX * 0.4, TUTORIAL_ARROW_HEIGHT_PX);
 	createOrc(renderer, zombie_pos);
 
 	// Create a skeleton under the "Plant" tutorial board
-	vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.65, TUTORIAL_HEIGHT_PX * 0.4);
+	vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.65, TUTORIAL_ARROW_HEIGHT_PX);
 	createSkeletonArcher(renderer, skeleton_pos);
 
 	// std::cout << "Tutorial enemies created" << std::endl;
@@ -564,9 +567,8 @@ bool WorldSystem::is_over() const
 	return bool(glfwWindowShouldClose(window));
 }
 
-// Helper function to make it easier to increase experience
-void WorldSystem::increase_exp_player()
-{
+// Helper function to increase the level automatically if the conditions are met.
+void WorldSystem::increase_level() {
 	Entity player_entity = registry.players.entities[0];
 	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 	{
@@ -601,13 +603,18 @@ void WorldSystem::increase_exp_player()
 }
 
 // Helper function to make it easier to increase experience
-void WorldSystem::increase_exp_plant()
+void WorldSystem::increase_exp()
 {
 	Entity player_entity = registry.players.entities[0];
 	if (registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage < 1.0)
 	{
-		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(player_entity).damage / 0.001;
-	} // Kung: Due to technical difficulties, plants cannot be used to level up.
+		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage += registry.attacks.get(player_entity).damage / PLAYER_HEALTH;
+	}
+}
+
+void WorldSystem::increment_points()
+{
+	points++;
 }
 
 // Helper function to handle what happens when the player does a mouse click
@@ -619,36 +626,46 @@ void WorldSystem::player_attack()
 		// Play the sword attack sound
 		Mix_PlayChannel(3, sword_attack_sound, 0);
 
-		Motion less_f_ugly = registry.motions.get(registry.players.entities[0]);
-		if (less_f_ugly.scale.x < 0)
-		{ // face left = minus the range from position
-			less_f_ugly.position.x -= registry.attacks.get(registry.players.entities[0]).range;
-		}
-		else
-		{ // face right = add the range from position
-			less_f_ugly.position.x += registry.attacks.get(registry.players.entities[0]).range;
-		}
-		Motion weapon_motion = Motion();
-		weapon_motion.position = less_f_ugly.position;
-		weapon_motion.angle = less_f_ugly.angle;
-		weapon_motion.velocity = less_f_ugly.velocity;
-		weapon_motion.scale = less_f_ugly.scale;
+		Motion &player_motion = registry.motions.get(registry.players.entities[0]);
 
+		// Calculate attack direction based on mouse position
+		// Convert mouse position to world coordinates
+		vec2 screen_center = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2);
+		vec2 mouse_world_offset = vec2(mouse_pos_x - screen_center.x, mouse_pos_y - screen_center.y);
+
+		// Normalize the direction vector
+		vec2 attack_direction = normalize(mouse_world_offset);
+
+		// Update player facing based on attack direction
+		if (attack_direction.x != 0)
+		{
+			player_motion.scale.x = (attack_direction.x > 0) ? abs(player_motion.scale.x) : -abs(player_motion.scale.x);
+		}
+
+		// Calculate attack position based on direction and range
+		vec2 attack_position = player_motion.position + attack_direction * static_cast<float>(registry.attacks.get(player).range);
+
+		// Create weapon motion at the attack position
+		Motion weapon_motion = Motion();
+		weapon_motion.position = attack_position;
+		weapon_motion.angle = atan2(attack_direction.y, attack_direction.x); // Set proper angle
+		weapon_motion.velocity = player_motion.velocity;
+		weapon_motion.scale = player_motion.scale;
+
+		// Check for collisions with enemies
 		for (int i = 0; i < registry.enemies.size(); i++)
 		{
 			if (PhysicsSystem::collides(weapon_motion, registry.motions.get(registry.enemies.entities[i])) // if enemy and weapon collide, decrease enemy health
-				|| PhysicsSystem::collides(registry.motions.get(registry.players.entities[0]), registry.motions.get(registry.enemies.entities[i])))
+				|| PhysicsSystem::collides(player_motion, registry.motions.get(registry.enemies.entities[i])))
 			{
 				Entity enemy = registry.enemies.entities[i];
 				if (registry.enemies.has(enemy))
 				{
 					auto &enemy_comp = registry.enemies.get(enemy);
-					enemy_comp.health -= registry.attacks.get(registry.players.entities[0]).damage;
-					// std::cout << "wow u r attacking so nice cool cool" << std::endl;
+					enemy_comp.health -= registry.attacks.get(player).damage;
 
 					// Calculate knockback direction (from player to enemy)
 					Motion &enemy_motion = registry.motions.get(enemy);
-					Motion &player_motion = registry.motions.get(player);
 					vec2 direction = enemy_motion.position - player_motion.position;
 					float length = sqrt(dot(direction, direction));
 					if (length > 0)
@@ -669,12 +686,10 @@ void WorldSystem::player_attack()
 					ParticleSystem::createBloodEffect(registry.motions.get(enemy).position, sprite_size);
 
 					// This is what you do when you kill a enemy.
-					if (enemy_comp.health <= 0 && !registry.deathAnimations.has(enemy)) // check here added a guard
+					if (enemy_comp.health <= 0 && !registry.deathAnimations.has(enemy))
 					{
 						// Add death animation before removing
-						Entity player = registry.players.entities[0];
-						Motion &player_motion = registry.motions.get(player);
-						vec2 slide_direction = {player_motion.scale.x > 0 ? 1.0f : -1.0f, 0.0f};
+						vec2 slide_direction = attack_direction; // Use attack direction for death animation
 
 						// Add death animation component
 						DeathAnimation &death_anim = registry.deathAnimations.emplace(enemy);
@@ -684,14 +699,14 @@ void WorldSystem::player_attack()
 
 						// Increase the counter that represents the number of zombies killed.
 						points++;
-						// std::cout << "enemies killed: " << points << std::endl;
 
 						// Kung: Upon killing a enemy, increase the experience of the player or reset the experience bar when it becomes full.
-						increase_exp_player();
+						increase_exp();
 					}
 				}
 			}
 		}
+
 		// Player State
 		PlayerSystem::update_state(STATE::ATTACK);
 
@@ -985,8 +1000,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	// when player is in the level up menu, disable some game inputs
-	if (PlayerSystem::get_state() == STATE::LEVEL_UP ||
-		game_is_over)
+	if (game_is_over)
 		return;
 
 	// Player movement
@@ -1206,6 +1220,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 				level++;
 
+				print_level();
+
 				// Get player entity and size
 				Entity player = registry.players.entities[0];
 				vec2 player_pos = registry.motions.get(player).position;
@@ -1215,9 +1231,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 					registry.screenStates.components[0].cutscene = 3;
 					registry.screenStates.components[0].cg_index = 0;
 					return start_cg(renderer);
-				}
-
-				print_level();
+				}				
 			}
 			else
 			{
@@ -1427,9 +1441,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 		if (action == GLFW_RELEASE)
 		{
 			if (!detectButtons()) {
-				if (PlayerSystem::get_state() == STATE::LEVEL_UP)
-					return;
-				else if (button == GLFW_MOUSE_BUTTON_LEFT)
+				if (button == GLFW_MOUSE_BUTTON_LEFT)
 					player_attack();
 				else if (button == GLFW_MOUSE_BUTTON_RIGHT)
 					plant_seed();
@@ -1623,7 +1635,7 @@ void WorldSystem::loadGame()
 		Motion &m = registry.motions.emplace(e);
 		m.position = vec2(motion["position"][0], motion["position"][1]);
 		m.angle = motion["angle"];
-		m.velocity = vec2(motion["velocity"][0], motion["velocity"][1]);
+		m.velocity = vec2(0.0, 0.0);
 		m.scale = vec2(motion["scale"][0], motion["scale"][1]);
 	}
 
@@ -1896,6 +1908,15 @@ void WorldSystem::loadGame()
 		registry.mapTiles.emplace(e);
 	}
 
+	json plant_animation_arr = jsonFile["35"];
+	for (long unsigned int i = 0; i < plant_animation_arr.size(); i++)
+	{
+		json plant_animation_json = plant_animation_arr[i];
+		Entity e = Entity(plant_animation_json["entity"]);
+		PlantAnimation& plant_animation = registry.plantAnimations.emplace(e);
+		plant_animation.id = plant_animation_json["id"];
+	}
+
 	Entity& player_entity = registry.players.entities[0];
 	vec2 player_pos = registry.motions.get(player_entity).position;
 	clearButtons();
@@ -2066,14 +2087,6 @@ void WorldSystem::update_dash(float elapsed_ms_since_last_update)
 						mwc_motion.velocity.x += PLAYER_MOVE_RIGHT_SPEED;
 				}
 			}
-
-			// Update player state based on resulting velocity
-			Entity player = registry.players.entities[0];
-			Motion &motion = registry.motions.get(player);
-			if (motion.velocity == vec2(0, 0))
-				PlayerSystem::update_state(STATE::IDLE);
-			else
-				PlayerSystem::update_state(STATE::MOVE);
 		}
 	}
 

@@ -478,9 +478,6 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 
 		if (game_screen == GAME_SCREEN_ID::SPLASH) {
 			renderText("Farmer Defense", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100, OS_RES, {0, 0, 0}, trans);
-		} else if (WorldSystem::game_is_over) {
-			// Create the Game Over text
-			renderText("GAME OVER", WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2, 3.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::mat4(1.0f));
 		} else {
 			int cg_idx = registry.screenStates.components[0].cg_index;
 			int cutscene = registry.screenStates.components[0].cutscene;
@@ -538,14 +535,17 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 		}
 		
 		drawToScreen();
-	}
-	else
-	{
+	} else if (WorldSystem::game_is_over) {
+		renderText("GAME OVER", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 4, 3.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
+		renderText("Zombies Killed: ", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 4, 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
+		renderText("Days survived: ", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 4, 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
+		drawToScreen();
+	} else {
 		// draw all entities with a render request to the frame buffer
 		for (Entity entity : registry.renderRequests.entities)
 		{
 			// filter to entities that have a motion component
-			if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE && !registry.players.has(entity) )
+			if (registry.motions.has(entity) && registry.renderRequests.get(entity).used_geometry != GEOMETRY_BUFFER_ID::DEBUG_LINE && !registry.moveWithCameras.has(entity))
 			{
 				// Note, its not very efficient to access elements indirectly via the entity
 				// albeit iterating through all Sprites in sequence. A good point to optimize
@@ -575,9 +575,14 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 			}
 		}
 		drawParticlesInstanced(projection_2D);
-		// individually draw player, will render on top of all the motion sprites
-		if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::PAUSE) 
-			drawTexturedMesh(registry.players.entities[0], projection_2D);
+
+		// individually draw player, toolbar, inventory seeds, pause button; will render on top of all the motion sprites
+		if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::PAUSE) {
+			for (Entity entity : registry.moveWithCameras.entities){
+				if (registry.renderRequests.has(entity)) drawTexturedMesh(entity, projection_2D);
+			}
+		}
+
 
 		renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
 		renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
@@ -587,7 +592,9 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 				if (registry.inventorys.size() != 0) {
 					int seed_type = registry.seeds.get(seed_entity).type;
 					int seed_count = registry.inventorys.components[0].seedCount[seed_type];
-					renderText(std::to_string(seed_count), WINDOW_WIDTH_PX * 0.385 + 55 * seed_type, 25, 0.25, {0.25, 0.25, 0.25}, trans);
+					vec2 seed_pos = registry.motions.get(seed_entity).position;
+
+					renderText(std::to_string(seed_count), WINDOW_WIDTH_PX / 2 - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (seed_type * 0.95 + 0.95), 25, 0.25, {0.6, 0.25, 0.25}, trans);
 				}
 			}
 		}

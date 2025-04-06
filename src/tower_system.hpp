@@ -15,4 +15,5 @@ private:
     // Helper functions
     bool find_nearest_enemy(Entity tower, Entity& target);
     void fire_projectile(Entity tower, Entity target);
+    float compute_delta_distance(Entity tower, Entity target);
 };

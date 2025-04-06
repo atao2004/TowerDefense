@@ -150,6 +150,7 @@ struct Texture
 struct Player
 {
     float health;
+    float health_max;
     json toJSON() const
     {
         return json{
@@ -332,8 +333,7 @@ enum class STATE
     IDLE = 0,
     MOVE = 1,
     ATTACK = 2,
-    LEVEL_UP = 3,
-    STATE_COUNT = LEVEL_UP + 1
+    STATE_COUNT = ATTACK + 1
 };
 
 struct State
@@ -391,6 +391,7 @@ struct Tower
     float range;  // for vision / detection
     int timer_ms; // how often the tower attacks
     bool state;   // false (IDLE), true (ATTACK)
+    PLANT_TYPE type;
 
     json toJSON() const
     {
@@ -702,6 +703,16 @@ struct Squad
 
     Formation current_formation = Formation::DEFENSIVE;
 
+    json toJSON() const
+    {
+        return json{};
+    }
+};
+
+struct Slow
+{
+    float value;
+    int timer_ms;
     json toJSON() const
     {
         return json{};
