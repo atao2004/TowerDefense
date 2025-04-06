@@ -474,9 +474,9 @@ const int WEREWOLF_DAMAGE = DAMAGE_MED;
 const int SLIME_DAMAGE = DAMAGE_LOW;
 
 // Speed
-const int SPEED_LOW = 2;
-const int SPEED_MED = 3;
-const int SPEED_HGH = 4;
+const int SPEED_LOW = 10;
+const int SPEED_MED = 14;
+const int SPEED_HGH = 18;
 const int ORC_SPEED = SPEED_MED;
 const int ORC_ELITE_SPEED = SPEED_MED;
 const int SKELETON_SPEED = SPEED_MED;
@@ -552,6 +552,7 @@ const int SKELETON_WALK_DURATION = 800;
 const int SKELETON_ATTACK_DURATION = 1800;
 
 const int PROJECTILE_DAMAGE = 10;
+const int PROJECTILE_SPEED = 3000;
 
 // control player movement
 const int PLAYER_SPEED = 100;
