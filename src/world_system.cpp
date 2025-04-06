@@ -191,6 +191,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
 	//std::cout <<(int)game_screen << std::endl;
 	// Using the spawn manager to generate zombies
+	if(game_screen == GAME_SCREEN_ID::LEVEL_UP) {
+		detectButtons();
+	}
 	if (WorldSystem::game_is_over)
 	{
 		assert(registry.screenStates.components.size() <= 1);
@@ -431,7 +434,7 @@ void WorldSystem::restart_game()
 
 	// Set the level to level 1 and the game_screen to PLAYING.
 	level = 1;
-	game_screen = GAME_SCREEN_ID::LEVEL_UP;
+	game_screen = GAME_SCREEN_ID::PLAYING;
 
 	// Kung: This is for Milestone #2. This creates the farmland.
 	parseMap(false);
