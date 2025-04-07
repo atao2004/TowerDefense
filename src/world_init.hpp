@@ -45,6 +45,8 @@ Entity createPausePanel(RenderSystem* renderer, vec2 position);
 Entity createTutorialMove(vec2 position);
 Entity createTutorialAttack(vec2 position);
 Entity createTutorialPlant(vec2 position);
+Entity createTutorialDash(vec2 position);
+Entity createTutorialChangeSeed(vec2 position);
 Entity createTutorialRestart(vec2 position);
 Entity createTutorialArrow(vec2 position);
 

@@ -498,10 +498,12 @@ void WorldSystem::restart_tutorial()
 	// }
 
 	// create the tutorial assets
-	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * -0.15, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialDash(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_SIGN_HEIGHT_PX));
 	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, TUTORIAL_SIGN_HEIGHT_PX));
 	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, TUTORIAL_SIGN_HEIGHT_PX));
-	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialChangeSeed(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 1.1, TUTORIAL_SIGN_HEIGHT_PX));
 
 	// create the arrows for the tutorial
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 4 - 15, TUTORIAL_ARROW_HEIGHT_PX));

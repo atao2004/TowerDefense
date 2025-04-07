@@ -525,6 +525,88 @@ Entity createTutorialPlant(vec2 position)
 }
 
 // Create a sign that will only appear once it appears in a tutorial.
+Entity createTutorialDash(vec2 position)
+{
+	// Create the associated entity.
+	Entity tutorial_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign &tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+
+	// Create the relevant motion component.
+	Motion &motion_component = registry.motions.emplace(tutorial_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(465, 345);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		tutorial_entity,
+		{TEXTURE_ASSET_ID::TUTORIAL_DASH,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
+
+	// Create the animation
+	static TEXTURE_ASSET_ID asset_id_array[3] = {
+		TEXTURE_ASSET_ID::TUTORIAL_DASH,
+		TEXTURE_ASSET_ID::TUTORIAL_DASH_ANIMATED,
+		TEXTURE_ASSET_ID::TUTORIAL_DASH_ANIMATED_2};
+
+	Animation &animation_component = registry.animations.emplace(tutorial_entity);
+	animation_component.transition_ms = 1000;
+	animation_component.pose_count = 3;
+	animation_component.loop = true;
+	animation_component.lock = true;
+	animation_component.textures = asset_id_array;
+
+	return tutorial_entity;
+}
+
+// Create a sign that will only appear once it appears in a tutorial.
+Entity createTutorialChangeSeed(vec2 position)
+{
+	// Create the associated entity.
+	Entity tutorial_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign &tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+
+	// Create the relevant motion component.
+	Motion &motion_component = registry.motions.emplace(tutorial_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(465, 345);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		tutorial_entity,
+		{TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
+
+	// Create the animation
+	static TEXTURE_ASSET_ID asset_id_array[9] = {
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_1,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_2,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_3,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_4,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_5,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_6,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_7,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_8};
+
+	Animation &animation_component = registry.animations.emplace(tutorial_entity);
+	animation_component.transition_ms = 1000;
+	animation_component.pose_count = 9;
+	animation_component.loop = true;
+	animation_component.lock = true;
+	animation_component.textures = asset_id_array;
+
+	return tutorial_entity;
+}
+
+// Create a sign that will only appear once it appears in a tutorial.
 Entity createTutorialRestart(vec2 position)
 {
 	// Create the associated entity.
