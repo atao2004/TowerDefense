@@ -972,19 +972,19 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
-	// load
-	if (action == GLFW_RELEASE && key == GLFW_KEY_MINUS)
-	{
-		loadGame();
-		return;
-	}
+	// // load
+	// if (action == GLFW_RELEASE && key == GLFW_KEY_MINUS)
+	// {
+	// 	loadGame();
+	// 	return;
+	// }
 
-	// save
-	if (action == GLFW_RELEASE && key == GLFW_KEY_EQUAL)
-	{
-		saveGame();
-		return;
-	}
+	// // save
+	// if (action == GLFW_RELEASE && key == GLFW_KEY_EQUAL)
+	// {
+	// 	saveGame();
+	// 	return;
+	// }
 
 	// Debug
 	if (action == GLFW_PRESS && key == GLFW_KEY_L)
