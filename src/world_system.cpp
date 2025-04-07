@@ -1166,39 +1166,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (action == GLFW_PRESS && key == GLFW_KEY_C)
 		createChicken(renderer);
 
-	// Debug
-	if (action == GLFW_PRESS)
-	{
-		vec2 position = vec2(motion.position.x + CAMERA_VIEW_WIDTH / 2, motion.position.y);
-		switch (key)
-		{
-		case GLFW_KEY_1:
-			createOrc(renderer, position);
-			break;
-		case GLFW_KEY_2:
-			createOrcElite(renderer, position);
-			break;
-		case GLFW_KEY_3:
-			createSkeleton(renderer, position);
-			break;
-		case GLFW_KEY_4:
-			createSkeletonArcher(renderer, position);
-			break;
-		case GLFW_KEY_5:
-			createWerewolf(renderer, position);
-			break;
-		case GLFW_KEY_6:
-			createWerebear(renderer, position);
-			break;
-		case GLFW_KEY_7:
-			createSlime(renderer, position);
-			break;
-		case GLFW_KEY_8:
-			createOrcRider(renderer, position);
-			break;
-		}
-	}
-
 	if (action == GLFW_PRESS && key == GLFW_KEY_H)
 	{
 		// Get player entity
