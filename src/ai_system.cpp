@@ -68,7 +68,7 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms)
 
     // If entity has hit effect, reduce chase speed
     Enemy &enemy = registry.enemies.get(entity);
-    float current_speed = enemy.speed * 1000;
+    float current_speed = enemy.speed;
     
     // Slow effect
     if (registry.slowEffects.has(entity)) {
@@ -81,8 +81,7 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms)
     }    
 
     // Add to velocity instead of overwriting
-    float step_seconds = elapsed_ms / 1000.f;
-    motion.velocity += direction * current_speed * step_seconds;
+    motion.velocity += direction * current_speed;
 
     // Optional: Add some drag to prevent infinite acceleration
     motion.velocity *= 0.9f; // Dampening factor

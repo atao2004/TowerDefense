@@ -100,7 +100,7 @@ int main()
 	FrameManager fm_tower = FrameManager(5);
 	FrameManager fm_movement = FrameManager(2);
 	FrameManager fm_animation = FrameManager(2);
-	FrameManager fm_particle = FrameManager(1);
+	FrameManager fm_particle = FrameManager(5);
 	FrameManager fm_seed = FrameManager(5);
 	FrameManager fm_render = FrameManager(5);
 	FrameManager fm_player = FrameManager(5);

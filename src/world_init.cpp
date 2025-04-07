@@ -232,7 +232,7 @@ Entity createPlant(RenderSystem* renderer, vec2 position, PLANT_ID id)
 	tower.health = PLANT_STATS_MAP.at(id).health;
 	tower.damage = PLANT_STATS_MAP.at(id).damage;
 	tower.range = PLANT_STATS_MAP.at(id).range; // Detection range in pixels
-	tower.timer_ms = 2000.0f; // Attack every 2 second (unused ?)
+	tower.timer_ms = PLANT_STATS_MAP.at(id).cooldown;
 	tower.state = false;
 	tower.type = PLANT_STATS_MAP.at(id).type;
 
@@ -649,12 +649,30 @@ Entity createToolbar(vec2 position)
 {
 	// Create the associated entity.
 	Entity toolbar_entity = Entity();
+	Entity projectile = Entity();
+
+    Motion &proj_motion = registry.motions.emplace(projectile);
+	proj_motion.position.y = position.y;
+    proj_motion.position.x = position.x - 4*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+    proj_motion.scale = vec2(60,60);
+
+     proj_motion.velocity = {0,0};
+
+    registry.renderRequests.insert(
+        projectile,
+        {TEXTURE_ASSET_ID::PROJECTILE,
+         EFFECT_ASSET_ID::TEXTURED,
+         GEOMETRY_BUFFER_ID::SPRITE},
+		false);
 
 	// Create the associated component.
 	Toolbar &toolbar_component = registry.toolbars.emplace(toolbar_entity);
+	Toolbar &projectile_component = registry.toolbars.emplace(projectile);
+	
 
 	// Create a component to simplify movement.
 	MoveWithCamera &mwc = registry.moveWithCameras.emplace(toolbar_entity);
+	MoveWithCamera &mwcc = registry.moveWithCameras.emplace(projectile);
 
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(toolbar_entity);
@@ -733,7 +751,7 @@ Entity createPlayer(RenderSystem *renderer, vec2 position, int seed_type)
 	registry.inventorys.components[0].seedCount[seed_type] = 5; // 5 starter seeds
 	for(int i = 0; i < NUM_SEED_TYPES; i++)
 	{
-		registry.inventorys.components[0].seedCount[i] = 1; // one each of the 8 seed types
+		registry.inventorys.components[0].seedCount[i] = 4; // one each of the 8 seed types
 		registry.inventorys.components[0].seedAtToolbar[i] = i;
 	}
 
@@ -750,6 +768,7 @@ Entity createPlayer(RenderSystem *renderer, vec2 position, int seed_type)
 
 	Attack &attack = registry.attacks.emplace(entity);
 	attack.range = 60;
+	attack.damage = PLAYER_DAMAGE;
 
 	registry.statuses.emplace(entity);
 
@@ -804,7 +823,7 @@ Entity createSeed(vec2 pos, int type)
 	// Create the associated component.
 	Seed &seed_component = registry.seeds.emplace(seed_entity);
 	seed_component.type = type;
-	seed_component.timer = 5000;
+	seed_component.timer = SEED_MATURE_SPEED * 1000;
 
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(seed_entity);
