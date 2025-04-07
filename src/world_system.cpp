@@ -177,6 +177,7 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 
 void WorldSystem::restart_splash_screen()
 {
+	clearButtons();
 	game_screen = GAME_SCREEN_ID::SPLASH;
 	createScreen(renderer, TEXTURE_ASSET_ID::BACKGROUND);
 	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5),1);
@@ -1361,6 +1362,7 @@ bool WorldSystem::detectButtons()
 			}
 			else if (b.type == BUTTON_ID::TUTORIAL)
 			{
+				std::cout<<"tutorial"<<std::endl;
 				restart_tutorial();
 			}
 			else if (b.type == BUTTON_ID::QUIT)
@@ -1462,7 +1464,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			int tile_x = (int)(mouse_pos_x / GRID_CELL_WIDTH_PX);
 			int tile_y = (int)(mouse_pos_y / GRID_CELL_HEIGHT_PX);
 
-			std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
+			// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
 		}
 
 		if (action == GLFW_RELEASE)
@@ -1609,6 +1611,8 @@ void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)
 		{ // 10 second rest
 			// Optional: Display countdown text
 			float remaining = (10000.f - rest_timer_ms) / 1000.f;
+			if (registry.screenStates.components[0].darken_screen_factor < 0.6)
+				registry.screenStates.components[0].darken_screen_factor += elapsed_ms_since_last_update/3000;
 			std::cout << "Next day in: " << (int)remaining << " seconds\r" << std::flush;
 		}
 		else
