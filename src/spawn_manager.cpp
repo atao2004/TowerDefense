@@ -179,8 +179,17 @@ void SpawnManager::spawnEnemyByDay(RenderSystem *renderer, vec2 spawn_pos, int c
             case ENEMY_ID::SLIME:
                 createSlime(renderer, spawn_pos);
                 return;
+            default:
+                return;
             }
         }
+    }
+
+    if (current_day == 11)
+    {
+        // It's challenge day!
+        start_challenge_day(renderer, spawn_pos);
+        return;
     }
 
     // Progressive enemy introduction based on day number
@@ -219,13 +228,6 @@ void SpawnManager::spawnEnemyByDay(RenderSystem *renderer, vec2 spawn_pos, int c
         available_enemies.push_back([&]()
             { createSkeletonArcher(renderer, spawn_pos); });
         elite_chance = 0.15f; // 15% chance for elite versions
-    }
-
-    if (current_day == 5)
-    {
-        // It's challenge day!
-        start_challenge_day(renderer, spawn_pos);
-        return;
     }
 
     // Day 6: Add Werebear

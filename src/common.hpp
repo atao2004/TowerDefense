@@ -478,7 +478,7 @@ const int WEREWOLF_DAMAGE = DAMAGE_MED;
 const int SLIME_DAMAGE = DAMAGE_LOW;
 
 // Speed
-const int SPEED_LOW = 10;
+const int SPEED_LOW = 6;
 const int SPEED_MED = 14;
 const int SPEED_HGH = 18;
 const int ORC_SPEED = SPEED_MED;
