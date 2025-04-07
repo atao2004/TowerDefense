@@ -7,6 +7,7 @@
 #include "tinyECS/components.hpp"
 #include "tinyECS/tiny_ecs.hpp"
 
+
 // fonts
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -54,6 +55,7 @@ class RenderSystem
 		textures_path("player/action1_weapon.png"),
 		textures_path("player/action2_weapon.png"),
 		textures_path("map/cracked_dirt.png"),
+
 		textures_path("tutorials/move.png"),
 		textures_path("tutorials/move_w.png"),
 		textures_path("tutorials/move_a.png"),
@@ -65,7 +67,20 @@ class RenderSystem
 		textures_path("tutorials/plant_animation.png"),
 		textures_path("tutorials/restart.png"),
 		textures_path("tutorials/restart_animation.png"),
+		textures_path("tutorials/dash.png"),
+		textures_path("tutorials/dash_animation_1.png"),
+		textures_path("tutorials/dash_animation_2.png"),
+		textures_path("tutorials/change_seed.png"),
+		textures_path("tutorials/change_seed_1.png"),
+		textures_path("tutorials/change_seed_2.png"),
+		textures_path("tutorials/change_seed_3.png"),
+		textures_path("tutorials/change_seed_4.png"),
+		textures_path("tutorials/change_seed_5.png"),
+		textures_path("tutorials/change_seed_6.png"),
+		textures_path("tutorials/change_seed_7.png"),
+		textures_path("tutorials/change_seed_8.png"),
 		textures_path("tutorials/arrow.png"),
+
 		textures_path("ui/toolbar.png"),
 		textures_path("attacks/Slash3_color1_frame1.png"),
 		textures_path("attacks/Slash3_color1_frame2.png"),
@@ -383,12 +398,11 @@ public:
 	~RenderSystem();
 
 	// Draw all entities
-	void step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms);
+	void step_and_draw(float elapsed_ms);
 
 	mat3 createProjectionMatrix();
 	mat3 createProjectionMatrix_splash();
 	
-
 	Entity get_screen_state_entity() { return screen_state_entity; }
 
 	bool fontInit(const std::string &font_filename, unsigned int font_default_size);

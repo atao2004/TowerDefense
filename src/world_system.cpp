@@ -15,6 +15,7 @@
 #include "../ext/json.hpp"
 using json = nlohmann::json;
 #include "particle_system.hpp"
+#include "render_system.hpp"
 
 // FreeType
 #include <ft2build.h>
@@ -180,11 +181,11 @@ void WorldSystem::restart_splash_screen()
 	clearButtons();
 	game_screen = GAME_SCREEN_ID::SPLASH;
 	registry.screenStates.components[0].darken_screen_factor = 0;
-	createScreen(renderer, TEXTURE_ASSET_ID::BACKGROUND);
-	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5),1);
-	createButton(renderer, BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200),1);
-	createButton(renderer, BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2),1);
-	createButton(renderer, BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3),1);
+	createScreen(TEXTURE_ASSET_ID::BACKGROUND);
+	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5),1);
+	createButton(BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200),1);
+	createButton(BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2),1);
+	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3),1);
 }
 
 // Update our game world
@@ -258,16 +259,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			chicken_summoned = true;
 		}
 
+		// Print level, day, and enemies killed.
+		registry.texts.clear();
+		createText("Enemies Killed: " + std::to_string(points), vec2(WINDOW_WIDTH_PX * 0.2, WINDOW_HEIGHT_PX - 50.0f), 0.5f, vec3(0.9f, 0.9f, 0.9f));
+		createText("Level: " + std::to_string(level), vec2(WINDOW_WIDTH_PX * 0.475, WINDOW_HEIGHT_PX - 50.0f), 0.5f, vec3(0.9f, 0.9f, 0.9f));
+		createText("Day: " + std::to_string(current_day), vec2(WINDOW_WIDTH_PX * 0.475, WINDOW_HEIGHT_PX - 100.0f), 0.5f, vec3(0.9f, 0.9f, 0.9f));
+
 		return true;
 	}
 
 	return true;
-}
-
-void WorldSystem::print_level()
-{
-	registry.texts.clear();
-	createText("Level: " + std::to_string(level), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX - 75.0f), 0.75f, vec3(0.9f, 0.9f, 0.9f));
 }
 
 // Shared elements between restarting a game and a tutorial
@@ -331,6 +332,10 @@ void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 	{
 		for (int y = -GRID_CELL_HEIGHT_PX; y < map_dimensions.y + GRID_CELL_HEIGHT_PX; y += GRID_CELL_HEIGHT_PX)
 		{
+	// for (int x = -CAMERA_VIEW_WIDTH * 0.75; x < map_dimensions.x + CAMERA_VIEW_WIDTH * 0.75; x += GRID_CELL_WIDTH_PX)
+	// {
+	// 	for (int y = -CAMERA_VIEW_HEIGHT * 0.75; y < map_dimensions.y + CAMERA_VIEW_HEIGHT * 0.75; y += GRID_CELL_HEIGHT_PX)
+	// 	{
 			if (x < 0 || y < 0)
 			{
 				createScorchedEarth(vec2(x, y));
@@ -369,11 +374,10 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
 	for(int i = 0; i < NUM_SEED_TYPES; i++) {
 		if(registry.inventorys.components[0].seedCount[i] > 0) {
-		createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (i * 0.995 + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, i, i);	
+		createSeedInventory(vec2(player_pos.x + (i - 4) * TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, i, i);	
 		std::cout << "seed type: " << i << std::endl;
 		}
 	}
-	// createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
 
 	// Kung: Reset player movement so that the player remains still when no keys are pressed
 
@@ -427,11 +431,11 @@ void WorldSystem::start_cg(RenderSystem *renderer)
 	int cutscene = registry.screenStates.components[0].cutscene;
 	if (cutscene == 1)
 	{
-		createScreen(renderer, TEXTURE_ASSET_ID::NIGHT_BG);
+		createScreen(TEXTURE_ASSET_ID::NIGHT_BG);
 	}
 	else
 	{
-		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+		createScreen(TEXTURE_ASSET_ID::DAY_BG);
 	}
 }
 
@@ -469,9 +473,6 @@ void WorldSystem::restart_game()
 
 	// start the spawn manager
 	spawn_manager.start_game();
-
-	// Print the starting level (Level 1)
-	print_level();
 }
 
 // Reset the world state to the tutorial mode state
@@ -504,10 +505,12 @@ void WorldSystem::restart_tutorial()
 	// }
 
 	// create the tutorial assets
-	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * -0.15, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialDash(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_SIGN_HEIGHT_PX));
 	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, TUTORIAL_SIGN_HEIGHT_PX));
 	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, TUTORIAL_SIGN_HEIGHT_PX));
-	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialChangeSeed(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 1.1, TUTORIAL_SIGN_HEIGHT_PX));
 
 	// create the arrows for the tutorial
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 4 - 15, TUTORIAL_ARROW_HEIGHT_PX));
@@ -515,9 +518,6 @@ void WorldSystem::restart_tutorial()
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75 - 15, TUTORIAL_ARROW_HEIGHT_PX));
 	create_tutorial_enemies();
 	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX * 0.05, TUTORIAL_ARROW_HEIGHT_PX});
-
-	// Print the starting level (Level 0)
-	print_level();
 }
 
 // Create tutorial enemies at specific locations that respawn when killed
@@ -581,7 +581,7 @@ void WorldSystem::increase_level() {
 		if (registry.inventorys.components[0].seedCount[current_seed] == 0)
 		{
 			registry.inventorys.components[0].seedAtToolbar[current_seed] == -1;
-			createSeedInventory(vec2(registry.motions.get(player_entity).position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed, 0);
+			createSeedInventory(vec2(registry.motions.get(player_entity).position.x + (current_seed - 4) * TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2, registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed, 0);
 		}
 		registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
@@ -591,10 +591,7 @@ void WorldSystem::increase_level() {
 		vec2 player_size = registry.motions.get(player_entity).scale;
 		ParticleSystem::createLevelUpEffect(player_pos, player_size);
 
-		print_level();
-
-		if (level == 2)
-		{
+		if (level == 2) {
 			registry.screenStates.components[0].cutscene = 3;
 			registry.screenStates.components[0].cg_index = 0;
 			return start_cg(renderer);
@@ -1207,13 +1204,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				// come back later!
 				if (registry.inventorys.components[0].seedCount[current_seed] == 0)
 				{
-					createSeedInventory(vec2(motion.position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed, 0);
+					createSeedInventory(vec2(motion.position.x + (current_seed - 4) * TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2, motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed, 0);
 				}
 				registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 				level++;
-
-				print_level();
 
 				// Get player entity and size
 				Entity player = registry.players.entities[0];
@@ -1345,16 +1340,29 @@ bool WorldSystem::detectButtons()
 		if (game_screen == GAME_SCREEN_ID::PLAYING) {
 			
 			if (mouse_pos_x >= b.position.x - 30 && mouse_pos_x <= b.position.x + 30 &&
-				mouse_pos_y >= b.position.y - 30 && mouse_pos_y <= b.position.y + 30) {
-				game_screen = GAME_SCREEN_ID::PAUSE;
-				Entity& player = registry.players.entities[0];
-				vec2 player_pos = registry.motions.get(player).position;
-				createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
-				createButton(renderer, BUTTON_ID::RESUME, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
-				createButton(renderer, BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200), 0.8);
-				createButton(renderer, BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300), 0.8);
-				createButton(renderer, BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400), 0.8);
-				return true;
+				mouse_pos_y >= b.position.y - 30 && mouse_pos_y <= b.position.y + 30)
+			{
+				if (game_screen == GAME_SCREEN_ID::PLAYING && b.type == BUTTON_ID::PAUSE)
+				{
+					game_screen = GAME_SCREEN_ID::PAUSE;
+          Entity& player = registry.players.entities[0];
+          vec2 player_pos = registry.motions.get(player).position;
+          createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
+          createButton(BUTTON_ID::RESUME, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+          createButton(BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200), 0.8);
+          createButton(BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300), 0.8);
+          createButton(BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400), 0.8);
+          return true;
+				}
+				else if (game_screen == GAME_SCREEN_ID::PAUSE && b.type == BUTTON_ID::PAUSE)
+				{
+					game_screen = GAME_SCREEN_ID::PLAYING;
+					Entity &player_entity = registry.players.entities[0];
+					vec2 player_pos = registry.motions.get(player_entity).position;
+					clearButtons();
+					createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH / 2 + 30, player_pos.y - CAMERA_VIEW_HEIGHT / 2 + 30));
+					return true;
+				}
 			}
 		}
 		if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
@@ -1432,7 +1440,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			{
 				for (int i = registry.cgs.entities.size() - 1; i >= 0; i--)
 					registry.remove_all_components_of(registry.cgs.entities[i]);
-				createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+				createScreen(TEXTURE_ASSET_ID::DAY_BG);
 				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 300, WINDOW_HEIGHT_PX - 250), vec2(-500, 500), TEXTURE_ASSET_ID::ORC_WALK2);
 				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX - 250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
 			}
@@ -1492,12 +1500,23 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 
 void WorldSystem::game_over()
 {
+	game_screen = GAME_SCREEN_ID::GAME_OVER;
+
+	registry.texts.clear();
+	createText("Enemies Killed: " + std::to_string(points), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX * 0.725), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+	createText("Days survived: " + std::to_string(current_day), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX * 0.65), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+
 	std::cout << "Game Over!" << std::endl;
 	game_is_over = true;
 	registry.screenStates.get(registry.screenStates.entities[0]).game_over = true;
 	Mix_HaltMusic();
 	Mix_PlayChannel(0, WorldSystem::game_over_sound, 0);
 	createGameOver();
+
+	// Do this afterwards or otherwise the RenderRequests are cleared.
+	createScreen(TEXTURE_ASSET_ID::DAY_BG);
+	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2));
+	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
 }
 
 void WorldSystem::update_movement_sound(float elapsed_ms)
