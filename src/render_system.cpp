@@ -636,7 +636,7 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 						vec2 seed_pos = registry.motions.get(seed_entity).position;
 
 						// 	renderText(std::to_string(current_seed_count), seed_pos.x + (seed_type - 4) * TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2, 25, 0.25, {0.6, 0.25, 0.25}, trans);
-						renderText(std::to_string(current_seed_count), CAMERA_VIEW_WIDTH / 2 - TOOLBAR_WIDTH * 0.625 + TOOLBAR_HEIGHT * (seed_type * 0.95 + 0.95), 25, 0.25, {0.6, 0.25, 0.25}, trans);
+						renderText(std::to_string(current_seed_count), WINDOW_WIDTH_PX / 2 - 550 / 2 + 550 / 8 * seed_type + 5, 25, 0.25, {0.6, 0.25, 0.25}, trans);
 					}
 				}
 			}
