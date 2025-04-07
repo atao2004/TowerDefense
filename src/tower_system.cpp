@@ -235,6 +235,7 @@ void TowerSystem::fire_projectile(Entity tower, Entity target)
     Projectile &proj = registry.projectiles.emplace(projectile);
     proj.source = tower;
     proj.damage = tower_comp.damage;
+    proj.speed = PROJECTILE_SPEED;
 
     Motion &proj_motion = registry.motions.emplace(projectile);
     proj_motion.position = tower_motion.position;
