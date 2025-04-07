@@ -475,9 +475,12 @@ const int TOOLBAR_HEIGHT = 55;
 
 const int PLAYER_HEALTH = 100;
 const int PLAYER_DAMAGE = 10;
-const int SEED_MATURE_SPEED = 30; // seconds
+const int SEED_MATURE_SPEED = 40; // seconds
 const int NUM_SEED_TYPES = 8;
 const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
+
+// Spawn
+const int DAY_DELAY_MS = 20000;
 
 // Health
 const int HEALTH_LOW = 20;
@@ -504,7 +507,7 @@ const int WEREWOLF_DAMAGE = DAMAGE_MED;
 const int SLIME_DAMAGE = DAMAGE_LOW;
 
 // Speed
-const int SPEED_LOW = 10;
+const int SPEED_LOW = 6;
 const int SPEED_MED = 14;
 const int SPEED_HGH = 18;
 const int ORC_SPEED = SPEED_MED;
