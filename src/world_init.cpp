@@ -73,6 +73,7 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 		 GEOMETRY_BUFFER_ID::SPRITE},
 		false);
 	registry.cgs.emplace(entity);
+	registry.moveWithCameras.emplace(entity);
 	return entity;
 }
 
