@@ -7,7 +7,7 @@
 
 //splash screen
 Entity createScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background);
-Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct);
+Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct, float scale);
 
 // enemies
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position);

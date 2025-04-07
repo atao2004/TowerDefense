@@ -430,8 +430,10 @@ void RenderSystem::drawToScreen()
 		GLuint hp_uloc = glGetUniformLocation(ui_program, "hp_percentage");
 		GLuint exp_uloc = glGetUniformLocation(ui_program, "exp_percentage");
 		GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
+		GLuint dark_uloc = glGetUniformLocation(ui_program, "darken_factor");
 
 		glUniform1f(game_continues_uloc, screen.game_over);
+		glUniform1f(dark_uloc, screen.darken_screen_factor);
 		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE) ? 0 : screen.hp_percentage);
 		glUniform1f(exp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE) ? 0 : screen.exp_percentage);
 		gl_has_errors();
@@ -492,8 +494,9 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 	glViewport(0, 0, w, h);
 	glDepthRange(0.00001, 10);
 
-	// white background
+	// grass background
 	glClearColor(GRASS_COLOR.x, GRASS_COLOR.y, GRASS_COLOR.z, 1.0f);
+	// glClearColor(0.016f, 0.098f, 0.18f, 1.0f);
 
 	glClearDepth(10.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -633,8 +636,8 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 			}
 		}
 
-		renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
-		renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
+		renderText("HP", WINDOW_WIDTH_PX * 0.65, WINDOW_HEIGHT_PX * 0.925, 0.7, {1, 1, 1}, trans);
+		renderText("EXP", WINDOW_WIDTH_PX * 0.65, WINDOW_HEIGHT_PX * 0.85, 0.7, {1, 1, 1}, trans);
 
 		for (Entity seed_entity : registry.seeds.entities)
 		{
@@ -658,7 +661,7 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 
 		// Render the FPS counter
 		float current_fps = (1 / (elapsed_ms / 1000));
-		renderText("FPS: " + std::to_string(current_fps), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.925, 0.3, {0, 1, 1}, trans);
+		renderText("FPS: " + std::to_string((int)current_fps), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.925, 0.3, {0, 1, 1}, trans);
 
 		// Render the number of enemies on screen
 		renderText("Enemy count: " + std::to_string(registry.enemies.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.875, 0.3, {0, 1, 1}, trans);

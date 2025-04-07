@@ -341,9 +341,12 @@ enum class TEXTURE_ASSET_ID
 	QUIT_BUTTON = TUTORIAL_BUTTON + 1,
 	PAUSE_BUTTON = QUIT_BUTTON + 1,
 	SAVE_BUTTON = PAUSE_BUTTON + 1,
-	BACKGROUND = SAVE_BUTTON + 1,
+	RETURN_BUTTON = SAVE_BUTTON + 1,
+	RESUME_BUTTON = RETURN_BUTTON + 1,
+	BACKGROUND = RESUME_BUTTON + 1,
 	PAUSE_PANEL = BACKGROUND + 1,
-	PARTICLE = PAUSE_PANEL + 1,
+	SELECTED = PAUSE_PANEL + 1,
+	PARTICLE = SELECTED + 1,
 	
 	//cutscenes
 	NIGHT_BG = PARTICLE + 1,
@@ -360,7 +363,9 @@ enum class BUTTON_ID {
 	TUTORIAL = 2,
 	QUIT = 3,
 	PAUSE = 4,
-	SAVE = 5
+	SAVE = 5,
+	RETURN = 6,
+	RESUME = 7
 };
 
 enum class EFFECT_ASSET_ID
@@ -445,6 +450,8 @@ const int TOOLBAR_WIDTH = 440;
 const int TOOLBAR_HEIGHT = 55;
 
 const int PLAYER_HEALTH = 100;
+const int PLAYER_DAMAGE = 10;
+const int SEED_MATURE_SPEED = 30; // seconds
 const int NUM_SEED_TYPES = 8;
 const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
@@ -473,9 +480,9 @@ const int WEREWOLF_DAMAGE = DAMAGE_MED;
 const int SLIME_DAMAGE = DAMAGE_LOW;
 
 // Speed
-const int SPEED_LOW = 1;
-const int SPEED_MED = 2;
-const int SPEED_HGH = 4;
+const int SPEED_LOW = 10;
+const int SPEED_MED = 14;
+const int SPEED_HGH = 18;
 const int ORC_SPEED = SPEED_MED;
 const int ORC_ELITE_SPEED = SPEED_MED;
 const int SKELETON_SPEED = SPEED_MED;
@@ -551,12 +558,14 @@ const int SKELETON_WALK_DURATION = 800;
 const int SKELETON_ATTACK_DURATION = 1800;
 
 const int PROJECTILE_DAMAGE = 10;
+const int PROJECTILE_SPEED = 3000;
 
 // control player movement
-const int PLAYER_MOVE_UP_SPEED = -150;
-const int PLAYER_MOVE_DOWN_SPEED = -PLAYER_MOVE_UP_SPEED;
-const int PLAYER_MOVE_LEFT_SPEED = -150;
-const int PLAYER_MOVE_RIGHT_SPEED = -PLAYER_MOVE_LEFT_SPEED;
+const int PLAYER_SPEED = 100;
+const int PLAYER_MOVE_UP_SPEED = -PLAYER_SPEED;
+const int PLAYER_MOVE_DOWN_SPEED = PLAYER_SPEED;
+const int PLAYER_MOVE_LEFT_SPEED = -PLAYER_SPEED;
+const int PLAYER_MOVE_RIGHT_SPEED = PLAYER_SPEED;
 
 // These are hard coded to the dimensions of the entity's texture
 
