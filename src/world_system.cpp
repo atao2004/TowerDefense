@@ -1481,22 +1481,22 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 void WorldSystem::game_over()
 {
 	game_screen = GAME_SCREEN_ID::GAME_OVER;
-	
-	createScreen(TEXTURE_ASSET_ID::DAY_BG);
-	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
-	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
-	std::cout << "Screen and buttons created" << std::endl;
 
 	registry.texts.clear();
-	createText("Enemies Killed: " + std::to_string(points), vec2(WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.5), 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-	createText("Days survived: " + std::to_string(current_day), vec2(WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.4), 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+	createText("Enemies Killed: " + std::to_string(points), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX * 0.725), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+	createText("Days survived: " + std::to_string(current_day), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX * 0.65), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
 
 	std::cout << "Game Over!" << std::endl;
 	game_is_over = true;
 	registry.screenStates.get(registry.screenStates.entities[0]).game_over = true;
 	Mix_HaltMusic();
 	Mix_PlayChannel(0, WorldSystem::game_over_sound, 0);
-	createGameOver();	
+	createGameOver();
+
+	// Do this afterwards or otherwise the RenderRequests are cleared.
+	createScreen(TEXTURE_ASSET_ID::DAY_BG);
+	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2));
+	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
 }
 
 void WorldSystem::update_movement_sound(float elapsed_ms)
