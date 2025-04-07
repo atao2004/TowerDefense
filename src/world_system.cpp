@@ -179,6 +179,7 @@ void WorldSystem::restart_splash_screen()
 {
 	clearButtons();
 	game_screen = GAME_SCREEN_ID::SPLASH;
+	registry.screenStates.components[0].darken_screen_factor = 0;
 	createScreen(renderer, TEXTURE_ASSET_ID::BACKGROUND);
 	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5),1);
 	createButton(renderer, BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200),1);
@@ -378,6 +379,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	// Move left
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
+		std::cout<<"huh"<<std::endl;
 		for (Entity mwc_entity : registry.moveWithCameras.entities)
 		{
 			if (registry.motions.has(mwc_entity))
@@ -1657,6 +1659,7 @@ void WorldSystem::loadGame()
 	ss.game_over_counter_ms = ss_json["game_over_counter_ms"];
 	ss.game_over_darken = ss_json["game_over_darken"];
 	ss.hp_percentage = ss_json["hp_percentage"];
+	std::cout<<ss.hp_percentage<<std::endl;
 	ss.lerp_timer = ss_json["lerp_timer"];
 	ss.shake_duration_ms = ss_json["shake_duration_ms"];
 	ss.shake_intensity = ss_json["shake_intensity"];
@@ -1975,7 +1978,10 @@ void WorldSystem::loadGame()
 
 void WorldSystem::saveGame()
 {
-	if (chicken_summoned)
+	clearButtons();
+	game_screen = GAME_SCREEN_ID::PLAYING;
+
+	if (registry.meshPtrs.size() > 0)
 	{
 		std::cout << "Chicken summoned, cannot save, please give it some time to fly." << std::endl;
 		return;
@@ -1993,8 +1999,6 @@ void WorldSystem::saveGame()
 	jsonFile["level"] = level;
 	jsonFile["id_count"] = Entity::get_id_count();
 
-	clearButtons();
-	game_screen = GAME_SCREEN_ID::PLAYING;
 
 	for (int i = 0; i < registry.registry_list.size(); i++)
 	{

@@ -61,7 +61,7 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 		motion.position = position;
 	else
 		motion.position = vec2(position.x, position.y*OS_RES);
-		
+
 	motion.scale = vec2(BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT)*scale;
 	if (scale == -1) {
 		motion.scale = vec2(60, 60);
@@ -259,9 +259,9 @@ Entity createPlant(RenderSystem* renderer, vec2 position, PLANT_ID id)
 	VisualScale& vscale = registry.visualScales.emplace(entity);
 	vscale.scale = { 1.5f, 1.5f };
 
-	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh &mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
-	registry.meshPtrs.emplace(entity, &mesh);
+	// // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	// Mesh &mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	// registry.meshPtrs.emplace(entity, &mesh);
 
 	// Plant animation id
 	PlantAnimation& plant_animation = registry.plantAnimations.emplace(entity);
