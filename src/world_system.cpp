@@ -273,6 +273,10 @@ void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 {
 	registry.clear_all_components();
 
+	registry.particles.clear();
+    registry.particleGenerators.clear();
+    registry.customData.clear();
+
 	// Reset day counter and related variables
 	current_day = 1;
 	rest_timer_ms = 0.f;
@@ -1218,7 +1222,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		else if (key == GLFW_KEY_LEFT)
 			current_seed--;
 	}
-	
+
 	if (action == GLFW_PRESS && key == GLFW_KEY_9)
 	{
 		if (registry.screenStates.size() != 0)
