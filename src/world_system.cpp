@@ -276,6 +276,7 @@ void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 	registry.particles.clear();
     registry.particleGenerators.clear();
     registry.customData.clear();
+	registry.hitEffects.clear();
 
 	// Reset day counter and related variables
 	current_day = 1;
