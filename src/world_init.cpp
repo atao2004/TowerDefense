@@ -61,8 +61,7 @@ Entity createButton(BUTTON_ID type, vec2 position, vec2 toDeduct) {
 		entity,
 		{(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::START_BUTTON + (int)type),
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE},
-		false);
+		 GEOMETRY_BUFFER_ID::SPRITE});
 	registry.cgs.emplace(entity);
 	return entity;
 }
@@ -79,8 +78,7 @@ Entity createScreen(TEXTURE_ASSET_ID background)
 		entity,
 		{background,
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE},
-		false);
+		 GEOMETRY_BUFFER_ID::SPRITE});
 	registry.cgs.emplace(entity);
 	return entity;
 }

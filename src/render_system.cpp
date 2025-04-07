@@ -577,7 +577,7 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 				renderText(registry.texts.get(text_entity).text, registry.texts.get(text_entity).pos.x, registry.texts.get(text_entity).pos.y, registry.texts.get(text_entity).size, registry.texts.get(text_entity).color, trans);
 			}
 
-			renderText("GAME OVER", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX * 0.6, 1.5f, glm::vec3(1.0f, 1.0f, 1.0f), trans);
+			renderText("GAME OVER", WINDOW_WIDTH_PX * 0.25, WINDOW_HEIGHT_PX * 0.8, 2.0f, glm::vec3(0.0f, 0.0f, 0.0f), trans);
 		}
 
 		drawToScreen();
