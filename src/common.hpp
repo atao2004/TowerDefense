@@ -446,9 +446,12 @@ const int TOOLBAR_HEIGHT = 55;
 
 const int PLAYER_HEALTH = 100;
 const int PLAYER_DAMAGE = 10;
-const int SEED_MATURE_SPEED = 30; // seconds
+const int SEED_MATURE_SPEED = 40; // seconds
 const int NUM_SEED_TYPES = 8;
 const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
+
+// Spawn
+const int DAY_DELAY_MS = 20000;
 
 // Health
 const int HEALTH_LOW = 20;

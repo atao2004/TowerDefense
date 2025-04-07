@@ -1611,10 +1611,10 @@ void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)
 		rest_timer_ms += elapsed_ms_since_last_update;
 
 		// Display rest time remaining
-		if (rest_timer_ms < 10000.f)
+		if (rest_timer_ms < DAY_DELAY_MS)
 		{ // 10 second rest
 			// Optional: Display countdown text
-			float remaining = (10000.f - rest_timer_ms) / 1000.f;
+			float remaining = (DAY_DELAY_MS - rest_timer_ms) / 1000.f;
 			std::cout << "Next day in: " << (int)remaining << " seconds\r" << std::flush;
 		}
 		else
