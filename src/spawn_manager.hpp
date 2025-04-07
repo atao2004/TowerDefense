@@ -22,7 +22,7 @@ public:
 
     void set_day(int day);
     void spawn_enemy(RenderSystem* renderer);
-    Entity spawnEnemyByDay(RenderSystem* renderer, vec2 spawn_pos, int current_day);
+    void spawnEnemyByDay(RenderSystem* renderer, vec2 spawn_pos, int current_day);
     bool squad_spawned;
 private:
     struct SpawnPoint {
@@ -54,7 +54,7 @@ private:
     // Test mode for manual wave generation
     bool test_mode = false;
 
-    Entity start_challenge_day(RenderSystem* renderer, vec2 spawn_pos);
+    void start_challenge_day(RenderSystem* renderer, vec2 spawn_pos);
 
     std::vector<std::pair<ENEMY_ID, int>> day;
 };
