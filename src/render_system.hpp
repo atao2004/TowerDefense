@@ -280,6 +280,7 @@ class RenderSystem
 		textures_path("ui/save.png"),
 		textures_path("ui/background.png"),
 		textures_path("ui/pause_panel.png"),
+		textures_path("ui/selected.png"),
 		textures_path("particles/particle1.png"),
 		textures_path("cut_scenes/night_bg.png"),
 		textures_path("cut_scenes/day_bg.png"),
