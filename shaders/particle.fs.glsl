@@ -32,7 +32,8 @@ void main()
 {
     vec2 center = vec2(0.5, 0.5);
     
-    if (particleType == 1) // Electricity type
+    // For electricity particles (type 1)
+    if (particleType == 1) 
     {
         // Distance from center line (for line-like appearance)
         float dist = abs(TexCoords.y - 0.5) * 2.0;
