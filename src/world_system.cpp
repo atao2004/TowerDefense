@@ -183,6 +183,10 @@ void WorldSystem::restart_splash_screen()
 	createButton(renderer, BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200),1);
 	createButton(renderer, BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2),1);
 	createButton(renderer, BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3),1);
+	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5),1);
+	createButton(renderer, BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200),1);
+	createButton(renderer, BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2),1);
+	createButton(renderer, BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3),1);
 }
 
 // Update our game world
@@ -1067,6 +1071,25 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		std::cout << "Created electricity effect!" << std::endl;
 	}
 
+	if (action == GLFW_PRESS && key == GLFW_KEY_E)
+	{
+		// Get player position for start point
+		Entity player = registry.players.entities[0];
+		Motion &motion = registry.motions.get(player);
+		vec2 start_point = motion.position;
+
+		// Calculate end point in direction of mouse cursor
+		vec2 screen_center = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2);
+		vec2 mouse_world_offset = vec2(mouse_pos_x - screen_center.x, mouse_pos_y - screen_center.y);
+		vec2 direction = normalize(mouse_world_offset);
+		vec2 end_point = start_point + direction * 300.0f; // 300 pixels range
+
+		// Create the electricity effect between these points
+		ParticleSystem::createElectricityEffect(start_point, end_point);
+
+		std::cout << "Created electricity effect!" << std::endl;
+	}
+
 	// Calculate cell indices
 	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
@@ -1358,6 +1381,17 @@ bool WorldSystem::detectButtons()
 				return true;
 			}
 		}
+				game_screen = GAME_SCREEN_ID::PAUSE;
+				Entity& player = registry.players.entities[0];
+				vec2 player_pos = registry.motions.get(player).position;
+				createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
+				createButton(renderer, BUTTON_ID::PAUSE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+				createButton(renderer, BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200), 0.8);
+				createButton(renderer, BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300), 0.8);
+				createButton(renderer, BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400), 0.8);
+				return true;
+			}
+		}
 		// std::cout<<"x "<<b.position.x - BUTTON_SPLASH_WIDTH / 2<<" "<<b.position.x + BUTTON_SPLASH_WIDTH / 2<<std::endl;
 		// std::cout<<"y "<<b.position.y - BUTTON_SPLASH_HEIGHT / 2<<" "<<b.position.y + BUTTON_SPLASH_HEIGHT / 2<<std::endl;
 		if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
@@ -1365,10 +1399,14 @@ bool WorldSystem::detectButtons()
 		{
 			if (b.type == BUTTON_ID::START)
 			{
+			if (b.type == BUTTON_ID::START)
+			{
 				registry.screenStates.components[0].cutscene = 1;
 				registry.screenStates.components[0].cg_index = 0;
 				start_cg(renderer);
 			}
+			if (b.type == BUTTON_ID::LOAD)
+			{
 			if (b.type == BUTTON_ID::LOAD)
 			{
 				loadGame();
@@ -1383,7 +1421,16 @@ bool WorldSystem::detectButtons()
 
 				if (game_screen == GAME_SCREEN_ID::SPLASH)
 				{
+			}
+			else if (b.type == BUTTON_ID::QUIT)
+			{
+
+				if (game_screen == GAME_SCREEN_ID::SPLASH)
+				{
 					close_window();
+				}
+				else
+				{
 				}
 				else
 				{
