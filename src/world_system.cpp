@@ -359,7 +359,11 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 
 	// Kung: Create the pause button and toolbar, and have them overlay the player
 	registry.toolbars.clear();
-	createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH / 2 + 30, player_pos.y - CAMERA_VIEW_HEIGHT / 2 + 30));
+	vec2 position = vec2(player_pos.x - CAMERA_VIEW_WIDTH / 2 + 30, player_pos.y - CAMERA_VIEW_HEIGHT / 2 + 30);
+	if (game_screen == GAME_SCREEN_ID::TUTORIAL)
+		createButton(renderer, BUTTON_ID::RETURN, position, position, -1);
+	else
+		createPause(position);
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
 	for(int i = 0; i < NUM_SEED_TYPES; i++) {
 		if(registry.inventorys.components[0].seedCount[i] > 0) {
@@ -471,9 +475,8 @@ void WorldSystem::restart_game()
 void WorldSystem::restart_tutorial()
 {
 	std::cout << "Restarting tutorial..." << std::endl;
-
+	clearButtons();
 	restart_common_tasks(vec2(TUTORIAL_WIDTH_PX, TUTORIAL_HEIGHT_PX));
-
 	// Set the level to level 0 (non-existent) and the game_screen to TUTORIAL.
 	level = 0;
 	game_screen = GAME_SCREEN_ID::TUTORIAL;
@@ -1327,6 +1330,13 @@ void WorldSystem::clearButtons()
 
 bool WorldSystem::detectButtons()
 {
+	//return to splash screen
+	if (game_screen == GAME_SCREEN_ID::TUTORIAL) {
+		if (mouse_pos_x >= 0 && mouse_pos_x <= 60 && mouse_pos_y >= 0 && mouse_pos_y <= 60) {
+			restart_splash_screen();
+			return true;
+		}
+	}
 	for (auto &b : registry.buttons.components)
 	{
 		if (game_screen == GAME_SCREEN_ID::PLAYING) {
@@ -1337,15 +1347,13 @@ bool WorldSystem::detectButtons()
 				Entity& player = registry.players.entities[0];
 				vec2 player_pos = registry.motions.get(player).position;
 				createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
-				createButton(renderer, BUTTON_ID::PAUSE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+				createButton(renderer, BUTTON_ID::RESUME, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
 				createButton(renderer, BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200), 0.8);
 				createButton(renderer, BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300), 0.8);
 				createButton(renderer, BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400), 0.8);
 				return true;
 			}
 		}
-		// std::cout<<"x "<<b.position.x - BUTTON_SPLASH_WIDTH / 2<<" "<<b.position.x + BUTTON_SPLASH_WIDTH / 2<<std::endl;
-		// std::cout<<"y "<<b.position.y - BUTTON_SPLASH_HEIGHT / 2<<" "<<b.position.y + BUTTON_SPLASH_HEIGHT / 2<<std::endl;
 		if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
 			mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT / 2)
 		{
@@ -1385,7 +1393,7 @@ bool WorldSystem::detectButtons()
 				saveGame();
 				createPause(vec2(30, 30));
 
-			} else if (game_screen == GAME_SCREEN_ID::PAUSE && b.type == BUTTON_ID::PAUSE) {
+			} else if (b.type == BUTTON_ID::RESUME) {
 				game_screen = GAME_SCREEN_ID::PLAYING;
 				Entity& player_entity = registry.players.entities[0];
 				vec2 player_pos = registry.motions.get(player_entity).position;
@@ -1600,6 +1608,8 @@ void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)
 			// All enemies for this day have been spawned
 			day_in_progress = false;
 		}
+		if (registry.screenStates.components[0].darken_screen_factor > 0)
+			registry.screenStates.components[0].darken_screen_factor -= elapsed_ms_since_last_update/3000;
 	}
 	else if (registry.enemies.size() == 0)
 	{

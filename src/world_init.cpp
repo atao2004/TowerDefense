@@ -61,7 +61,11 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 		motion.position = position;
 	else
 		motion.position = vec2(position.x, position.y*OS_RES);
+		
 	motion.scale = vec2(BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT)*scale;
+	if (scale == -1) {
+		motion.scale = vec2(60, 60);
+	}
 	registry.renderRequests.insert(
 		entity,
 		{(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::START_BUTTON + (int)type),

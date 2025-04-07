@@ -636,8 +636,8 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 			}
 		}
 
-		renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
-		renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
+		renderText("HP", WINDOW_WIDTH_PX * 0.65, WINDOW_HEIGHT_PX * 0.925, 0.7, {1, 1, 1}, trans);
+		renderText("EXP", WINDOW_WIDTH_PX * 0.65, WINDOW_HEIGHT_PX * 0.85, 0.7, {1, 1, 1}, trans);
 
 		for (Entity seed_entity : registry.seeds.entities)
 		{
@@ -661,7 +661,7 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 
 		// Render the FPS counter
 		float current_fps = (1 / (elapsed_ms / 1000));
-		renderText("FPS: " + std::to_string(current_fps), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.925, 0.3, {0, 1, 1}, trans);
+		renderText("FPS: " + std::to_string((int)current_fps), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.925, 0.3, {0, 1, 1}, trans);
 
 		// Render the number of enemies on screen
 		renderText("Enemy count: " + std::to_string(registry.enemies.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.875, 0.3, {0, 1, 1}, trans);
