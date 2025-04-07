@@ -4,6 +4,7 @@ uniform sampler2D screen_texture;
 uniform float hp_percentage;
 uniform float exp_percentage;
 uniform bool game_over;
+uniform float darken_factor;
 
 in vec2 texcoord;
 
@@ -33,7 +34,11 @@ vec4 hp_exp_bars(vec4 in_color)
 					in_color = vec4(0, 0, 0.7, 0);
 				} else in_color = vec4(0.2, 0.2, 1, 0);
 			}
-		}
+		} 
+			in_color -= darken_factor * vec4(0.8, 0.8, 0.8, 0);
+		
+	} else {
+			in_color -= darken_factor * vec4(0.8, 0.8, 0.8, 0);
 	}
 	return in_color;
 }

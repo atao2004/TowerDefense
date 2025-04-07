@@ -469,7 +469,7 @@ struct MoveWithCamera
 // Includes HP and EXP parameters
 struct ScreenState
 {
-    float darken_screen_factor = -1;
+    float darken_screen_factor = 0;
 
     float game_over_darken = -1;
     float game_over_counter_ms = 0;

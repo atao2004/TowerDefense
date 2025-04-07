@@ -90,7 +90,6 @@ int main()
 	int record_times = 0;
 	int max_fps = 0;
 	int min_fps = 50000; // impossible number technically, lazy implementation sorry!
-	int cooldown = 1000;
 
 	// frame intervals
 	FrameManager fm_world = FrameManager(1);
@@ -127,19 +126,6 @@ int main()
 				//M2: FPS
 				FrameManager::tick(elapsed_ms); //moved here so when doing cg the game will pause
 				float current_fps = (1/(elapsed_ms/1000));
-				cooldown -= elapsed_ms;
-				if (cooldown <= 0)
-				{ // used to prevent screen flickering
-					// std::cout<<"FPS: "<<current_fps<<std::endl;
-					std::stringstream title_ss;
-					title_ss <<"Farmer Defense: The Last Days";
-							// << " | LEVEL: "<< world_system.level 
-							// <<" | SEED COUNT: "<< registry.inventorys.components[0].seedCount[world_system.current_seed]
-							// <<"| FPS: " << (int)current_fps;
-							
-					glfwSetWindowTitle(window, title_ss.str().c_str());
-					cooldown = 1000;
-				}
 				if (record_times > 2)
 				{ // ignore the first 2, outliers wow.. maximum 5000 and minimum 10-ish fps, crazy
 					max_fps = max_fps < current_fps ? current_fps : max_fps;

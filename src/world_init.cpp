@@ -45,24 +45,34 @@ Entity createPausePanel(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-Entity createButton(BUTTON_ID type, vec2 position, vec2 toDeduct) {
+Entity createButton(BUTTON_ID type, vec2 position, vec2 toDeduct, float scale) {
 	Entity entity = Entity();
 	CustomButton &button = registry.buttons.emplace(entity);
 	button.type = type;
-	// std::cout<<button.position.x<<" "<<button.position.y<<std::endl;
-	button.position = toDeduct;
+	if (scale == 1) //splash screen don't change
+		button.position = toDeduct;
+	else
+		button.position = vec2(toDeduct.x, toDeduct.y*OS_RES);
 	
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = {0, 0};
-	motion.position = position;
-	motion.scale = vec2({BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT});
+	if (scale == 1) //splash screen don't change
+		motion.position = position;
+	else
+		motion.position = vec2(position.x, position.y*OS_RES);
+
+	motion.scale = vec2(BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT)*scale;
+	if (scale == -1) {
+		motion.scale = vec2(60, 60);
+	}
 	registry.renderRequests.insert(
 		entity,
 		{(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::START_BUTTON + (int)type),
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 	registry.cgs.emplace(entity);
+	registry.moveWithCameras.emplace(entity);
 	return entity;
 }
 
@@ -248,9 +258,9 @@ Entity createPlant(RenderSystem* renderer, vec2 position, PLANT_ID id)
 	VisualScale& vscale = registry.visualScales.emplace(entity);
 	vscale.scale = { 1.5f, 1.5f };
 
-	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh &mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
-	registry.meshPtrs.emplace(entity, &mesh);
+	// // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	// Mesh &mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	// registry.meshPtrs.emplace(entity, &mesh);
 
 	// Plant animation id
 	PlantAnimation& plant_animation = registry.plantAnimations.emplace(entity);
@@ -740,7 +750,7 @@ Entity createToolbar(vec2 position)
 
     registry.renderRequests.insert(
         projectile,
-        {TEXTURE_ASSET_ID::PROJECTILE,
+        {TEXTURE_ASSET_ID::SELECTED,
          EFFECT_ASSET_ID::TEXTURED,
          GEOMETRY_BUFFER_ID::SPRITE},
 		false);
