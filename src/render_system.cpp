@@ -632,10 +632,11 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 				if (registry.motions.has(seed_entity) && registry.moveWithCameras.has(seed_entity)) {
 					if (registry.inventorys.size() != 0) {
 						int seed_type = registry.seeds.get(seed_entity).type;
-						int seed_count = registry.inventorys.components[0].seedCount[seed_type];
+						int current_seed_count = registry.inventorys.components[0].seedCount[seed_type];
 						vec2 seed_pos = registry.motions.get(seed_entity).position;
 
-						renderText(std::to_string(seed_count), WINDOW_WIDTH_PX / 2 - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (seed_type * 0.95 + 0.95), 25, 0.25, {0.6, 0.25, 0.25}, trans);
+						// 	renderText(std::to_string(current_seed_count), seed_pos.x + (seed_type - 4) * TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2, 25, 0.25, {0.6, 0.25, 0.25}, trans);
+						renderText(std::to_string(current_seed_count), CAMERA_VIEW_WIDTH / 2 - TOOLBAR_WIDTH * 0.625 + TOOLBAR_HEIGHT * (seed_type * 0.95 + 0.95), 25, 0.25, {0.6, 0.25, 0.25}, trans);
 					}
 				}
 			}
@@ -648,11 +649,11 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 			renderText("Enemy count: " + std::to_string(registry.enemies.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.875, 0.3, {0, 1, 1}, trans);
 		
 			// Render the number of plants on screen (Includes plant in inventory)
-			int seed_count = 0;
+			int total_seed_count = 0;
 			for (Entity entity : registry.seeds.entities) {
-				if (!registry.moveWithCameras.has(entity)) seed_count++;
+				if (!registry.moveWithCameras.has(entity)) total_seed_count++;
 			}
-			renderText("Plant count: " + std::to_string(seed_count + registry.towers.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.825, 0.3, {0, 1, 1}, trans);
+			renderText("Plant count: " + std::to_string(total_seed_count + registry.towers.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.825, 0.3, {0, 1, 1}, trans);
 		}
 
 		for (Entity text_entity : registry.texts.entities)
