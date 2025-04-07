@@ -284,6 +284,7 @@ void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 	enemies_spawned_today = 0;
 	enemies_to_spawn_today = calculate_enemies_for_day(current_day);
 	day_in_progress = true;
+	current_seed = 0;
 
 	chicken_summoned = false;
 

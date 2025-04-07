@@ -327,6 +327,11 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 			glUniform1i(particleType_loc, particleType);
 			gl_has_errors();
 		}
+		else
+		{
+			// Debug output if the uniform isn't found
+			std::cout << "Warning: particleType uniform not found in shader" << std::endl;
+		}
 
 		// Pass life ratio for visual effects
 		float lifeRatio = 1.0f;
@@ -337,8 +342,11 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 		}
 
 		GLint life_loc = glGetUniformLocation(program, "life_ratio");
-		glUniform1f(life_loc, lifeRatio);
-		gl_has_errors();
+		if (life_loc >= 0)
+		{
+			glUniform1f(life_loc, lifeRatio);
+			gl_has_errors();
+		}
 
 		// Enabling and binding texture
 		glActiveTexture(GL_TEXTURE0);
@@ -508,7 +516,9 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 		if (game_screen == GAME_SCREEN_ID::SPLASH)
 		{
 			renderText("Farmer Defense", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100, OS_RES, {0, 0, 0}, trans);
-		} else {
+		}
+		else
+		{
 			int cg_idx = registry.screenStates.components[0].cg_index;
 			int cutscene = registry.screenStates.components[0].cutscene;
 			if (cutscene == 1)
@@ -568,12 +578,16 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 		}
 
 		drawToScreen();
-	} else if (WorldSystem::game_is_over) {
+	}
+	else if (WorldSystem::game_is_over)
+	{
 		renderText("GAME OVER", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 4, 3.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
 		renderText("Zombies Killed: ", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 4, 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
 		renderText("Days survived: ", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 4, 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
 		drawToScreen();
-	} else {
+	}
+	else
+	{
 		// draw all entities with a render request to the frame buffer
 		for (Entity entity : registry.renderRequests.entities)
 		{
@@ -610,12 +624,14 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 		drawParticlesInstanced(projection_2D);
 
 		// individually draw player, toolbar, inventory seeds, pause button; will render on top of all the motion sprites
-		if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::PAUSE) {
-			for (Entity entity : registry.moveWithCameras.entities){
-				if (registry.renderRequests.has(entity)) drawTexturedMesh(entity, projection_2D);
+		if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::PAUSE)
+		{
+			for (Entity entity : registry.moveWithCameras.entities)
+			{
+				if (registry.renderRequests.has(entity))
+					drawTexturedMesh(entity, projection_2D);
 			}
 		}
-
 
 		renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
 		renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
