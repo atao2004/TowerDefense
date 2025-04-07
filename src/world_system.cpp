@@ -278,7 +278,7 @@ void WorldSystem::restart_common_tasks(vec2 map_dimensions)
     registry.customData.clear();
 
 	// Reset day counter and related variables
-	current_day = 1;
+	current_day = 1; spawn_manager.set_day(current_day);
 	rest_timer_ms = 0.f;
 	enemy_spawn_timer_ms = 0.f;
 	enemies_spawned_today = 0;
@@ -1166,39 +1166,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (action == GLFW_PRESS && key == GLFW_KEY_C)
 		createChicken(renderer);
 
-	// Debug
-	if (action == GLFW_PRESS)
-	{
-		vec2 position = vec2(motion.position.x + CAMERA_VIEW_WIDTH / 2, motion.position.y);
-		switch (key)
-		{
-		case GLFW_KEY_1:
-			createOrc(renderer, position);
-			break;
-		case GLFW_KEY_2:
-			createOrcElite(renderer, position);
-			break;
-		case GLFW_KEY_3:
-			createSkeleton(renderer, position);
-			break;
-		case GLFW_KEY_4:
-			createSkeletonArcher(renderer, position);
-			break;
-		case GLFW_KEY_5:
-			createWerewolf(renderer, position);
-			break;
-		case GLFW_KEY_6:
-			createWerebear(renderer, position);
-			break;
-		case GLFW_KEY_7:
-			createSlime(renderer, position);
-			break;
-		case GLFW_KEY_8:
-			createOrcRider(renderer, position);
-			break;
-		}
-	}
-
 	if (action == GLFW_PRESS && key == GLFW_KEY_H)
 	{
 		// Get player entity
@@ -1568,7 +1535,7 @@ void WorldSystem::update_camera()
 
 void WorldSystem::advance_to_next_day()
 {
-	current_day++;
+	current_day++; spawn_manager.set_day(current_day);
 	std::cout << "===== ADVANCING TO DAY " << current_day << " =====" << std::endl;
 
 	// Calculate number of enemies for the new day with a reasonable progression curve
@@ -1590,6 +1557,13 @@ void WorldSystem::advance_to_next_day()
 // Helper function to calculate number of enemies per day
 int WorldSystem::calculate_enemies_for_day(int day)
 {
+	if (DAY_MAP.find(day) != DAY_MAP.end()) {
+		int total = 0;
+		for (const auto& [enemy, count] : DAY_MAP.at(day))
+			total += count;
+		return total;
+	}
+
 	// Base enemies for day 1
 	const int BASE_ENEMIES = 5;
 

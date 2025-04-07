@@ -774,6 +774,7 @@ Entity createPlayer(RenderSystem *renderer, vec2 position, int seed_type)
 
 	Attack &attack = registry.attacks.emplace(entity);
 	attack.range = 60;
+	attack.damage = PLAYER_DAMAGE;
 
 	registry.statuses.emplace(entity);
 
@@ -828,7 +829,7 @@ Entity createSeed(vec2 pos, int type)
 	// Create the associated component.
 	Seed &seed_component = registry.seeds.emplace(seed_entity);
 	seed_component.type = type;
-	seed_component.timer = 1000;
+	seed_component.timer = SEED_MATURE_SPEED * 1000;
 
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(seed_entity);
