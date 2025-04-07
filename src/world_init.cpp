@@ -670,7 +670,7 @@ Entity createToolbar(vec2 position)
 
     registry.renderRequests.insert(
         projectile,
-        {TEXTURE_ASSET_ID::PROJECTILE,
+        {TEXTURE_ASSET_ID::SELECTED,
          EFFECT_ASSET_ID::TEXTURED,
          GEOMETRY_BUFFER_ID::SPRITE},
 		false);
