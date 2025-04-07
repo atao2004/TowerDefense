@@ -203,13 +203,13 @@ Entity createOrcRider(RenderSystem *renderer, vec2 position)
     
     Attack &attack = registry.attacks.emplace(entity);
     attack.range = 60.0f;         // Melee range for charge attack
-    attack.damage = 25;           // Same as orcrider.damage
+    attack.damage = 10;           // Same as orcrider.damage
     
     VisualScale &vscale = registry.visualScales.emplace(entity);
     vscale.scale = {4.f, 4.f}; // Scale visuals 4x
     
     OrcRider &orcrider = registry.orcRiders.emplace(entity);
-    orcrider.damage = 25; // Damage when charging into player
+    orcrider.damage = 10; // Damage when charging into player
 
 	registry.renderRequests.insert(
 		entity,
@@ -841,7 +841,10 @@ Entity createPlayer(RenderSystem *renderer, vec2 position, int seed_type)
 	registry.inventorys.components[0].seedCount[seed_type] = 5; // 5 starter seeds
 	for(int i = 0; i < NUM_SEED_TYPES; i++)
 	{
-		registry.inventorys.components[0].seedCount[i] = 4; // one each of the 8 seed types
+		if (i == 7)
+			registry.inventorys.components[0].seedCount[i] = 0;
+		else
+			registry.inventorys.components[0].seedCount[i] = 4;
 		registry.inventorys.components[0].seedAtToolbar[i] = i;
 	}
 
