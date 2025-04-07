@@ -505,7 +505,10 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 	gl_has_errors();
 	int cutscene = registry.screenStates.components[0].cutscene;
 	mat3 projection_2D = (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) ? createProjectionMatrix_splash() : createProjectionMatrix();
-
+	if(game_screen == GAME_SCREEN_ID::LEVEL_UP) {
+		renderText("LEVEL UP!", WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX - 10, OS_RES, {1,1,1}, trans);
+		renderText("Choose one of 4 options", WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX - 300, OS_RES, {0, 0, 0}, trans);
+	}
 	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG)
 	{
 		for (Entity entity : registry.cgs.entities)
@@ -650,10 +653,11 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 				}
 			}
 		}
-
-		for (Entity text_entity : registry.texts.entities)
-		{
-			renderText(registry.texts.get(text_entity).text, registry.texts.get(text_entity).pos.x, registry.texts.get(text_entity).pos.y, registry.texts.get(text_entity).size, registry.texts.get(text_entity).color, trans);
+		if(game_screen != GAME_SCREEN_ID::LEVEL_UP && game_screen != GAME_SCREEN_ID::PAUSE) {
+			for (Entity text_entity : registry.texts.entities)
+			{
+				renderText(registry.texts.get(text_entity).text, registry.texts.get(text_entity).pos.x, registry.texts.get(text_entity).pos.y, registry.texts.get(text_entity).size, registry.texts.get(text_entity).color, trans);
+			}
 		}
 
 		// Render the FPS counter

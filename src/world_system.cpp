@@ -1328,17 +1328,75 @@ void WorldSystem::clearButtons()
 	}
 }
 
-bool WorldSystem::detectButtons()
-{
-	if (game_screen == GAME_SCREEN_ID::LEVEL_UP) {
+void WorldSystem::levelUpHelper(RenderSystem *renderer, std::set<int> unique_numbers,  bool buttonsCreated) {
+    	std::mt19937 rng(time(0));            // Initialize random number generator with current time
+    	std::uniform_int_distribution<int> dist(1, 8);  // Distribution between 1 and 8
 		clearButtons();
 		Entity& player = registry.players.entities[0];
 		vec2 player_pos = registry.motions.get(player).position;
 		createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
-		createButton(renderer, BUTTON_ID::PAUSE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
-		createButton(renderer, BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200), 0.8);
-		createButton(renderer, BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300), 0.8);
-		createButton(renderer, BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400), 0.8);
+		buttonsCreated = true;
+
+		// Generate unique random numbers
+		while (unique_numbers.size() < 4) {
+			int num = dist(rng);   // Generate a random number
+			unique_numbers.insert(num);  // Insert into set (duplicates are automatically handled)
+		}
+		std::vector<int> unique_numbers_vec(unique_numbers.begin(), unique_numbers.end());
+		int offset = 200;
+		for(int i = 0; i < unique_numbers.size(); i++)
+		{
+			int x_pos = player_pos.x - WINDOW_WIDTH_PX/4+100 + offset + 330;
+			int y_pos = player_pos.y +100;
+			switch (unique_numbers_vec[i]) {
+        case 1:
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED1, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+            break;
+        case 2:
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED2, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+            break;
+        case 3:
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED3, vec2( x_pos,y_pos ), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+            break;
+		case 4:
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED4, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+            break;
+		case 5:
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED5, vec2( x_pos, y_pos ), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+            break;
+		case 6:
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED6, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+            break;
+		case 7:
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED7, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+            break;
+		case 8:
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED8, vec2( x_pos,y_pos), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+            break;
+        default:
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED1, vec2( x_pos, y_pos ), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+            break;
+   		}
+	offset -= 180;
+		}
+}
+
+bool WorldSystem::detectButtons()
+{
+	if (game_screen == GAME_SCREEN_ID::LEVEL_UP) {
+		 std::set<int> unique_numbers;
+		 bool buttonsCreated = false;
+		levelUpHelper(renderer, unique_numbers, buttonsCreated);
+		// if (buttonsCreated) {
+		// 	game_screen = GAME_SCREEN_ID::LEVEL_UP;
+		// 	return true;
+		// }
+		// else {
+		// 	game_screen = GAME_SCREEN_ID::PLAYING;
+		// 	clearButtons();
+		// 	return false;
+		// }	
+		return true;
 			
 	}
 	for (auto &b : registry.buttons.components)
@@ -1413,7 +1471,7 @@ bool WorldSystem::detectButtons()
 
 void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 {
-	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::PAUSE)
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::PAUSE || game_screen == GAME_SCREEN_ID::LEVEL_UP)
 	{
 		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
 		{
