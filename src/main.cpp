@@ -198,7 +198,7 @@ int main()
 		renderer_system.renderText("hello", 100, 100, 1, {1, 1, 0}, trans);
     
 		if (fm_render.can_update() ||
-		WorldSystem::game_is_over || game_screen == GAME_SCREEN_ID::CG || game_screen == GAME_SCREEN_ID::PAUSE || game_screen == GAME_SCREEN_ID::SPLASH) 
+		WorldSystem::game_is_over || game_screen == GAME_SCREEN_ID::CG || game_screen == GAME_SCREEN_ID::PAUSE || game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::LEVEL_UP) 
 			renderer_system.step_and_draw(game_screen, fm_render.get_time());
     
 	}

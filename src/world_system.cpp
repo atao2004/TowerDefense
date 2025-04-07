@@ -191,6 +191,10 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	if (registry.players.size() != 0 && registry.screenStates.size() != 0 && registry.inventorys.size() != 0) {
 		increase_level();
 	}
+	if(game_screen == GAME_SCREEN_ID::LEVEL_UP)
+	{
+		detectButtons();
+	}
 
 	// Using the spawn manager to generate zombies
 	if (WorldSystem::game_is_over)
@@ -228,7 +232,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 		music_thread.detach();
 	}
 
-	if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH && game_screen != GAME_SCREEN_ID::CG)
+	if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH && game_screen != GAME_SCREEN_ID::CG && game_screen != GAME_SCREEN_ID::LEVEL_UP)
 	{
 		update_camera();
 		// spawn_manager.step(elapsed_ms_since_last_update, renderer);
@@ -436,7 +440,7 @@ void WorldSystem::restart_game()
 
 	// Set the level to level 1 and the game_screen to PLAYING.
 	level = 1;
-	game_screen = GAME_SCREEN_ID::PLAYING;
+	game_screen = GAME_SCREEN_ID::LEVEL_UP;
 
 	// Kung: This is for Milestone #2. This creates the farmland.
 	parseMap(false);
@@ -1326,9 +1330,20 @@ void WorldSystem::clearButtons()
 
 bool WorldSystem::detectButtons()
 {
+	if (game_screen == GAME_SCREEN_ID::LEVEL_UP) {
+		clearButtons();
+		Entity& player = registry.players.entities[0];
+		vec2 player_pos = registry.motions.get(player).position;
+		createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
+		createButton(renderer, BUTTON_ID::PAUSE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+		createButton(renderer, BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200), 0.8);
+		createButton(renderer, BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300), 0.8);
+		createButton(renderer, BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400), 0.8);
+			
+	}
 	for (auto &b : registry.buttons.components)
 	{
-		if (game_screen == GAME_SCREEN_ID::PLAYING) {
+		if (game_screen == GAME_SCREEN_ID::PLAYING) { 
 			
 			if (mouse_pos_x >= b.position.x - 30 && mouse_pos_x <= b.position.x + 30 &&
 				mouse_pos_y >= b.position.y - 30 && mouse_pos_y <= b.position.y + 30) {
@@ -1629,7 +1644,7 @@ void WorldSystem::loadGame()
 	std::ifstream file(PROJECT_SOURCE_DIR + std::string("data/reload/game_0.json"));
 	file >> jsonFile;
 	game_is_over = jsonFile["game_is_over"];
-	game_screen = jsonFile["game_screen"];
+	 game_screen = jsonFile["game_screen"];
 	current_day = jsonFile["current_day"];
 	current_seed = jsonFile["current_seed"];
 	level = jsonFile["level"];

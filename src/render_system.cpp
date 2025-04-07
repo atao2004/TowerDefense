@@ -624,7 +624,7 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 		drawParticlesInstanced(projection_2D);
 
 		// individually draw player, toolbar, inventory seeds, pause button; will render on top of all the motion sprites
-		if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::PAUSE)
+		if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::PAUSE && game_screen != GAME_SCREEN_ID::LEVEL_UP)
 		{
 			for (Entity entity : registry.moveWithCameras.entities)
 			{
