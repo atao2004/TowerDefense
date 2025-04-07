@@ -649,12 +649,30 @@ Entity createToolbar(vec2 position)
 {
 	// Create the associated entity.
 	Entity toolbar_entity = Entity();
+	Entity projectile = Entity();
+
+    Motion &proj_motion = registry.motions.emplace(projectile);
+	proj_motion.position.y = position.y;
+    proj_motion.position.x = position.x - 4*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+    proj_motion.scale = vec2(60,60);
+
+     proj_motion.velocity = {0,0};
+
+    registry.renderRequests.insert(
+        projectile,
+        {TEXTURE_ASSET_ID::PROJECTILE,
+         EFFECT_ASSET_ID::TEXTURED,
+         GEOMETRY_BUFFER_ID::SPRITE},
+		false);
 
 	// Create the associated component.
 	Toolbar &toolbar_component = registry.toolbars.emplace(toolbar_entity);
+	Toolbar &projectile_component = registry.toolbars.emplace(projectile);
+	
 
 	// Create a component to simplify movement.
 	MoveWithCamera &mwc = registry.moveWithCameras.emplace(toolbar_entity);
+	MoveWithCamera &mwcc = registry.moveWithCameras.emplace(projectile);
 
 	// Create the relevant motion component.
 	Motion &motion_component = registry.motions.emplace(toolbar_entity);
@@ -739,7 +757,7 @@ Entity createPlayer(RenderSystem *renderer, vec2 position, int seed_type)
 	registry.inventorys.components[0].seedCount[seed_type] = 5; // 5 starter seeds
 	for(int i = 0; i < NUM_SEED_TYPES; i++)
 	{
-		registry.inventorys.components[0].seedCount[i] = 1; // one each of the 8 seed types
+		registry.inventorys.components[0].seedCount[i] = 4; // one each of the 8 seed types
 		registry.inventorys.components[0].seedAtToolbar[i] = i;
 	}
 

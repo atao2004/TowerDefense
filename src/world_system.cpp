@@ -181,8 +181,8 @@ void WorldSystem::restart_splash_screen()
 	createScreen(renderer, TEXTURE_ASSET_ID::BACKGROUND);
 	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5));
 	createButton(renderer, BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200));
-	createButton(renderer, BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2));
-	createButton(renderer, BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
+	createButton(renderer, BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2));
+	createButton(renderer, BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3));
 }
 
 // Update our game world
@@ -262,7 +262,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	return true;
 }
 
-void WorldSystem::print_level() {
+void WorldSystem::print_level()
+{
 	registry.texts.clear();
 	createText("Level: " + std::to_string(level), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX - 75.0f), 0.75f, vec3(0.9f, 0.9f, 0.9f));
 }
@@ -271,9 +272,10 @@ void WorldSystem::print_level() {
 void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 {
 	registry.clear_all_components();
-	// for(Entity i: registry.seeds.entities) {
-	// 	registry.seeds.remove(i);
-	// }
+
+	registry.particles.clear();
+    registry.particleGenerators.clear();
+    registry.customData.clear();
 
 	// Reset day counter and related variables
 	current_day = 1;
@@ -282,6 +284,7 @@ void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 	enemies_spawned_today = 0;
 	enemies_to_spawn_today = calculate_enemies_for_day(current_day);
 	day_in_progress = true;
+	current_seed = 0;
 
 	chicken_summoned = false;
 
@@ -355,7 +358,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 
 	// Kung: Create the pause button and toolbar, and have them overlay the player
 	registry.toolbars.clear();
-	createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30));
+	createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH / 2 + 30, player_pos.y - CAMERA_VIEW_HEIGHT / 2 + 30));
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
 	for(int i = 0; i < NUM_SEED_TYPES; i++) {
 		if(registry.inventorys.components[0].seedCount[i] > 0) {
@@ -583,7 +586,8 @@ void WorldSystem::increase_level() {
 
 		print_level();
 
-		if (level == 2) {
+		if (level == 2)
+		{
 			registry.screenStates.components[0].cutscene = 3;
 			registry.screenStates.components[0].cg_index = 0;
 			return start_cg(renderer);
@@ -1040,6 +1044,25 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
+	if (action == GLFW_PRESS && key == GLFW_KEY_E)
+	{
+		// Get player position for start point
+		Entity player = registry.players.entities[0];
+		Motion &motion = registry.motions.get(player);
+		vec2 start_point = motion.position;
+
+		// Calculate end point in direction of mouse cursor
+		vec2 screen_center = vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2);
+		vec2 mouse_world_offset = vec2(mouse_pos_x - screen_center.x, mouse_pos_y - screen_center.y);
+		vec2 direction = normalize(mouse_world_offset);
+		vec2 end_point = start_point + direction * 300.0f; // 300 pixels range
+
+		// Create the electricity effect between these points
+		ParticleSystem::createElectricityEffect(start_point, end_point);
+
+		std::cout << "Created electricity effect!" << std::endl;
+	}
+
 	// Calculate cell indices
 	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
@@ -1194,6 +1217,13 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		current_day = 5;
 	}
 
+	if (action == GLFW_PRESS) {
+		if (key == GLFW_KEY_RIGHT)
+			current_seed++;
+		else if (key == GLFW_KEY_LEFT)
+			current_seed--;
+	}
+
 	if (action == GLFW_PRESS && key == GLFW_KEY_9)
 	{
 		if (registry.screenStates.size() != 0)
@@ -1216,7 +1246,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				vec2 player_pos = registry.motions.get(player).position;
 				vec2 player_size = registry.motions.get(player).scale;
 				ParticleSystem::createLevelUpEffect(player_pos, player_size);
-				if (level == 2) {
+				if (level == 2)
+				{
 					registry.screenStates.components[0].cutscene = 3;
 					registry.screenStates.components[0].cg_index = 0;
 					return start_cg(renderer);
@@ -1228,6 +1259,62 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 			}
 		}
 	}
+	if (action == GLFW_PRESS && key == GLFW_KEY_1)
+	{
+		// Debug key to start challenge
+		current_seed = 0;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x - 4*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+	}
+		if (action == GLFW_PRESS && key == GLFW_KEY_2)
+	{
+		// Debug key to start challenge
+		current_seed = 1;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x - 3*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+
+	}
+		if (action == GLFW_PRESS && key == GLFW_KEY_3)
+	{
+		// Debug key to start challenge
+		current_seed = 2;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x - 2*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+
+	}
+		if (action == GLFW_PRESS && key == GLFW_KEY_4)
+	{
+		// Debug key to start challenge
+		current_seed = 3;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x - 1*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+
+	}
+		if (action == GLFW_PRESS && key == GLFW_KEY_5)
+	{
+		// Debug key to start challenge
+		current_seed = 4;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x - 0*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+
+	}
+		if (action == GLFW_PRESS && key == GLFW_KEY_6)
+	{
+		// Debug key to start challenge
+		current_seed = 5;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x + 1*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+
+	}
+		if (action == GLFW_PRESS && key == GLFW_KEY_7)
+	{
+		// Debug key to start challenge
+		current_seed = 6;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x + 2*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+
+	}
+		if (action == GLFW_PRESS && key == GLFW_KEY_8)
+	{
+		// Debug key to start challenge
+		current_seed = 7;
+		registry.motions.get(registry.toolbars.entities[1]).position.x = registry.motions.get(registry.toolbars.entities[0]).position.x  + 3*TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2;
+
+	}
+
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position)
@@ -1261,35 +1348,43 @@ void WorldSystem::on_mouse_move(vec2 mouse_position)
 	}
 }
 
-void WorldSystem::clearButtons() {
-	for (int i=registry.cgs.entities.size()-1; i>=0; i--) {
+void WorldSystem::clearButtons()
+{
+	for (int i = registry.cgs.entities.size() - 1; i >= 0; i--)
+	{
 		Entity e = registry.cgs.entities[i];
 		registry.remove_all_components_of(e);
 	}
 }
 
-bool WorldSystem::detectButtons() {
+bool WorldSystem::detectButtons()
+{
 	for (auto &b : registry.buttons.components)
 	{
-		if (game_screen == GAME_SCREEN_ID::PLAYING || game_screen == GAME_SCREEN_ID::PAUSE) {
-			
+		if (game_screen == GAME_SCREEN_ID::PLAYING || game_screen == GAME_SCREEN_ID::PAUSE)
+		{
+
 			if (mouse_pos_x >= b.position.x - 30 && mouse_pos_x <= b.position.x + 30 &&
-				mouse_pos_y >= b.position.y - 30 && mouse_pos_y <= b.position.y + 30) {
-				if (game_screen == GAME_SCREEN_ID::PLAYING && b.type == BUTTON_ID::PAUSE) {
+				mouse_pos_y >= b.position.y - 30 && mouse_pos_y <= b.position.y + 30)
+			{
+				if (game_screen == GAME_SCREEN_ID::PLAYING && b.type == BUTTON_ID::PAUSE)
+				{
 					game_screen = GAME_SCREEN_ID::PAUSE;
-					Entity& player = registry.players.entities[0];
+					Entity &player = registry.players.entities[0];
 					vec2 player_pos = registry.motions.get(player).position;
 					createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
-					createButton(renderer, BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4+50), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+50+BUTTON_SPLASH_HEIGHT/2));
-					createButton(renderer, BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4 + 200), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+200+BUTTON_SPLASH_HEIGHT/2));
-					createButton(renderer, BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT/4 + 350), vec2(CAMERA_VIEW_WIDTH/2+BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT/2-CAMERA_VIEW_HEIGHT/4+350+BUTTON_SPLASH_HEIGHT/2));
+					createButton(renderer, BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT / 4 + 50), vec2(CAMERA_VIEW_WIDTH / 2 + BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT / 2 - CAMERA_VIEW_HEIGHT / 4 + 50 + BUTTON_SPLASH_HEIGHT / 2));
+					createButton(renderer, BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT / 4 + 200), vec2(CAMERA_VIEW_WIDTH / 2 + BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT / 2 - CAMERA_VIEW_HEIGHT / 4 + 200 + BUTTON_SPLASH_HEIGHT / 2));
+					createButton(renderer, BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - CAMERA_VIEW_HEIGHT / 4 + 350), vec2(CAMERA_VIEW_WIDTH / 2 + BUTTON_SPLASH_WIDTH, CAMERA_VIEW_HEIGHT / 2 - CAMERA_VIEW_HEIGHT / 4 + 350 + BUTTON_SPLASH_HEIGHT / 2));
 					return true;
-				} else if (game_screen == GAME_SCREEN_ID::PAUSE && b.type == BUTTON_ID::PAUSE) {
+				}
+				else if (game_screen == GAME_SCREEN_ID::PAUSE && b.type == BUTTON_ID::PAUSE)
+				{
 					game_screen = GAME_SCREEN_ID::PLAYING;
-					Entity& player_entity = registry.players.entities[0];
+					Entity &player_entity = registry.players.entities[0];
 					vec2 player_pos = registry.motions.get(player_entity).position;
 					clearButtons();
-					createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30));
+					createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH / 2 + 30, player_pos.y - CAMERA_VIEW_HEIGHT / 2 + 30));
 					return true;
 				}
 			}
@@ -1299,32 +1394,40 @@ bool WorldSystem::detectButtons() {
 		if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
 			mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT / 2)
 		{
-			if (b.type == BUTTON_ID::START) {
+			if (b.type == BUTTON_ID::START)
+			{
 				registry.screenStates.components[0].cutscene = 1;
 				registry.screenStates.components[0].cg_index = 0;
 				start_cg(renderer);
 			}
-			if (b.type == BUTTON_ID::LOAD) {
+			if (b.type == BUTTON_ID::LOAD)
+			{
 				loadGame();
 				game_screen = GAME_SCREEN_ID::PLAYING;
 			}
-			else if (b.type == BUTTON_ID::TUTORIAL) {
+			else if (b.type == BUTTON_ID::TUTORIAL)
+			{
 				restart_tutorial();
-			} else if (b.type == BUTTON_ID::QUIT) {
-				
-				if (game_screen == GAME_SCREEN_ID::SPLASH) {
+			}
+			else if (b.type == BUTTON_ID::QUIT)
+			{
+
+				if (game_screen == GAME_SCREEN_ID::SPLASH)
+				{
 					close_window();
-				} else {
+				}
+				else
+				{
 					game_screen = GAME_SCREEN_ID::SPLASH;
 					restart_splash_screen();
 				}
 			}
-			else if (b.type == BUTTON_ID::SAVE) {
+			else if (b.type == BUTTON_ID::SAVE)
+			{
 				game_screen == GAME_SCREEN_ID::PLAYING;
 				clearButtons();
 				saveGame();
 				createPause(vec2(30, 30));
-
 			}
 			return true;
 		}
@@ -1338,7 +1441,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 	{
 		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
 		{
-			
+
 			std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
 			detectButtons();
 			return;
@@ -1351,7 +1454,8 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 		{
 			int cg_index = registry.screenStates.components[0].cg_index++;
 			int cutscene = registry.screenStates.components[0].cutscene;
-			if (cutscene == 1 && cg_index == 6) {
+			if (cutscene == 1 && cg_index == 6)
+			{
 				for (int i = registry.cgs.entities.size() - 1; i >= 0; i--)
 					registry.remove_all_components_of(registry.cgs.entities[i]);
 				createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
@@ -1397,7 +1501,6 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			int tile_x = (int)(mouse_pos_x / GRID_CELL_WIDTH_PX);
 			int tile_y = (int)(mouse_pos_y / GRID_CELL_HEIGHT_PX);
 
-			
 			std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
 		}
 
@@ -1928,6 +2031,7 @@ void WorldSystem::saveGame()
 		std::cerr << "Error opening file for writing.\n";
 	}
 }
+ 
 
 void WorldSystem::plant_seed()
 {
