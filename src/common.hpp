@@ -460,6 +460,14 @@ inline int TUTORIAL_ARROW_HEIGHT_PX = TUTORIAL_HEIGHT_PX * 0.4;
 const int TOOLBAR_WIDTH = 440;
 const int TOOLBAR_HEIGHT = 55;
 
+// #if __APPLE__
+//     const int TOOLBAR_WIDTH = 440;
+//     const int TOOLBAR_HEIGHT = 440/8;
+// #else
+//     const int TOOLBAR_WIDTH = 550;
+//     const int TOOLBAR_HEIGHT = 550/8;
+// #endif
+
 const int PLAYER_HEALTH = 100;
 const int PLAYER_DAMAGE = 10;
 const int SEED_MATURE_SPEED = 30; // seconds
