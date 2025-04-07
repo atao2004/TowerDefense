@@ -16,4 +16,6 @@ private:
     bool find_nearest_enemy(Entity tower, Entity& target);
     void fire_projectile(Entity tower, Entity target);
     float compute_delta_distance(Entity tower, Entity target);
+
+    void create_electricity_effect(Entity tower1, Entity tower2);
 };
