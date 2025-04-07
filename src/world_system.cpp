@@ -368,7 +368,7 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	registry.toolbars.clear();
 	vec2 position = vec2(player_pos.x - CAMERA_VIEW_WIDTH / 2 + 30, player_pos.y - CAMERA_VIEW_HEIGHT / 2 + 30);
 	if (game_screen == GAME_SCREEN_ID::TUTORIAL)
-		createButton(renderer, BUTTON_ID::RETURN, position, position, -1);
+		createButton(BUTTON_ID::RETURN, position, position, -1);
 	else
 		createPause(position);
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
@@ -1515,8 +1515,8 @@ void WorldSystem::game_over()
 
 	// Do this afterwards or otherwise the RenderRequests are cleared.
 	createScreen(TEXTURE_ASSET_ID::DAY_BG);
-	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2));
-	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3));
+	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2), 1);
+	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3), 1);
 }
 
 void WorldSystem::update_movement_sound(float elapsed_ms)
