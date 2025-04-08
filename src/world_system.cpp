@@ -1419,40 +1419,48 @@ bool WorldSystem::detectButtons()
 			if(b.type == BUTTON_ID::LEVEL_UP_SEED1) {
 				game_screen = GAME_SCREEN_ID::PLAYING;
 				registry.inventorys.components[0].seedCount[0]++;
+				std::cout<< "Seed 1 selected" << std::endl;
 			}
 			if(b.type == BUTTON_ID::LEVEL_UP_SEED2) {
 				game_screen = GAME_SCREEN_ID::PLAYING;
 				registry.inventorys.components[0].seedCount[1]++;
+				std::cout<< "Seed 2 selected" << std::endl;
 				
 			}
 			if(b.type == BUTTON_ID::LEVEL_UP_SEED3) {
 				game_screen = GAME_SCREEN_ID::PLAYING;
 				registry.inventorys.components[0].seedCount[2]++;
+				std::cout<< "Seed 3 selected" << std::endl;	
 				
 			}
 			if(b.type == BUTTON_ID::LEVEL_UP_SEED4) {
 				game_screen = GAME_SCREEN_ID::PLAYING;
 				registry.inventorys.components[0].seedCount[3]++;
+				std::cout<< "Seed 4 selected" << std::endl;
 				
 			}
 			if(b.type == BUTTON_ID::LEVEL_UP_SEED5) {
 				game_screen = GAME_SCREEN_ID::PLAYING;
 				registry.inventorys.components[0].seedCount[4]++;
+				std::cout<< "Seed 5 selected" << std::endl;
 				
 			}
 			if(b.type == BUTTON_ID::LEVEL_UP_SEED6) {
 				game_screen = GAME_SCREEN_ID::PLAYING;
 				registry.inventorys.components[0].seedCount[5]++;
+				std::cout<< "Seed 6 selected" << std::endl;
 				
 			}
 			if(b.type == BUTTON_ID::LEVEL_UP_SEED7) {
 				game_screen = GAME_SCREEN_ID::PLAYING;
 				registry.inventorys.components[0].seedCount[6]++;
+				std::cout<< "Seed 7 selected" << std::endl;
 				
 			}
 			if(b.type == BUTTON_ID::LEVEL_UP_SEED8) {
 				game_screen = GAME_SCREEN_ID::PLAYING;
 				registry.inventorys.components[0].seedCount[7]++;
+				std::cout<< "Seed 8 selected" << std::endl;
 			}
 			if (b.type == BUTTON_ID::START)
 			{
