@@ -1348,7 +1348,7 @@ bool WorldSystem::detectButtons()
 					Entity& player = registry.players.entities[0];
 					vec2 player_pos = registry.motions.get(player).position;
 					createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
-					createButton(BUTTON_ID::RESUME, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100*OS_RES-BUTTON_SPLASH_HEIGHT/2), 0.8);
+					createButton(BUTTON_ID::RESUME, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100*OS_RES-BUTTON_SPLASH_HEIGHT*OS_RES/2), 0.8);
 					createButton(BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200*OS_RES), 0.8);
 					createButton(BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300*OS_RES), 0.8);
 					createButton(BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400*OS_RES), 0.8);
