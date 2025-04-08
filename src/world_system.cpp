@@ -1753,6 +1753,7 @@ void WorldSystem::loadGame()
 		tower.range = tower_json["range"];
 		tower.timer_ms = tower_json["timer_ms"];
 		tower.state = tower_json["state"];
+		tower.type = tower_json["type"];
 	}
 
 	json zombie_arr = jsonFile["10"];
@@ -1779,6 +1780,7 @@ void WorldSystem::loadGame()
 		Entity e = Entity(player_json["entity"]);
 		Player &player = registry.players.emplace(e);
 		player.health = player_json["health"];
+		player.health_max = player_json["health_max"];
 	}
 
 	json sc_arr = jsonFile["13"];
@@ -1947,10 +1949,14 @@ void WorldSystem::loadGame()
 		Entity e = Entity(inventory_json["entity"]);
 		Inventory &in = registry.inventorys.emplace(e);
 		json seed_arr = inventory_json["seedCount"];
+		json seed_position_arr = inventory_json["seedPosition"];
+		json seed_at_toolbar_arr = inventory_json["seedAtToolbar"];
 		for (long unsigned int i = 0; i < seed_arr.size(); i++)
-		{
 			in.seedCount[i] = seed_arr[std::to_string(i)];
-		}
+		for (long unsigned int i = 0; i < seed_position_arr.size(); i++)
+			in.seedPosition[i] = seed_position_arr[std::to_string(i)];
+		for (long unsigned int i = 0; i < seed_at_toolbar_arr.size(); i++)
+			in.seedAtToolbar[i] = seed_at_toolbar_arr[std::to_string(i)];
 	}
 
 	json seed_arr = jsonFile["27"];
@@ -1986,6 +1992,68 @@ void WorldSystem::loadGame()
 		Entity e = Entity(plant_animation_json["entity"]);
 		PlantAnimation& plant_animation = registry.plantAnimations.emplace(e);
 		plant_animation.id = plant_animation_json["id"];
+	}
+
+	json orc_rider_arr = jsonFile["36"];
+	for (long unsigned int i = 0; i < orc_rider_arr.size(); i++)
+	{
+		json orc_rider_json = orc_rider_arr[i];
+		Entity e = Entity(orc_rider_json["entity"]);
+		OrcRider& orc_rider = registry.orcRiders.emplace(e);
+		orc_rider.current_state = orc_rider_json["current_state"];
+		orc_rider.target = Entity(orc_rider_json["target"]);
+		orc_rider.detection_range = orc_rider_json["detection_range"];
+		orc_rider.hunt_range = orc_rider_json["hunt_range"];
+		orc_rider.charge_speed = orc_rider_json["charge_speed"];
+		orc_rider.walk_speed = orc_rider_json["walk_speed"];
+		orc_rider.charge_distance = orc_rider_json["charge_distance"];
+		orc_rider.damage = orc_rider_json["damage"];
+		orc_rider.is_hunting = orc_rider_json["is_hunting"];
+		orc_rider.is_charging = orc_rider_json["is_charging"];
+		orc_rider.hunt_timer_ms = orc_rider_json["hunt_timer_ms"];
+		orc_rider.charge_timer_ms = orc_rider_json["charge_timer_ms"];
+		orc_rider.charge_direction = vec2(orc_rider_json["charge_direction"][0], orc_rider_json["charge_direction"][1]);
+		orc_rider.has_hit_player = orc_rider_json["has_hit_player"];
+	}
+
+	json squad_arr = jsonFile["37"];
+	for (long unsigned int i = 0; i < squad_arr.size(); i++)
+	{
+		json squad_json = squad_arr[i];
+		Entity e = Entity(squad_json["entity"]);
+		Squad& squad = registry.squads.emplace(e);
+		squad.squad_id = squad_json["squad_id"];
+		squad.formation_center = vec2(squad_json["formation_center"][0], squad_json["formation_center"][1]);
+		squad.last_player_pos = vec2(squad_json["last_player_pos"][0], squad_json["last_player_pos"][1]);
+		squad.coordination_timer = squad_json["coordination_timer"];
+		squad.is_active = squad_json["is_active"];
+		for (const auto& archer : squad_json["archers"])
+			squad.archers.push_back(Entity(archer));
+		for (const auto& orc : squad_json["orcs"])
+			squad.orcs.push_back(Entity(orc));
+		for (const auto& knight : squad_json["knights"])
+			squad.knights.push_back(Entity(knight));
+	}
+
+	json slow_effect_arr = jsonFile["38"];
+	for (long unsigned int i = 0; i < slow_effect_arr.size(); i++)
+	{
+		json slow_effect_json = slow_effect_arr[i];
+		Entity e = Entity(slow_effect_json["entity"]);
+		Slow& slow = registry.slowEffects.emplace(e);
+		slow.value = slow_effect_json["value"];
+		slow.timer_ms = slow_effect_json["timer_ms"];
+	}
+
+	json electricity_arr = jsonFile["39"];
+	for (long unsigned int i = 0; i < electricity_arr.size(); i++)
+	{
+		json electricity_json = electricity_arr[i];
+		Entity e = Entity(electricity_json["entity"]);
+		ElectricityData& electricity = registry.customData.emplace(e);
+		electricity.noise_seed = electricity_json["noise_seed"];
+		electricity.curve_ctrl1 = vec2(electricity_json["curve_ctrl1"][0], electricity_json["curve_ctrl1"][1]);
+		electricity.curve_ctrl2 = vec2(electricity_json["curve_ctrl2"][0], electricity_json["curve_ctrl2"][1]);
 	}
 
 	Entity& player_entity = registry.players.entities[0];
