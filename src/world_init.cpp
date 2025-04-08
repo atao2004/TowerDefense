@@ -62,6 +62,8 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 	else
 		motion.position = vec2(position.x, position.y*OS_RES);
 	motion.scale = vec2(BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT)*scale;
+	if (button.type == BUTTON_ID::LEVEL_UP_SEED1 || button.type == BUTTON_ID::LEVEL_UP_SEED2 || button.type == BUTTON_ID::LEVEL_UP_SEED3 || button.type == BUTTON_ID::LEVEL_UP_SEED4 || button.type == BUTTON_ID::LEVEL_UP_SEED5 || button.type == BUTTON_ID::LEVEL_UP_SEED6 || button.type == BUTTON_ID::LEVEL_UP_SEED7 || button.type == BUTTON_ID::LEVEL_UP_SEED8)
+		motion.scale = vec2(BUTTON_SPLASH_HEIGHT, BUTTON_SPLASH_HEIGHT) * scale;
 	registry.renderRequests.insert(
 		entity,
 		{(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::START_BUTTON + (int)type),

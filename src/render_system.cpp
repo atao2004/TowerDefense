@@ -671,7 +671,7 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 
 		if(game_screen == GAME_SCREEN_ID::LEVEL_UP) {
 			renderText("LEVEL UP!", WINDOW_WIDTH_PX /2-100*OS_RES, WINDOW_HEIGHT_PX - 175*OS_RES, OS_RES*0.7, {1,1,1}, trans);
-			renderText("Choose one of 4 options", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 300, OS_RES*0.7, {1, 1, 1}, trans);
+			renderText("Choose one of 3 options", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 300, OS_RES*0.7, {1, 1, 1}, trans);
 		}
 		//  draw framebuffer to screen
 		//  adding "UI" effect when applied

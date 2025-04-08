@@ -1332,58 +1332,60 @@ void WorldSystem::clearButtons()
 	}
 }
 
-void WorldSystem::levelUpHelper(RenderSystem *renderer, std::set<int> unique_numbers,  bool buttonsCreated) {
+void WorldSystem::levelUpHelper(RenderSystem* renderer, std::set<int> unique_numbers, bool buttonsCreated) {
 	std::cout << "Level up helper called" << std::endl;
-    	std::mt19937 rng(time(0));            // Initialize random number generator with current time
-    	std::uniform_int_distribution<int> dist(1, 8);  // Distribution between 1 and 8
-		clearButtons();
-		Entity& player = registry.players.entities[0];
-		vec2 player_pos = registry.motions.get(player).position;
-		createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
-		buttonsCreated = true;
+	std::mt19937 rng(time(0));            // Initialize random number generator with current time
+	std::uniform_int_distribution<int> dist(1, 8);  // Distribution between 1 and 8
+	clearButtons();
+	Entity& player = registry.players.entities[0];
+	vec2 player_pos = registry.motions.get(player).position;
+	createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
+	buttonsCreated = true;
 
-		// Generate unique random numbers
-		while (unique_numbers.size() < 4) {
-			int num = dist(rng);   // Generate a random number
-			unique_numbers.insert(num);  // Insert into set (duplicates are automatically handled)
-		}
-		std::vector<int> unique_numbers_vec(unique_numbers.begin(), unique_numbers.end());
-		int offset = 200;
-		for(int i = 0; i < unique_numbers.size(); i++)
-		{
-			int x_pos = player_pos.x - WINDOW_WIDTH_PX/4+100 + offset + 330;
-			int y_pos = player_pos.y +100;
-			switch (unique_numbers_vec[i]) {
-        case 1:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED1, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
-            break;
-        case 2:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED2, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
-            break;
-        case 3:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED3, vec2( x_pos,y_pos ), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
-            break;
+	// Generate unique random numbers
+	while (unique_numbers.size() < 3) {
+		int num = dist(rng);   // Generate a random number
+		unique_numbers.insert(num);  // Insert into set (duplicates are automatically handled)
+	}
+	std::vector<int> unique_numbers_vec(unique_numbers.begin(), unique_numbers.end());
+	int offset = 200;
+	for (int i = 0; i < unique_numbers.size(); i++)
+	{
+		int x_pos = player_pos.x;
+		int y_pos = player_pos.y - WINDOW_HEIGHT_PX / 4 + 100 * (2 + i);
+		int x_toDeduct_pos = WINDOW_WIDTH_PX / 2;
+		int y_toDeduct_pos = WINDOW_HEIGHT_PX / 2 - WINDOW_HEIGHT_PX / 4 + (2 + i);
+
+		BUTTON_ID id;
+		switch (unique_numbers_vec[i]) {
+		case 1:
+			id = BUTTON_ID::LEVEL_UP_SEED1;
+			break;
+		case 2:
+			id = BUTTON_ID::LEVEL_UP_SEED2;
+			break;
+		case 3:
+			id = BUTTON_ID::LEVEL_UP_SEED3;
+			break;
 		case 4:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED4, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
-            break;
+			id = BUTTON_ID::LEVEL_UP_SEED4;
+			break;
 		case 5:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED5, vec2( x_pos, y_pos ), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
-            break;
+			id = BUTTON_ID::LEVEL_UP_SEED5;
+			break;
 		case 6:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED6, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
-            break;
+			id = BUTTON_ID::LEVEL_UP_SEED6;
+			break;
 		case 7:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED7, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
-            break;
-		case 8:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED8, vec2( x_pos,y_pos), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
-            break;
-        default:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED1, vec2( x_pos, y_pos ), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
-            break;
-   		}
-	offset -= 180;
+			id = BUTTON_ID::LEVEL_UP_SEED7;
+			break;
+		default:
+			id = BUTTON_ID::LEVEL_UP_SEED1;
+			break;
 		}
+		createButton(renderer, id, vec2(x_pos, y_pos), vec2(x_toDeduct_pos, y_toDeduct_pos), 0.8);
+		offset -= 180;
+	}
 }
 
 bool WorldSystem::detectButtons()
