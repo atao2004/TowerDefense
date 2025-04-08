@@ -45,7 +45,7 @@ Entity createPausePanel(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct, float scale) {
+Entity createButton(BUTTON_ID type, vec2 position, vec2 toDeduct, float scale) {
 	Entity entity = Entity();
 	CustomButton &button = registry.buttons.emplace(entity);
 	button.type = type;
@@ -70,13 +70,12 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 		entity,
 		{(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::START_BUTTON + (int)type),
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE},
-		false);
+		 GEOMETRY_BUFFER_ID::SPRITE});
 	registry.cgs.emplace(entity);
 	return entity;
 }
 
-Entity createScreen(RenderSystem *renderer, TEXTURE_ASSET_ID background)
+Entity createScreen(TEXTURE_ASSET_ID background)
 {
 	Entity entity = Entity();
 	Motion &motion = registry.motions.emplace(entity);
@@ -88,8 +87,7 @@ Entity createScreen(RenderSystem *renderer, TEXTURE_ASSET_ID background)
 		entity,
 		{background,
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE},
-		false);
+		 GEOMETRY_BUFFER_ID::SPRITE});
 	registry.cgs.emplace(entity);
 	return entity;
 }
@@ -204,13 +202,13 @@ Entity createOrcRider(RenderSystem *renderer, vec2 position)
     
     Attack &attack = registry.attacks.emplace(entity);
     attack.range = 60.0f;         // Melee range for charge attack
-    attack.damage = 25;           // Same as orcrider.damage
+    attack.damage = 10;           // Same as orcrider.damage
     
     VisualScale &vscale = registry.visualScales.emplace(entity);
     vscale.scale = {4.f, 4.f}; // Scale visuals 4x
     
     OrcRider &orcrider = registry.orcRiders.emplace(entity);
-    orcrider.damage = 25; // Damage when charging into player
+    orcrider.damage = 10; // Damage when charging into player
 
 	registry.renderRequests.insert(
 		entity,
@@ -534,6 +532,88 @@ Entity createTutorialPlant(vec2 position)
 }
 
 // Create a sign that will only appear once it appears in a tutorial.
+Entity createTutorialDash(vec2 position)
+{
+	// Create the associated entity.
+	Entity tutorial_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign &tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+
+	// Create the relevant motion component.
+	Motion &motion_component = registry.motions.emplace(tutorial_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(465, 345);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		tutorial_entity,
+		{TEXTURE_ASSET_ID::TUTORIAL_DASH,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
+
+	// Create the animation
+	static TEXTURE_ASSET_ID asset_id_array[3] = {
+		TEXTURE_ASSET_ID::TUTORIAL_DASH,
+		TEXTURE_ASSET_ID::TUTORIAL_DASH_ANIMATED,
+		TEXTURE_ASSET_ID::TUTORIAL_DASH_ANIMATED_2};
+
+	Animation &animation_component = registry.animations.emplace(tutorial_entity);
+	animation_component.transition_ms = 1000;
+	animation_component.pose_count = 3;
+	animation_component.loop = true;
+	animation_component.lock = true;
+	animation_component.textures = asset_id_array;
+
+	return tutorial_entity;
+}
+
+// Create a sign that will only appear once it appears in a tutorial.
+Entity createTutorialChangeSeed(vec2 position)
+{
+	// Create the associated entity.
+	Entity tutorial_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign &tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+
+	// Create the relevant motion component.
+	Motion &motion_component = registry.motions.emplace(tutorial_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(465, 345);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		tutorial_entity,
+		{TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
+
+	// Create the animation
+	static TEXTURE_ASSET_ID asset_id_array[9] = {
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_1,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_2,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_3,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_4,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_5,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_6,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_7,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_8};
+
+	Animation &animation_component = registry.animations.emplace(tutorial_entity);
+	animation_component.transition_ms = 1000;
+	animation_component.pose_count = 9;
+	animation_component.loop = true;
+	animation_component.lock = true;
+	animation_component.textures = asset_id_array;
+
+	return tutorial_entity;
+}
+
+// Create a sign that will only appear once it appears in a tutorial.
 Entity createTutorialRestart(vec2 position)
 {
 	// Create the associated entity.
@@ -669,7 +749,7 @@ Entity createToolbar(vec2 position)
 
     registry.renderRequests.insert(
         projectile,
-        {TEXTURE_ASSET_ID::PROJECTILE,
+        {TEXTURE_ASSET_ID::SELECTED,
          EFFECT_ASSET_ID::TEXTURED,
          GEOMETRY_BUFFER_ID::SPRITE},
 		false);
@@ -711,13 +791,7 @@ Entity createGameOver()
 	motion.velocity = {0, 0};
 	motion.position = {WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2};
 	motion.scale = vec2({WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX});
-
-	// registry.renderRequests.insert(
-	// 	entity,
-	// 	{TEXTURE_ASSET_ID::GAMEOVER,
-	// 	 EFFECT_ASSET_ID::TEXTURED,
-	// 	 GEOMETRY_BUFFER_ID::SPRITE},
-	// 	false);
+	
 	return entity;
 }
 
@@ -766,7 +840,10 @@ Entity createPlayer(RenderSystem *renderer, vec2 position, int seed_type)
 	registry.inventorys.components[0].seedCount[seed_type] = 5; // 5 starter seeds
 	for(int i = 0; i < NUM_SEED_TYPES; i++)
 	{
-		registry.inventorys.components[0].seedCount[i] = 4; // one each of the 8 seed types
+		if (i == 7)
+			registry.inventorys.components[0].seedCount[i] = 0;
+		else
+			registry.inventorys.components[0].seedCount[i] = 4;
 		registry.inventorys.components[0].seedAtToolbar[i] = i;
 	}
 

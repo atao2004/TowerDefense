@@ -8,5 +8,6 @@ enum class ENEMY_ID {
     SKELETON_ARCHER,
     WEREWOLF,
     WEREBEAR,
-    SLIME
+    SLIME,
+    NONE
 };

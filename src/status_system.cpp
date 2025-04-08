@@ -16,12 +16,12 @@ StatusSystem::~StatusSystem()
     Mix_CloseAudio();
 }
 
-void StatusSystem::step(float elapsed_ms)
+void StatusSystem::step(float elapsed_ms, WorldSystem& world_system)
 {
         // Handle different types of status effects
         for (Entity entity : registry.statuses.entities)
         {
-            update_zombie_attack(entity, elapsed_ms);
+            update_zombie_attack(entity, elapsed_ms, world_system);
             handle_projectile_attack(entity, elapsed_ms);
         }
 
@@ -35,7 +35,7 @@ void StatusSystem::step(float elapsed_ms)
         handle_hit_effects(elapsed_ms);
 }
 
-void StatusSystem::update_zombie_attack(Entity entity, float elapsed_ms)
+void StatusSystem::update_zombie_attack(Entity entity, float elapsed_ms, WorldSystem& world_system)
 {
     // First check if entity has both required components
     if (!registry.statuses.has(entity) || !registry.players.has(entity))
@@ -64,7 +64,7 @@ void StatusSystem::update_zombie_attack(Entity entity, float elapsed_ms)
         if (registry.players.has(entity) && player.health <= 0)
         {
             Mix_PlayChannel(1, player_death_sound, 0);
-            WorldSystem::game_over(); // You'll need to pass WorldSystem reference
+            world_system.game_over(); // You'll need to pass WorldSystem reference
             return;
         }
 

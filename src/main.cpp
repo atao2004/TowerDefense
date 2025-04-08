@@ -108,7 +108,6 @@ int main()
 
 	while (!world_system.is_over())
 	{
-
 		GAME_SCREEN_ID game_screen = world_system.get_game_screen();
 		// processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
@@ -140,7 +139,7 @@ int main()
 				if (fm_physics.can_update())
 					physics_system.step(fm_physics.get_time());
 				if (fm_status.can_update())
-					status_system.step(fm_status.get_time());
+					status_system.step(fm_status.get_time(), world_system);
 				if (fm_seed.can_update())
 					seed_system.step(fm_seed.get_time());
 
@@ -185,8 +184,7 @@ int main()
     
 		if (fm_render.can_update() ||
 		WorldSystem::game_is_over || game_screen == GAME_SCREEN_ID::CG || game_screen == GAME_SCREEN_ID::PAUSE || game_screen == GAME_SCREEN_ID::SPLASH) 
-			renderer_system.step_and_draw(game_screen, fm_render.get_time());
-    
+			renderer_system.step_and_draw(fm_render.get_time());
 	}
 	return EXIT_SUCCESS;
 }

@@ -7,6 +7,7 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 
+#include "world_system.hpp"
 
 // Forward declare any needed classes
 class RenderSystem;
@@ -18,10 +19,10 @@ public:
     ~StatusSystem();
     
     // Core loop update
-    void step(float elapsed_ms);
+    void step(float elapsed_ms, WorldSystem& world_system);
     
     // Status handlers
-    void update_zombie_attack(Entity entity, float damage);
+    void update_zombie_attack(Entity entity, float elapsed_ms, WorldSystem& world_system);
 
     bool start_and_load_sounds();
 
