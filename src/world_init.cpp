@@ -955,6 +955,9 @@ Entity createSeedInventory(vec2 pos, vec2 velocity, int type, int toolbar_pos)
 	motion_component.scale = vec2(50, 50);
 	motion_component.velocity = velocity;
 
+	VisualScale& vscale = registry.visualScales.emplace(seed_entity);
+	vscale.scale = {0.75, 0.75};
+
 	// Render the object.
 	registry.renderRequests.insert(
 		seed_entity,
