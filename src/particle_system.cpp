@@ -431,7 +431,7 @@ Entity ParticleSystem::createParticle(const ParticleGenerator &generator, vec2 p
 
         vec4 colorAdd = vec4(0, 0, 0, 0);
         if (generator.type == "heal")
-            colorAdd = vec4(0, randomFloat(0.7f, 1.0f), 0, 0);
+            colorAdd = vec4(0, randomFloat(0.8f, 1.0f), 0, 0);
         else if (generator.type == "poison")
             colorAdd = vec4(randomFloat(0.3f, 0.6f), 0, randomFloat(0.3f, 0.6f), 0);
         else if (generator.type == "slow")
@@ -747,7 +747,7 @@ Entity ParticleSystem::createAOEEffect(vec2 position, vec2 sprite_size, int dura
 
     ParticleGenerator& generator = registry.particleGenerators.emplace(entity);
     generator.type = type;
-    generator.amount = 15;
+    generator.amount = type == "heal" ? 15 : 5;
     generator.spawnInterval = 0.1f;
     generator.timer = 0.0f;
     generator.isActive = true;

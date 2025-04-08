@@ -475,12 +475,12 @@ const int TOOLBAR_HEIGHT = 55;
 
 const int PLAYER_HEALTH = 100;
 const int PLAYER_DAMAGE = 10;
-const int SEED_MATURE_SPEED = 40; // seconds
+const int SEED_MATURE_SPEED = 10; // seconds
 const int NUM_SEED_TYPES = 8;
 const int ZOMBIE_SPAWN_RATE_MS = 2 * 1000;
 
 // Spawn
-const int DAY_DELAY_MS = 20000;
+const int DAY_DELAY_MS = 10000;
 
 // Health
 const int HEALTH_LOW = 20;
@@ -585,10 +585,10 @@ const int SKELETON_WALK_DURATION = 800;
 const int SKELETON_ATTACK_DURATION = 1800;
 
 const int PROJECTILE_DAMAGE = 10;
-const int PROJECTILE_SPEED = 3000;
+const int PROJECTILE_SPEED = 2000;
 
 // control player movement
-const int PLAYER_SPEED = 100;
+const int PLAYER_SPEED = 130;
 const int PLAYER_MOVE_UP_SPEED = -PLAYER_SPEED;
 const int PLAYER_MOVE_DOWN_SPEED = PLAYER_SPEED;
 const int PLAYER_MOVE_LEFT_SPEED = -PLAYER_SPEED;
