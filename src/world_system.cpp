@@ -1351,6 +1351,7 @@ void WorldSystem::levelUpHelper(RenderSystem *renderer, std::set<int> unique_num
 		int offset = 200;
 		for(int i = 0; i < unique_numbers.size(); i++)
 		{
+			//vec2 player_pos = registry.cameras.components[0].position;
 			int x_pos = player_pos.x - WINDOW_WIDTH_PX/4+100 + offset + 330;
 			int y_pos = player_pos.y +100;
 			switch (unique_numbers_vec[i]) {
