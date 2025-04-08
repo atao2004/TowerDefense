@@ -1365,8 +1365,8 @@ bool WorldSystem::detectButtons()
 				}
 			}
 		}
-		if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
-			mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT / 2)
+		if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH*OS_RES / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH*OS_RES / 2 &&
+			mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT*OS_RES / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT*OS_RES / 2)
 		{
 			if (b.type == BUTTON_ID::START)
 			{
