@@ -52,7 +52,7 @@ Entity createButton(BUTTON_ID type, vec2 position, vec2 toDeduct, float scale) {
 	if (scale == 1) //splash screen don't change
 		button.position = toDeduct;
 	else
-		button.position = vec2(toDeduct.x, toDeduct.y*OS_RES);
+		button.position = vec2(toDeduct.x, toDeduct.y);
 	
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
@@ -60,7 +60,7 @@ Entity createButton(BUTTON_ID type, vec2 position, vec2 toDeduct, float scale) {
 	if (scale == 1) //splash screen don't change
 		motion.position = position;
 	else
-		motion.position = vec2(position.x, position.y*OS_RES);
+		motion.position = vec2(position.x, position.y);
 
 	motion.scale = vec2(BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT)*scale;
 	if (scale == -1) {
