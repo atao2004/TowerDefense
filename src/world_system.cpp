@@ -191,11 +191,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 	if (registry.players.size() != 0 && registry.screenStates.size() != 0 && registry.inventorys.size() != 0) {
 		increase_level();
 	}
-	if(game_screen == GAME_SCREEN_ID::LEVEL_UP)
-	{
-		detectButtons();
-	}
-
 	// Using the spawn manager to generate zombies
 	if (WorldSystem::game_is_over)
 	{
@@ -596,6 +591,8 @@ void WorldSystem::increase_level() {
 			registry.screenStates.components[0].cg_index = 0;
 			return start_cg(renderer);
 		}
+		game_screen = GAME_SCREEN_ID::LEVEL_UP;
+		detectButtons();
 	}
 }
 
@@ -1387,15 +1384,13 @@ bool WorldSystem::detectButtons()
 		 std::set<int> unique_numbers;
 		 bool buttonsCreated = false;
 		levelUpHelper(renderer, unique_numbers, buttonsCreated);
-		// if (buttonsCreated) {
-		// 	game_screen = GAME_SCREEN_ID::LEVEL_UP;
-		// 	return true;
-		// }
-		// else {
-		// 	game_screen = GAME_SCREEN_ID::PLAYING;
-		// 	clearButtons();
-		// 	return false;
-		// }	
+		if (buttonsCreated) {
+			game_screen = GAME_SCREEN_ID::LEVEL_UP;
+			return true;
+		}
+		else {
+			return true;
+		}	
 		return true;
 			
 	}
@@ -1421,6 +1416,44 @@ bool WorldSystem::detectButtons()
 		if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
 			mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT / 2)
 		{
+			if(b.type == BUTTON_ID::LEVEL_UP_SEED1) {
+				game_screen = GAME_SCREEN_ID::PLAYING;
+				registry.inventorys.components[0].seedCount[0]++;
+			}
+			if(b.type == BUTTON_ID::LEVEL_UP_SEED2) {
+				game_screen = GAME_SCREEN_ID::PLAYING;
+				registry.inventorys.components[0].seedCount[1]++;
+				
+			}
+			if(b.type == BUTTON_ID::LEVEL_UP_SEED3) {
+				game_screen = GAME_SCREEN_ID::PLAYING;
+				registry.inventorys.components[0].seedCount[2]++;
+				
+			}
+			if(b.type == BUTTON_ID::LEVEL_UP_SEED4) {
+				game_screen = GAME_SCREEN_ID::PLAYING;
+				registry.inventorys.components[0].seedCount[3]++;
+				
+			}
+			if(b.type == BUTTON_ID::LEVEL_UP_SEED5) {
+				game_screen = GAME_SCREEN_ID::PLAYING;
+				registry.inventorys.components[0].seedCount[4]++;
+				
+			}
+			if(b.type == BUTTON_ID::LEVEL_UP_SEED6) {
+				game_screen = GAME_SCREEN_ID::PLAYING;
+				registry.inventorys.components[0].seedCount[5]++;
+				
+			}
+			if(b.type == BUTTON_ID::LEVEL_UP_SEED7) {
+				game_screen = GAME_SCREEN_ID::PLAYING;
+				registry.inventorys.components[0].seedCount[6]++;
+				
+			}
+			if(b.type == BUTTON_ID::LEVEL_UP_SEED8) {
+				game_screen = GAME_SCREEN_ID::PLAYING;
+				registry.inventorys.components[0].seedCount[7]++;
+			}
 			if (b.type == BUTTON_ID::START)
 			{
 				registry.screenStates.components[0].cutscene = 1;
