@@ -1345,14 +1345,14 @@ bool WorldSystem::detectButtons()
 				if (game_screen == GAME_SCREEN_ID::PLAYING && b.type == BUTTON_ID::PAUSE)
 				{
 					game_screen = GAME_SCREEN_ID::PAUSE;
-          Entity& player = registry.players.entities[0];
-          vec2 player_pos = registry.motions.get(player).position;
-          createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
-          createButton(BUTTON_ID::RESUME, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
-          createButton(BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200), 0.8);
-          createButton(BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300), 0.8);
-          createButton(BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400), 0.8);
-          return true;
+					Entity& player = registry.players.entities[0];
+					vec2 player_pos = registry.motions.get(player).position;
+					createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
+					createButton(BUTTON_ID::RESUME, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+					createButton(BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200), 0.8);
+					createButton(BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300), 0.8);
+					createButton(BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400), 0.8);
+					return true;
 				}
 				else if (game_screen == GAME_SCREEN_ID::PAUSE && b.type == BUTTON_ID::PAUSE)
 				{
@@ -1419,11 +1419,10 @@ bool WorldSystem::detectButtons()
 
 void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 {
-	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::PAUSE)
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::PAUSE || game_screen == GAME_SCREEN_ID::GAME_OVER)
 	{
 		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
 		{
-
 			std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
 			detectButtons();
 			return;
@@ -1504,7 +1503,8 @@ void WorldSystem::game_over()
 
 	registry.texts.clear();
 	createText("Enemies Killed: " + std::to_string(points), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX * 0.725), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
-	createText("Days survived: " + std::to_string(current_day), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX * 0.65), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+	createText("Final level: " + std::to_string(level), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX * 0.65), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+	createText("Days survived: " + std::to_string(current_day), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX * 0.575), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
 
 	std::cout << "Game Over!" << std::endl;
 	game_is_over = true;
