@@ -188,6 +188,11 @@ void WorldSystem::restart_splash_screen()
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update)
 {
+	// if(game_screen == GAME_SCREEN_ID::LEVEL_UP) {
+	// 			std::set<int> unique_numbers;
+	// 	bool buttonsCreated = false;
+	// 	levelUpHelper(renderer, unique_numbers, buttonsCreated);
+	// }
 	if (registry.players.size() != 0 && registry.screenStates.size() != 0 && registry.inventorys.size() != 0) {
 		increase_level();
 	}
@@ -435,7 +440,7 @@ void WorldSystem::restart_game()
 
 	// Set the level to level 1 and the game_screen to PLAYING.
 	level = 1;
-	game_screen = GAME_SCREEN_ID::LEVEL_UP;
+	game_screen = GAME_SCREEN_ID::PLAYING;
 
 	// Kung: This is for Milestone #2. This creates the farmland.
 	parseMap(false);
@@ -592,7 +597,9 @@ void WorldSystem::increase_level() {
 			return start_cg(renderer);
 		}
 		game_screen = GAME_SCREEN_ID::LEVEL_UP;
-		detectButtons();
+		std::set<int> unique_numbers;
+		bool buttonsCreated = false;
+		return levelUpHelper(renderer, unique_numbers, buttonsCreated);
 	}
 }
 
@@ -1326,6 +1333,7 @@ void WorldSystem::clearButtons()
 }
 
 void WorldSystem::levelUpHelper(RenderSystem *renderer, std::set<int> unique_numbers,  bool buttonsCreated) {
+	std::cout << "Level up helper called" << std::endl;
     	std::mt19937 rng(time(0));            // Initialize random number generator with current time
     	std::uniform_int_distribution<int> dist(1, 8);  // Distribution between 1 and 8
 		clearButtons();
@@ -1347,31 +1355,31 @@ void WorldSystem::levelUpHelper(RenderSystem *renderer, std::set<int> unique_num
 			int y_pos = player_pos.y +100;
 			switch (unique_numbers_vec[i]) {
         case 1:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED1, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED1, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
             break;
         case 2:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED2, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED2, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
             break;
         case 3:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED3, vec2( x_pos,y_pos ), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED3, vec2( x_pos,y_pos ), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
             break;
 		case 4:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED4, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED4, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
             break;
 		case 5:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED5, vec2( x_pos, y_pos ), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED5, vec2( x_pos, y_pos ), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
             break;
 		case 6:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED6, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED6, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
             break;
 		case 7:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED7, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED7, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
             break;
 		case 8:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED8, vec2( x_pos,y_pos), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED8, vec2( x_pos,y_pos), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
             break;
         default:
-        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED1, vec2( x_pos, y_pos ), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
+        	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED1, vec2( x_pos, y_pos ), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);
             break;
    		}
 	offset -= 180;
@@ -1381,18 +1389,80 @@ void WorldSystem::levelUpHelper(RenderSystem *renderer, std::set<int> unique_num
 bool WorldSystem::detectButtons()
 {
 	if (game_screen == GAME_SCREEN_ID::LEVEL_UP) {
-		 std::set<int> unique_numbers;
-		 bool buttonsCreated = false;
-		levelUpHelper(renderer, unique_numbers, buttonsCreated);
-		if (buttonsCreated) {
-			game_screen = GAME_SCREEN_ID::LEVEL_UP;
-			return true;
-		}
-		else {
-			return true;
-		}	
+		//  std::set<int> unique_numbers;
+		//  bool buttonsCreated = false;
+		// levelUpHelper(renderer, unique_numbers, buttonsCreated);
+		// if (buttonsCreated) {
+		// 	game_screen = GAME_SCREEN_ID::LEVEL_UP;
+		// 	return true;
+		// } else {
+			for (auto &b : registry.buttons.components)
+			{
+				std::cout<<"x "<<b.position.x - 40<<" "<<b.position.x + 40 <<std::endl;
+				std::cout<<"y "<<b.position.y - 40 <<" "<<b.position.y + 40<<std::endl;
+				if (mouse_pos_x >= b.position.x - 40  && mouse_pos_x <= b.position.x + 40 &&
+					mouse_pos_y >= b.position.y - 40 && mouse_pos_y <= b.position.y + 40 )
+				{
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED1) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[0]++;
+						std::cout<< "Seed 1 selected" << std::endl;
+					}
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED2) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[1]++;
+						std::cout<< "Seed 2 selected" << std::endl;
+						
+					}
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED3) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[2]++;
+						std::cout<< "Seed 3 selected" << std::endl;	
+						
+					}
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED4) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[3]++;
+						std::cout<< "Seed 4 selected" << std::endl;
+						
+					}
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED5) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[4]++;
+						std::cout<< "Seed 5 selected" << std::endl;
+						
+					}
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED6) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[5]++;
+						std::cout<< "Seed 6 selected" << std::endl;
+						
+					}
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED7) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[6]++;
+						std::cout<< "Seed 7 selected" << std::endl;
+						
+					}
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED8) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[7]++;
+						std::cout<< "Seed 8 selected" << std::endl;
+					}
+					return true;
+				}	
+			}
 		return true;
 			
+	// }
 	}
 	for (auto &b : registry.buttons.components)
 	{
@@ -1411,57 +1481,12 @@ bool WorldSystem::detectButtons()
 				return true;
 			}
 		}
+	
 		// std::cout<<"x "<<b.position.x - BUTTON_SPLASH_WIDTH / 2<<" "<<b.position.x + BUTTON_SPLASH_WIDTH / 2<<std::endl;
 		// std::cout<<"y "<<b.position.y - BUTTON_SPLASH_HEIGHT / 2<<" "<<b.position.y + BUTTON_SPLASH_HEIGHT / 2<<std::endl;
 		if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
 			mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT / 2)
 		{
-			if(b.type == BUTTON_ID::LEVEL_UP_SEED1) {
-				game_screen = GAME_SCREEN_ID::PLAYING;
-				registry.inventorys.components[0].seedCount[0]++;
-				std::cout<< "Seed 1 selected" << std::endl;
-			}
-			if(b.type == BUTTON_ID::LEVEL_UP_SEED2) {
-				game_screen = GAME_SCREEN_ID::PLAYING;
-				registry.inventorys.components[0].seedCount[1]++;
-				std::cout<< "Seed 2 selected" << std::endl;
-				
-			}
-			if(b.type == BUTTON_ID::LEVEL_UP_SEED3) {
-				game_screen = GAME_SCREEN_ID::PLAYING;
-				registry.inventorys.components[0].seedCount[2]++;
-				std::cout<< "Seed 3 selected" << std::endl;	
-				
-			}
-			if(b.type == BUTTON_ID::LEVEL_UP_SEED4) {
-				game_screen = GAME_SCREEN_ID::PLAYING;
-				registry.inventorys.components[0].seedCount[3]++;
-				std::cout<< "Seed 4 selected" << std::endl;
-				
-			}
-			if(b.type == BUTTON_ID::LEVEL_UP_SEED5) {
-				game_screen = GAME_SCREEN_ID::PLAYING;
-				registry.inventorys.components[0].seedCount[4]++;
-				std::cout<< "Seed 5 selected" << std::endl;
-				
-			}
-			if(b.type == BUTTON_ID::LEVEL_UP_SEED6) {
-				game_screen = GAME_SCREEN_ID::PLAYING;
-				registry.inventorys.components[0].seedCount[5]++;
-				std::cout<< "Seed 6 selected" << std::endl;
-				
-			}
-			if(b.type == BUTTON_ID::LEVEL_UP_SEED7) {
-				game_screen = GAME_SCREEN_ID::PLAYING;
-				registry.inventorys.components[0].seedCount[6]++;
-				std::cout<< "Seed 7 selected" << std::endl;
-				
-			}
-			if(b.type == BUTTON_ID::LEVEL_UP_SEED8) {
-				game_screen = GAME_SCREEN_ID::PLAYING;
-				registry.inventorys.components[0].seedCount[7]++;
-				std::cout<< "Seed 8 selected" << std::endl;
-			}
 			if (b.type == BUTTON_ID::START)
 			{
 				registry.screenStates.components[0].cutscene = 1;
@@ -1506,6 +1531,65 @@ bool WorldSystem::detectButtons()
 			}
 			return true;
 		}
+		 else if (mouse_pos_x >= b.position.x - 40  && mouse_pos_x <= b.position.x + 40 &&
+					mouse_pos_y >= b.position.y - 40 && mouse_pos_y <= b.position.y + 40 )
+				{
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED1) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[0]++;
+						std::cout<< "Seed 1 selected" << std::endl;
+					}
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED2) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[1]++;
+						std::cout<< "Seed 2 selected" << std::endl;
+						
+					}
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED3) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[2]++;
+						std::cout<< "Seed 3 selected" << std::endl;	
+						
+					}
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED4) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[3]++;
+						std::cout<< "Seed 4 selected" << std::endl;
+						
+					}
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED5) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[4]++;
+						std::cout<< "Seed 5 selected" << std::endl;
+						
+					}
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED6) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[5]++;
+						std::cout<< "Seed 6 selected" << std::endl;
+						
+					}
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED7) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[6]++;
+						std::cout<< "Seed 7 selected" << std::endl;
+						
+					}
+					if(b.type == BUTTON_ID::LEVEL_UP_SEED8) {
+						clearButtons();
+						game_screen = GAME_SCREEN_ID::PLAYING;
+						registry.inventorys.components[0].seedCount[7]++;
+						std::cout<< "Seed 8 selected" << std::endl;
+					}
+					return true;
+				}	
 	}
 	return false;
 }
