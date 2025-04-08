@@ -6,8 +6,8 @@
 #include "seeds.hpp"
 
 //splash screen
-Entity createScreen(RenderSystem* renderer, TEXTURE_ASSET_ID background);
-Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct, float scale);
+Entity createScreen(TEXTURE_ASSET_ID background);
+Entity createButton(BUTTON_ID type, vec2 position, vec2 toDeduct, float scale);
 
 // enemies
 Entity createZombieSpawn(RenderSystem* renderer, vec2 position);
@@ -45,11 +45,13 @@ Entity createPausePanel(RenderSystem* renderer, vec2 position);
 Entity createTutorialMove(vec2 position);
 Entity createTutorialAttack(vec2 position);
 Entity createTutorialPlant(vec2 position);
+Entity createTutorialDash(vec2 position);
+Entity createTutorialChangeSeed(vec2 position);
 Entity createTutorialRestart(vec2 position);
 Entity createTutorialArrow(vec2 position);
 
 // ui elements
-Entity createPause(vec2 position);
+Entity createPause(vec2 position, BUTTON_ID texture);
 Entity createToolbar(vec2 position);
 
 // grid lines to show tile positions

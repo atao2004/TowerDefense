@@ -90,7 +90,6 @@ int main()
 	int record_times = 0;
 	int max_fps = 0;
 	int min_fps = 50000; // impossible number technically, lazy implementation sorry!
-	int cooldown = 1000;
 
 	// frame intervals
 	FrameManager fm_world = FrameManager(1);
@@ -100,7 +99,7 @@ int main()
 	FrameManager fm_tower = FrameManager(5);
 	FrameManager fm_movement = FrameManager(2);
 	FrameManager fm_animation = FrameManager(2);
-	FrameManager fm_particle = FrameManager(5);
+	FrameManager fm_particle = FrameManager(10);
 	FrameManager fm_seed = FrameManager(5);
 	FrameManager fm_render = FrameManager(5);
 	FrameManager fm_player = FrameManager(5);
@@ -109,7 +108,6 @@ int main()
 
 	while (!world_system.is_over())
 	{
-
 		GAME_SCREEN_ID game_screen = world_system.get_game_screen();
 		// processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
@@ -128,19 +126,6 @@ int main()
 				//M2: FPS
 				FrameManager::tick(elapsed_ms); //moved here so when doing cg the game will pause
 				float current_fps = (1/(elapsed_ms/1000));
-				cooldown -= elapsed_ms;
-				if (cooldown <= 0)
-				{ // used to prevent screen flickering
-					// std::cout<<"FPS: "<<current_fps<<std::endl;
-					std::stringstream title_ss;
-					title_ss <<"Farmer Defense: The Last Days";
-							// << " | LEVEL: "<< world_system.level 
-							// <<" | SEED COUNT: "<< registry.inventorys.components[0].seedCount[world_system.current_seed]
-							// <<"| FPS: " << (int)current_fps;
-							
-					glfwSetWindowTitle(window, title_ss.str().c_str());
-					cooldown = 1000;
-				}
 				if (record_times > 2)
 				{ // ignore the first 2, outliers wow.. maximum 5000 and minimum 10-ish fps, crazy
 					max_fps = max_fps < current_fps ? current_fps : max_fps;
@@ -154,7 +139,7 @@ int main()
 				if (fm_physics.can_update())
 					physics_system.step(fm_physics.get_time());
 				if (fm_status.can_update())
-					status_system.step(fm_status.get_time());
+					status_system.step(fm_status.get_time(), world_system);
 				if (fm_seed.can_update())
 					seed_system.step(fm_seed.get_time());
 

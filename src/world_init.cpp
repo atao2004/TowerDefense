@@ -45,14 +45,14 @@ Entity createPausePanel(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct, float scale) {
+Entity createButton(BUTTON_ID type, vec2 position, vec2 toDeduct, float scale) {
 	Entity entity = Entity();
 	CustomButton &button = registry.buttons.emplace(entity);
 	button.type = type;
 	if (scale == 1) //splash screen don't change
 		button.position = toDeduct;
 	else
-		button.position = vec2(toDeduct.x, toDeduct.y*OS_RES);
+		button.position = vec2(toDeduct.x, toDeduct.y);
 	
 	Motion& motion = registry.motions.emplace(entity);
 	//MoveWithCamera &mwc = registry.moveWithCameras.emplace(entity);
@@ -61,19 +61,22 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 	if (scale == 1) //splash screen don't change
 		motion.position = position;
 	else
-		motion.position = vec2(position.x, position.y*OS_RES);
+		motion.position = vec2(position.x, position.y);
+
 	motion.scale = vec2(BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT)*scale;
+	if (scale == -1) {
+		motion.scale = vec2(60, 60);
+	}
 	registry.renderRequests.insert(
 		entity,
 		{(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::START_BUTTON + (int)type),
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE},
-		false);
+		 GEOMETRY_BUFFER_ID::SPRITE});
 	registry.cgs.emplace(entity);
 	return entity;
 }
 
-Entity createScreen(RenderSystem *renderer, TEXTURE_ASSET_ID background)
+Entity createScreen(TEXTURE_ASSET_ID background)
 {
 	Entity entity = Entity();
 	Motion &motion = registry.motions.emplace(entity);
@@ -85,8 +88,7 @@ Entity createScreen(RenderSystem *renderer, TEXTURE_ASSET_ID background)
 		entity,
 		{background,
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE},
-		false);
+		 GEOMETRY_BUFFER_ID::SPRITE});
 	registry.cgs.emplace(entity);
 	return entity;
 }
@@ -201,13 +203,13 @@ Entity createOrcRider(RenderSystem *renderer, vec2 position)
     
     Attack &attack = registry.attacks.emplace(entity);
     attack.range = 60.0f;         // Melee range for charge attack
-    attack.damage = 25;           // Same as orcrider.damage
+    attack.damage = 10;           // Same as orcrider.damage
     
     VisualScale &vscale = registry.visualScales.emplace(entity);
     vscale.scale = {4.f, 4.f}; // Scale visuals 4x
     
     OrcRider &orcrider = registry.orcRiders.emplace(entity);
-    orcrider.damage = 25; // Damage when charging into player
+    orcrider.damage = 10; // Damage when charging into player
 
 	registry.renderRequests.insert(
 		entity,
@@ -256,9 +258,9 @@ Entity createPlant(RenderSystem* renderer, vec2 position, PLANT_ID id)
 	VisualScale& vscale = registry.visualScales.emplace(entity);
 	vscale.scale = { 1.5f, 1.5f };
 
-	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh &mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
-	registry.meshPtrs.emplace(entity, &mesh);
+	// // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	// Mesh &mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	// registry.meshPtrs.emplace(entity, &mesh);
 
 	// Plant animation id
 	PlantAnimation& plant_animation = registry.plantAnimations.emplace(entity);
@@ -531,6 +533,88 @@ Entity createTutorialPlant(vec2 position)
 }
 
 // Create a sign that will only appear once it appears in a tutorial.
+Entity createTutorialDash(vec2 position)
+{
+	// Create the associated entity.
+	Entity tutorial_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign &tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+
+	// Create the relevant motion component.
+	Motion &motion_component = registry.motions.emplace(tutorial_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(465, 345);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		tutorial_entity,
+		{TEXTURE_ASSET_ID::TUTORIAL_DASH,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
+
+	// Create the animation
+	static TEXTURE_ASSET_ID asset_id_array[3] = {
+		TEXTURE_ASSET_ID::TUTORIAL_DASH,
+		TEXTURE_ASSET_ID::TUTORIAL_DASH_ANIMATED,
+		TEXTURE_ASSET_ID::TUTORIAL_DASH_ANIMATED_2};
+
+	Animation &animation_component = registry.animations.emplace(tutorial_entity);
+	animation_component.transition_ms = 1000;
+	animation_component.pose_count = 3;
+	animation_component.loop = true;
+	animation_component.lock = true;
+	animation_component.textures = asset_id_array;
+
+	return tutorial_entity;
+}
+
+// Create a sign that will only appear once it appears in a tutorial.
+Entity createTutorialChangeSeed(vec2 position)
+{
+	// Create the associated entity.
+	Entity tutorial_entity = Entity();
+
+	// Create the associated component.
+	TutorialSign &tutorial_component = registry.tutorialSigns.emplace(tutorial_entity);
+
+	// Create the relevant motion component.
+	Motion &motion_component = registry.motions.emplace(tutorial_entity);
+	motion_component.position = position;
+	motion_component.scale = vec2(465, 345);
+	motion_component.velocity = vec2(0, 0);
+
+	// Render the sign.
+	registry.renderRequests.insert(
+		tutorial_entity,
+		{TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE});
+
+	// Create the animation
+	static TEXTURE_ASSET_ID asset_id_array[9] = {
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_1,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_2,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_3,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_4,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_5,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_6,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_7,
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_8};
+
+	Animation &animation_component = registry.animations.emplace(tutorial_entity);
+	animation_component.transition_ms = 1000;
+	animation_component.pose_count = 9;
+	animation_component.loop = true;
+	animation_component.lock = true;
+	animation_component.textures = asset_id_array;
+
+	return tutorial_entity;
+}
+
+// Create a sign that will only appear once it appears in a tutorial.
 Entity createTutorialRestart(vec2 position)
 {
 	// Create the associated entity.
@@ -666,7 +750,7 @@ Entity createToolbar(vec2 position)
 
     registry.renderRequests.insert(
         projectile,
-        {TEXTURE_ASSET_ID::PROJECTILE,
+        {TEXTURE_ASSET_ID::SELECTED,
          EFFECT_ASSET_ID::TEXTURED,
          GEOMETRY_BUFFER_ID::SPRITE},
 		false);
@@ -708,19 +792,13 @@ Entity createGameOver()
 	motion.velocity = {0, 0};
 	motion.position = {WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 2};
 	motion.scale = vec2({WINDOW_WIDTH_PX, WINDOW_HEIGHT_PX});
-
-	// registry.renderRequests.insert(
-	// 	entity,
-	// 	{TEXTURE_ASSET_ID::GAMEOVER,
-	// 	 EFFECT_ASSET_ID::TEXTURED,
-	// 	 GEOMETRY_BUFFER_ID::SPRITE},
-	// 	false);
+	
 	return entity;
 }
 
 // Kung: Create the pause button that will eventually pause the game.
 // As of now, it is purely cosmetic.
-Entity createPause(vec2 position)
+Entity createPause(vec2 position, BUTTON_ID texture)
 {
 	// Create the associated entity.
 	Entity pause_entity = Entity();
@@ -741,7 +819,7 @@ Entity createPause(vec2 position)
 	// Render the object.
 	registry.renderRequests.insert(
 		pause_entity,
-		{TEXTURE_ASSET_ID::PAUSE_BUTTON,
+		{(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::START_BUTTON + (int)texture),
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
@@ -763,7 +841,10 @@ Entity createPlayer(RenderSystem *renderer, vec2 position, int seed_type)
 	registry.inventorys.components[0].seedCount[seed_type] = 5; // 5 starter seeds
 	for(int i = 0; i < NUM_SEED_TYPES; i++)
 	{
-		registry.inventorys.components[0].seedCount[i] = 4; // one each of the 8 seed types
+		if (i == 7)
+			registry.inventorys.components[0].seedCount[i] = 0;
+		else
+			registry.inventorys.components[0].seedCount[i] = 4;
 		registry.inventorys.components[0].seedAtToolbar[i] = i;
 	}
 
@@ -874,6 +955,9 @@ Entity createSeedInventory(vec2 pos, vec2 velocity, int type, int toolbar_pos)
 	motion_component.position = pos;
 	motion_component.scale = vec2(50, 50);
 	motion_component.velocity = velocity;
+
+	VisualScale& vscale = registry.visualScales.emplace(seed_entity);
+	vscale.scale = {0.75, 0.75};
 
 	// Render the object.
 	registry.renderRequests.insert(

@@ -105,7 +105,7 @@ public:
 		registry_list.push_back(&orcRiders); //36
 		registry_list.push_back(&squads); //37
 		registry_list.push_back(&slowEffects); //38
-		registry_list.push_back(&customData);
+		registry_list.push_back(&customData); //39
 	}
 
 	void clear_all_components() {

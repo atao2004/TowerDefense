@@ -15,6 +15,7 @@
 #include "../ext/json.hpp"
 using json = nlohmann::json;
 #include "particle_system.hpp"
+#include "render_system.hpp"
 
 // FreeType
 #include <ft2build.h>
@@ -177,12 +178,14 @@ void WorldSystem::init(RenderSystem *renderer_arg)
 
 void WorldSystem::restart_splash_screen()
 {
+	clearButtons();
 	game_screen = GAME_SCREEN_ID::SPLASH;
-	createScreen(renderer, TEXTURE_ASSET_ID::BACKGROUND);
-	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5),1);
-	createButton(renderer, BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200),1);
-	createButton(renderer, BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2),1);
-	createButton(renderer, BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3),1);
+	registry.screenStates.components[0].darken_screen_factor = 0;
+	createScreen(TEXTURE_ASSET_ID::BACKGROUND);
+	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5),1);
+	createButton(BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200),1);
+	createButton(BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2),1);
+	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3),1);
 }
 
 // Update our game world
@@ -260,16 +263,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update)
 			chicken_summoned = true;
 		}
 
+		// Print level, day, and enemies killed.
+		registry.texts.clear();
+		createText("Enemies Killed: " + std::to_string(points), vec2(WINDOW_WIDTH_PX * 0.2, WINDOW_HEIGHT_PX - 50.0f), 0.5f, vec3(0.9f, 0.9f, 0.9f));
+		createText("Level: " + std::to_string(level), vec2(WINDOW_WIDTH_PX * 0.475, WINDOW_HEIGHT_PX - 50.0f), 0.5f, vec3(0.9f, 0.9f, 0.9f));
+		createText("Day: " + std::to_string(current_day), vec2(WINDOW_WIDTH_PX * 0.475, WINDOW_HEIGHT_PX - 100.0f), 0.5f, vec3(0.9f, 0.9f, 0.9f));
+
 		return true;
 	}
 
 	return true;
-}
-
-void WorldSystem::print_level()
-{
-	registry.texts.clear();
-	createText("Level: " + std::to_string(level), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX - 75.0f), 0.75f, vec3(0.9f, 0.9f, 0.9f));
 }
 
 // Shared elements between restarting a game and a tutorial
@@ -280,6 +283,7 @@ void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 	registry.particles.clear();
     registry.particleGenerators.clear();
     registry.customData.clear();
+	registry.hitEffects.clear();
 
 	// Reset day counter and related variables
 	current_day = 1; spawn_manager.set_day(current_day);
@@ -332,6 +336,10 @@ void WorldSystem::restart_common_tasks(vec2 map_dimensions)
 	{
 		for (int y = -GRID_CELL_HEIGHT_PX; y < map_dimensions.y + GRID_CELL_HEIGHT_PX; y += GRID_CELL_HEIGHT_PX)
 		{
+	// for (int x = -CAMERA_VIEW_WIDTH * 0.75; x < map_dimensions.x + CAMERA_VIEW_WIDTH * 0.75; x += GRID_CELL_WIDTH_PX)
+	// {
+	// 	for (int y = -CAMERA_VIEW_HEIGHT * 0.75; y < map_dimensions.y + CAMERA_VIEW_HEIGHT * 0.75; y += GRID_CELL_HEIGHT_PX)
+	// 	{
 			if (x < 0 || y < 0)
 			{
 				createScorchedEarth(vec2(x, y));
@@ -362,21 +370,25 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 
 	// Kung: Create the pause button and toolbar, and have them overlay the player
 	registry.toolbars.clear();
-	createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH / 2 + 30, player_pos.y - CAMERA_VIEW_HEIGHT / 2 + 30));
+	vec2 position = vec2(player_pos.x - CAMERA_VIEW_WIDTH / 2 + 30, player_pos.y - CAMERA_VIEW_HEIGHT / 2 + 30);
+	if (game_screen == GAME_SCREEN_ID::TUTORIAL) 
+		createPause(position, BUTTON_ID::RETURN);
+	else
+		createPause(position, BUTTON_ID::PAUSE);
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
 	for(int i = 0; i < NUM_SEED_TYPES; i++) {
 		if(registry.inventorys.components[0].seedCount[i] > 0) {
-		createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (i * 0.995 + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, i, i);	
+		createSeedInventory(vec2(player_pos.x + (i - 4) * TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, i, i);	
 		std::cout << "seed type: " << i << std::endl;
 		}
 	}
-	// createSeedInventory(vec2(player_pos.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), player_pos.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player).velocity, current_seed);
 
 	// Kung: Reset player movement so that the player remains still when no keys are pressed
 
 	// Move left
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
+		std::cout<<"huh"<<std::endl;
 		for (Entity mwc_entity : registry.moveWithCameras.entities)
 		{
 			if (registry.motions.has(mwc_entity))
@@ -423,11 +435,11 @@ void WorldSystem::start_cg(RenderSystem *renderer)
 	int cutscene = registry.screenStates.components[0].cutscene;
 	if (cutscene == 1)
 	{
-		createScreen(renderer, TEXTURE_ASSET_ID::NIGHT_BG);
+		createScreen(TEXTURE_ASSET_ID::NIGHT_BG);
 	}
 	else
 	{
-		createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+		createScreen(TEXTURE_ASSET_ID::DAY_BG);
 	}
 }
 
@@ -465,18 +477,14 @@ void WorldSystem::restart_game()
 
 	// start the spawn manager
 	spawn_manager.start_game();
-
-	// Print the starting level (Level 1)
-	print_level();
 }
 
 // Reset the world state to the tutorial mode state
 void WorldSystem::restart_tutorial()
 {
 	std::cout << "Restarting tutorial..." << std::endl;
-
+	clearButtons();
 	restart_common_tasks(vec2(TUTORIAL_WIDTH_PX, TUTORIAL_HEIGHT_PX));
-
 	// Set the level to level 0 (non-existent) and the game_screen to TUTORIAL.
 	level = 0;
 	game_screen = GAME_SCREEN_ID::TUTORIAL;
@@ -501,10 +509,12 @@ void WorldSystem::restart_tutorial()
 	// }
 
 	// create the tutorial assets
-	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * -0.15, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialDash(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_SIGN_HEIGHT_PX));
 	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, TUTORIAL_SIGN_HEIGHT_PX));
 	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, TUTORIAL_SIGN_HEIGHT_PX));
-	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialChangeSeed(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 1.1, TUTORIAL_SIGN_HEIGHT_PX));
 
 	// create the arrows for the tutorial
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 4 - 15, TUTORIAL_ARROW_HEIGHT_PX));
@@ -512,9 +522,6 @@ void WorldSystem::restart_tutorial()
 	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75 - 15, TUTORIAL_ARROW_HEIGHT_PX));
 	create_tutorial_enemies();
 	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX * 0.05, TUTORIAL_ARROW_HEIGHT_PX});
-
-	// Print the starting level (Level 0)
-	print_level();
 }
 
 // Create tutorial enemies at specific locations that respawn when killed
@@ -578,7 +585,7 @@ void WorldSystem::increase_level() {
 		if (registry.inventorys.components[0].seedCount[current_seed] == 0)
 		{
 			registry.inventorys.components[0].seedAtToolbar[current_seed] == -1;
-			createSeedInventory(vec2(registry.motions.get(player_entity).position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed, 0);
+			createSeedInventory(vec2(registry.motions.get(player_entity).position.x + (current_seed - 4) * TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2, registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed, 0);
 		}
 		registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
@@ -588,10 +595,7 @@ void WorldSystem::increase_level() {
 		vec2 player_size = registry.motions.get(player_entity).scale;
 		ParticleSystem::createLevelUpEffect(player_pos, player_size);
 
-		print_level();
-
-		if (level == 2)
-		{
+		if (level == 2) {
 			registry.screenStates.components[0].cutscene = 3;
 			registry.screenStates.components[0].cg_index = 0;
 			return start_cg(renderer);
@@ -974,19 +978,19 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		return;
 	}
 
-	// load
-	if (action == GLFW_RELEASE && key == GLFW_KEY_MINUS)
-	{
-		loadGame();
-		return;
-	}
+	// // load
+	// if (action == GLFW_RELEASE && key == GLFW_KEY_MINUS)
+	// {
+	// 	loadGame();
+	// 	return;
+	// }
 
-	// save
-	if (action == GLFW_RELEASE && key == GLFW_KEY_EQUAL)
-	{
-		saveGame();
-		return;
-	}
+	// // save
+	// if (action == GLFW_RELEASE && key == GLFW_KEY_EQUAL)
+	// {
+	// 	saveGame();
+	// 	return;
+	// }
 
 	// Debug
 	if (action == GLFW_PRESS && key == GLFW_KEY_L)
@@ -1208,13 +1212,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				// come back later!
 				if (registry.inventorys.components[0].seedCount[current_seed] == 0)
 				{
-					createSeedInventory(vec2(motion.position.x - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (current_seed + 0.5), motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed, 0);
+					createSeedInventory(vec2(motion.position.x + (current_seed - 4) * TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2, motion.position.y + CAMERA_VIEW_HEIGHT * 0.45), motion.velocity, current_seed, 0);
 				}
 				registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 				registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 				level++;
-
-				print_level();
 
 				// Get player entity and size
 				Entity player = registry.players.entities[0];
@@ -1479,29 +1481,45 @@ bool WorldSystem::detectButtons()
 		return true;
 			
 	// }
+	//return to splash screen
+	if (game_screen == GAME_SCREEN_ID::TUTORIAL) {
+		if (mouse_pos_x >= 0 && mouse_pos_x <= 60 && mouse_pos_y >= 0 && mouse_pos_y <= 60) {
+			restart_splash_screen();
+			return true;
+		}
 	}
 	for (auto &b : registry.buttons.components)
 	{
 		if (game_screen == GAME_SCREEN_ID::PLAYING) { 
 			
 			if (mouse_pos_x >= b.position.x - 30 && mouse_pos_x <= b.position.x + 30 &&
-				mouse_pos_y >= b.position.y - 30 && mouse_pos_y <= b.position.y + 30) {
-				game_screen = GAME_SCREEN_ID::PAUSE;
-				Entity& player = registry.players.entities[0];
-				vec2 player_pos = registry.motions.get(player).position;
-				createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
-				createButton(renderer, BUTTON_ID::PAUSE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
-				createButton(renderer, BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200), 0.8);
-				createButton(renderer, BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300), 0.8);
-				createButton(renderer, BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400), 0.8);
-				return true;
+				mouse_pos_y >= b.position.y - 30 && mouse_pos_y <= b.position.y + 30)
+			{
+				if (game_screen == GAME_SCREEN_ID::PLAYING && b.type == BUTTON_ID::PAUSE)
+				{
+					game_screen = GAME_SCREEN_ID::PAUSE;
+					Entity& player = registry.players.entities[0];
+					vec2 player_pos = registry.motions.get(player).position;
+					createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
+					createButton(BUTTON_ID::RESUME, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100*OS_RES-BUTTON_SPLASH_HEIGHT*OS_RES/2), 0.8);
+					createButton(BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200*OS_RES), 0.8);
+					createButton(BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300*OS_RES), 0.8);
+					createButton(BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400*OS_RES), 0.8);
+					return true;
+				}
+				else if (game_screen == GAME_SCREEN_ID::PAUSE && b.type == BUTTON_ID::PAUSE)
+				{
+					game_screen = GAME_SCREEN_ID::PLAYING;
+					Entity &player_entity = registry.players.entities[0];
+					vec2 player_pos = registry.motions.get(player_entity).position;
+					clearButtons();
+					createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH / 2 + 30, player_pos.y - CAMERA_VIEW_HEIGHT / 2 + 30), BUTTON_ID::PAUSE);
+					return true;
+				}
 			}
 		}
-	
-		// std::cout<<"x "<<b.position.x - BUTTON_SPLASH_WIDTH / 2<<" "<<b.position.x + BUTTON_SPLASH_WIDTH / 2<<std::endl;
-		// std::cout<<"y "<<b.position.y - BUTTON_SPLASH_HEIGHT / 2<<" "<<b.position.y + BUTTON_SPLASH_HEIGHT / 2<<std::endl;
-		if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
-			mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT / 2)
+		if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH*OS_RES / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH*OS_RES / 2 &&
+			mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT*OS_RES / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT*OS_RES / 2)
 		{
 			if (b.type == BUTTON_ID::START)
 			{
@@ -1516,6 +1534,7 @@ bool WorldSystem::detectButtons()
 			}
 			else if (b.type == BUTTON_ID::TUTORIAL)
 			{
+				std::cout<<"tutorial"<<std::endl;
 				restart_tutorial();
 			}
 			else if (b.type == BUTTON_ID::QUIT)
@@ -1536,14 +1555,14 @@ bool WorldSystem::detectButtons()
 				game_screen == GAME_SCREEN_ID::PLAYING;
 				clearButtons();
 				saveGame();
-				createPause(vec2(30, 30));
+				createPause(vec2(30, 30), BUTTON_ID::PAUSE);
 
-			} else if (game_screen == GAME_SCREEN_ID::PAUSE && b.type == BUTTON_ID::PAUSE) {
+			} else if (b.type == BUTTON_ID::RESUME) {
 				game_screen = GAME_SCREEN_ID::PLAYING;
 				Entity& player_entity = registry.players.entities[0];
 				vec2 player_pos = registry.motions.get(player_entity).position;
 				clearButtons();
-				createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30));
+				createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30), BUTTON_ID::PAUSE);
 			}
 			return true;
 		}
@@ -1612,11 +1631,10 @@ bool WorldSystem::detectButtons()
 
 void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 {
-	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::PAUSE || game_screen == GAME_SCREEN_ID::LEVEL_UP)
+	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::PAUSE || game_screen == GAME_SCREEN_ID::LEVEL_UP || game_screen == GAME_SCREEN_ID::GAME_OVER)
 	{
 		if (action == GLFW_RELEASE && action == GLFW_MOUSE_BUTTON_LEFT)
 		{
-
 			std::cout << "mouse position: " << mouse_pos_x << ", " << mouse_pos_y << std::endl;
 			detectButtons();
 			return;
@@ -1633,7 +1651,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			{
 				for (int i = registry.cgs.entities.size() - 1; i >= 0; i--)
 					registry.remove_all_components_of(registry.cgs.entities[i]);
-				createScreen(renderer, TEXTURE_ASSET_ID::DAY_BG);
+				createScreen(TEXTURE_ASSET_ID::DAY_BG);
 				createCharacter(renderer, vec2(WINDOW_WIDTH_PX - 300, WINDOW_HEIGHT_PX - 250), vec2(-500, 500), TEXTURE_ASSET_ID::ORC_WALK2);
 				createCharacter(renderer, vec2(200, WINDOW_HEIGHT_PX - 250), vec2(500, 500), TEXTURE_ASSET_ID::PLAYER_IDLE1);
 			}
@@ -1676,7 +1694,7 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 			int tile_x = (int)(mouse_pos_x / GRID_CELL_WIDTH_PX);
 			int tile_y = (int)(mouse_pos_y / GRID_CELL_HEIGHT_PX);
 
-			std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
+			// std::cout << "mouse tile position: " << tile_x << ", " << tile_y << std::endl;
 		}
 
 		if (action == GLFW_RELEASE)
@@ -1693,12 +1711,24 @@ void WorldSystem::on_mouse_button_pressed(int button, int action, int mods)
 
 void WorldSystem::game_over()
 {
+	game_screen = GAME_SCREEN_ID::GAME_OVER;
+
+	registry.texts.clear();
+	createText("Enemies Killed: " + std::to_string(points), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX * 0.725), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+	createText("Final level: " + std::to_string(level), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX * 0.65), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+	createText("Days survived: " + std::to_string(current_day), vec2(WINDOW_WIDTH_PX * 0.4, WINDOW_HEIGHT_PX * 0.575), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+
 	std::cout << "Game Over!" << std::endl;
 	game_is_over = true;
 	registry.screenStates.get(registry.screenStates.entities[0]).game_over = true;
 	Mix_HaltMusic();
 	Mix_PlayChannel(0, WorldSystem::game_over_sound, 0);
 	createGameOver();
+
+	// Do this afterwards or otherwise the RenderRequests are cleared.
+	createScreen(TEXTURE_ASSET_ID::DAY_BG);
+	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2), 1);
+	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3), 1);
 }
 
 void WorldSystem::update_movement_sound(float elapsed_ms)
@@ -1812,6 +1842,8 @@ void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)
 			// All enemies for this day have been spawned
 			day_in_progress = false;
 		}
+		if (registry.screenStates.components[0].darken_screen_factor > 0)
+			registry.screenStates.components[0].darken_screen_factor -= elapsed_ms_since_last_update/3000;
 	}
 	else if (registry.enemies.size() == 0)
 	{
@@ -1819,10 +1851,12 @@ void WorldSystem::updateDayInProgress(float elapsed_ms_since_last_update)
 		rest_timer_ms += elapsed_ms_since_last_update;
 
 		// Display rest time remaining
-		if (rest_timer_ms < 10000.f)
-		{ // 10 second rest
-			// Optional: Display countdown text
-			float remaining = (10000.f - rest_timer_ms) / 1000.f;
+		if (rest_timer_ms < DAY_DELAY_MS)
+		{
+			if (registry.screenStates.components[0].darken_screen_factor < 0.6)
+				registry.screenStates.components[0].darken_screen_factor += elapsed_ms_since_last_update/3000;
+      // Optional: Display countdown text
+			float remaining = (DAY_DELAY_MS - rest_timer_ms) / 1000.f;
 			std::cout << "Next day in: " << (int)remaining << " seconds\r" << std::flush;
 		}
 		else
@@ -1857,6 +1891,7 @@ void WorldSystem::loadGame()
 	ss.game_over_counter_ms = ss_json["game_over_counter_ms"];
 	ss.game_over_darken = ss_json["game_over_darken"];
 	ss.hp_percentage = ss_json["hp_percentage"];
+	std::cout<<ss.hp_percentage<<std::endl;
 	ss.lerp_timer = ss_json["lerp_timer"];
 	ss.shake_duration_ms = ss_json["shake_duration_ms"];
 	ss.shake_intensity = ss_json["shake_intensity"];
@@ -1880,7 +1915,7 @@ void WorldSystem::loadGame()
 	{
 		json motion = motion_arr[i];
 		Entity e = Entity(motion["entity"]);
-		Motion &m = registry.motions.emplace(e);
+		Motion& m = registry.motions.emplace_with_duplicates(e);
 		m.position = vec2(motion["position"][0], motion["position"][1]);
 		m.angle = motion["angle"];
 		m.velocity = vec2(0.0, 0.0);
@@ -1930,6 +1965,7 @@ void WorldSystem::loadGame()
 		tower.range = tower_json["range"];
 		tower.timer_ms = tower_json["timer_ms"];
 		tower.state = tower_json["state"];
+		tower.type = tower_json["type"];
 	}
 
 	json zombie_arr = jsonFile["10"];
@@ -1956,6 +1992,7 @@ void WorldSystem::loadGame()
 		Entity e = Entity(player_json["entity"]);
 		Player &player = registry.players.emplace(e);
 		player.health = player_json["health"];
+		player.health_max = player_json["health_max"];
 	}
 
 	json sc_arr = jsonFile["13"];
@@ -2124,10 +2161,14 @@ void WorldSystem::loadGame()
 		Entity e = Entity(inventory_json["entity"]);
 		Inventory &in = registry.inventorys.emplace(e);
 		json seed_arr = inventory_json["seedCount"];
+		json seed_position_arr = inventory_json["seedPosition"];
+		json seed_at_toolbar_arr = inventory_json["seedAtToolbar"];
 		for (long unsigned int i = 0; i < seed_arr.size(); i++)
-		{
 			in.seedCount[i] = seed_arr[std::to_string(i)];
-		}
+		for (long unsigned int i = 0; i < seed_position_arr.size(); i++)
+			in.seedPosition[i] = seed_position_arr[std::to_string(i)];
+		for (long unsigned int i = 0; i < seed_at_toolbar_arr.size(); i++)
+			in.seedAtToolbar[i] = seed_at_toolbar_arr[std::to_string(i)];
 	}
 
 	json seed_arr = jsonFile["27"];
@@ -2165,17 +2206,82 @@ void WorldSystem::loadGame()
 		plant_animation.id = plant_animation_json["id"];
 	}
 
+	json orc_rider_arr = jsonFile["36"];
+	for (long unsigned int i = 0; i < orc_rider_arr.size(); i++)
+	{
+		json orc_rider_json = orc_rider_arr[i];
+		Entity e = Entity(orc_rider_json["entity"]);
+		OrcRider& orc_rider = registry.orcRiders.emplace(e);
+		orc_rider.current_state = orc_rider_json["current_state"];
+		orc_rider.target = Entity(orc_rider_json["target"]);
+		orc_rider.detection_range = orc_rider_json["detection_range"];
+		orc_rider.hunt_range = orc_rider_json["hunt_range"];
+		orc_rider.charge_speed = orc_rider_json["charge_speed"];
+		orc_rider.walk_speed = orc_rider_json["walk_speed"];
+		orc_rider.charge_distance = orc_rider_json["charge_distance"];
+		orc_rider.damage = orc_rider_json["damage"];
+		orc_rider.is_hunting = orc_rider_json["is_hunting"];
+		orc_rider.is_charging = orc_rider_json["is_charging"];
+		orc_rider.hunt_timer_ms = orc_rider_json["hunt_timer_ms"];
+		orc_rider.charge_timer_ms = orc_rider_json["charge_timer_ms"];
+		orc_rider.charge_direction = vec2(orc_rider_json["charge_direction"][0], orc_rider_json["charge_direction"][1]);
+		orc_rider.has_hit_player = orc_rider_json["has_hit_player"];
+	}
+
+	json squad_arr = jsonFile["37"];
+	for (long unsigned int i = 0; i < squad_arr.size(); i++)
+	{
+		json squad_json = squad_arr[i];
+		Entity e = Entity(squad_json["entity"]);
+		Squad& squad = registry.squads.emplace(e);
+		squad.squad_id = squad_json["squad_id"];
+		squad.formation_center = vec2(squad_json["formation_center"][0], squad_json["formation_center"][1]);
+		squad.last_player_pos = vec2(squad_json["last_player_pos"][0], squad_json["last_player_pos"][1]);
+		squad.coordination_timer = squad_json["coordination_timer"];
+		squad.is_active = squad_json["is_active"];
+		for (const auto& archer : squad_json["archers"])
+			squad.archers.push_back(Entity(archer));
+		for (const auto& orc : squad_json["orcs"])
+			squad.orcs.push_back(Entity(orc));
+		for (const auto& knight : squad_json["knights"])
+			squad.knights.push_back(Entity(knight));
+	}
+
+	json slow_effect_arr = jsonFile["38"];
+	for (long unsigned int i = 0; i < slow_effect_arr.size(); i++)
+	{
+		json slow_effect_json = slow_effect_arr[i];
+		Entity e = Entity(slow_effect_json["entity"]);
+		Slow& slow = registry.slowEffects.emplace(e);
+		slow.value = slow_effect_json["value"];
+		slow.timer_ms = slow_effect_json["timer_ms"];
+	}
+
+	json electricity_arr = jsonFile["39"];
+	for (long unsigned int i = 0; i < electricity_arr.size(); i++)
+	{
+		json electricity_json = electricity_arr[i];
+		Entity e = Entity(electricity_json["entity"]);
+		ElectricityData& electricity = registry.customData.emplace(e);
+		electricity.noise_seed = electricity_json["noise_seed"];
+		electricity.curve_ctrl1 = vec2(electricity_json["curve_ctrl1"][0], electricity_json["curve_ctrl1"][1]);
+		electricity.curve_ctrl2 = vec2(electricity_json["curve_ctrl2"][0], electricity_json["curve_ctrl2"][1]);
+	}
+
 	Entity& player_entity = registry.players.entities[0];
 	vec2 player_pos = registry.motions.get(player_entity).position;
 	clearButtons();
-	createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30));
+	createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30), BUTTON_ID::PAUSE);
 
 	std::cout << "Game loaded successfully." << std::endl;
 }
 
 void WorldSystem::saveGame()
 {
-	if (chicken_summoned)
+	clearButtons();
+	game_screen = GAME_SCREEN_ID::PLAYING;
+
+	if (registry.meshPtrs.size() > 0)
 	{
 		std::cout << "Chicken summoned, cannot save, please give it some time to fly." << std::endl;
 		return;
@@ -2193,8 +2299,6 @@ void WorldSystem::saveGame()
 	jsonFile["level"] = level;
 	jsonFile["id_count"] = Entity::get_id_count();
 
-	clearButtons();
-	game_screen = GAME_SCREEN_ID::PLAYING;
 
 	for (int i = 0; i < registry.registry_list.size(); i++)
 	{

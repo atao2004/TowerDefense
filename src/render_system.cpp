@@ -421,8 +421,8 @@ void RenderSystem::drawToScreen()
 	gl_has_errors();
 
 	ScreenState &screen = registry.screenStates.get(screen_state_entity);
-	if (!WorldSystem::game_is_over)
-	{
+	// if (!WorldSystem::game_is_over) {
+	if (1) {
 		// add the "UI" effect
 		const GLuint ui_program = effects[(GLuint)EFFECT_ASSET_ID::UI];
 		glUseProgram(ui_program);
@@ -430,10 +430,11 @@ void RenderSystem::drawToScreen()
 		GLuint hp_uloc = glGetUniformLocation(ui_program, "hp_percentage");
 		GLuint exp_uloc = glGetUniformLocation(ui_program, "exp_percentage");
 		GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
+		GLuint dark_uloc = glGetUniformLocation(ui_program, "darken_factor");
 
 		glUniform1f(game_continues_uloc, screen.game_over);
-		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE || WorldSystem::get_game_screen() == GAME_SCREEN_ID::LEVEL_UP)? 0 : screen.hp_percentage);
-		glUniform1f(exp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE || WorldSystem::get_game_screen() == GAME_SCREEN_ID::LEVEL_UP) ? 0 : screen.exp_percentage);
+		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE || WorldSystem::get_game_screen() == GAME_SCREEN_ID::LEVEL_UP|| WorldSystem::get_game_screen() == GAME_SCREEN_ID::GAME_OVER)? 0 : screen.hp_percentage);
+		glUniform1f(exp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE || WorldSystem::get_game_screen() == GAME_SCREEN_ID::LEVEL_UP|| WorldSystem::get_game_screen() == GAME_SCREEN_ID::GAME_OVER) ? 0 : screen.exp_percentage);
 		gl_has_errors();
 
 		// Set the vertex position and vertex texture coordinates (both stored in the
@@ -479,7 +480,7 @@ void RenderSystem::drawToScreen()
 
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
+void RenderSystem::step_and_draw(float elapsed_ms)
 {
 	// Getting size of window
 	int w, h;
@@ -492,8 +493,9 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 	glViewport(0, 0, w, h);
 	glDepthRange(0.00001, 10);
 
-	// white background
+	// grass background
 	glClearColor(GRASS_COLOR.x, GRASS_COLOR.y, GRASS_COLOR.z, 1.0f);
+	// glClearColor(0.016f, 0.098f, 0.18f, 1.0f);
 
 	glClearDepth(10.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -504,21 +506,18 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 							  // sprites back to front
 	gl_has_errors();
 	int cutscene = registry.screenStates.components[0].cutscene;
-	mat3 projection_2D = (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG) ? createProjectionMatrix_splash() : createProjectionMatrix();
+	mat3 projection_2D = (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::GAME_OVER) ? createProjectionMatrix_splash() : createProjectionMatrix();
 
-	if (game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::CG)
+	if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::GAME_OVER)
 	{
 		for (Entity entity : registry.cgs.entities)
 		{
-			drawTexturedMesh(entity, projection_2D);
+			if (registry.renderRequests.has(entity)) drawTexturedMesh(entity, projection_2D);
 		}
 
-		if (game_screen == GAME_SCREEN_ID::SPLASH)
-		{
+		if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH) {
 			renderText("Farmer Defense", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 100, OS_RES, {0, 0, 0}, trans);
-		}
-		else
-		{
+		} else if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG) {
 			int cg_idx = registry.screenStates.components[0].cg_index;
 			int cutscene = registry.screenStates.components[0].cutscene;
 			if (cutscene == 1)
@@ -575,19 +574,16 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 				if (cg_idx == 4)
 					renderText("Alright...", 60, 350, 0.6 * OS_RES, {1, 1, 1}, trans);
 			}
+		} else if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::GAME_OVER) {
+			for (Entity text_entity : registry.texts.entities) {
+				renderText(registry.texts.get(text_entity).text, registry.texts.get(text_entity).pos.x, registry.texts.get(text_entity).pos.y, registry.texts.get(text_entity).size, registry.texts.get(text_entity).color, trans);
+			}
+
+			renderText("GAME OVER", WINDOW_WIDTH_PX * 0.25, WINDOW_HEIGHT_PX * 0.8, 2.0f, glm::vec3(0.0f, 0.0f, 0.0f), trans);
 		}
 
 		drawToScreen();
-	}
-	else if (WorldSystem::game_is_over)
-	{
-		renderText("GAME OVER", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 4, 3.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
-		renderText("Zombies Killed: ", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 4, 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
-		renderText("Days survived: ", WINDOW_WIDTH_PX / 6, WINDOW_HEIGHT_PX / 4, 1.0f, glm::vec3(0.5f, 0.5f, 0.5f), trans);
-		drawToScreen();
-	}
-	else
-	{
+	} else {
 		// draw all entities with a render request to the frame buffer
 		for (Entity entity : registry.renderRequests.entities)
 		{
@@ -596,7 +592,7 @@ void RenderSystem::step_and_draw(GAME_SCREEN_ID game_screen, float elapsed_ms)
 			{
 				// Note, its not very efficient to access elements indirectly via the entity
 				// albeit iterating through all Sprites in sequence. A good point to optimize
-				if (game_screen == GAME_SCREEN_ID::TUTORIAL)
+				if (WorldSystem::get_game_screen() == GAME_SCREEN_ID::TUTORIAL)
 				{
 					if (registry.mapTiles.has(entity))
 					{

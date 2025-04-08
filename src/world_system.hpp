@@ -1,25 +1,25 @@
-#pragma once
+	#pragma once
 
-// internal
-#include "common.hpp"
-#include "spawn_manager.hpp"
+	// internal
+	#include "common.hpp"
+	#include "spawn_manager.hpp"
 
-// stlib
-#include <vector>
-#include <random>
+	// stlib
+	#include <vector>
+	#include <random>
 
-#define SDL_MAIN_HANDLED
-#include <SDL.h>
-#include <SDL_mixer.h>
+	#define SDL_MAIN_HANDLED
+	#include <SDL.h>
+	#include <SDL_mixer.h>
 
-#include "render_system.hpp"
+	#include "render_system.hpp"
 
-// Container for all our entities and game logic.
-// Individual rendering / updates are deferred to the update() methods.
-class WorldSystem
-{
-public:
-	WorldSystem();
+	// Container for all our entities and game logic.
+	// Individual rendering / updates are deferred to the update() methods.
+	class WorldSystem
+	{
+	public:
+		WorldSystem();
 
 	// creates main window
 	GLFWwindow *create_window();
@@ -59,11 +59,13 @@ public:
 	// should the game be over ?
 	bool is_over() const;
 
-	static void game_over();
+	void game_over();
 	static bool game_is_over;
 	unsigned int current_seed; // current type of seed the player has selected
 	// Current experience level of the player
 	unsigned int level;
+	// Number of players stopped by the towers, displayed in the window title
+	unsigned int points;
 
 	// increases player experience
 	static void increase_exp();
@@ -104,9 +106,6 @@ private:
 
 	// OpenGL window handle
 	GLFWwindow *window;
-
-	// Number of players stopped by the towers, displayed in the window title
-	unsigned int points;
 
 	// game_screen (inspired by Assignment #2)
 	static GAME_SCREEN_ID game_screen;
@@ -156,8 +155,6 @@ private:
 	void saveGame();
 
 	void plant_seed();
-
-	void print_level();
   
 	// Player dash
 	void update_dash(float elapsed_ms_since_last_update);
