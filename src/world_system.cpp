@@ -182,10 +182,10 @@ void WorldSystem::restart_splash_screen()
 	game_screen = GAME_SCREEN_ID::SPLASH;
 	registry.screenStates.components[0].darken_screen_factor = 0;
 	createScreen(TEXTURE_ASSET_ID::BACKGROUND);
-	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5),1);
-	createButton(BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200),1);
-	createButton(BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2),1);
-	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3),1);
+	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5),1);
+	createButton(renderer, BUTTON_ID::LOAD, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200),1);
+	createButton(renderer, BUTTON_ID::TUTORIAL, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2),1);
+	createButton(renderer, BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3),1);
 }
 
 // Update our game world
@@ -1479,8 +1479,7 @@ bool WorldSystem::detectButtons()
 				}	
 			}
 		return true;
-			
-	// }
+	}
 	//return to splash screen
 	if (game_screen == GAME_SCREEN_ID::TUTORIAL) {
 		if (mouse_pos_x >= 0 && mouse_pos_x <= 60 && mouse_pos_y >= 0 && mouse_pos_y <= 60) {
@@ -1501,10 +1500,10 @@ bool WorldSystem::detectButtons()
 					Entity& player = registry.players.entities[0];
 					vec2 player_pos = registry.motions.get(player).position;
 					createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
-					createButton(BUTTON_ID::RESUME, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100*OS_RES-BUTTON_SPLASH_HEIGHT*OS_RES/2), 0.8);
-					createButton(BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200*OS_RES), 0.8);
-					createButton(BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300*OS_RES), 0.8);
-					createButton(BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400*OS_RES), 0.8);
+					createButton(renderer, BUTTON_ID::RESUME, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100*OS_RES-BUTTON_SPLASH_HEIGHT*OS_RES/2), 0.8);
+					createButton(renderer,BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200*OS_RES), 0.8);
+					createButton(renderer,BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300*OS_RES), 0.8);
+					createButton(renderer,BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400*OS_RES), 0.8);
 					return true;
 				}
 				else if (game_screen == GAME_SCREEN_ID::PAUSE && b.type == BUTTON_ID::PAUSE)
@@ -1727,8 +1726,8 @@ void WorldSystem::game_over()
 
 	// Do this afterwards or otherwise the RenderRequests are cleared.
 	createScreen(TEXTURE_ASSET_ID::DAY_BG);
-	createButton(BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2), 1);
-	createButton(BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3), 1);
+	createButton(renderer, BUTTON_ID::START, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 2), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*2), 1);
+	createButton(renderer, BUTTON_ID::QUIT, vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200 * 3), vec2(WINDOW_WIDTH_PX / 2, WINDOW_HEIGHT_PX / 5 + 200*3), 1);
 }
 
 void WorldSystem::update_movement_sound(float elapsed_ms)

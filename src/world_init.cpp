@@ -45,7 +45,7 @@ Entity createPausePanel(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-Entity createButton(BUTTON_ID type, vec2 position, vec2 toDeduct, float scale) {
+Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct, float scale) {
 	Entity entity = Entity();
 	CustomButton &button = registry.buttons.emplace(entity);
 	button.type = type;

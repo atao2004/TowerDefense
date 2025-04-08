@@ -184,7 +184,7 @@ int main()
     
 		if (fm_render.can_update() ||
 		WorldSystem::game_is_over || game_screen == GAME_SCREEN_ID::CG || game_screen == GAME_SCREEN_ID::PAUSE || game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::LEVEL_UP) 
-			renderer_system.step_and_draw(game_screen, fm_render.get_time());
+			renderer_system.step_and_draw(fm_render.get_time());
     
 	}
 	return EXIT_SUCCESS;

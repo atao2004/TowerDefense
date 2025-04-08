@@ -620,7 +620,7 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 		drawParticlesInstanced(projection_2D);
 
 		// individually draw player, toolbar, inventory seeds, pause button; will render on top of all the motion sprites
-		if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::PAUSE && game_screen != GAME_SCREEN_ID::LEVEL_UP)
+		if (!WorldSystem::game_is_over && WorldSystem::get_game_screen() != GAME_SCREEN_ID::PAUSE && WorldSystem::get_game_screen() != GAME_SCREEN_ID::LEVEL_UP)
 		{
 			for (Entity entity : registry.moveWithCameras.entities)
 			{
@@ -630,7 +630,7 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 		}
 
 
-		if(game_screen != GAME_SCREEN_ID::LEVEL_UP && game_screen != GAME_SCREEN_ID::PAUSE) {
+		if(WorldSystem::get_game_screen() != GAME_SCREEN_ID::LEVEL_UP && WorldSystem::get_game_screen() != GAME_SCREEN_ID::PAUSE) {
 			renderText("HP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.925, 0.75, {1, 1, 1}, trans);
 			renderText("EXP", WINDOW_WIDTH_PX * 0.625, WINDOW_HEIGHT_PX * 0.85, 0.75, {1, 1, 1}, trans);
 
@@ -665,7 +665,7 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 		}
 
 
-		if(game_screen == GAME_SCREEN_ID::LEVEL_UP) {
+		if(WorldSystem::get_game_screen() == GAME_SCREEN_ID::LEVEL_UP) {
 			renderText("LEVEL UP!", WINDOW_WIDTH_PX /2-100*OS_RES, WINDOW_HEIGHT_PX - 175*OS_RES, OS_RES*0.7, {1,1,1}, trans);
 			renderText("Choose one of 4 options", WINDOW_WIDTH_PX / 3, WINDOW_HEIGHT_PX - 300, OS_RES*0.7, {1, 1, 1}, trans);
 		}
