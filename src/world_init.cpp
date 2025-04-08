@@ -73,7 +73,6 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 		 GEOMETRY_BUFFER_ID::SPRITE},
 		false);
 	registry.cgs.emplace(entity);
-	registry.moveWithCameras.emplace(entity);
 	return entity;
 }
 
@@ -724,7 +723,7 @@ Entity createGameOver()
 
 // Kung: Create the pause button that will eventually pause the game.
 // As of now, it is purely cosmetic.
-Entity createPause(vec2 position)
+Entity createPause(vec2 position, BUTTON_ID texture)
 {
 	// Create the associated entity.
 	Entity pause_entity = Entity();
@@ -745,7 +744,7 @@ Entity createPause(vec2 position)
 	// Render the object.
 	registry.renderRequests.insert(
 		pause_entity,
-		{TEXTURE_ASSET_ID::PAUSE_BUTTON,
+		{(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::START_BUTTON + (int)texture),
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 

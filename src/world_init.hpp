@@ -49,7 +49,7 @@ Entity createTutorialRestart(vec2 position);
 Entity createTutorialArrow(vec2 position);
 
 // ui elements
-Entity createPause(vec2 position);
+Entity createPause(vec2 position, BUTTON_ID texture);
 Entity createToolbar(vec2 position);
 
 // grid lines to show tile positions

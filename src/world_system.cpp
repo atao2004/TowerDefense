@@ -361,10 +361,10 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 	// Kung: Create the pause button and toolbar, and have them overlay the player
 	registry.toolbars.clear();
 	vec2 position = vec2(player_pos.x - CAMERA_VIEW_WIDTH / 2 + 30, player_pos.y - CAMERA_VIEW_HEIGHT / 2 + 30);
-	if (game_screen == GAME_SCREEN_ID::TUTORIAL)
-		createButton(renderer, BUTTON_ID::RETURN, position, position, -1);
+	if (game_screen == GAME_SCREEN_ID::TUTORIAL) 
+		createPause(position, BUTTON_ID::RETURN);
 	else
-		createPause(position);
+		createPause(position, BUTTON_ID::PAUSE);
 	createToolbar(vec2(player_pos.x, player_pos.y + CAMERA_VIEW_HEIGHT * 0.45));
 	for(int i = 0; i < NUM_SEED_TYPES; i++) {
 		if(registry.inventorys.components[0].seedCount[i] > 0) {
@@ -1393,14 +1393,14 @@ bool WorldSystem::detectButtons()
 				game_screen == GAME_SCREEN_ID::PLAYING;
 				clearButtons();
 				saveGame();
-				createPause(vec2(30, 30));
+				createPause(vec2(30, 30), BUTTON_ID::PAUSE);
 
 			} else if (b.type == BUTTON_ID::RESUME) {
 				game_screen = GAME_SCREEN_ID::PLAYING;
 				Entity& player_entity = registry.players.entities[0];
 				vec2 player_pos = registry.motions.get(player_entity).position;
 				clearButtons();
-				createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30));
+				createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30), BUTTON_ID::PAUSE);
 			}
 			return true;
 		}
@@ -1971,7 +1971,7 @@ void WorldSystem::loadGame()
 	Entity& player_entity = registry.players.entities[0];
 	vec2 player_pos = registry.motions.get(player_entity).position;
 	clearButtons();
-	createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30));
+	createPause(vec2(player_pos.x - CAMERA_VIEW_WIDTH/2+30, player_pos.y - CAMERA_VIEW_HEIGHT/2+30), BUTTON_ID::PAUSE);
 
 	std::cout << "Game loaded successfully." << std::endl;
 }
