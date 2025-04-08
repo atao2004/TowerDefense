@@ -599,7 +599,7 @@ void WorldSystem::increase_level() {
 		game_screen = GAME_SCREEN_ID::LEVEL_UP;
 		std::set<int> unique_numbers;
 		bool buttonsCreated = false;
-		return levelUpHelper(renderer, unique_numbers, buttonsCreated);
+		return levelUpHelper(unique_numbers, buttonsCreated);
 	}
 }
 
@@ -1332,7 +1332,7 @@ void WorldSystem::clearButtons()
 	}
 }
 
-void WorldSystem::levelUpHelper(RenderSystem *renderer, std::set<int> unique_numbers,  bool buttonsCreated) {
+void WorldSystem::levelUpHelper(std::set<int> unique_numbers,  bool buttonsCreated) {
 	std::cout << "Level up helper called" << std::endl;
     	std::mt19937 rng(time(0));            // Initialize random number generator with current time
     	std::uniform_int_distribution<int> dist(1, 8);  // Distribution between 1 and 8
@@ -1351,9 +1351,24 @@ void WorldSystem::levelUpHelper(RenderSystem *renderer, std::set<int> unique_num
 		int offset = 200;
 		for(int i = 0; i < unique_numbers.size(); i++)
 		{
+			int what;
+					Entity mwc_entity = registry.moveWithCameras.entities[0];
+		{
+			if (registry.motions.has(mwc_entity))
+			what =  405;//registry.motions.get(mwc_entity).position.y;
+		}
 			//vec2 player_pos = registry.cameras.components[0].position;
+			std::cout << "what" << what << std::endl;
 			int x_pos = player_pos.x - WINDOW_WIDTH_PX/4+100 + offset + 330;
-			int y_pos = player_pos.y +100;
+			int y_pos = what;
+			// if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			// 	int y_pos = player_pos.y +100 - registry.motions.get(player).velocity.y;
+			// if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			// 	int y_pos = player_pos.y +100 + registry.motions.get(player).velocity.y;
+			// if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			// 	int y_pos = player_pos.y +100 + registry.motions.get(player).velocity.y;
+			// if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			// 	int y_pos = player_pos.y +100 + registry.motions.get(player).velocity.y;
 			switch (unique_numbers_vec[i]) {
         case 1:
         	createButton(renderer, BUTTON_ID::LEVEL_UP_SEED1, vec2( x_pos, y_pos), vec2(WINDOW_WIDTH_PX/2+x_pos-player_pos.x, WINDOW_HEIGHT_PX/2 + 100), 0.8);

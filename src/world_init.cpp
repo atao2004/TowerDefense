@@ -55,6 +55,7 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 		button.position = vec2(toDeduct.x, toDeduct.y*OS_RES);
 	
 	Motion& motion = registry.motions.emplace(entity);
+	//MoveWithCamera &mwc = registry.moveWithCameras.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = {0, 0};
 	if (scale == 1) //splash screen don't change

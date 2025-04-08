@@ -1,5 +1,6 @@
 // internal
 #include "physics_system.hpp"
+#include "world_system.hpp"
 #include "world_init.hpp"
 #include <iostream>
 
@@ -157,7 +158,7 @@ bool collides_mesh(Entity a, Entity b)
 
 void PhysicsSystem::step(float elapsed_ms)
 {
-	if (!registry.screenStates.get(registry.screenStates.entities[0]).game_over)
+	if (!registry.screenStates.get(registry.screenStates.entities[0]).game_over && WorldSystem::get_game_screen() != GAME_SCREEN_ID::LEVEL_UP)
 	{
 
 		// Move each entity that has motion (players, and even towers [they have 0 for velocity])
