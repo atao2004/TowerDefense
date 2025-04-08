@@ -1703,7 +1703,7 @@ void WorldSystem::loadGame()
 	{
 		json motion = motion_arr[i];
 		Entity e = Entity(motion["entity"]);
-		Motion &m = registry.motions.emplace(e);
+		Motion& m = registry.motions.emplace_with_duplicates(e);
 		m.position = vec2(motion["position"][0], motion["position"][1]);
 		m.angle = motion["angle"];
 		m.velocity = vec2(0.0, 0.0);
