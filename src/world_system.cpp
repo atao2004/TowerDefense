@@ -590,12 +590,11 @@ void WorldSystem::increase_level() {
 		vec2 player_pos = registry.motions.get(player_entity).position;
 		vec2 player_size = registry.motions.get(player_entity).scale;
 		ParticleSystem::createLevelUpEffect(player_pos, player_size);
-
-		if (level == 2) {
-			registry.screenStates.components[0].cutscene = 3;
-			registry.screenStates.components[0].cg_index = 0;
-			return start_cg(renderer);
-		}
+	}
+	else if (level == 2 && registry.screenStates.components[0].cutscene != 3) {
+		registry.screenStates.components[0].cutscene = 3;
+		registry.screenStates.components[0].cg_index = 0;
+		return start_cg(renderer);
 	}
 }
 
