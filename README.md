@@ -35,15 +35,14 @@
 ## Controls:
 
 - **WASD** – Move the player  
-- **Left Click** – Attack/click button/choose seeds in leveling up screen
-- **Right Click (or F)** - Plant seed
+- **Left Click** – Attack / Select / Choose seeds in level up screen
+- **Right Click** - Plant seed
 - **C** - Summon chicken
-- **G** – Spawn enemy
 - **R** – Restart game
 - **T** - Enter/Exit tutorial  
 - **ESC** – Close game 
-- **"SPACE"** – Dash
--  **"number key 1~7"**  – Choose seed in the inventory
+- **SPACE** – Dash
+-  **Number Key 1-7**  – Choose seed in inventory
 
 ## M1 Features:
 
