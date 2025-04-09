@@ -1418,8 +1418,8 @@ bool WorldSystem::detectButtons()
 			{
 				std::cout<<"x "<<b.position.x - 40<<" "<<b.position.x + 40 <<std::endl;
 				std::cout<<"y "<<b.position.y - 40 <<" "<<b.position.y + 40<<std::endl;
-				if (mouse_pos_x >= b.position.x - 40  && mouse_pos_x <= b.position.x + 40 &&
-					mouse_pos_y >= b.position.y - 40 && mouse_pos_y <= b.position.y + 40 )
+				if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_HEIGHT*OS_RES / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_HEIGHT*OS_RES / 2 &&
+			mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT*OS_RES / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT*OS_RES / 2)
 				{
 					if(b.type == BUTTON_ID::LEVEL_UP_SEED1) {
 						clearButtons();
