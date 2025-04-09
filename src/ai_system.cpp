@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "ai_system.hpp"
 #include "status_system.hpp"
 #include "world_init.hpp"
@@ -69,16 +70,17 @@ void AISystem::handle_chase_behavior(Entity entity, float elapsed_ms)
     // If entity has hit effect, reduce chase speed
     Enemy &enemy = registry.enemies.get(entity);
     float current_speed = enemy.speed;
-    
+
     // Slow effect
-    if (registry.slowEffects.has(entity)) {
-        Slow& slow = registry.slowEffects.get(entity);
+    if (registry.slowEffects.has(entity))
+    {
+        Slow &slow = registry.slowEffects.get(entity);
         slow.timer_ms -= elapsed_ms;
         if (slow.timer_ms > 0)
             current_speed *= slow.value;
         else
             registry.slowEffects.remove(entity);
-    }    
+    }
 
     // Add to velocity instead of overwriting
     motion.velocity += direction * current_speed;
@@ -235,7 +237,41 @@ void AISystem::update_skeletons(float elapsed_ms)
 
         Skeleton &skeleton = registry.skeletons.get(entity);
         Motion &skeleton_motion = registry.motions.get(entity);
+        // Check if skeleton is outside the map boundaries
+        bool is_outside_map = (skeleton_motion.position.x < 0 ||
+                               skeleton_motion.position.x > MAP_WIDTH_PX ||
+                               skeleton_motion.position.y < 0 ||
+                               skeleton_motion.position.y > MAP_HEIGHT_PX);
 
+        // Force skeletons outside map to move towards map center/edge regardless of target
+        if (is_outside_map)
+        {
+            // Find closest point on map boundary
+            vec2 target_pos;
+
+            // Clamp to map boundaries
+            target_pos.x = std::max<float>(0.0f, std::min<float>(static_cast<float>(MAP_WIDTH_PX), skeleton_motion.position.x));
+            target_pos.y = std::max<float>(0.0f, std::min<float>(static_cast<float>(MAP_HEIGHT_PX), skeleton_motion.position.y));
+
+            // Move toward map boundary
+            vec2 direction = target_pos - skeleton_motion.position;
+            float dist = length(direction);
+
+            if (dist > 1.0f)
+            { // Only move if not already at the boundary
+                skeleton_motion.velocity = normalize(direction) * (float)SKELETON_ARCHER_SPEED;
+                skeleton.current_state = Skeleton::State::WALK;
+
+                // Update the facing direction
+                if (direction.x != 0)
+                {
+                    skeleton_motion.scale.x = (direction.x > 0) ? abs(skeleton_motion.scale.x) : -abs(skeleton_motion.scale.x);
+                }
+
+                // Skip the rest of the behavior logic until inside the map
+                continue;
+            }
+        }
         // Previous state for detecting state changes
         Skeleton::State prev_state = skeleton.current_state;
 
