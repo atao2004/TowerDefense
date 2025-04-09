@@ -638,13 +638,15 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 			{
 				if (registry.motions.has(seed_entity) && registry.moveWithCameras.has(seed_entity))
 				{
-					if (registry.inventorys.size() != 0)
-					{
+					if (registry.inventorys.size() != 0) {
 						int seed_type = registry.seeds.get(seed_entity).type;
-						int seed_count = registry.inventorys.components[0].seedCount[seed_type];
+						int current_seed_count = registry.inventorys.components[0].seedCount[seed_type];
 						vec2 seed_pos = registry.motions.get(seed_entity).position;
-
-						renderText(std::to_string(seed_count), WINDOW_WIDTH_PX / 2 - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (seed_type * 0.95 + 0.95), 25, 0.25, {0.6, 0.25, 0.25}, trans);
+						#if __APPLE__
+						renderText(std::to_string(current_seed_count), WINDOW_WIDTH_PX / 2 - TOOLBAR_WIDTH / 2 + TOOLBAR_HEIGHT * (seed_type * 0.95 + 0.9), 22.5, 0.25, {0.7, 0.25, 0.25}, trans);
+						#else
+						renderText(std::to_string(current_seed_count), WINDOW_WIDTH_PX / 2 - 550 / 2 + 550 / 8 * seed_type + 5, 25, 0.25, {0.7, 0.25, 0.25}, trans);
+						#endif
 					}
 				}
 			}
