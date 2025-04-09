@@ -1,5 +1,6 @@
 // internal
 #include "physics_system.hpp"
+#include "world_system.hpp"
 #include "world_init.hpp"
 #include <iostream>
 
@@ -157,7 +158,7 @@ bool collides_mesh(Entity a, Entity b)
 
 void PhysicsSystem::step(float elapsed_ms)
 {
-	if (!registry.screenStates.get(registry.screenStates.entities[0]).game_over)
+	if (!registry.screenStates.get(registry.screenStates.entities[0]).game_over && WorldSystem::get_game_screen() != GAME_SCREEN_ID::LEVEL_UP)
 	{
 
 		// Move each entity that has motion (players, and even towers [they have 0 for velocity])
@@ -257,10 +258,10 @@ void PhysicsSystem::handle_projectile_collisions()
 		Motion &motion = registry.motions.get(projectile);
 
 		// Check if projectile is out of window bounds
-		if (motion.position.x < 0 ||
-			motion.position.x > MAP_WIDTH_PX ||
-			motion.position.y < 0 ||
-			motion.position.y > MAP_HEIGHT_PX)
+		if (motion.position.x < -500 ||
+			motion.position.x > MAP_WIDTH_PX + 500 ||
+			motion.position.y < -500 ||
+			motion.position.y > MAP_HEIGHT_PX + 500)
 		{
 			// Remove projectile if it's out of bounds
 			registry.remove_all_components_of(projectile);
@@ -375,10 +376,10 @@ void PhysicsSystem::handle_arrows(float elapsed_ms)
 		}
 
 		// Check if arrow is out of window bounds
-		if (motion.position.x < -300 ||
-			motion.position.x > MAP_WIDTH_PX + 300 ||
-			motion.position.y < 0 - 300 ||
-			motion.position.y > MAP_HEIGHT_PX + 300)
+		if (motion.position.x < -500 ||
+			motion.position.x > MAP_WIDTH_PX + 500 ||
+			motion.position.y < 0 - 500 ||
+			motion.position.y > MAP_HEIGHT_PX + 500)
 		{
 			// Remove arrow if it's out of bounds
 			registry.remove_all_components_of(entity);

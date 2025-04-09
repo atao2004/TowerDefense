@@ -99,7 +99,7 @@ int main()
 	FrameManager fm_tower = FrameManager(5);
 	FrameManager fm_movement = FrameManager(2);
 	FrameManager fm_animation = FrameManager(2);
-	FrameManager fm_particle = FrameManager(5);
+	FrameManager fm_particle = FrameManager(10);
 	FrameManager fm_seed = FrameManager(5);
 	FrameManager fm_render = FrameManager(5);
 	FrameManager fm_player = FrameManager(5);
@@ -120,7 +120,7 @@ int main()
 
 		// CK: be mindful of the order of your systems and rearrange this list only if necessary
 		//when level up, we want the screen to be frozen
-		if (game_screen != GAME_SCREEN_ID::PAUSE) {
+		if (game_screen != GAME_SCREEN_ID::PAUSE && game_screen != GAME_SCREEN_ID::LEVEL_UP) {
 			if (fm_world.can_update()) world_system.step(fm_world.get_time());
 			if (!WorldSystem::game_is_over && game_screen != GAME_SCREEN_ID::SPLASH && game_screen != GAME_SCREEN_ID::CG ) {
 				//M2: FPS
@@ -183,8 +183,9 @@ int main()
 		renderer_system.renderText("hello", 100, 100, 1, {1, 1, 0}, trans);
     
 		if (fm_render.can_update() ||
-		WorldSystem::game_is_over || game_screen == GAME_SCREEN_ID::CG || game_screen == GAME_SCREEN_ID::PAUSE || game_screen == GAME_SCREEN_ID::SPLASH) 
+		WorldSystem::game_is_over || game_screen == GAME_SCREEN_ID::CG || game_screen == GAME_SCREEN_ID::PAUSE || game_screen == GAME_SCREEN_ID::SPLASH || game_screen == GAME_SCREEN_ID::LEVEL_UP) 
 			renderer_system.step_and_draw(fm_render.get_time());
+    
 	}
 	return EXIT_SUCCESS;
 }

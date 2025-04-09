@@ -33,6 +33,7 @@
 	static void start_cg(RenderSystem* renderer);
 	bool detectButtons();
 	void clearButtons();
+	void levelUpHelper(std::set<int> unique_numbers, bool buttonsCreated);
 
 	// starts the game
 	void init(RenderSystem *renderer);

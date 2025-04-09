@@ -40,11 +40,19 @@ struct Inventory
     json toJSON() const
     {
         nlohmann::json seedJson;
+        nlohmann::json seedPositionJson;
+        nlohmann::json seedAtToolbarJson;
         for (int i = 0; i < NUM_SEED_TYPES; i++)
-        {
             seedJson[std::to_string(i)] = seedCount[i];
-        }
-        return json{{"seedCount", seedJson}};
+        for (int i = 0; i < 8; i++)
+            seedPositionJson[std::to_string(i)] = seedPosition[i];
+        for (int i = 0; i < 8; i++)
+            seedAtToolbarJson[std::to_string(i)] = seedAtToolbar[i];
+        return json{
+            {"seedCount", seedJson},
+            {"seedPosition", seedPositionJson},
+            {"seedAtToolbar", seedAtToolbarJson}
+        };
     }
 };
 
@@ -154,7 +162,8 @@ struct Player
     json toJSON() const
     {
         return json{
-            {"health", health}};
+            {"health", health},
+            {"health_max", health_max}};
     }
 };
 
@@ -400,7 +409,9 @@ struct Tower
             {"damage", damage},
             {"range", range},
             {"timer_ms", timer_ms},
-            {"state", state}};
+            {"state", state},
+            {"type", type}
+        };
     }
 };
 
@@ -635,7 +646,13 @@ struct Particle
 
     json toJSON() const
     {
-        return json{};
+        return json{
+            {"Position", {Position.x, Position.y}},
+            {"Velocity", {Velocity.x, Velocity.y}},
+            {"Color", {Color.x, Color.y, Color.z, Color.a}},
+            {"Life", Life},
+            {"MaxLife", MaxLife}
+        };
     }
 };
 
@@ -706,7 +723,25 @@ struct Squad
 
     json toJSON() const
     {
-        return json{};
+        json archersJson = json::array();
+        json orcsJson = json::array();
+        json knightsJson = json::array();
+        for (const auto& archer : archers)
+            archersJson.push_back(archer.id());
+        for (const auto& orc : orcs)
+            orcsJson.push_back(orc.id());
+        for (const auto& knight : knights)
+            knightsJson.push_back(knight.id());
+        return json{
+            {"squad_id", squad_id},
+            {"archers", archersJson},
+            {"orcs", orcsJson},
+            {"knights", knightsJson},
+            {"formation_center", {formation_center.x, formation_center.y}},
+            {"last_player_pos", {last_player_pos.x, last_player_pos.y}},
+            {"coordination_timer", coordination_timer},
+            {"is_active", is_active}
+        };
     }
 };
 
@@ -716,7 +751,10 @@ struct Slow
     int timer_ms;
     json toJSON() const
     {
-        return json{};
+        return json{
+            {"value", value},
+            {"timer_ms", timer_ms}
+        };
     }
 };
 

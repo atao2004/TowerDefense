@@ -45,24 +45,30 @@ Entity createPausePanel(RenderSystem* renderer, vec2 position) {
 	return entity;
 }
 
-Entity createButton(BUTTON_ID type, vec2 position, vec2 toDeduct, float scale) {
+Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 toDeduct, float scale) {
 	Entity entity = Entity();
 	CustomButton &button = registry.buttons.emplace(entity);
 	button.type = type;
 	if (scale == 1) //splash screen don't change
 		button.position = toDeduct;
 	else
-		button.position = vec2(toDeduct.x, toDeduct.y*OS_RES);
+		button.position = vec2(toDeduct.x, toDeduct.y);
 	
 	Motion& motion = registry.motions.emplace(entity);
+	//MoveWithCamera &mwc = registry.moveWithCameras.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = {0, 0};
-	if (scale == 1) //splash screen don't change
+		if (scale == 1) { //splash screen don't change 
 		motion.position = position;
-	else
-		motion.position = vec2(position.x, position.y*OS_RES);
-
-	motion.scale = vec2(BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT)*scale;
+	}
+	else {
+		motion.position = vec2(position.x, position.y);
+	}
+	if (button.type == BUTTON_ID::LEVEL_UP_SEED1 || button.type == BUTTON_ID::LEVEL_UP_SEED2 || button.type == BUTTON_ID::LEVEL_UP_SEED3 || button.type == BUTTON_ID::LEVEL_UP_SEED4 || button.type == BUTTON_ID::LEVEL_UP_SEED5 || button.type == BUTTON_ID::LEVEL_UP_SEED6 || button.type == BUTTON_ID::LEVEL_UP_SEED7 || button.type == BUTTON_ID::LEVEL_UP_SEED8) {
+		motion.scale = vec2(BUTTON_SPLASH_HEIGHT, BUTTON_SPLASH_HEIGHT) * scale;
+	} else {
+		motion.scale = vec2(BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT)*scale;
+	}
 	if (scale == -1) {
 		motion.scale = vec2(60, 60);
 	}
@@ -72,7 +78,6 @@ Entity createButton(BUTTON_ID type, vec2 position, vec2 toDeduct, float scale) {
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 	registry.cgs.emplace(entity);
-	registry.moveWithCameras.emplace(entity);
 	return entity;
 }
 
@@ -797,7 +802,7 @@ Entity createGameOver()
 
 // Kung: Create the pause button that will eventually pause the game.
 // As of now, it is purely cosmetic.
-Entity createPause(vec2 position)
+Entity createPause(vec2 position, BUTTON_ID texture)
 {
 	// Create the associated entity.
 	Entity pause_entity = Entity();
@@ -818,7 +823,7 @@ Entity createPause(vec2 position)
 	// Render the object.
 	registry.renderRequests.insert(
 		pause_entity,
-		{TEXTURE_ASSET_ID::PAUSE_BUTTON,
+		{(TEXTURE_ASSET_ID)((int)TEXTURE_ASSET_ID::START_BUTTON + (int)texture),
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
@@ -954,6 +959,9 @@ Entity createSeedInventory(vec2 pos, vec2 velocity, int type, int toolbar_pos)
 	motion_component.position = pos;
 	motion_component.scale = vec2(50, 50);
 	motion_component.velocity = velocity;
+
+	VisualScale& vscale = registry.visualScales.emplace(seed_entity);
+	vscale.scale = {0.75, 0.75};
 
 	// Render the object.
 	registry.renderRequests.insert(
