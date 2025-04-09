@@ -34,15 +34,15 @@
 ## Controls:
 
 - **WASD** – Move the player  
-- **Left Click** – Attack
+- **Left Click** – Attack/click button/choose seeds in leveling up screen
 - **Right Click (or F)** - Plant seed
 - **C** - Summon chicken
 - **G** – Spawn enemy
 - **R** – Restart game
 - **T** - Enter/Exit tutorial  
 - **ESC** – Close game 
-- **"-"** – Load Game
-- **"="** – Save 
+- **"SPACE"** – Dash
+-  **"number key 1~7"**  – Choose seed in the inventory
 
 ## M1 Features:
 
@@ -167,7 +167,7 @@
 ## M4 Features:
 
 ### Basic Improvement
-* Added 7 new enemy types, including Orc Knights with a new charging attack pattern
+* Added 1 new enemy type:The Orc Knights with a new charging attack pattern
 * Added 6 new tower types:
   * Two towers that can fire projectiles with different speed and damage
   * One tower that can heal the player within its range
@@ -178,6 +178,10 @@
 * Added a pause menu where players can load game, save game, or exit game
 * Added a level-up reward menu. When leveling up, players can choose a seed as a reward from the menu
 * Enhanced UI with more game information
+* The game over screen now shows the number of enemies killed, days survived, and final level of the player.
+* The enemies have been specified for days 1-11.- Random enemies for day 12 and onwards.
+* Small fade effect to mark the transition from one day to the next.
+* Player can attack up/down and dash now.
 
 ### Creative Elements
 * **Challenge Level**: On the day 5, tactical squad enemies will appear who cooperate to attack the player
