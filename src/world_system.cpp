@@ -590,12 +590,11 @@ void WorldSystem::increase_level() {
 		vec2 player_pos = registry.motions.get(player_entity).position;
 		vec2 player_size = registry.motions.get(player_entity).scale;
 		ParticleSystem::createLevelUpEffect(player_pos, player_size);
-
-		if (level == 2) {
-			registry.screenStates.components[0].cutscene = 3;
-			registry.screenStates.components[0].cg_index = 0;
-			return start_cg(renderer);
-		}
+	}
+	else if (level == 2 && registry.screenStates.components[0].cutscene != 3) {
+		registry.screenStates.components[0].cutscene = 3;
+		registry.screenStates.components[0].cg_index = 0;
+		return start_cg(renderer);
 	}
 }
 
@@ -1348,10 +1347,10 @@ bool WorldSystem::detectButtons()
 					Entity& player = registry.players.entities[0];
 					vec2 player_pos = registry.motions.get(player).position;
 					createPausePanel(renderer, vec2(player_pos.x, player_pos.y));
-					createButton(BUTTON_ID::RESUME, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100-BUTTON_SPLASH_HEIGHT/2), 0.8);
-					createButton(BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200), 0.8);
-					createButton(BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300), 0.8);
-					createButton(BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400), 0.8);
+					createButton(BUTTON_ID::RESUME, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4+100*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+100*OS_RES-BUTTON_SPLASH_HEIGHT*OS_RES/2), 0.8);
+					createButton(BUTTON_ID::LOAD, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 200*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+200*OS_RES), 0.8);
+					createButton(BUTTON_ID::SAVE, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 300*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+300*OS_RES), 0.8);
+					createButton(BUTTON_ID::QUIT, vec2(player_pos.x, player_pos.y - WINDOW_HEIGHT_PX/4 + 400*OS_RES), vec2(WINDOW_WIDTH_PX/2, WINDOW_HEIGHT_PX/2-WINDOW_HEIGHT_PX/4+400*OS_RES), 0.8);
 					return true;
 				}
 				else if (game_screen == GAME_SCREEN_ID::PAUSE && b.type == BUTTON_ID::PAUSE)
@@ -1365,8 +1364,8 @@ bool WorldSystem::detectButtons()
 				}
 			}
 		}
-		if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH / 2 &&
-			mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT / 2)
+		if (mouse_pos_x >= b.position.x - BUTTON_SPLASH_WIDTH*OS_RES / 2 && mouse_pos_x <= b.position.x + BUTTON_SPLASH_WIDTH*OS_RES / 2 &&
+			mouse_pos_y >= b.position.y - BUTTON_SPLASH_HEIGHT*OS_RES / 2 && mouse_pos_y <= b.position.y + BUTTON_SPLASH_HEIGHT*OS_RES / 2)
 		{
 			if (b.type == BUTTON_ID::START)
 			{
@@ -1703,7 +1702,7 @@ void WorldSystem::loadGame()
 	{
 		json motion = motion_arr[i];
 		Entity e = Entity(motion["entity"]);
-		Motion &m = registry.motions.emplace(e);
+		Motion& m = registry.motions.emplace_with_duplicates(e);
 		m.position = vec2(motion["position"][0], motion["position"][1]);
 		m.angle = motion["angle"];
 		m.velocity = vec2(0.0, 0.0);
@@ -1753,6 +1752,7 @@ void WorldSystem::loadGame()
 		tower.range = tower_json["range"];
 		tower.timer_ms = tower_json["timer_ms"];
 		tower.state = tower_json["state"];
+		tower.type = tower_json["type"];
 	}
 
 	json zombie_arr = jsonFile["10"];
@@ -1779,6 +1779,7 @@ void WorldSystem::loadGame()
 		Entity e = Entity(player_json["entity"]);
 		Player &player = registry.players.emplace(e);
 		player.health = player_json["health"];
+		player.health_max = player_json["health_max"];
 	}
 
 	json sc_arr = jsonFile["13"];
@@ -1947,10 +1948,14 @@ void WorldSystem::loadGame()
 		Entity e = Entity(inventory_json["entity"]);
 		Inventory &in = registry.inventorys.emplace(e);
 		json seed_arr = inventory_json["seedCount"];
+		json seed_position_arr = inventory_json["seedPosition"];
+		json seed_at_toolbar_arr = inventory_json["seedAtToolbar"];
 		for (long unsigned int i = 0; i < seed_arr.size(); i++)
-		{
 			in.seedCount[i] = seed_arr[std::to_string(i)];
-		}
+		for (long unsigned int i = 0; i < seed_position_arr.size(); i++)
+			in.seedPosition[i] = seed_position_arr[std::to_string(i)];
+		for (long unsigned int i = 0; i < seed_at_toolbar_arr.size(); i++)
+			in.seedAtToolbar[i] = seed_at_toolbar_arr[std::to_string(i)];
 	}
 
 	json seed_arr = jsonFile["27"];
@@ -1986,6 +1991,68 @@ void WorldSystem::loadGame()
 		Entity e = Entity(plant_animation_json["entity"]);
 		PlantAnimation& plant_animation = registry.plantAnimations.emplace(e);
 		plant_animation.id = plant_animation_json["id"];
+	}
+
+	json orc_rider_arr = jsonFile["36"];
+	for (long unsigned int i = 0; i < orc_rider_arr.size(); i++)
+	{
+		json orc_rider_json = orc_rider_arr[i];
+		Entity e = Entity(orc_rider_json["entity"]);
+		OrcRider& orc_rider = registry.orcRiders.emplace(e);
+		orc_rider.current_state = orc_rider_json["current_state"];
+		orc_rider.target = Entity(orc_rider_json["target"]);
+		orc_rider.detection_range = orc_rider_json["detection_range"];
+		orc_rider.hunt_range = orc_rider_json["hunt_range"];
+		orc_rider.charge_speed = orc_rider_json["charge_speed"];
+		orc_rider.walk_speed = orc_rider_json["walk_speed"];
+		orc_rider.charge_distance = orc_rider_json["charge_distance"];
+		orc_rider.damage = orc_rider_json["damage"];
+		orc_rider.is_hunting = orc_rider_json["is_hunting"];
+		orc_rider.is_charging = orc_rider_json["is_charging"];
+		orc_rider.hunt_timer_ms = orc_rider_json["hunt_timer_ms"];
+		orc_rider.charge_timer_ms = orc_rider_json["charge_timer_ms"];
+		orc_rider.charge_direction = vec2(orc_rider_json["charge_direction"][0], orc_rider_json["charge_direction"][1]);
+		orc_rider.has_hit_player = orc_rider_json["has_hit_player"];
+	}
+
+	json squad_arr = jsonFile["37"];
+	for (long unsigned int i = 0; i < squad_arr.size(); i++)
+	{
+		json squad_json = squad_arr[i];
+		Entity e = Entity(squad_json["entity"]);
+		Squad& squad = registry.squads.emplace(e);
+		squad.squad_id = squad_json["squad_id"];
+		squad.formation_center = vec2(squad_json["formation_center"][0], squad_json["formation_center"][1]);
+		squad.last_player_pos = vec2(squad_json["last_player_pos"][0], squad_json["last_player_pos"][1]);
+		squad.coordination_timer = squad_json["coordination_timer"];
+		squad.is_active = squad_json["is_active"];
+		for (const auto& archer : squad_json["archers"])
+			squad.archers.push_back(Entity(archer));
+		for (const auto& orc : squad_json["orcs"])
+			squad.orcs.push_back(Entity(orc));
+		for (const auto& knight : squad_json["knights"])
+			squad.knights.push_back(Entity(knight));
+	}
+
+	json slow_effect_arr = jsonFile["38"];
+	for (long unsigned int i = 0; i < slow_effect_arr.size(); i++)
+	{
+		json slow_effect_json = slow_effect_arr[i];
+		Entity e = Entity(slow_effect_json["entity"]);
+		Slow& slow = registry.slowEffects.emplace(e);
+		slow.value = slow_effect_json["value"];
+		slow.timer_ms = slow_effect_json["timer_ms"];
+	}
+
+	json electricity_arr = jsonFile["39"];
+	for (long unsigned int i = 0; i < electricity_arr.size(); i++)
+	{
+		json electricity_json = electricity_arr[i];
+		Entity e = Entity(electricity_json["entity"]);
+		ElectricityData& electricity = registry.customData.emplace(e);
+		electricity.noise_seed = electricity_json["noise_seed"];
+		electricity.curve_ctrl1 = vec2(electricity_json["curve_ctrl1"][0], electricity_json["curve_ctrl1"][1]);
+		electricity.curve_ctrl2 = vec2(electricity_json["curve_ctrl2"][0], electricity_json["curve_ctrl2"][1]);
 	}
 
 	Entity& player_entity = registry.players.entities[0];

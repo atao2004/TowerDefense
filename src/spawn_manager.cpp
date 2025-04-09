@@ -185,7 +185,7 @@ void SpawnManager::spawnEnemyByDay(RenderSystem *renderer, vec2 spawn_pos, int c
         }
     }
 
-    if (current_day == 11)
+    if (current_day == 5)
     {
         // It's challenge day!
         start_challenge_day(renderer, spawn_pos);

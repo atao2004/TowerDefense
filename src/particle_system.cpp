@@ -43,8 +43,8 @@ void ParticleSystem::updateParticleGenerators(float elapsed_ms)
             generator.duration_ms -= elapsed_ms;
             if (generator.duration_ms <= 0)
             {
-                generator.isActive = false;
-                continue;
+                registry.remove_all_components_of(entity);
+                break;
             }
         }
 
