@@ -593,7 +593,6 @@ void WorldSystem::increase_level()
 			registry.inventorys.components[0].seedAtToolbar[current_seed] == -1;
 			createSeedInventory(vec2(registry.motions.get(player_entity).position.x + (current_seed - 4) * TOOLBAR_WIDTH / 8 + TOOLBAR_HEIGHT / 2, registry.motions.get(player_entity).position.y + CAMERA_VIEW_HEIGHT * 0.45), registry.motions.get(player_entity).velocity, current_seed, 0);
 		}
-		registry.inventorys.components[0].seedCount[current_seed]++; // increment the seed count
 		registry.screenStates.get(registry.screenStates.entities[0]).exp_percentage = 0.0;
 		level++;
 
@@ -604,7 +603,7 @@ void WorldSystem::increase_level()
 		game_screen = GAME_SCREEN_ID::LEVEL_UP;
 		std::set<int> unique_numbers;
 		bool buttonsCreated = false;
-		return levelUpHelper(unique_numbers, buttonsCreated);
+		return levelUpHelper(unique_numbers, buttonsCreated); // increment the seed count of the selected seed
 	}
 	else if (level == 2 && registry.screenStates.components[0].cutscene != 3)
 	{
