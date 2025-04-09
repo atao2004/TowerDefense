@@ -375,10 +375,10 @@ void PhysicsSystem::handle_arrows(float elapsed_ms)
 		}
 
 		// Check if arrow is out of window bounds
-		if (motion.position.x < -300 ||
-			motion.position.x > MAP_WIDTH_PX + 300 ||
-			motion.position.y < 0 - 300 ||
-			motion.position.y > MAP_HEIGHT_PX + 300)
+		if (motion.position.x < -500 ||
+			motion.position.x > MAP_WIDTH_PX + 500 ||
+			motion.position.y < 0 - 500 ||
+			motion.position.y > MAP_HEIGHT_PX + 500)
 		{
 			// Remove arrow if it's out of bounds
 			registry.remove_all_components_of(entity);
