@@ -662,8 +662,12 @@ void RenderSystem::step_and_draw(float elapsed_ms)
 			// Render the number of enemies on screen
 			renderText("Enemy count: " + std::to_string(registry.enemies.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.875, 0.3, {0, 1, 1}, trans);
 
-			// Render the number of plants on screen (Includes plant in inventory)
-			renderText("Plant count: " + std::to_string(registry.seeds.size() + registry.towers.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.825, 0.3, {0, 1, 1}, trans);
+			// Render the number of plants on screen
+			int total_seed_count = 0;
+			for (Entity entity : registry.seeds.entities) {
+				if (!registry.moveWithCameras.has(entity)) total_seed_count++;
+			}
+			renderText("Plant count: " + std::to_string(total_seed_count + registry.towers.size()), WINDOW_WIDTH_PX * 0.05, WINDOW_HEIGHT_PX * 0.825, 0.3, {0, 1, 1}, trans);
 
 		}
 
