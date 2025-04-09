@@ -167,9 +167,9 @@
 ## M4 Features:
 
 ### Basic Improvement
-* Added 1 new enemy type:The Orc Knights with a new charging attack pattern
-* Added 6 new tower types:
-  * Two towers that can fire projectiles with different speed and damage
+* Added 1 new enemy type: The Orc Knight (Rider) with a new charging attack pattern
+* Added 6 new tower (plant) types:
+  * Two towers that can fire projectiles with different range and rate of fire
   * One tower that can heal the player within its range
   * One tower that damages enemies within its range
   * One tower that slows enemy movement speed within its range
@@ -185,4 +185,4 @@
 
 ### Creative Elements
 * **Challenge Level**: On the day 5, tactical squad enemies will appear who cooperate to attack the player
-* **Game Balance**: Adjusted game balance to improve players' flow
+* **Game Balance**: Adjusted game balance to improve player experience (difficulty, information, pacing)
