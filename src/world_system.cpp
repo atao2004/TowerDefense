@@ -595,15 +595,15 @@ void WorldSystem::increase_level() {
 		vec2 player_size = registry.motions.get(player_entity).scale;
 		ParticleSystem::createLevelUpEffect(player_pos, player_size);
 
-		if (level == 2) {
-			registry.screenStates.components[0].cutscene = 3;
-			registry.screenStates.components[0].cg_index = 0;
-			return start_cg(renderer);
-		}
 		game_screen = GAME_SCREEN_ID::LEVEL_UP;
 		std::set<int> unique_numbers;
 		bool buttonsCreated = false;
 		return levelUpHelper(unique_numbers, buttonsCreated);
+	}
+	else if (level == 2 && registry.screenStates.components[0].cutscene != 3) {
+		registry.screenStates.components[0].cutscene = 3;
+		registry.screenStates.components[0].cg_index = 0;
+		return start_cg(renderer);
 	}
 }
 
