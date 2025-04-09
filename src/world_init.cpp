@@ -593,7 +593,7 @@ Entity createTutorialChangeSeed(vec2 position)
 		 GEOMETRY_BUFFER_ID::SPRITE});
 
 	// Create the animation
-	static TEXTURE_ASSET_ID asset_id_array[9] = {
+	static TEXTURE_ASSET_ID asset_id_array[8] = {
 		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED,
 		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_1,
 		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_2,
@@ -601,12 +601,11 @@ Entity createTutorialChangeSeed(vec2 position)
 		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_4,
 		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_5,
 		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_6,
-		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_7,
-		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_8};
+		TEXTURE_ASSET_ID::TUTORIAL_CHANGE_SEED_7};
 
 	Animation &animation_component = registry.animations.emplace(tutorial_entity);
-	animation_component.transition_ms = 1000;
-	animation_component.pose_count = 9;
+	animation_component.transition_ms = 2000;
+	animation_component.pose_count = 8;
 	animation_component.loop = true;
 	animation_component.lock = true;
 	animation_component.textures = asset_id_array;
