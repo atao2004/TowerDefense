@@ -432,6 +432,7 @@ void RenderSystem::drawToScreen()
 		GLuint game_continues_uloc = glGetUniformLocation(ui_program, "game_over");
 		GLuint dark_uloc = glGetUniformLocation(ui_program, "darken_factor");
 
+		glUniform1f(dark_uloc, screen.darken_screen_factor);
 		glUniform1f(game_continues_uloc, screen.game_over);
 		glUniform1f(hp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE || WorldSystem::get_game_screen() == GAME_SCREEN_ID::LEVEL_UP|| WorldSystem::get_game_screen() == GAME_SCREEN_ID::GAME_OVER)? 0 : screen.hp_percentage);
 		glUniform1f(exp_uloc, (WorldSystem::get_game_screen() == GAME_SCREEN_ID::SPLASH || WorldSystem::get_game_screen() == GAME_SCREEN_ID::CG || WorldSystem::get_game_screen() == GAME_SCREEN_ID::PAUSE || WorldSystem::get_game_screen() == GAME_SCREEN_ID::LEVEL_UP|| WorldSystem::get_game_screen() == GAME_SCREEN_ID::GAME_OVER) ? 0 : screen.exp_percentage);
