@@ -161,3 +161,24 @@
   * Growth effects when seeds mature
   * Level-up effects when player gains a level
   *(Note: Particle effects may not work on all computers. If you find that particle effects are not rendering properly, please contact us)*
+
+
+
+## M4 Features:
+
+### Basic Improvement
+* Added 7 new enemy types, including Orc Knights with a new charging attack pattern
+* Added 6 new tower types:
+  * Two towers that can fire projectiles with different speed and damage
+  * One tower that can heal the player within its range
+  * One tower that damages enemies within its range
+  * One tower that slows enemy movement speed within its range
+  * One tower that generates electrical current between two towers
+* Added 6 new seed types that grow into corresponding towers. Players can select them from the inventory using number keys
+* Added a pause menu where players can load game, save game, or exit game
+* Added a level-up reward menu. When leveling up, players can choose a seed as a reward from the menu
+* Enhanced UI with more game information
+
+### Creative Elements
+* **Challenge Level**: On the day 5, tactical squad enemies will appear who cooperate to attack the player
+* **Game Balance**: Adjusted game balance to improve players' flow
