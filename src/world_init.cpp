@@ -58,12 +58,17 @@ Entity createButton(RenderSystem* renderer, BUTTON_ID type, vec2 position, vec2 
 	//MoveWithCamera &mwc = registry.moveWithCameras.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = {0, 0};
-	if (scale == 1) //splash screen don't change
+		if (scale == 1) { //splash screen don't change 
 		motion.position = position;
-	else
+	}
+	else {
 		motion.position = vec2(position.x, position.y);
-
-	motion.scale = vec2(BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT)*scale;
+	}
+	if (button.type == BUTTON_ID::LEVEL_UP_SEED1 || button.type == BUTTON_ID::LEVEL_UP_SEED2 || button.type == BUTTON_ID::LEVEL_UP_SEED3 || button.type == BUTTON_ID::LEVEL_UP_SEED4 || button.type == BUTTON_ID::LEVEL_UP_SEED5 || button.type == BUTTON_ID::LEVEL_UP_SEED6 || button.type == BUTTON_ID::LEVEL_UP_SEED7 || button.type == BUTTON_ID::LEVEL_UP_SEED8) {
+		motion.scale = vec2(BUTTON_SPLASH_HEIGHT, BUTTON_SPLASH_HEIGHT) * scale;
+	} else {
+		motion.scale = vec2(BUTTON_SPLASH_WIDTH, BUTTON_SPLASH_HEIGHT)*scale;
+	}
 	if (scale == -1) {
 		motion.scale = vec2(60, 60);
 	}
