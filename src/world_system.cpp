@@ -1337,7 +1337,7 @@ void WorldSystem::levelUpHelper(std::set<int> unique_numbers, bool buttonsCreate
 {
 	std::cout << "Level up helper called" << std::endl;
 	std::mt19937 rng(time(0));					   // Initialize random number generator with current time
-	std::uniform_int_distribution<int> dist(1, 8); // Distribution between 1 and 8
+	std::uniform_int_distribution<int> dist(1, 7); // Distribution between 1 and 8
 	clearButtons();
 	Entity &player = registry.players.entities[0];
 	vec2 player_pos = registry.motions.get(player).position;
