@@ -513,17 +513,19 @@ void WorldSystem::restart_tutorial()
 	// }
 
 	// create the tutorial assets
-	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * -0.15, TUTORIAL_SIGN_HEIGHT_PX));
-	createTutorialDash(vec2(TUTORIAL_WIDTH_PX * 0.1, TUTORIAL_SIGN_HEIGHT_PX));
-	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.35, TUTORIAL_SIGN_HEIGHT_PX));
-	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.6, TUTORIAL_SIGN_HEIGHT_PX));
-	createTutorialChangeSeed(vec2(TUTORIAL_WIDTH_PX * 0.85, TUTORIAL_SIGN_HEIGHT_PX));
-	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 1.1, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialMove(vec2(TUTORIAL_WIDTH_PX * 0.08, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialDash(vec2(TUTORIAL_WIDTH_PX * 0.24, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialAttack(vec2(TUTORIAL_WIDTH_PX * 0.4, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialPlant(vec2(TUTORIAL_WIDTH_PX * 0.58, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialChangeSeed(vec2(TUTORIAL_WIDTH_PX * 0.75, TUTORIAL_SIGN_HEIGHT_PX));
+	createTutorialRestart(vec2(TUTORIAL_WIDTH_PX * 0.92, TUTORIAL_SIGN_HEIGHT_PX));
 
 	// create the arrows for the tutorial
-	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 4 - 15, TUTORIAL_ARROW_HEIGHT_PX));
-	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX / 2 - 15, TUTORIAL_ARROW_HEIGHT_PX));
-	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.75 - 15, TUTORIAL_ARROW_HEIGHT_PX));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.17 - 15, TUTORIAL_ARROW_HEIGHT_PX));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.34 - 15, TUTORIAL_ARROW_HEIGHT_PX));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.5 - 15, TUTORIAL_ARROW_HEIGHT_PX));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.67 - 15, TUTORIAL_ARROW_HEIGHT_PX));
+	createTutorialArrow(vec2(TUTORIAL_WIDTH_PX * 0.84 - 15, TUTORIAL_ARROW_HEIGHT_PX));
 	create_tutorial_enemies();
 	restart_overlay_renders(vec2{TUTORIAL_WIDTH_PX * 0.05, TUTORIAL_ARROW_HEIGHT_PX});
 }
@@ -532,14 +534,12 @@ void WorldSystem::restart_tutorial()
 void WorldSystem::create_tutorial_enemies()
 {
 	// Create a zombie under the "Attack" tutorial board
-	vec2 zombie_pos = vec2(TUTORIAL_WIDTH_PX * 0.4, TUTORIAL_ARROW_HEIGHT_PX);
+	vec2 zombie_pos = vec2(TUTORIAL_WIDTH_PX * 0.49, TUTORIAL_ARROW_HEIGHT_PX);
 	createOrc(renderer, zombie_pos);
 
 	// Create a skeleton under the "Plant" tutorial board
-	vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.65, TUTORIAL_ARROW_HEIGHT_PX);
+	vec2 skeleton_pos = vec2(TUTORIAL_WIDTH_PX * 0.633, TUTORIAL_ARROW_HEIGHT_PX);
 	createSkeletonArcher(renderer, skeleton_pos);
-
-	// std::cout << "Tutorial enemies created" << std::endl;
 }
 
 // Check if tutorial enemies need to be respawned
@@ -1085,8 +1085,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	int cell_x = static_cast<int>(motion.position.x) / GRID_CELL_WIDTH_PX;
 	int cell_y = static_cast<int>(motion.position.y) / GRID_CELL_HEIGHT_PX;
 
-	// Kung: Plant seed with the right click button (F button retained for debugging)
-	if ((action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_RIGHT) || (action == GLFW_PRESS && key == GLFW_KEY_F) || (key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT))
+	// Kung: Plant seed with the right click button
+	if ((action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_RIGHT) || (key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT))
 	{
 		plant_seed();
 	}
