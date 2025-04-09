@@ -433,6 +433,14 @@ void WorldSystem::restart_overlay_renders(vec2 player_pos)
 
 void WorldSystem::start_cg(RenderSystem *renderer)
 {
+	// If a player entity exists, set the moveWithCamera items to zero velocity.
+	if (registry.players.size() != 0) {
+		for (Entity mwc_entity : registry.moveWithCameras.entities) {
+			if (registry.motions.has(mwc_entity)) registry.motions.get(mwc_entity).velocity = vec2(0, 0);
+		}
+	}
+
+	// Now start the cutscene.
 	registry.cgs.clear();
 	game_screen = GAME_SCREEN_ID::CG;
 	int cg_idx = registry.screenStates.components[0].cg_index;
